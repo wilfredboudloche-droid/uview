@@ -14,128 +14,98 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: white;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            padding: 25px 35px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #4CAF50 0%, #2196F3 100%);
+            border-radius: 12px;
+            padding: 12px 20px;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
             max-width: 700px;
             width: 100%;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .left-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 250px;
         }
 
         h1 {
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 24px;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 15px;
-            font-size: 14px;
+            color: white;
+            margin: 0;
+            font-size: 16px;
+            white-space: nowrap;
         }
 
         .stars {
             display: flex;
             justify-content: center;
-            gap: 12px;
-            margin: 15px 0;
+            gap: 6px;
         }
 
         .star {
-            font-size: 42px;
-            color: #ddd;
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.4);
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
         }
 
         .star:hover {
-            transform: scale(1.15);
+            transform: scale(1.1);
         }
 
         .star.filled {
             color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
         }
 
-        .rating-label {
-            min-height: 25px;
-            color: #666;
-            font-size: 15px;
-            margin: 12px 0;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .rating-label.selected {
-            opacity: 1;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        .feedback-box {
-            margin-top: 12px;
-            text-align: left;
-            display: none; /* hidden by default */
-        }
-
-        .feedback-label {
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 4px;
-        }
-
-        .feedback-textarea {
-            width: 100%;
-            min-height: 60px;
-            max-height: 120px;
-            padding: 8px;
-            font-size: 13px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            resize: vertical;
-        }
-
-        .feedback-hint {
-            font-size: 11px;
-            color: #888;
-            margin-top: 2px;
+        .right-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: white;
+            color: #2196F3;
             border: none;
-            padding: 12px 35px;
-            font-size: 16px;
-            border-radius: 50px;
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
             opacity: 0;
-            transform: translateY(10px);
+            transform: scale(0.8);
             pointer-events: none;
-            margin-top: 12px;
+            white-space: nowrap;
         }
 
         .submit-btn.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: scale(1);
             pointer-events: all;
         }
 
         .submit-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.4);
         }
 
         .submit-btn:disabled {
@@ -143,65 +113,78 @@
             cursor: not-allowed;
         }
 
-        .thank-you {
-            margin-top: 15px;
-            padding: 15px;
-            background: #e8f5e9;
-            border-radius: 10px;
-            color: #2e7d32;
-            font-size: 16px;
-            opacity: 0;
-            transform: scale(0.8);
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 8px 16px;
+            font-size: 13px;
+            border-radius: 20px;
+            cursor: pointer;
             transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .action-btn:hover {
+            background: white;
+            color: #2196F3;
+        }
+
+        .thank-you {
+            color: white;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
             pointer-events: none;
+            white-space: nowrap;
         }
 
         .thank-you.show {
             opacity: 1;
-            transform: scale(1);
         }
 
         .status-message {
-            margin-top: 12px;
-            padding: 8px;
-            border-radius: 5px;
-            font-size: 13px;
-            min-height: 18px;
-        }
-
-        .status-message.success {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .status-message.error {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .action-buttons {
-            margin-top: 15px;
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .action-btn {
-            background: #f5f5f5;
-            color: #333;
-            border: 2px solid #ddd;
-            padding: 10px 24px;
-            font-size: 14px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .action-btn:hover {
-            background: #667eea;
+            font-size: 12px;
             color: white;
-            border-color: #667eea;
+            min-height: 16px;
+        }
+
+        /* Feedback box - appears below when rating < 4 */
+        .feedback-container {
+            display: none;
+            width: 100%;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .feedback-container.show {
+            display: block;
+        }
+
+        .feedback-label {
+            font-size: 12px;
+            color: white;
+            margin-bottom: 5px;
+            text-align: left;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            min-height: 50px;
+            padding: 6px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            resize: vertical;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .feedback-hint {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 3px;
+            text-align: left;
         }
 
         /* Modal Styles */
@@ -269,82 +252,64 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .container {
-                max-width: 500px;
-                padding: 20px 25px;
+                flex-direction: column;
+                padding: 15px;
             }
 
-            .star {
-                font-size: 36px;
+            .left-section {
+                flex-direction: column;
+                gap: 8px;
             }
 
             h1 {
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                max-width: 100%;
-                padding: 18px 20px;
+                font-size: 14px;
             }
 
             .star {
-                font-size: 32px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .action-btn {
-                width: 100%;
+                font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📚 Rate This Lesson</h1>
-        <p class="subtitle">How well did you understand today's material?</p>
-
-        <div class="stars" id="stars">
-            <span class="star" data-value="1">☆</span>
-            <span class="star" data-value="2">☆</span>
-            <span class="star" data-value="3">☆</span>
-            <span class="star" data-value="4">☆</span>
-            <span class="star" data-value="5">☆</span>
+        <div class="left-section">
+            <h1>📚 Rate This Lesson</h1>
+            <div class="stars" id="stars">
+                <span class="star" data-value="1">☆</span>
+                <span class="star" data-value="2">☆</span>
+                <span class="star" data-value="3">☆</span>
+                <span class="star" data-value="4">☆</span>
+                <span class="star" data-value="5">☆</span>
+            </div>
         </div>
 
-        <div class="rating-label" id="ratingLabel">Select a rating</div>
+        <div class="right-section">
+            <div class="thank-you" id="thankYou">
+                <i class="fas fa-check-circle"></i> Thank you!
+            </div>
+            <button class="submit-btn" id="submitBtn">Submit</button>
+            <button class="action-btn" id="viewResultsBtn">
+                <i class="fas fa-chart-bar"></i> Results
+            </button>
+        </div>
 
-        <!-- Feedback only for ratings under 4 -->
-        <div class="feedback-box" id="feedbackBox">
+        <!-- Feedback box appears below when rating < 4 -->
+        <div class="feedback-container" id="feedbackContainer">
             <div class="feedback-label">
-                Optional: If you chose 1–3 stars, tell your teacher what was confusing.
+                Optional: Tell your teacher what was confusing
             </div>
             <textarea 
                 id="feedbackText" 
                 class="feedback-textarea" 
-                placeholder="Example: I was confused about how X works, or I need another example of Y.">
+                placeholder="Example: I was confused about how X works...">
             </textarea>
             <div class="feedback-hint">
-                Only your teacher will see this. It won’t affect your grade.
+                Only your teacher will see this.
             </div>
         </div>
 
-        <button class="submit-btn" id="submitBtn">Submit Rating</button>
-
-        <div class="thank-you" id="thankYou">
-            <i class="fas fa-check-circle"></i> Thank you for your feedback!
-        </div>
-
         <div class="status-message" id="statusMessage"></div>
-
-        <div class="action-buttons">
-            <button class="action-btn" id="viewResultsBtn">
-                <i class="fas fa-chart-bar"></i> View Class Results
-            </button>
-        </div>
     </div>
 
     <!-- Modal for Stats -->
@@ -365,16 +330,8 @@
         const LESSON_ID = 'IT1010-1.1';
 
         let selectedRating = 0;
-        const ratingLabels = {
-            1: "1 Star - I'm confused and need help",
-            2: "2 Stars - I understand a little",
-            3: "3 Stars - I understand most of it",
-            4: "4 Stars - I understand it well",
-            5: "5 Stars - I could teach this to someone else!"
-        };
 
         const stars = document.querySelectorAll('.star');
-        const ratingLabel = document.getElementById('ratingLabel');
         const submitBtn = document.getElementById('submitBtn');
         const thankYou = document.getElementById('thankYou');
         const viewResultsBtn = document.getElementById('viewResultsBtn');
@@ -383,7 +340,7 @@
         const starsContainer = document.getElementById('stars');
         const statusMessage = document.getElementById('statusMessage');
         const statsContent = document.getElementById('statsContent');
-        const feedbackBox = document.getElementById('feedbackBox');
+        const feedbackContainer = document.getElementById('feedbackContainer');
         const feedbackText = document.getElementById('feedbackText');
 
         function getClientId() {
@@ -404,13 +361,11 @@
         function showStatus(msg, isError) {
             if (!statusMessage) return;
             statusMessage.textContent = msg;
-            statusMessage.className = 'status-message ' + (isError ? 'error' : 'success');
         }
 
         function clearStatus() {
             if (!statusMessage) return;
             statusMessage.textContent = '';
-            statusMessage.className = 'status-message';
         }
 
         function fillStars(count) {
@@ -426,11 +381,11 @@
         }
 
         function updateFeedbackVisibility() {
-            if (!feedbackBox) return;
+            if (!feedbackContainer) return;
             if (selectedRating > 0 && selectedRating < 4) {
-                feedbackBox.style.display = 'block';
+                feedbackContainer.classList.add('show');
             } else {
-                feedbackBox.style.display = 'none';
+                feedbackContainer.classList.remove('show');
                 if (feedbackText) {
                     feedbackText.value = '';
                 }
@@ -446,8 +401,6 @@
             star.addEventListener('click', function () {
                 selectedRating = parseInt(this.getAttribute('data-value'));
                 fillStars(selectedRating);
-                ratingLabel.textContent = ratingLabels[selectedRating];
-                ratingLabel.classList.add('selected');
                 submitBtn.classList.add('show');
                 clearStatus();
                 updateFeedbackVisibility();
@@ -462,12 +415,12 @@
             }
         });
 
-        // ============= SUBMIT RATING (GET with query params) =============
+        // ============= SUBMIT RATING =============
         submitBtn.addEventListener('click', function () {
             if (!selectedRating) return;
 
             submitBtn.disabled = true;
-            showStatus('Submitting rating...', false);
+            showStatus('Submitting...');
 
             const feedback = (selectedRating < 4 && feedbackText)
                 ? feedbackText.value.trim()
@@ -490,26 +443,25 @@
                 .then(data => {
                     if (!data.success) {
                         console.error('Submit error:', data.error);
-                        showStatus('Error: ' + (data.error || 'Could not save rating'), true);
+                        showStatus('Error: ' + (data.error || 'Could not save rating'));
                         return;
                     }
                     thankYou.classList.add('show');
                     submitBtn.classList.remove('show');
-                    showStatus('Your rating has been recorded.', false);
-                    // Optionally clear feedback after submit
+                    clearStatus();
                     if (feedbackText) feedbackText.value = '';
-                    feedbackBox.style.display = 'none';
+                    feedbackContainer.classList.remove('show');
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
-                    showStatus('Network error while submitting rating.', true);
+                    showStatus('Network error');
                 })
                 .finally(() => {
                     submitBtn.disabled = false;
                 });
         });
 
-        // ============= VIEW RESULTS (GET) =============
+        // ============= VIEW RESULTS =============
         viewResultsBtn.addEventListener('click', function () {
             modal.classList.add('show');
             loadStats();
@@ -566,7 +518,7 @@
 
             statsContent.innerHTML = `
                 <div style="text-align: center; margin-bottom: 25px;">
-                    <div style="font-size: 48px; color: #667eea; font-weight: bold; margin-bottom: 5px;">
+                    <div style="font-size: 48px; color: #2196F3; font-weight: bold; margin-bottom: 5px;">
                         ${average}
                     </div>
                     <div style="color: #999; font-size: 14px;">Average Rating</div>
