@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UView Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .tool-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .tool-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .tool-description {
+            font-size: 14px;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            opacity: 0.8;
+            font-size: 14px;
+            margin-top: 60px;
+        }
+
+        .quick-stats {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 UView Dashboard</h1>
+            <div class="subtitle">Student Feedback & Analytics Platform</div>
+        </div>
+
+        <div class="quick-stats" id="quickStats" style="display: none;">
+            <h3 style="margin-bottom: 15px; font-size: 20px;">📊 Quick Stats</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalLessons">–</div>
+                    <div class="stat-label">Lessons Tracked</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalRatings">–</div>
+                    <div class="stat-label">Total Ratings</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgRating">–</div>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tools-grid">
+            <a href="https://wilfredboudloche-droid.github.io/uview/generator.html" class="tool-card">
+                <div class="tool-icon">🔧</div>
+                <div class="tool-title">Widget Generator</div>
+                <div class="tool-description">Create new rating widgets for your lessons with custom lesson IDs</div>
+            </a>
+
+            <a href="https://wilfredboudloche-droid.github.io/uview/analytics.html" class="tool-card">
+                <div class="tool-icon">📊</div>
+                <div class="tool-title">Analytics Dashboard</div>
+                <div class="tool-description">View comprehensive analytics, ratings distribution, and student feedback</div>
+            </a>
+
+            <a href="https://wilfredboudloche-droid.github.io/uview/widget-viewer.html" class="tool-card">
+                <div class="tool-icon">🎯</div>
+                <div class="tool-title">Widget Viewer</div>
+                <div class="tool-description">Preview and test rating widgets for any lesson with live stats</div>
+            </a>
+        </div>
+
+        <div class="footer">
+            <p>UView • Student Feedback Platform • Built for UVA Virtual School</p>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyaH6oZSnJIVfRO0nfAGiE3hEsPJ6HL1ULXs8ujDquALSaQZ9d43u0e8U8256dmMPt_/exec';
+
+        // Load quick stats
+        function loadQuickStats() {
+            fetch(WEB_APP_URL + '?action=getAllData', {
+                method: 'GET',
+                redirect: 'follow'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.ratings && data.ratings.length > 0) {
+                        const ratings = data.ratings;
+                        const uniqueLessons = [...new Set(ratings.map(r => r.lessonId))].length;
+                        const totalRatings = ratings.length;
+                        const avgRating = (ratings.reduce((sum, r) => sum + r.rating, 0) / totalRatings).toFixed(1);
+
+                        document.getElementById('totalLessons').textContent = uniqueLessons;
+                        document.getElementById('totalRatings').textContent = totalRatings;
+                        document.getElementById('avgRating').textContent = avgRating + '★';
+                        document.getElementById('quickStats').style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.log('Could not load quick stats:', err);
+                    // Silently fail - stats are optional
+                });
+        }
+
+        // Load stats on page load
+        loadQuickStats();
+    </script>
+</body>
+</html>
