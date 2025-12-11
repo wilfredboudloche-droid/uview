@@ -2,997 +2,124 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Branching Scenario – First Day on the Help Desk</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #1f2933;
-      min-height: 100vh;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .app {
-      background: #f9fafb;
-      max-width: 900px;
-      width: 100%;
-      border-radius: 18px;
-      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .header {
-      background: radial-gradient(circle at top left, #facc15, #f97316, #ec4899);
-      padding: 20px 24px;
-      color: white;
-      position: relative;
-    }
-
-    .header::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 60%);
-      pointer-events: none;
-    }
-
-    .header-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      position: relative;
-      z-index: 1;
-    }
-
-    .title-block { display: flex; flex-direction: column; gap: 4px; }
-
-    .title {
-      font-size: 1.4rem;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    .subtitle { font-size: 0.9rem; opacity: 0.9; }
-
-    .badge {
-      background: rgba(15, 23, 42, 0.15);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 0.75rem;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      backdrop-filter: blur(6px);
-    }
-
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
-    }
-
-    .progress-bar-wrapper { position: relative; z-index: 1; margin-top: 16px; }
-
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      opacity: 0.9;
-      margin-bottom: 6px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      background: rgba(15, 23, 42, 0.25);
-      height: 7px;
-      border-radius: 999px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #22c55e, #a3e635);
-      box-shadow: 0 0 12px rgba(190, 242, 100, 0.7);
-      transition: width 0.35s ease;
-    }
-
-    .main {
-      padding: 20px 20px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
-
-    .ticket-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      font-size: 0.78rem;
-      color: #6b7280;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      color: #374151;
-    }
-
-    .pill span.icon { font-size: 0.9rem; }
-
-    .screen {
-      display: none;
-      animation: fadeIn 0.25s ease-out;
-    }
-
-    .screen.active { display: block; }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 18px 16px 16px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .screen-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #111827;
-    }
-
-    .screen-title .ticket-tag {
-      font-size: 0.8rem;
-      color: #6b7280;
-      font-weight: 500;
-    }
-
-    .scenario-text {
-      font-size: 0.9rem;
-      margin-bottom: 14px;
-      color: #374151;
-      line-height: 1.5;
-    }
-
-    .callout {
-      background: #eff6ff;
-      border-left: 3px solid #3b82f6;
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 0.84rem;
-      color: #1d4ed8;
-      margin-bottom: 12px;
-    }
-
-    .scenario-image {
-      width: 100%;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      display: block;
-      object-fit: cover;
-      max-height: 260px;
-    }
-
-    .choices-label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #4b5563;
-      margin-bottom: 6px;
-    }
-
-    .choices { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
-
-    .choice-btn {
-      width: 100%;
-      border-radius: 999px;
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      text-align: left;
-      border: 1px solid #e5e7eb;
-      background: #f9fafb;
-      color: #111827;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      transition: background 0.2s ease, border-color 0.2s ease, transform 0.08s ease;
-    }
-
-    .choice-key {
-      font-weight: 700;
-      font-size: 0.85rem;
-      color: #6b7280;
-      min-width: 22px;
-      text-align: center;
-    }
-
-    .choice-text { flex: 1; }
-
-    .choice-btn:hover {
-      background: #eef2ff;
-      border-color: #6366f1;
-      transform: translateY(-1px);
-    }
-
-    .choice-btn:active {
-      transform: translateY(0);
-      background: #e0e7ff;
-    }
-
-    .outcome-card {
-      border-radius: 14px;
-      padding: 16px 14px 12px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      background: white;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .outcome-image {
-      width: 100%;
-      border-radius: 12px;
-      margin-bottom: 10px;
-      display: block;
-      object-fit: cover;
-      max-height: 260px;
-    }
-
-    .outcome-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-
-    .outcome-pill {
-      padding: 3px 9px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .outcome-pill.good {
-      background: #ecfdf3;
-      color: #166534;
-      border: 1px solid #bbf7d0;
-    }
-
-    .outcome-pill.okay {
-      background: #fffbeb;
-      color: #92400e;
-      border: 1px solid #fed7aa;
-    }
-
-    .outcome-pill.poor {
-      background: #fef2f2;
-      color: #b91c1c;
-      border: 1px solid #fecaca;
-    }
-
-    .outcome-main {
-      font-size: 0.9rem;
-      color: #374151;
-      line-height: 1.5;
-    }
-
-    .outcome-keypoint {
-      font-size: 0.85rem;
-      color: #4b5563;
-    }
-
-    .outcome-keypoint strong { color: #111827; }
-
-    .outcome-keypoint + .outcome-keypoint { margin-top: 2px; }
-
-    .outcome-footer {
-      font-size: 0.8rem;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-
-    .nav-row {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 14px;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .nav-btn {
-      border-radius: 999px;
-      padding: 8px 14px;
-      font-size: 0.85rem;
-      border: none;
-      background: #4f46e5;
-      color: white;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.4);
-      transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
-    }
-
-    .nav-btn.secondary {
-      background: #e5e7eb;
-      color: #111827;
-      box-shadow: none;
-    }
-
-    .nav-btn:hover {
-      background: #4338ca;
-      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.5);
-      transform: translateY(-1px);
-    }
-
-    .nav-btn.secondary:hover {
-      background: #d1d5db;
-      transform: translateY(-1px);
-    }
-
-    .nav-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.4);
-    }
-
-    .reflection-card {
-      background: white;
-      border-radius: 14px;
-      padding: 18px 16px 16px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .reflection-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #111827;
-    }
-
-    .reflection-text {
-      font-size: 0.88rem;
-      color: #4b5563;
-      margin-bottom: 10px;
-    }
-
-    .reflection-list {
-      font-size: 0.86rem;
-      color: #374151;
-      padding-left: 18px;
-      margin-bottom: 10px;
-    }
-
-    .reflection-list li { margin-bottom: 4px; }
-
-    textarea {
-      width: 100%;
-      min-height: 110px;
-      border-radius: 10px;
-      border: 1px solid #d1d5db;
-      padding: 8px 10px;
-      font-size: 0.9rem;
-      resize: vertical;
-      font-family: inherit;
-      line-height: 1.4;
-    }
-
-    textarea:focus {
-      outline: none;
-      border-color: #6366f1;
-      box-shadow: 0 0 0 1px #6366f1;
-    }
-
-    .small-note {
-      font-size: 0.8rem;
-      color: #6b7280;
-      margin-top: 6px;
-    }
-
-    .footer {
-      padding: 8px 16px 12px;
-      font-size: 0.75rem;
-      color: #9ca3af;
-      border-top: 1px solid rgba(229, 231, 235, 0.8);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      background: rgba(249, 250, 251, 0.95);
-    }
-
-    .footer span { display: inline-flex; align-items: center; gap: 4px; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @media (max-width: 640px) {
-      body { padding: 10px; }
-      .header { padding: 16px 14px; }
-      .main { padding: 14px 12px 16px; }
-      .header-top { flex-direction: column; align-items: flex-start; }
-      .title { font-size: 1.2rem; }
-    }
-  </style>
+  <title>Interactive Scenario – A Day in the Life of an IT Support Specialist</title>
 </head>
 <body>
-  <div class="app">
-    <header class="header">
-      <div class="header-top">
-        <div class="title-block">
-          <div class="title">First Day on the Help Desk</div>
-          <div class="subtitle">Interactive Branching Scenario – IT Support Specialist</div>
-        </div>
-        <div class="badge">
-          <span class="badge-dot"></span>
-          <span>Live Scenario</span>
-        </div>
-      </div>
-      <div class="progress-bar-wrapper">
-        <div class="progress-label">
-          <span>Progress</span>
-          <span id="progressText">0%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill"></div>
-        </div>
-      </div>
-    </header>
 
-    <main class="main">
-      <div class="ticket-meta" id="ticketMeta"></div>
+<!-- Scenario Interactive: A Day in the Life of an IT Support Specialist -->
+<div style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); padding: 20px; margin: 20px 0;">
 
-      <!-- Intro -->
-      <section class="screen active" data-screen="intro">
-        <div class="card">
-          <img src="hero-helpdesk.png" alt="IT help desk technician at workstation" class="scenario-image">
-          <h2 class="screen-title">👋 Welcome to TechCare Solutions</h2>
-          <p class="scenario-text">
-            You're a brand new <strong>Help Desk Technician</strong>, and today is your first day taking support tickets on your own.
-            Your job is to help staff solve technical problems calmly and efficiently.
-          </p>
-          <div class="callout">
-            <strong>Your goal:</strong> Make decisions like a real IT support specialist. Pay attention to
-            how you gather information, troubleshoot, and decide when to escalate.
-          </div>
-          <p class="scenario-text" style="margin-top: 6px;">
-            Remember, strong IT support specialists:
-          </p>
-          <ul class="reflection-list" style="margin-bottom: 6px;">
-            <li>Ask clarifying questions before acting</li>
-            <li>Use basic troubleshooting steps first</li>
-            <li>Stay patient and professional under pressure</li>
-            <li>Know when to escalate to a network or systems administrator</li>
-          </ul>
-          <p class="scenario-text">
-            You will handle <strong>three tickets</strong> and then complete a short reflection.
-          </p>
-          <div class="nav-row">
-            <button class="nav-btn" id="startBtn">Start Your Shift →</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Ticket #1047 -->
-      <section class="screen" data-screen="ticket1">
-        <div class="card">
-          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="scenario-image">
-          <h2 class="screen-title">
-            Ticket #1047 <span class="ticket-tag">"I can't print!"</span>
-          </h2>
-          <p class="scenario-text">
-            <strong>Caller:</strong> Ms. Rodriguez, 3rd grade teacher<br>
-            <strong>Issue:</strong> "My printer isn't working! I need to print worksheets for my class in 10 minutes.
-            Can you just come fix it right now?"
-          </p>
-          <p class="scenario-text">
-            You can hear the stress in her voice. What do you do <em>first</em>?
-          </p>
-          <div class="choices-label">Choose your response:</div>
-          <div class="choices">
-            <button class="choice-btn" data-next="ticket1A">
-              <span class="choice-key">A</span>
-              <span class="choice-text">"I'll be right there to fix it."</span>
-            </button>
-            <button class="choice-btn" data-next="ticket1B">
-              <span class="choice-key">B</span>
-              <span class="choice-text">"Let me ask a few questions first. What happens when you try to print?"</span>
-            </button>
-            <button class="choice-btn" data-next="ticket1C">
-              <span class="choice-key">C</span>
-              <span class="choice-text">"Have you tried turning the printer off and on again?"</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Ticket #1047 outcomes (text only, share same visual context) -->
-      <section class="screen" data-screen="ticket1A">
-        <div class="outcome-card">
-          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
-            <span>Uh oh... you rushed in without information.</span>
-          </div>
-          <p class="outcome-main">
-            You grabbed your toolkit and rushed to Ms. Rodriguez's classroom. When you arrive, you discover:
-          </p>
-          <ul class="reflection-list" style="margin-bottom:4px;">
-            <li>The printer is working correctly.</li>
-            <li>The real problem is that she's printing from a document that isn't saved correctly.</li>
-            <li>You spent 15 minutes in the room before realizing this.</li>
-          </ul>
-          <p class="outcome-keypoint">
-            <strong>What went wrong?</strong> You skipped the most important first step: gathering information.
-            Good IT support specialists ask clarifying questions <em>before</em> they rush to a location or solution.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Troubleshooting starts by understanding the problem, not guessing.
-          </p>
-          <p class="outcome-footer">
-            It's okay—this is why you're practicing in a safe scenario.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="ticket1B">
-        <div class="outcome-card">
-          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
-            <span>You're thinking like an IT pro.</span>
-          </div>
-          <p class="outcome-main">
-            <strong>You:</strong> "Let me ask a few questions first. What happens when you try to print?"<br>
-            <strong>Ms. Rodriguez:</strong> "Well, I click print, but nothing comes out. Wait... I see an error
-            message that says 'Document not found.'"
-          </p>
-          <p class="outcome-main">
-            You realize she's trying to print from a cloud document that hasn't been downloaded properly.
-            You walk her through downloading it or printing directly from the correct location, and she
-            prints her worksheets in just a few minutes—without you leaving your desk.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Why this worked:</strong> You used active listening and clarifying questions to find the root
-            cause instead of guessing.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Gather clear information and troubleshoot systematically.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="ticket1C">
-        <div class="outcome-card">
-          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
-            <span>Not terrible, but you skipped a step.</span>
-          </div>
-          <p class="outcome-main">
-            You asked her to power-cycle the printer before fully understanding the problem. After some back-and-forth,
-            you eventually ask what she sees on screen and discover the same "Document not found" error.
-            You then guide her to open and print the correct file.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>What could be better?</strong> "Turn it off and on" is a valid troubleshooting step, but it
-            shouldn't be your very first move before you know what's actually happening.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Ask open-ended questions before suggesting fixes.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
-        </div>
-      </section>
-
-      <!-- Ticket #1053 -->
-      <section class="screen" data-screen="ticket2">
-        <div class="card">
-          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="scenario-image">
-          <h2 class="screen-title">
-            Ticket #1053 <span class="ticket-tag">"My computer is really slow."</span>
-          </h2>
-          <p class="scenario-text">
-            <strong>Caller:</strong> Mr. Kim, office manager<br>
-            <strong>Issue:</strong> "My computer has been super slow for the past two days.
-            It takes forever to open programs. I think I might have a virus."
-          </p>
-          <p class="scenario-text">
-            You remotely check his computer and see:
-          </p>
-          <ul class="reflection-list" style="margin-bottom:6px;">
-            <li>47 browser tabs open</li>
-            <li>12 programs running in the background</li>
-            <li>Only 2 GB of RAM available out of 8 GB</li>
-          </ul>
-          <p class="scenario-text">
-            What do you do?
-          </p>
-          <div class="choices-label">Choose your response:</div>
-          <div class="choices">
-            <button class="choice-btn" data-next="ticket2A">
-              <span class="choice-key">A</span>
-              <span class="choice-text">"Let's close some tabs and background programs first to free up memory."</span>
-            </button>
-            <button class="choice-btn" data-next="ticket2B">
-              <span class="choice-key">B</span>
-              <span class="choice-text">"I'll run a full virus scan right now. It may take a couple of hours."</span>
-            </button>
-            <button class="choice-btn" data-next="ticket2C">
-              <span class="choice-key">C</span>
-              <span class="choice-text">"You probably need a new computer. I'll submit a request to order one."</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Ticket #1053 outcomes -->
-      <section class="screen" data-screen="ticket2A">
-        <div class="outcome-card">
-          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
-            <span>You identified the real issue.</span>
-          </div>
-          <p class="outcome-main">
-            You guide Mr. Kim to close unnecessary browser tabs and background apps, then restart his computer.
-            After the restart, his system runs much faster.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Why this worked:</strong> You used your technical knowledge to diagnose that
-            low available memory was the likely cause, and you started with a simple, effective fix.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Apply basic troubleshooting steps before assuming
-            serious problems like malware or hardware failure.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="ticket2B">
-        <div class="outcome-card">
-          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
-            <span>You jumped to the wrong conclusion.</span>
-          </div>
-          <p class="outcome-main">
-            You start a full virus scan that locks up his computer for nearly two hours.
-            When the scan finally finishes, it shows no infections—but Mr. Kim lost a significant amount of work time.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>What went wrong?</strong> You assumed it was a virus without checking simpler, more
-            likely causes like too many running programs.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Follow a logical troubleshooting order—start with quick,
-            basic checks before moving to advanced or time-consuming solutions.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="ticket2C">
-        <div class="outcome-card">
-          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
-            <span>You went too big, too fast.</span>
-          </div>
-          <p class="outcome-main">
-            You suggest ordering a new computer right away. Mr. Kim seems surprised and asks if there’s anything
-            else you can try first. You then notice his 47 tabs and background programs and fix the issue that way.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>What could be better?</strong> Recommending new hardware is expensive and should be
-            a last resort. Software and settings problems are more common and often easy to fix.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Try reasonable, low-cost solutions first before replacing equipment.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
-        </div>
-      </section>
-
-      <!-- Ticket #1061 -->
-      <section class="screen" data-screen="ticket3">
-        <div class="card">
-          <img src="ticket-network.png" alt="School network room with router alert" class="scenario-image">
-          <h2 class="screen-title">
-            Ticket #1061 <span class="ticket-tag">"The whole building lost internet."</span>
-          </h2>
-          <p class="scenario-text">
-            <strong>Caller:</strong> Principal Davis<br>
-            <strong>Issue:</strong> "None of the computers in the building can connect to the internet.
-            We have state testing today—this is urgent!"
-          </p>
-          <p class="scenario-text">
-            You quickly check the network dashboard and see that the main router appears to be offline.
-            You’ve never worked on that router before, and you don’t have admin-level access.
-          </p>
-          <p class="scenario-text">
-            What do you do?
-          </p>
-          <div class="choices-label">Choose your response:</div>
-          <div class="choices">
-            <button class="choice-btn" data-next="ticket3A">
-              <span class="choice-key">A</span>
-              <span class="choice-text">"I'll try to fix the router myself. I can probably figure it out."</span>
-            </button>
-            <button class="choice-btn" data-next="ticket3B">
-              <span class="choice-key">B</span>
-              <span class="choice-text">"I'll reboot everyone's computers. That might help."</span>
-            </button>
-            <button class="choice-btn" data-next="ticket3C">
-              <span class="choice-key">C</span>
-              <span class="choice-text">"This is a network-level problem. I need to escalate to the network admin right away."</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Ticket #1061 outcomes -->
-      <section class="screen" data-screen="ticket3A">
-        <div class="outcome-card">
-          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
-            <span>You took initiative, but...</span>
-          </div>
-          <p class="outcome-main">
-            You head to the server room and experiment with the router, even though you don't have full access or experience.
-            After 20 minutes, things still aren’t working. Only then do you call the network administrator,
-            who identifies and fixes the issue in minutes.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>What could be better?</strong> Initiative is good, but so is recognizing when a problem is outside
-            your role or permissions.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Know your scope of work and when to escalate to specialized roles.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="ticket3B">
-        <div class="outcome-card">
-          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
-            <span>You focused on the wrong level of the problem.</span>
-          </div>
-          <p class="outcome-main">
-            You spend 30 minutes rebooting individual computers, but nothing changes—because the real problem
-            is the main router, not the devices.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>What went wrong?</strong> You treated a building-wide network failure like a simple device issue.
-            No amount of restarting individual computers will fix an offline router.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Recognize the difference between device-level issues
-            (like one person's computer) and network-level issues (like the whole building).
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
-        </div>
-      </section>
-
-      <section class="screen" data-screen="ticket3C">
-        <div class="outcome-card">
-          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
-          <div class="outcome-header">
-            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
-            <span>You escalated to the right person immediately.</span>
-          </div>
-          <p class="outcome-main">
-            You recognize this as a building-wide, network-level problem and quickly contact the network administrator,
-            sharing what you see about the router being offline. The network admin fixes the configuration issue
-            and restores internet access in minutes.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Why this worked:</strong> You understood that this problem was outside your role and permissions.
-            Escalating quickly helped minimize downtime for the entire building.
-          </p>
-          <p class="outcome-keypoint">
-            <strong>Key Responsibility:</strong> Communicate clearly and escalate network-level issues
-            to the right specialist.
-          </p>
-        </div>
-        <div class="nav-row">
-          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
-        </div>
-      </section>
-
-      <!-- Summary -->
-      <section class="screen" data-screen="summary">
-        <div class="card" style="margin-bottom:12px;">
-          <img src="scenario-complete.png" alt="Completion badge for IT support training" class="scenario-image">
-          <h2 class="screen-title">✅ Shift Complete: What Did You Learn?</h2>
-          <p class="scenario-text">
-            You handled three different support tickets that showed key responsibilities of an IT support specialist:
-          </p>
-          <ul class="reflection-list" style="margin-bottom:6px;">
-            <li>Asking clarifying questions instead of guessing</li>
-            <li>Starting with simple troubleshooting steps (like closing programs or restarting)</li>
-            <li>Using technical knowledge to identify likely causes</li>
-            <li>Knowing when to escalate network-level problems to specialists</li>
-            <li>Staying calm and professional when others are stressed</li>
-          </ul>
-          <p class="scenario-text">
-            Now, take a moment to reflect on your decisions.
-          </p>
-        </div>
-
-        <div class="reflection-card">
-          <h3>Reflection (for Canvas Submission)</h3>
-          <p class="reflection-text">
-            In 3–5 sentences, respond to the questions below. You can type your draft here, then copy it
-            into your Canvas assignment submission box.
-          </p>
-          <ol class="reflection-list" style="margin-bottom:8px;">
-            <li>Which decision point (Ticket #1047, #1053, or #1061) was hardest for you? Why?</li>
-            <li>What is ONE key responsibility of an IT support specialist that this scenario helped you understand better?</li>
-            <li>How would you describe the role of an IT support specialist to someone who has never heard of it before?</li>
-          </ol>
-          <p class="reflection-text" style="margin-bottom:4px;">
-            Try to use at least <strong>two vocabulary terms</strong> from this lesson in your answer
-            (for example: <em>help desk technician, troubleshooting, network administrator</em>).
-          </p>
-          <textarea id="reflectionText" placeholder="Type your reflection draft here..."></textarea>
-          <p class="small-note">
-            This text area does not auto-submit anywhere. Be sure to select all and copy your response
-            into the Canvas assignment to receive credit.
-          </p>
-        </div>
-      </section>
-    </main>
-
-    <footer class="footer">
-      <span><span>💻</span><span>Scenario: Role of an IT Support Specialist</span></span>
-      <span id="footerHint">Make thoughtful choices to see how your decisions affect each ticket.</span>
-    </footer>
+  <!-- Header with Objective + Time -->
+  <div style="background: #f0f4f8; padding: 15px; border-left: 4px solid #0066cc; margin-bottom: 15px;">
+    <p style="margin: 5px 0;"><strong>🎯 Objective:</strong> Explore a realistic scenario to see what an IT support specialist actually does during a typical workday.</p>
+    <p style="margin: 5px 0;"><strong>⏱️ Approx. Time:</strong> 10–15 minutes</p>
   </div>
 
-  <script>
-    const SCREENS = ["intro","ticket1","ticket2","ticket3","summary"];
-    let currentStep = 0;
-    const totalSteps = SCREENS.length - 1;
-    const progressFill = document.getElementById("progressFill");
-    const progressText = document.getElementById("progressText");
-    const ticketMetaEl = document.getElementById("ticketMeta");
-    const footerHint = document.getElementById("footerHint");
+  <!-- Scenario Title -->
+  <h3 style="margin-top: 0; color: #003366;">Interactive Scenario: A Day in the Life</h3>
+  <p>
+    Read the short scenario below. Then, choose one of the focus paths that interests you most and follow the prompts.
+  </p>
 
-    function setProgress(stepIndex) {
-      currentStep = stepIndex;
-      const percent = Math.round((stepIndex / totalSteps) * 100);
-      progressFill.style.width = percent + "%";
-      progressText.textContent = percent + "%";
-      if (stepIndex === 0) {
-        footerHint.textContent = "Make thoughtful choices to see how your decisions affect each ticket.";
-      } else if (stepIndex === 4) {
-        footerHint.textContent = "Use your experience from the scenario to write a strong reflection.";
-      } else {
-        footerHint.textContent = "Notice what each outcome teaches you about an IT support specialist's responsibilities.";
-      }
-    }
+  <!-- Scenario Description -->
+  <div style="background-color: #f9fafb; border-radius: 6px; border: 1px solid #d0d7de; padding: 15px; margin-bottom: 15px;">
+    <p style="margin: 0 0 10px 0;">
+      You’ve just been hired as an <strong>entry-level IT support specialist</strong> at a mid-sized company.
+      It’s 8:00 AM, and your ticketing system already shows several new requests:
+    </p>
+    <ul style="margin-top: 0; padding-left: 20px;">
+      <li><strong>Ticket 1:</strong> A teacher can’t connect her laptop to the classroom projector.</li>
+      <li><strong>Ticket 2:</strong> A student reports they can’t log into their school email.</li>
+      <li><strong>Ticket 3:</strong> A staff member’s desktop keeps randomly restarting.</li>
+      <li><strong>Ticket 4:</strong> A new employee needs their account and computer set up.</li>
+    </ul>
+    <p style="margin-bottom: 0;">
+      As the IT support specialist, it’s your job to decide <strong>what to tackle first</strong> and how to communicate with each person.
+    </p>
+  </div>
 
-    function showScreen(screenName) {
-      document.querySelectorAll(".screen").forEach(s => {
-        s.classList.toggle("active", s.dataset.screen === screenName);
-      });
-      const idx = SCREENS.indexOf(screenName);
-      if (idx !== -1) setProgress(idx);
+  <!-- Choose a Focus Path -->
+  <h4 style="color: #003366; margin-bottom: 8px;">Choose Your Focus Path</h4>
+  <p style="margin-top: 0;">
+    Pick <strong>one</strong> of the tickets below. Expand it to see guiding questions and respond in your notes or on paper.
+  </p>
 
-      let metaHtml = "";
-      switch (screenName) {
-        case "intro":
-          metaHtml = `
-            <span class="pill"><span class="icon">🎯</span><span>Objective: Understand the role of an IT Support Specialist</span></span>
-            <span class="pill"><span class="icon">⏱</span><span>Approx. 8–12 minutes</span></span>
-          `;
-          break;
-        case "ticket1":
-        case "ticket1A":
-        case "ticket1B":
-        case "ticket1C":
-          metaHtml = `
-            <span class="pill"><span class="icon">🎟</span><span>Ticket #1047 – Print Issue</span></span>
-            <span class="pill"><span class="icon">👂</span><span>Skill: Asking clarifying questions</span></span>
-          `;
-          break;
-        case "ticket2":
-        case "ticket2A":
-        case "ticket2B":
-        case "ticket2C":
-          metaHtml = `
-            <span class="pill"><span class="icon">🎟</span><span>Ticket #1053 – Slow Computer</span></span>
-            <span class="pill"><span class="icon">🛠</span><span>Skill: Basic troubleshooting steps</span></span>
-          `;
-          break;
-        case "ticket3":
-        case "ticket3A":
-        case "ticket3B":
-        case "ticket3C":
-          metaHtml = `
-            <span class="pill"><span class="icon">🎟</span><span>Ticket #1061 – Network Outage</span></span>
-            <span class="pill"><span class="icon">📡</span><span>Skill: Knowing when to escalate</span></span>
-          `;
-          break;
-        case "summary":
-          metaHtml = `
-            <span class="pill"><span class="icon">✅</span><span>Shift Complete</span></span>
-            <span class="pill"><span class="icon">✍️</span><span>Next Step: Canvas Reflection</span></span>
-          `;
-          break;
-      }
-      ticketMetaEl.innerHTML = metaHtml;
-    }
+  <!-- Path Panels (Accordion-style, simple for Canvas) -->
 
-    document.getElementById("startBtn").addEventListener("click", () => showScreen("ticket1"));
-    document.querySelectorAll(".choice-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const next = btn.getAttribute("data-next");
-        if (next) showScreen(next);
-      });
-    });
-    document.querySelectorAll(".nav-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const next = btn.getAttribute("data-next");
-        if (next) showScreen(next);
-      });
-    });
+  <!-- Path 1 -->
+  <details style="margin-bottom: 8px;">
+    <summary style="cursor: pointer; font-weight: 600; color: #00509e;">
+      📽️ Path 1 – Projector Connection Issue
+    </summary>
+    <div style="padding: 10px 0 0 10px;">
+      <p><strong>Situation:</strong> A teacher’s laptop won’t display on the classroom projector right before class.</p>
+      <p><strong>Think about and jot down:</strong></p>
+      <ul>
+        <li>What are 2–3 steps you might try first to troubleshoot this problem?</li>
+        <li>How would you explain what you’re doing in <em>simple, non-technical</em> language?</li>
+        <li>What might you say to keep the teacher calm and supported?</li>
+      </ul>
+    </div>
+  </details>
 
-    showScreen("intro");
-  </script>
+  <!-- Path 2 -->
+  <details style="margin-bottom: 8px;">
+    <summary style="cursor: pointer; font-weight: 600; color: #00509e;">
+      ✉️ Path 2 – Login / Password Issue
+    </summary>
+    <div style="padding: 10px 0 0 10px;">
+      <p><strong>Situation:</strong> A student can’t log into their email and thinks the system is “broken.”</p>
+      <p><strong>Think about and jot down:</strong></p>
+      <ul>
+        <li>What are 2–3 things you would check first?</li>
+        <li>How would you ask questions to gather more information without making them feel blamed?</li>
+        <li>How would you explain the next steps if you can’t fix it immediately?</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Path 3 -->
+  <details style="margin-bottom: 8px%;">
+    <summary style="cursor: pointer; font-weight: 600; color: #00509e;">
+      🖥️ Path 3 – Desktop Randomly Restarting
+    </summary>
+    <div style="padding: 10px 0 0 10px;">
+      <p><strong>Situation:</strong> A staff member’s desktop keeps restarting while they are working on reports.</p>
+      <p><strong>Think about and jot down:</strong></p>
+      <ul>
+        <li>What questions would you ask to get more details about when the problem happens?</li>
+        <li>What are 2–3 possible causes you might consider (hardware or software)?</li>
+        <li>How would you decide whether this is <em>urgent</em> compared to the other tickets?</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Path 4 -->
+  <details style="margin-bottom: 8px;">
+    <summary style="cursor: pointer; font-weight: 600; color: #00509e;">
+      🧑‍💻 Path 4 – New Employee Setup
+    </summary>
+    <div style="padding: 10px 0 0 10px;">
+      <p><strong>Situation:</strong> A new employee starts today and needs their account, email, and computer set up.</p>
+      <p><strong>Think about and jot down:</strong></p>
+      <ul>
+        <li>What are 3–4 things you need to set up for this new employee?</li>
+        <li>Why is it important to follow a checklist or process for this type of task?</li>
+        <li>How would you explain to the new employee what you’re doing and how long it will take?</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- Quick Reflection -->
+  <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #e1e4e8;">
+    <p style="margin-bottom: 5px;"><strong>Quick Reflection (1–2 sentences):</strong></p>
+    <p style="margin-top: 0;">
+      After exploring one path, answer: <em>“What did this scenario show you about what an IT support specialist actually does?”</em>
+      You can use this later in your final assignment paragraph.
+    </p>
+  </div>
+
+</div>
+
 </body>
 </html>
