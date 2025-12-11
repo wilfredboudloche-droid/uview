@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Rating Widget</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: transparent;
+            padding: 20px;
+        }
+        
+        .rating-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .rating-question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .stars {
+            font-size: 60px;
+            margin-bottom: 20px;
+            user-select: none;
+            line-height: 1;
+        }
+        
+        .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+            margin: 0 5px;
+        }
+        
+        .star:hover {
+            transform: scale(1.1);
+        }
+        
+        .star.filled {
+            color: #fdb813;
+        }
+        
+        .rating-label {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+            min-height: 30px;
+            font-weight: normal;
+        }
+        
+        .rating-label.selected {
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .submit-btn {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+            display: none;
+        }
+        
+        .submit-btn:hover {
+            background: #357abd;
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .submit-btn.show {
+            display: inline-block;
+        }
+        
+        .thank-you {
+            display: none;
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        
+        .thank-you.show {
+            display: block;
+        }
+        
+        .view-results-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .view-results-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .view-results-btn:hover {
+            background: #8e44ad;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .modal-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 22px;
+        }
+        
+        .modal-title i {
+            color: #4a90e2;
+            margin-right: 8px;
+        }
+        
+        .results-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .results-label {
+            width: 80px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .results-bar-bg {
+            flex: 1;
+            background: #e0e0e0;
+            height: 24px;
+            border-radius: 12px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+        
+        .results-bar-fill {
+            background: linear-gradient(90deg, #fdb813, #f39c12);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+        
+        .results-percent {
+            width: 45px;
+            text-align: right;
+            font-size: 14px;
+        }
+        
+        .average-box {
+            text-align: center;
+            padding: 25px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            margin-top: 25px;
+        }
+        
+        .average-number {
+            font-size: 42px;
+            font-weight: bold;
+            color: #4a90e2;
+            margin: 0;
+        }
+        
+        .average-label {
+            margin: 8px 0;
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .average-subtext {
+            margin: 0;
+            font-size: 13px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="rating-container">
+        <div class="rating-question">
+            How well do you understand the role of an IT Support Specialist?
+        </div>
+        
+        <div class="stars" id="stars">
+            <span class="star" data-value="1">☆</span>
+            <span class="star" data-value="2">☆</span>
+            <span class="star" data-value="3">☆</span>
+            <span class="star" data-value="4">☆</span>
+            <span class="star" data-value="5">☆</span>
+        </div>
+        
+        <div class="rating-label" id="ratingLabel">
+            Select your rating
+        </div>
+        
+        <button class="submit-btn" id="submitBtn">Submit Rating</button>
+        
+        <div class="thank-you" id="thankYou">
+            <i class="fas fa-check-circle"></i> Thank you for your feedback!
+        </div>
+        
+        <div class="view-results-container">
+            <button class="view-results-btn" id="viewResultsBtn">
+                <i class="fas fa-chart-bar"></i> View Class Results
+            </button>
+        </div>
+    </div>
+    
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeBtn">×</button>
+            
+            <h3 class="modal-title">
+                <i class="fas fa-chart-bar"></i> Class Understanding Results
+            </h3>
+            
+            <div>
+                <div class="results-bar">
+                    <span class="results-label">5 Stars:</span>
+                    <div class="results-bar-bg">
+                        <div class="results-bar-fill" style="width: 45%;"></div>
+                    </div>
+                    <span class="results-percent">45%</span>
+                </div>
+                
+                <div class="results-bar">
+                    <span class="results-label">4 Stars:</span>
+                    <div class="results-bar-bg">
+                        <div class="results-bar-fill" style="width: 30%;"></div>
+                    </div>
+                    <span class="results-percent">30%</span>
+                </div>
+                
+                <div class="results-bar">
+                    <span class="results-label">3 Stars:</span>
+                    <div class="results-bar-bg">
+                        <div class="results-bar-fill" style="width: 15%;"></div>
+                    </div>
+                    <span class="results-percent">15%</span>
+                </div>
+                
+                <div class="results-bar">
+                    <span class="results-label">2 Stars:</span>
+                    <div class="results-bar-bg">
+                        <div class="results-bar-fill" style="width: 7%;"></div>
+                    </div>
+                    <span class="results-percent">7%</span>
+                </div>
+                
+                <div class="results-bar">
+                    <span class="results-label">1 Star:</span>
+                    <div class="results-bar-bg">
+                        <div class="results-bar-fill" style="width: 3%;"></div>
+                    </div>
+                    <span class="results-percent">3%</span>
+                </div>
+            </div>
+            
+            <div class="average-box">
+                <p class="average-number">4.2</p>
+                <p class="average-label">Average Rating</p>
+                <p class="average-subtext">Based on 87 student responses</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        (function() {
+            var selectedRating = 0;
+            var ratingLabels = {
+                1: "1 Star - I'm confused and need help",
+                2: "2 Stars - I understand a little",
+                3: "3 Stars - I understand most of it",
+                4: "4 Stars - I understand it well",
+                5: "5 Stars - I could teach this to someone else!"
+            };
+            
+            var stars = document.querySelectorAll('.star');
+            var ratingLabel = document.getElementById('ratingLabel');
+            var submitBtn = document.getElementById('submitBtn');
+            var thankYou = document.getElementById('thankYou');
+            var viewResultsBtn = document.getElementById('viewResultsBtn');
+            var modal = document.getElementById('modal');
+            var closeBtn = document.getElementById('closeBtn');
+            var starsContainer = document.getElementById('stars');
+            
+            // Star hover effect
+            stars.forEach(function(star) {
+                star.addEventListener('mouseenter', function() {
+                    var value = parseInt(this.getAttribute('data-value'));
+                    fillStars(value);
+                });
+                
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.getAttribute('data-value'));
+                    fillStars(selectedRating);
+                    ratingLabel.textContent = ratingLabels[selectedRating];
+                    ratingLabel.classList.add('selected');
+                    submitBtn.classList.add('show');
+                });
+            });
+            
+            // Reset stars on mouse leave
+            starsContainer.addEventListener('mouseleave', function() {
+                if (selectedRating > 0) {
+                    fillStars(selectedRating);
+                } else {
+                    fillStars(0);
+                }
+            });
+            
+            // Submit button
+            submitBtn.addEventListener('click', function() {
+                if (selectedRating > 0) {
+                    submitBtn.classList.remove('show');
+                    thankYou.classList.add('show');
+                    
+                    // Here you can send the rating to your server/LMS
+                    console.log('Student rated: ' + selectedRating);
+                    
+                    // Optional: Send to Canvas or external API
+                    // sendRatingToServer(selectedRating);
+                }
+            });
+            
+            // View results button
+            viewResultsBtn.addEventListener('click', function() {
+                modal.classList.add('show');
+            });
+            
+            // Close modal
+            closeBtn.addEventListener('click', function() {
+                modal.classList.remove('show');
+            });
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+            
+            function fillStars(count) {
+                stars.forEach(function(star, index) {
+                    if (index < count) {
+                        star.textContent = '★';
+                        star.classList.add('filled');
+                    } else {
+                        star.textContent = '☆';
+                        star.classList.remove('filled');
+                    }
+                });
+            }
+            
+            // Optional: Function to send rating to server
+            function sendRatingToServer(rating) {
+                // Example using fetch API
+                /*
+                fetch('YOUR_API_ENDPOINT', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        rating: rating,
+                        lesson: 'IT Support Specialist',
+                        timestamp: new Date().toISOString()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => console.log('Success:', data))
+                .catch((error) => console.error('Error:', error));
+                */
+            }
+        })();
+    </script>
+</body>
+</html>
