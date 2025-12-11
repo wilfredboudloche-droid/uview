@@ -354,8 +354,9 @@
     const closeBtn = document.getElementById('closeBtn');
     const starsContainer = document.getElementById('stars');
     const statusMessage = document.getElementById('statusMessage');
+    const adminPasswordInput = document.getElementById('adminPassword');
+    const statsContent = document.getElementById('statsContent');
 
-    // Helper: pseudo client id
     function getClientId() {
         try {
             const key = 'lesson_rating_client_id';
@@ -372,11 +373,13 @@
     }
 
     function showStatus(msg, isError) {
+        if (!statusMessage) return;
         statusMessage.textContent = msg;
         statusMessage.className = 'status-message ' + (isError ? 'error' : 'success');
     }
 
     function clearStatus() {
+        if (!statusMessage) return;
         statusMessage.textContent = '';
         statusMessage.className = 'status-message';
     }
@@ -417,25 +420,24 @@
         }
     });
 
-    // SUBMIT RATING - FIXED
+    // ============= SUBMIT RATING (GET with query params) =============
     submitBtn.addEventListener('click', function () {
         if (!selectedRating) return;
 
         submitBtn.disabled = true;
         showStatus('Submitting rating...', false);
 
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                action: 'submitRating',
-                rating: selectedRating,
-                lessonId: LESSON_ID,
-                userAgent: navigator.userAgent,
-                clientId: getClientId()
-            })
+        const params = new URLSearchParams({
+            action: 'submitRating',
+            rating: selectedRating,
+            lessonId: LESSON_ID,
+            userAgent: navigator.userAgent,
+            clientId: getClientId()
+        });
+
+        fetch(WEB_APP_URL + '?' + params.toString(), {
+            method: 'GET',
+            redirect: 'follow'
         })
             .then(res => res.json())
             .then(data => {
@@ -457,6 +459,7 @@
             });
     });
 
+    // ============= VIEW RESULTS (GET) =============
     viewResultsBtn.addEventListener('click', function () {
         modal.classList.add('show');
         loadStats();
@@ -472,91 +475,98 @@
         }
     });
 
-    // LOAD STATS - FIXED
     function loadStats() {
-        const payload = {
+        const params = new URLSearchParams({
             action: 'getStats',
             lessonId: LESSON_ID
-        };
+        });
 
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+        fetch(WEB_APP_URL + '?' + params.toString(), {
+            method: 'GET',
+            redirect: 'follow'
         })
             .then(res => res.json())
             .then(data => {
                 if (!data.success) {
                     console.error('Error loading stats:', data.error);
+                    if (statsContent) {
+                        statsContent.innerHTML = '<p class="error">Error loading stats.</p>';
+                    }
                     return;
                 }
                 updateStatsUI(data);
             })
             .catch(err => {
                 console.error('Error:', err);
+                if (statsContent) {
+                    statsContent.innerHTML = '<p class="error">Network error loading stats.</p>';
+                }
             });
     }
 
     function updateStatsUI(data) {
+        if (!statsContent) return;
         const dist = data.distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
         const total = data.total || 0;
+        const average = data.average ? data.average.toFixed(2) : '0.00';
 
-        function setBar(stars, count) {
-            const percent = total ? Math.round((count / total) * 100) : 0;
-            const barEl = document.getElementById('bar' + stars);
-            const percentEl = document.getElementById('percent' + stars);
-            barEl.style.width = percent + '%';
-            percentEl.textContent = percent + '%';
-        }
-
-        setBar(5, dist[5] || 0);
-        setBar(4, dist[4] || 0);
-        setBar(3, dist[3] || 0);
-        setBar(2, dist[2] || 0);
-        setBar(1, dist[1] || 0);
-
-        const avgEl = document.getElementById('avgValue');
-        const countEl = document.getElementById('responseCount');
-
-        avgEl.textContent = (data.average || 0).toFixed(1);
-        countEl.textContent = `Based on ${total} response${total === 1 ? '' : 's'}`;
+        statsContent.innerHTML = `
+            <p><strong>Total Responses:</strong> ${total}</p>
+            <p><strong>Average Rating:</strong> ${average}</p>
+            <h4>Distribution:</h4>
+            <ul>
+                <li>1 Star: ${dist[1] || 0}</li>
+                <li>2 Stars: ${dist[2] || 0}</li>
+                <li>3 Stars: ${dist[3] || 0}</li>
+                <li>4 Stars: ${dist[4] || 0}</li>
+                <li>5 Stars: ${dist[5] || 0}</li>
+            </ul>
+        `;
     }
 
-    // ADMIN CLEAR - FIXED
+    // ============= ADMIN CLEAR (GET) =============
     adminClearBtn.addEventListener('click', function () {
-        const key = prompt('Admin key to clear data for this lesson:');
-        if (!key) return;
+        const pwd = adminPasswordInput.value.trim();
+        if (!pwd) {
+            alert('Please enter the admin password.');
+            return;
+        }
 
+        adminClearBtn.disabled = true;
         showStatus('Clearing data...', false);
 
-        fetch(WEB_APP_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'clearData',
-                lessonId: LESSON_ID,
-                adminKey: key
-            })
+        const params = new URLSearchParams({
+            action: 'clearData',
+            lessonId: LESSON_ID,
+            adminKey: pwd
+        });
+
+        fetch(WEB_APP_URL + '?' + params.toString(), {
+            method: 'GET',
+            redirect: 'follow'
         })
             .then(res => res.json())
             .then(data => {
-                if (data.success) {
-                    showStatus('Lesson data cleared successfully.', false);
-                    // Reset modal stats view
-                    updateStatsUI({
-                        total: 0,
-                        average: 0,
-                        distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
-                    });
-                } else {
-                    showStatus(data.error || 'Failed to clear data.', true);
+                if (!data.success) {
+                    console.error('Clear error:', data.error);
+                    showStatus('Error: ' + (data.error || 'Could not clear data'), true);
+                    return;
+                }
+                showStatus(data.message || 'Data cleared.', false);
+                // Reload stats if modal is open
+                if (modal.classList.contains('show')) {
+                    loadStats();
                 }
             })
             .catch(err => {
-                console.error(err);
-                showStatus('Error while clearing data.', true);
+                console.error('Fetch error:', err);
+                showStatus('Network error while clearing data.', true);
+            })
+            .finally(() => {
+                adminClearBtn.disabled = false;
             });
     });
+
 })();
 </script>
 </body>
