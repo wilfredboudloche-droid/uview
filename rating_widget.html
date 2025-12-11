@@ -83,6 +83,35 @@
             font-weight: 600;
         }
 
+        .feedback-box {
+            margin-top: 12px;
+            text-align: left;
+            display: none; /* hidden by default */
+        }
+
+        .feedback-label {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            min-height: 60px;
+            max-height: 120px;
+            padding: 8px;
+            font-size: 13px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: vertical;
+        }
+
+        .feedback-hint {
+            font-size: 11px;
+            color: #888;
+            margin-top: 2px;
+        }
+
         .submit-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -95,7 +124,7 @@
             opacity: 0;
             transform: translateY(10px);
             pointer-events: none;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         .submit-btn.show {
@@ -237,73 +266,6 @@
             font-size: 14px;
         }
 
-        .stats-content p {
-            margin: 10px 0;
-        }
-
-        .stats-content h4 {
-            margin-top: 20px;
-            margin-bottom: 10px;
-            color: #333;
-            font-size: 16px;
-        }
-
-        .stats-content ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        .stats-content li {
-            padding: 10px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-        }
-
-        .stats-content li:last-child {
-            border-bottom: none;
-        }
-
-        .admin-section {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid #eee;
-        }
-
-        .admin-section h3 {
-            color: #c62828;
-            margin-bottom: 15px;
-            font-size: 16px;
-        }
-
-        .admin-input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .admin-clear-btn {
-            background: #c62828;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            width: 100%;
-        }
-
-        .admin-clear-btn:hover:not(:disabled) {
-            background: #b71c1c;
-        }
-
-        .admin-clear-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .container {
@@ -328,7 +290,6 @@
 
             .star {
                 font-size: 32px;
-                gap: 8px;
             }
 
             .action-buttons {
@@ -356,6 +317,21 @@
 
         <div class="rating-label" id="ratingLabel">Select a rating</div>
 
+        <!-- Feedback only for ratings under 4 -->
+        <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-label">
+                Optional: If you chose 1–3 stars, tell your teacher what was confusing.
+            </div>
+            <textarea 
+                id="feedbackText" 
+                class="feedback-textarea" 
+                placeholder="Example: I was confused about how X works, or I need another example of Y.">
+            </textarea>
+            <div class="feedback-hint">
+                Only your teacher will see this. It won’t affect your grade.
+            </div>
+        </div>
+
         <button class="submit-btn" id="submitBtn">Submit Rating</button>
 
         <div class="thank-you" id="thankYou">
@@ -378,18 +354,6 @@
             <h2>📊 Class Results</h2>
             <div class="stats-content" id="statsContent">
                 <p>Loading...</p>
-            </div>
-
-            <!-- Admin Section -->
-            <div class="admin-section">
-                <h3>🔒 Admin: Clear Data</h3>
-                <input 
-                    type="password" 
-                    class="admin-input" 
-                    id="adminPassword" 
-                    placeholder="Enter admin password"
-                >
-                <button class="admin-clear-btn" id="adminClearBtn">Clear All Ratings for This Lesson</button>
             </div>
         </div>
     </div>
@@ -414,13 +378,13 @@
         const submitBtn = document.getElementById('submitBtn');
         const thankYou = document.getElementById('thankYou');
         const viewResultsBtn = document.getElementById('viewResultsBtn');
-        const adminClearBtn = document.getElementById('adminClearBtn');
         const modal = document.getElementById('modal');
         const closeBtn = document.getElementById('closeBtn');
         const starsContainer = document.getElementById('stars');
         const statusMessage = document.getElementById('statusMessage');
-        const adminPasswordInput = document.getElementById('adminPassword');
         const statsContent = document.getElementById('statsContent');
+        const feedbackBox = document.getElementById('feedbackBox');
+        const feedbackText = document.getElementById('feedbackText');
 
         function getClientId() {
             try {
@@ -461,6 +425,18 @@
             });
         }
 
+        function updateFeedbackVisibility() {
+            if (!feedbackBox) return;
+            if (selectedRating > 0 && selectedRating < 4) {
+                feedbackBox.style.display = 'block';
+            } else {
+                feedbackBox.style.display = 'none';
+                if (feedbackText) {
+                    feedbackText.value = '';
+                }
+            }
+        }
+
         stars.forEach(function (star) {
             star.addEventListener('mouseenter', function () {
                 const value = parseInt(this.getAttribute('data-value'));
@@ -474,6 +450,7 @@
                 ratingLabel.classList.add('selected');
                 submitBtn.classList.add('show');
                 clearStatus();
+                updateFeedbackVisibility();
             });
         });
 
@@ -492,12 +469,17 @@
             submitBtn.disabled = true;
             showStatus('Submitting rating...', false);
 
+            const feedback = (selectedRating < 4 && feedbackText)
+                ? feedbackText.value.trim()
+                : '';
+
             const params = new URLSearchParams({
                 action: 'submitRating',
                 rating: selectedRating,
                 lessonId: LESSON_ID,
                 userAgent: navigator.userAgent,
-                clientId: getClientId()
+                clientId: getClientId(),
+                feedback: feedback
             });
 
             fetch(WEB_APP_URL + '?' + params.toString(), {
@@ -514,6 +496,9 @@
                     thankYou.classList.add('show');
                     submitBtn.classList.remove('show');
                     showStatus('Your rating has been recorded.', false);
+                    // Optionally clear feedback after submit
+                    if (feedbackText) feedbackText.value = '';
+                    feedbackBox.style.display = 'none';
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
@@ -575,7 +560,6 @@
             const total = data.total || 0;
             const average = data.average ? data.average.toFixed(2) : '0.00';
 
-            // Calculate percentages for progress bars
             const getPercentage = (count) => {
                 return total > 0 ? Math.round((count / total) * 100) : 0;
             };
@@ -646,49 +630,6 @@
                 </div>
             `;
         }
-
-        // ============= ADMIN CLEAR (GET) =============
-        adminClearBtn.addEventListener('click', function () {
-            const pwd = adminPasswordInput.value.trim();
-            if (!pwd) {
-                alert('Please enter the admin password.');
-                return;
-            }
-
-            adminClearBtn.disabled = true;
-            showStatus('Clearing data...', false);
-
-            const params = new URLSearchParams({
-                action: 'clearData',
-                lessonId: LESSON_ID,
-                adminKey: pwd
-            });
-
-            fetch(WEB_APP_URL + '?' + params.toString(), {
-                method: 'GET',
-                redirect: 'follow'
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) {
-                        console.error('Clear error:', data.error);
-                        showStatus('Error: ' + (data.error || 'Could not clear data'), true);
-                        return;
-                    }
-                    showStatus(data.message || 'Data cleared.', false);
-                    adminPasswordInput.value = '';
-                    // Reload stats
-                    loadStats();
-                })
-                .catch(err => {
-                    console.error('Fetch error:', err);
-                    showStatus('Network error while clearing data.', true);
-                })
-                .finally(() => {
-                    adminClearBtn.disabled = false;
-                });
-        });
-
     })();
     </script>
 </body>
