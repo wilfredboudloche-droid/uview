@@ -1,158 +1,315 @@
-<script>
-    (function () {
-        // CONFIGURATION
-        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyaH6oZSnJIVfRO0nfAGiE3hEsPJ6HL1ULXs8ujDquALSaQZ9d43u0e8U8256dmMPt_/exec';
-        
-        // Read lessonId from URL parameter
-        const urlParams = new URLSearchParams(window.location.search);
-        const LESSON_ID = urlParams.get('lessonId') || 'IT1010-1.1';
-
-        let selectedRating = 0;
-
-        const stars = document.querySelectorAll('.star');
-        const submitBtn = document.getElementById('submitBtn');
-        const thankYou = document.getElementById('thankYou');
-        const viewResultsBtn = document.getElementById('viewResultsBtn');
-        const starsContainer = document.getElementById('stars');
-        const statusMessage = document.getElementById('statusMessage');
-        const feedbackContainer = document.getElementById('feedbackContainer');
-        const feedbackText = document.getElementById('feedbackText');
-
-        function getClientId() {
-            try {
-                const key = 'lesson_rating_client_id';
-                let id = localStorage.getItem(key);
-                if (!id) {
-                    id = 'client-' + Math.random().toString(36).substring(2) +
-                        '-' + Date.now().toString(36);
-                    localStorage.setItem(key, id);
-                }
-                return id;
-            } catch (e) {
-                return '';
-            }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Rating Embed Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        function showStatus(msg) {
-            if (!statusMessage) return;
-            statusMessage.textContent = msg;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
-        function clearStatus() {
-            if (!statusMessage) return;
-            statusMessage.textContent = '';
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 700px;
+            width: 100%;
+            padding: 40px;
         }
 
-        function fillStars(count) {
-            stars.forEach(function (star, index) {
-                if (index < count) {
-                    star.textContent = '★';
-                    star.classList.add('filled');
-                } else {
-                    star.textContent = '☆';
-                    star.classList.remove('filled');
-                }
-            });
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 28px;
         }
 
-        function updateFeedbackVisibility() {
-            if (!feedbackContainer) return;
-            if (selectedRating > 0 && selectedRating < 4) {
-                feedbackContainer.classList.add('show');
-            } else {
-                feedbackContainer.classList.remove('show');
-                if (feedbackText) {
-                    feedbackText.value = '';
-                }
-            }
+        .subtitle {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 30px;
         }
 
-        stars.forEach(function (star) {
-            star.addEventListener('mouseenter', function () {
-                const value = parseInt(this.getAttribute('data-value'));
-                fillStars(value);
-            });
+        .form-group {
+            margin-bottom: 20px;
+        }
 
-            star.addEventListener('click', function () {
-                selectedRating = parseInt(this.getAttribute('data-value'));
-                fillStars(selectedRating);
-                submitBtn.classList.add('show');
-                clearStatus();
-                updateFeedbackVisibility();
-            });
-        });
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
 
-        starsContainer.addEventListener('mouseleave', function () {
-            if (selectedRating > 0) {
-                fillStars(selectedRating);
-            } else {
-                fillStars(0);
-            }
-        });
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
 
-        // ============= SUBMIT RATING =============
-        submitBtn.addEventListener('click', function () {
-            if (!selectedRating) return;
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
 
-            submitBtn.disabled = true;
-            showStatus('Submitting...');
+        .hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 6px;
+        }
 
-            const feedback = (selectedRating < 4 && feedbackText)
-                ? feedbackText.value.trim()
-                : '';
+        .generate-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
 
-            const params = new URLSearchParams({
-                action: 'submitRating',
-                rating: selectedRating,
-                lessonId: LESSON_ID,
-                userAgent: navigator.userAgent,
-                clientId: getClientId(),
-                feedback: feedback
-            });
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
 
-            fetch(WEB_APP_URL + '?' + params.toString(), {
-                method: 'GET',
-                redirect: 'follow'
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) {
-                        console.error('Submit error:', data.error);
-                        showStatus('Error: ' + (data.error || 'Could not save rating'));
-                        return;
-                    }
-                    thankYou.classList.add('show');
-                    submitBtn.classList.remove('show');
-                    clearStatus();
-                    if (feedbackText) feedbackText.value = '';
-                    feedbackContainer.classList.remove('show');
-                })
-                .catch(err => {
-                    console.error('Fetch error:', err);
-                    showStatus('Network error');
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                });
-        });
+        .output-section {
+            display: none;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
 
-        // ============= VIEW RESULTS (opens popup) =============
-        viewResultsBtn.addEventListener('click', function () {
-            const resultsUrl = `https://wilfredboudloche-droid.github.io/uview/results.html?lessonId=${encodeURIComponent(LESSON_ID)}`;
+        .output-section.show {
+            display: block;
+        }
+
+        .output-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #45a049;
+        }
+
+        .copy-btn.copied {
+            background: #2196f3;
+        }
+
+        .code-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #333;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .preview-section {
+            margin-top: 20px;
+        }
+
+        .preview-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .preview-frame {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .quick-links {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-link {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #f0f0f0;
+            color: #667eea;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: background 0.3s ease;
+        }
+
+        .quick-link:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Lesson Rating Embed Generator</h1>
+        <div class="subtitle">Generate Canvas-ready iframe code for your lessons</div>
+
+        <div class="form-group">
+            <label for="lessonId">Lesson ID</label>
+            <input 
+                type="text" 
+                id="lessonId" 
+                placeholder="e.g., IT1010-1.1" 
+                value="IT1010-1.1"
+            >
+            <div class="hint">Use format: CourseCode-Unit.Lesson (e.g., IT1010-2.3)</div>
+        </div>
+
+        <button class="generate-btn" id="generateBtn">Generate Embed Code</button>
+
+        <div class="output-section" id="outputSection">
+            <div class="output-label">
+                Canvas Embed Code
+                <button class="copy-btn" id="copyBtn">Copy Code</button>
+            </div>
+            <div class="code-box" id="codeBox"></div>
+
+            <div class="preview-section">
+                <div class="preview-label">Live Preview</div>
+                <div class="preview-frame">
+                    <iframe 
+                        id="previewFrame"
+                        width="100%" 
+                        height="200" 
+                        frameborder="0" 
+                        scrolling="no" 
+                        style="border: none; display: block;">
+                    </iframe>
+                </div>
+            </div>
+
+            <div class="quick-links">
+                <a href="#" class="quick-link" id="viewResultsLink" target="_blank">
+                    📊 View Results for this Lesson
+                </a>
+                <a href="https://wilfredboudloche-droid.github.io/uview/rating_widget.html" class="quick-link" target="_blank">
+                    🔗 Open Widget Directly
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const lessonIdInput = document.getElementById('lessonId');
+        const generateBtn = document.getElementById('generateBtn');
+        const outputSection = document.getElementById('outputSection');
+        const codeBox = document.getElementById('codeBox');
+        const copyBtn = document.getElementById('copyBtn');
+        const previewFrame = document.getElementById('previewFrame');
+        const viewResultsLink = document.getElementById('viewResultsLink');
+
+        function generateEmbedCode(lessonId) {
+            const widgetUrl = `https://wilfredboudloche-droid.github.io/uview/rating_widget.html?lessonId=${encodeURIComponent(lessonId)}`;
             
-            // Calculate center position
-            const width = 750;
-            const height = 650;
-            const left = (screen.width / 2) - (width / 2);
-            const top = (screen.height / 2) - (height / 2);
+            return `<iframe 
+  src="${widgetUrl}" 
+  width="100%" 
+  height="200" 
+  frameborder="0" 
+  scrolling="no" 
+  style="border: none; display: block; margin: 20px auto;">
+</iframe>`;
+        }
+
+        generateBtn.addEventListener('click', function() {
+            const lessonId = lessonIdInput.value.trim();
             
-            // Open centered popup with restricted features
-            window.open(
-                resultsUrl,
-                'LessonResults',
-                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no`
-            );
+            if (!lessonId) {
+                alert('Please enter a Lesson ID');
+                return;
+            }
+
+            const embedCode = generateEmbedCode(lessonId);
+            codeBox.textContent = embedCode;
+            
+            const widgetUrl = `https://wilfredboudloche-droid.github.io/uview/rating_widget.html?lessonId=${encodeURIComponent(lessonId)}`;
+            previewFrame.src = widgetUrl;
+            
+            const resultsUrl = `https://wilfredboudloche-droid.github.io/uview/results.html?lessonId=${encodeURIComponent(lessonId)}`;
+            viewResultsLink.href = resultsUrl;
+            
+            outputSection.classList.add('show');
+            copyBtn.textContent = 'Copy Code';
+            copyBtn.classList.remove('copied');
         });
 
-    })(); // <-- THIS WAS MISSING!
-</script>
+        copyBtn.addEventListener('click', function() {
+            const code = codeBox.textContent;
+            
+            navigator.clipboard.writeText(code).then(function() {
+                copyBtn.textContent = '✓ Copied!';
+                copyBtn.classList.add('copied');
+                
+                setTimeout(function() {
+                    copyBtn.textContent = 'Copy Code';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                alert('Failed to copy: ' + err);
+            });
+        });
+
+        // Allow Enter key to generate
+        lessonIdInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateBtn.click();
+            }
+        });
+
+        // Auto-generate on page load with default value
+        window.addEventListener('load', function() {
+            generateBtn.click();
+        });
+    </script>
+</body>
+</html>
