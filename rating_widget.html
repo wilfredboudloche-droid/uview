@@ -18,7 +18,7 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 10px;
         }
 
@@ -30,6 +30,9 @@
             max-width: 700px;
             width: 100%;
             text-align: center;
+        }
+
+        .main-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -147,14 +150,15 @@
             font-size: 12px;
             color: white;
             min-height: 16px;
+            margin-top: 5px;
         }
 
         /* Feedback box - appears below when rating < 4 */
         .feedback-container {
             display: none;
             width: 100%;
-            margin-top: 10px;
-            padding-top: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
             border-top: 1px solid rgba(255, 255, 255, 0.3);
         }
 
@@ -165,95 +169,33 @@
         .feedback-label {
             font-size: 12px;
             color: white;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
             text-align: left;
         }
 
         .feedback-textarea {
             width: 100%;
-            min-height: 50px;
-            padding: 6px;
+            min-height: 60px;
+            max-height: 80px;
+            padding: 8px;
             font-size: 12px;
             border-radius: 6px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             resize: vertical;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
         }
 
         .feedback-hint {
             font-size: 10px;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 3px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 4px;
             text-align: left;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 500px;
-            width: 100%;
-            max-height: 85vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #999;
-            background: none;
-            border: none;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .close-btn:hover {
-            color: #333;
-        }
-
-        .modal h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 22px;
-        }
-
-        .stats-content {
-            text-align: left;
-            color: #666;
-            font-size: 14px;
         }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .container {
+            .main-row {
                 flex-direction: column;
-                padding: 15px;
             }
 
             .left-section {
@@ -273,25 +215,27 @@
 </head>
 <body>
     <div class="container">
-        <div class="left-section">
-            <h1>📚 Rate This Lesson</h1>
-            <div class="stars" id="stars">
-                <span class="star" data-value="1">☆</span>
-                <span class="star" data-value="2">☆</span>
-                <span class="star" data-value="3">☆</span>
-                <span class="star" data-value="4">☆</span>
-                <span class="star" data-value="5">☆</span>
+        <div class="main-row">
+            <div class="left-section">
+                <h1>📚 Rate This Lesson</h1>
+                <div class="stars" id="stars">
+                    <span class="star" data-value="1">☆</span>
+                    <span class="star" data-value="2">☆</span>
+                    <span class="star" data-value="3">☆</span>
+                    <span class="star" data-value="4">☆</span>
+                    <span class="star" data-value="5">☆</span>
+                </div>
             </div>
-        </div>
 
-        <div class="right-section">
-            <div class="thank-you" id="thankYou">
-                <i class="fas fa-check-circle"></i> Thank you!
+            <div class="right-section">
+                <div class="thank-you" id="thankYou">
+                    <i class="fas fa-check-circle"></i> Thank you!
+                </div>
+                <button class="submit-btn" id="submitBtn">Submit</button>
+                <button class="action-btn" id="viewResultsBtn">
+                    <i class="fas fa-chart-bar"></i> Results
+                </button>
             </div>
-            <button class="submit-btn" id="submitBtn">Submit</button>
-            <button class="action-btn" id="viewResultsBtn">
-                <i class="fas fa-chart-bar"></i> Results
-            </button>
         </div>
 
         <!-- Feedback box appears below when rating < 4 -->
@@ -312,22 +256,14 @@
         <div class="status-message" id="statusMessage"></div>
     </div>
 
-    <!-- Modal for Stats -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <button class="close-btn" id="closeBtn">&times;</button>
-            <h2>📊 Class Results</h2>
-            <div class="stats-content" id="statsContent">
-                <p>Loading...</p>
-            </div>
-        </div>
-    </div>
-
     <script>
     (function () {
         // CONFIGURATION
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyaH6oZSnJIVfRO0nfAGiE3hEsPJ6HL1ULXs8ujDquALSaQZ9d43u0e8U8256dmMPt_/exec';
-        const LESSON_ID = 'IT1010-1.1';
+        
+        // Read lessonId from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const LESSON_ID = urlParams.get('lessonId') || 'IT1010-1.1';
 
         let selectedRating = 0;
 
@@ -335,11 +271,8 @@
         const submitBtn = document.getElementById('submitBtn');
         const thankYou = document.getElementById('thankYou');
         const viewResultsBtn = document.getElementById('viewResultsBtn');
-        const modal = document.getElementById('modal');
-        const closeBtn = document.getElementById('closeBtn');
         const starsContainer = document.getElementById('stars');
         const statusMessage = document.getElementById('statusMessage');
-        const statsContent = document.getElementById('statsContent');
         const feedbackContainer = document.getElementById('feedbackContainer');
         const feedbackText = document.getElementById('feedbackText');
 
@@ -358,7 +291,7 @@
             }
         }
 
-        function showStatus(msg, isError) {
+        function showStatus(msg) {
             if (!statusMessage) return;
             statusMessage.textContent = msg;
         }
@@ -461,127 +394,12 @@
                 });
         });
 
-        // ============= VIEW RESULTS =============
+        // ============= VIEW RESULTS (opens in new tab) =============
         viewResultsBtn.addEventListener('click', function () {
-            modal.classList.add('show');
-            loadStats();
+            // Replace with your actual GitHub Pages URL
+            const resultsUrl = `https://yourname.github.io/rating-widget/results.html?lessonId=${encodeURIComponent(LESSON_ID)}`;
+            window.open(resultsUrl, '_blank');
         });
-
-        closeBtn.addEventListener('click', function () {
-            modal.classList.remove('show');
-        });
-
-        modal.addEventListener('click', function (e) {
-            if (e.target === modal) {
-                modal.classList.remove('show');
-            }
-        });
-
-        function loadStats() {
-            const params = new URLSearchParams({
-                action: 'getStats',
-                lessonId: LESSON_ID
-            });
-
-            fetch(WEB_APP_URL + '?' + params.toString(), {
-                method: 'GET',
-                redirect: 'follow'
-            })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) {
-                        console.error('Error loading stats:', data.error);
-                        if (statsContent) {
-                            statsContent.innerHTML = '<p class="error">Error loading stats.</p>';
-                        }
-                        return;
-                    }
-                    updateStatsUI(data);
-                })
-                .catch(err => {
-                    console.error('Error:', err);
-                    if (statsContent) {
-                        statsContent.innerHTML = '<p class="error">Network error loading stats.</p>';
-                    }
-                });
-        }
-
-        function updateStatsUI(data) {
-            if (!statsContent) return;
-            const dist = data.distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-            const total = data.total || 0;
-            const average = data.average ? data.average.toFixed(2) : '0.00';
-
-            const getPercentage = (count) => {
-                return total > 0 ? Math.round((count / total) * 100) : 0;
-            };
-
-            statsContent.innerHTML = `
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <div style="font-size: 48px; color: #2196F3; font-weight: bold; margin-bottom: 5px;">
-                        ${average}
-                    </div>
-                    <div style="color: #999; font-size: 14px;">Average Rating</div>
-                    <div style="color: #666; font-size: 14px; margin-top: 5px;">
-                        ${total} ${total === 1 ? 'response' : 'responses'}
-                    </div>
-                </div>
-
-                <div style="margin-top: 20px;">
-                    <h4 style="margin-bottom: 15px; color: #333; font-size: 16px;">Rating Distribution</h4>
-                    
-                    <div style="margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <span style="font-size: 13px; color: #666;">⭐⭐⭐⭐⭐ 5 Stars</span>
-                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[5] || 0} (${getPercentage(dist[5])}%)</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                            <div style="background: linear-gradient(90deg, #4caf50, #8bc34a); height: 100%; width: ${getPercentage(dist[5])}%; transition: width 0.3s ease;"></div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <span style="font-size: 13px; color: #666;">⭐⭐⭐⭐ 4 Stars</span>
-                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[4] || 0} (${getPercentage(dist[4])}%)</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                            <div style="background: linear-gradient(90deg, #8bc34a, #cddc39); height: 100%; width: ${getPercentage(dist[4])}%; transition: width 0.3s ease;"></div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <span style="font-size: 13px; color: #666;">⭐⭐⭐ 3 Stars</span>
-                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[3] || 0} (${getPercentage(dist[3])}%)</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                            <div style="background: linear-gradient(90deg, #ffc107, #ffeb3b); height: 100%; width: ${getPercentage(dist[3])}%; transition: width 0.3s ease;"></div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <span style="font-size: 13px; color: #666;">⭐⭐ 2 Stars</span>
-                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[2] || 0} (${getPercentage(dist[2])}%)</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                            <div style="background: linear-gradient(90deg, #ff9800, #ffc107); height: 100%; width: ${getPercentage(dist[2])}%; transition: width 0.3s ease;"></div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <span style="font-size: 13px; color: #666;">⭐ 1 Star</span>
-                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[1] || 0} (${getPercentage(dist[1])}%)</span>
-                        </div>
-                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                            <div style="background: linear-gradient(90deg, #f44336, #ff5722); height: 100%; width: ${getPercentage(dist[1])}%; transition: width 0.3s ease;"></div>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
     })();
     </script>
 </body>
