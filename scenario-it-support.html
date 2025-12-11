@@ -30,10 +30,10 @@
       flex-direction: column;
     }
 
-    /* Updated header with logo integrated */
+    /* Updated header */
     .header {
       background: linear-gradient(135deg, #1e5ba8 0%, #2d7a3e 100%);
-      padding: 16px 24px;
+      padding: 20px 24px 16px;
       color: white;
       position: relative;
     }
@@ -42,30 +42,12 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 12px;
       position: relative;
       z-index: 1;
     }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .header-logo {
-      height: 60px;
-      width: auto;
-      filter: brightness(0) invert(1);
-      opacity: 0.95;
-    }
-
-    .title-block { 
-      display: flex; 
-      flex-direction: column; 
-      gap: 4px;
-      flex: 1;
-    }
+    .title-block { display: flex; flex-direction: column; gap: 4px; }
 
     .title {
       font-size: 1.4rem;
@@ -86,7 +68,6 @@
       gap: 6px;
       backdrop-filter: blur(6px);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      white-space: nowrap;
     }
 
     .badge-dot {
@@ -103,7 +84,7 @@
       50% { opacity: 0.6; transform: scale(1.1); }
     }
 
-    .progress-bar-wrapper { position: relative; z-index: 1; margin-top: 14px; }
+    .progress-bar-wrapper { position: relative; z-index: 1; margin-top: 16px; }
 
     .progress-label {
       display: flex;
@@ -131,31 +112,61 @@
       transition: width 0.35s ease;
     }
 
-    /* Persistent objective pill container */
+    /* Persistent objective pill container with logo */
     .objective-container {
-      padding: 12px 24px;
+      padding: 14px 24px;
       background: white;
       border-bottom: 1px solid #e5e7eb;
       display: flex;
       justify-content: center;
       align-items: center;
+      gap: 16px;
+    }
+
+    .objective-logo {
+      height: 70px;
+      width: auto;
+      flex-shrink: 0;
+    }
+
+    .objective-pills {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      max-width: 700px;
     }
 
     .objective-pill {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 16px;
+      padding: 8px 14px;
       border-radius: 999px;
       background: #eff6ff;
       color: #1e40af;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 600;
       border: 1px solid #bfdbfe;
-      max-width: 100%;
     }
 
-    .objective-pill .icon { font-size: 1.1rem; }
+    .time-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: 1px solid #fde68a;
+    }
+
+    .objective-pill .icon,
+    .time-pill .icon { 
+      font-size: 1.1rem; 
+    }
 
     .main {
       padding: 20px 20px 24px;
@@ -484,28 +495,29 @@
 
     @media (max-width: 640px) {
       body { padding: 10px; }
-      .header { padding: 14px 14px; }
-      .header-logo { height: 45px; }
+      .header { padding: 16px 14px; }
       .main { padding: 14px 12px 16px; }
       .header-top { flex-direction: column; align-items: flex-start; }
-      .header-left { flex-direction: column; align-items: flex-start; gap: 10px; }
       .title { font-size: 1.2rem; }
-      .objective-container { padding: 10px 14px; }
-      .objective-pill { font-size: 0.85rem; padding: 6px 12px; }
+      .objective-container { 
+        padding: 12px 14px; 
+        flex-direction: column;
+        gap: 12px;
+      }
+      .objective-logo { height: 55px; }
+      .objective-pills { gap: 6px; }
+      .objective-pill, .time-pill { font-size: 0.82rem; padding: 6px 12px; }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- Colored header with logo integrated on left -->
+    <!-- Colored header -->
     <header class="header">
       <div class="header-top">
-        <div class="header-left">
-          <img src="https://cdn.abacus.ai/images/478bd722-7cdf-43f5-b020-8ae983199728.png" alt="University View Academy Logo" class="header-logo">
-          <div class="title-block">
-            <div class="title">First Day on the Help Desk</div>
-            <div class="subtitle">Interactive Branching Scenario – IT Support Specialist</div>
-          </div>
+        <div class="title-block">
+          <div class="title">First Day on the Help Desk</div>
+          <div class="subtitle">Interactive Branching Scenario – IT Support Specialist</div>
         </div>
         <div class="badge">
           <span class="badge-dot"></span>
@@ -524,11 +536,18 @@
       </div>
     </header>
 
-    <!-- Persistent objective pill (always visible) -->
+    <!-- Logo and persistent objective/time pills -->
     <div class="objective-container">
-      <div class="objective-pill">
-        <span class="icon">🎯</span>
-        <span>Objective: Explore a realistic scenario to see what an IT support specialist actually does during a typical workday.</span>
+      <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/clear_logo.png" alt="University View Academy Logo" class="objective-logo">
+      <div class="objective-pills">
+        <div class="objective-pill">
+          <span class="icon">🎯</span>
+          <span>Objective: Explore a realistic scenario to see what an IT support specialist actually does during a typical workday.</span>
+        </div>
+        <div class="time-pill">
+          <span class="icon">⏱</span>
+          <span>Approx. Time: 10–15 minutes</span>
+        </div>
       </div>
     </div>
 
@@ -538,7 +557,7 @@
       <!-- Intro -->
       <section class="screen active" data-screen="intro">
         <div class="card">
-          <img src="hero-helpdesk.png" alt="IT help desk technician at workstation" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/hero-helpdesk.png" alt="IT help desk technician at workstation" class="scenario-image">
           <h2 class="screen-title">👋 Welcome to TechCare Solutions</h2>
           <p class="scenario-text">
             You're a brand new <strong>Help Desk Technician</strong>, and today is your first day taking support tickets on your own.
@@ -547,7 +566,7 @@
           <div class="callout">
             <strong>Your goal:</strong> Make decisions like a real IT support specialist. Pay attention to
             how you gather information, troubleshoot, and decide when to escalate.
-          </p>
+          </div>
           <p class="scenario-text" style="margin-top: 6px;">
             Remember, strong IT support specialists:
           </p>
@@ -569,7 +588,7 @@
       <!-- Ticket #1047 -->
       <section class="screen" data-screen="ticket1">
         <div class="card">
-          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-print.png" alt="Teacher with printer issue in classroom" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1047 <span class="ticket-tag">"I can't print!"</span>
           </h2>
@@ -602,7 +621,7 @@
       <!-- Ticket #1047 outcomes -->
       <section class="screen" data-screen="ticket1A">
         <div class="outcome-card">
-          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>Uh oh... you rushed in without information.</span>
@@ -633,7 +652,7 @@
 
       <section class="screen" data-screen="ticket1B">
         <div class="outcome-card">
-          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You're thinking like an IT pro.</span>
@@ -663,7 +682,7 @@
 
       <section class="screen" data-screen="ticket1C">
         <div class="outcome-card">
-          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>Not terrible, but you skipped a step.</span>
@@ -689,7 +708,7 @@
       <!-- Ticket #1053 -->
       <section class="screen" data-screen="ticket2">
         <div class="card">
-          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1053 <span class="ticket-tag">"My computer is really slow."</span>
           </h2>
@@ -730,7 +749,7 @@
       <!-- Ticket #1053 outcomes -->
       <section class="screen" data-screen="ticket2A">
         <div class="outcome-card">
-          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You identified the real issue.</span>
@@ -755,7 +774,7 @@
 
       <section class="screen" data-screen="ticket2B">
         <div class="outcome-card">
-          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>You jumped to the wrong conclusion.</span>
@@ -780,7 +799,7 @@
 
       <section class="screen" data-screen="ticket2C">
         <div class="outcome-card">
-          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>You went too big, too fast.</span>
@@ -805,7 +824,7 @@
       <!-- Ticket #1061 -->
       <section class="screen" data-screen="ticket3">
         <div class="card">
-          <img src="ticket-network.png" alt="School network room with router alert" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-network.png" alt="School network room with router alert" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1061 <span class="ticket-tag">"The whole building lost internet."</span>
           </h2>
@@ -842,7 +861,7 @@
       <!-- Ticket #1061 outcomes -->
       <section class="screen" data-screen="ticket3A">
         <div class="outcome-card">
-          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>You took initiative, but...</span>
@@ -867,7 +886,7 @@
 
       <section class="screen" data-screen="ticket3B">
         <div class="outcome-card">
-          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>You focused on the wrong level of the problem.</span>
@@ -892,7 +911,7 @@
 
       <section class="screen" data-screen="ticket3C">
         <div class="outcome-card">
-          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You escalated to the right person immediately.</span>
@@ -919,7 +938,7 @@
       <!-- Summary -->
       <section class="screen" data-screen="summary">
         <div class="card" style="margin-bottom:12px;">
-          <img src="scenario-complete.png" alt="Completion badge for IT support training" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/scenario-complete.png" alt="Completion badge for IT support training" class="scenario-image">
           <h2 class="screen-title">✅ Shift Complete: What Did You Learn?</h2>
           <p class="scenario-text">
             You handled three different support tickets that showed key responsibilities of an IT support specialist:
@@ -995,7 +1014,6 @@
       const idx = SCREENS.indexOf(screenName);
       if (idx !== -1) setProgress(idx);
 
-      // Ticket meta removed since objective is now persistent
       const ticketMetaEl = document.getElementById("ticketMeta");
       let metaHtml = "";
       switch (screenName) {
