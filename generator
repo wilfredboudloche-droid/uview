@@ -1,0 +1,158 @@
+<script>
+    (function () {
+        // CONFIGURATION
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyaH6oZSnJIVfRO0nfAGiE3hEsPJ6HL1ULXs8ujDquALSaQZ9d43u0e8U8256dmMPt_/exec';
+        
+        // Read lessonId from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const LESSON_ID = urlParams.get('lessonId') || 'IT1010-1.1';
+
+        let selectedRating = 0;
+
+        const stars = document.querySelectorAll('.star');
+        const submitBtn = document.getElementById('submitBtn');
+        const thankYou = document.getElementById('thankYou');
+        const viewResultsBtn = document.getElementById('viewResultsBtn');
+        const starsContainer = document.getElementById('stars');
+        const statusMessage = document.getElementById('statusMessage');
+        const feedbackContainer = document.getElementById('feedbackContainer');
+        const feedbackText = document.getElementById('feedbackText');
+
+        function getClientId() {
+            try {
+                const key = 'lesson_rating_client_id';
+                let id = localStorage.getItem(key);
+                if (!id) {
+                    id = 'client-' + Math.random().toString(36).substring(2) +
+                        '-' + Date.now().toString(36);
+                    localStorage.setItem(key, id);
+                }
+                return id;
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function showStatus(msg) {
+            if (!statusMessage) return;
+            statusMessage.textContent = msg;
+        }
+
+        function clearStatus() {
+            if (!statusMessage) return;
+            statusMessage.textContent = '';
+        }
+
+        function fillStars(count) {
+            stars.forEach(function (star, index) {
+                if (index < count) {
+                    star.textContent = '★';
+                    star.classList.add('filled');
+                } else {
+                    star.textContent = '☆';
+                    star.classList.remove('filled');
+                }
+            });
+        }
+
+        function updateFeedbackVisibility() {
+            if (!feedbackContainer) return;
+            if (selectedRating > 0 && selectedRating < 4) {
+                feedbackContainer.classList.add('show');
+            } else {
+                feedbackContainer.classList.remove('show');
+                if (feedbackText) {
+                    feedbackText.value = '';
+                }
+            }
+        }
+
+        stars.forEach(function (star) {
+            star.addEventListener('mouseenter', function () {
+                const value = parseInt(this.getAttribute('data-value'));
+                fillStars(value);
+            });
+
+            star.addEventListener('click', function () {
+                selectedRating = parseInt(this.getAttribute('data-value'));
+                fillStars(selectedRating);
+                submitBtn.classList.add('show');
+                clearStatus();
+                updateFeedbackVisibility();
+            });
+        });
+
+        starsContainer.addEventListener('mouseleave', function () {
+            if (selectedRating > 0) {
+                fillStars(selectedRating);
+            } else {
+                fillStars(0);
+            }
+        });
+
+        // ============= SUBMIT RATING =============
+        submitBtn.addEventListener('click', function () {
+            if (!selectedRating) return;
+
+            submitBtn.disabled = true;
+            showStatus('Submitting...');
+
+            const feedback = (selectedRating < 4 && feedbackText)
+                ? feedbackText.value.trim()
+                : '';
+
+            const params = new URLSearchParams({
+                action: 'submitRating',
+                rating: selectedRating,
+                lessonId: LESSON_ID,
+                userAgent: navigator.userAgent,
+                clientId: getClientId(),
+                feedback: feedback
+            });
+
+            fetch(WEB_APP_URL + '?' + params.toString(), {
+                method: 'GET',
+                redirect: 'follow'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Submit error:', data.error);
+                        showStatus('Error: ' + (data.error || 'Could not save rating'));
+                        return;
+                    }
+                    thankYou.classList.add('show');
+                    submitBtn.classList.remove('show');
+                    clearStatus();
+                    if (feedbackText) feedbackText.value = '';
+                    feedbackContainer.classList.remove('show');
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    showStatus('Network error');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                });
+        });
+
+        // ============= VIEW RESULTS (opens popup) =============
+        viewResultsBtn.addEventListener('click', function () {
+            const resultsUrl = `https://wilfredboudloche-droid.github.io/uview/results.html?lessonId=${encodeURIComponent(LESSON_ID)}`;
+            
+            // Calculate center position
+            const width = 750;
+            const height = 650;
+            const left = (screen.width / 2) - (width / 2);
+            const top = (screen.height / 2) - (height / 2);
+            
+            // Open centered popup with restricted features
+            window.open(
+                resultsUrl,
+                'LessonResults',
+                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no`
+            );
+        });
+
+    })(); // <-- THIS WAS MISSING!
+</script>
