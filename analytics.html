@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Rating Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-subtext {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .chart-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .lesson-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .lesson-id {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .lesson-avg {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .lesson-count {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .mini-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mini-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-bar-label {
+            font-size: 11px;
+            color: #777;
+            width: 30px;
+        }
+
+        .mini-bar-bg {
+            flex: 1;
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .mini-bar-fill {
+            height: 100%;
+            transition: width 0.4s ease;
+        }
+
+        .mini-bar-count {
+            font-size: 11px;
+            color: #999;
+            width: 25px;
+            text-align: right;
+        }
+
+        .feedback-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .feedback-item {
+            padding: 16px;
+            background: #f8f9fa;
+            border-left: 4px solid #ff9800;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .feedback-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #777;
+        }
+
+        .feedback-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .star5 { background: #4caf50; }
+        .star4 { background: #8bc34a; }
+        .star3 { background: #ffc107; }
+        .star2 { background: #ff9800; }
+        .star1 { background: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Lesson Rating Analytics</h1>
+            <div class="subtitle">Real-time insights from student feedback</div>
+        </div>
+
+        <div id="errorContainer"></div>
+        <div id="loadingContainer" class="loading">Loading analytics...</div>
+
+        <div id="contentContainer" style="display: none;">
+            <!-- Overall Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Overall Average</div>
+                    <div class="stat-value" id="overallAvg">–</div>
+                    <div class="stat-subtext">Across all lessons</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Responses</div>
+                    <div class="stat-value" id="totalResponses">–</div>
+                    <div class="stat-subtext">Student ratings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Lessons Tracked</div>
+                    <div class="stat-value" id="lessonsTracked">–</div>
+                    <div class="stat-subtext">Unique lesson IDs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Satisfaction Rate</div>
+                    <div class="stat-value" id="satisfactionRate">–</div>
+                    <div class="stat-subtext">4-5 star ratings</div>
+                </div>
+            </div>
+
+            <!-- Overall Distribution Chart -->
+            <div class="chart-section">
+                <div class="section-title">Overall Rating Distribution</div>
+                <div class="chart-container">
+                    <canvas id="overallChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Per-Lesson Breakdown -->
+            <div class="chart-section">
+                <div class="section-title">Per-Lesson Breakdown</div>
+                <div class="lesson-grid" id="lessonGrid"></div>
+            </div>
+
+            <!-- Student Feedback -->
+            <div class="feedback-section">
+                <div class="section-title">Student Feedback (Ratings < 4)</div>
+                <div id="feedbackContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyaH6oZSnJIVfRO0nfAGiE3hEsPJ6HL1ULXs8ujDquALSaQZ9d43u0e8U8256dmMPt_/exec';
+
+        function showError(msg) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = `<div class="error">${msg}</div>`;
+        }
+
+        function loadAllData() {
+            fetch(WEB_APP_URL + '?action=getAllData', {
+                method: 'GET',
+                redirect: 'follow'
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success) {
+                        throw new Error(data.error || 'Failed to load data');
+                    }
+
+                    document.getElementById('loadingContainer').style.display = 'none';
+                    document.getElementById('contentContainer').style.display = 'block';
+
+                    renderOverallStats(data);
+                    renderOverallChart(data);
+                    renderLessonCards(data);
+                    renderFeedback(data);
+                })
+                .catch(err => {
+                    console.error('Error loading analytics:', err);
+                    document.getElementById('loadingContainer').style.display = 'none';
+                    showError('Failed to load analytics: ' + err.message);
+                });
+        }
+
+        function renderOverallStats(data) {
+            const ratings = data.ratings || [];
+            const totalRatings = ratings.length;
+            const avgRating = totalRatings > 0
+                ? (ratings.reduce((sum, r) => sum + r.rating, 0) / totalRatings).toFixed(2)
+                : '0.00';
+            
+            const uniqueLessons = [...new Set(ratings.map(r => r.lessonId))].length;
+            
+            const highRatings = ratings.filter(r => r.rating >= 4).length;
+            const satisfactionRate = totalRatings > 0
+                ? Math.round((highRatings / totalRatings) * 100)
+                : 0;
+
+            document.getElementById('overallAvg').textContent = avgRating;
+            document.getElementById('totalResponses').textContent = totalRatings;
+            document.getElementById('lessonsTracked').textContent = uniqueLessons;
+            document.getElementById('satisfactionRate').textContent = satisfactionRate + '%';
+        }
+
+        function renderOverallChart(data) {
+            const ratings = data.ratings || [];
+            const dist = {1:0, 2:0, 3:0, 4:0, 5:0};
+            ratings.forEach(r => {
+                if (dist[r.rating] !== undefined) {
+                    dist[r.rating]++;
+                }
+            });
+
+            const ctx = document.getElementById('overallChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                    datasets: [{
+                        label: 'Number of Ratings',
+                        data: [dist[1], dist[2], dist[3], dist[4], dist[5]],
+                        backgroundColor: [
+                            '#f44336',
+                            '#ff9800',
+                            '#ffc107',
+                            '#8bc34a',
+                            '#4caf50'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderLessonCards(data) {
+            const ratings = data.ratings || [];
+            const lessonMap = {};
+
+            ratings.forEach(r => {
+                if (!lessonMap[r.lessonId]) {
+                    lessonMap[r.lessonId] = {
+                        lessonId: r.lessonId,
+                        ratings: [],
+                        dist: {1:0, 2:0, 3:0, 4:0, 5:0}
+                    };
+                }
+                lessonMap[r.lessonId].ratings.push(r.rating);
+                lessonMap[r.lessonId].dist[r.rating]++;
+            });
+
+            const lessonGrid = document.getElementById('lessonGrid');
+            lessonGrid.innerHTML = '';
+
+            Object.values(lessonMap).forEach(lesson => {
+                const total = lesson.ratings.length;
+                const avg = (lesson.ratings.reduce((sum, r) => sum + r, 0) / total).toFixed(2);
+
+                const card = document.createElement('div');
+                card.className = 'lesson-card';
+                card.innerHTML = `
+                    <div class="lesson-header">
+                        <div class="lesson-id">${lesson.lessonId}</div>
+                        <div class="lesson-avg">${avg}</div>
+                    </div>
+                    <div class="lesson-count">${total} ${total === 1 ? 'response' : 'responses'}</div>
+                    <div class="mini-bars">
+                        ${[5,4,3,2,1].map(star => {
+                            const count = lesson.dist[star];
+                            const pct = Math.round((count / total) * 100);
+                            return `
+                                <div class="mini-bar-row">
+                                    <div class="mini-bar-label">${star}★</div>
+                                    <div class="mini-bar-bg">
+                                        <div class="mini-bar-fill star${star}" style="width: ${pct}%"></div>
+                                    </div>
+                                    <div class="mini-bar-count">${count}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                lessonGrid.appendChild(card);
+            });
+        }
+
+        function renderFeedback(data) {
+            const ratings = data.ratings || [];
+            const feedbackItems = ratings.filter(r => r.rating < 4 && r.feedback && r.feedback.trim());
+
+            const feedbackContainer = document.getElementById('feedbackContainer');
+            
+            if (feedbackItems.length === 0) {
+                feedbackContainer.innerHTML = '<div style="color: #999; text-align: center; padding: 20px;">No feedback yet from students who rated below 4 stars.</div>';
+                return;
+            }
+
+            feedbackContainer.innerHTML = feedbackItems.map(item => `
+                <div class="feedback-item">
+                    <div class="feedback-meta">
+                        <span><strong>${item.lessonId}</strong> • ${item.rating} stars</span>
+                        <span>${new Date(item.timestamp).toLocaleDateString()}</span>
+                    </div>
+                    <div class="feedback-text">${item.feedback}</div>
+                </div>
+            `).join('');
+        }
+
+        // Load data on page load
+        loadAllData();
+
+        // Refresh every 30 seconds
+        setInterval(loadAllData, 30000);
+    </script>
+</body>
+</html>
