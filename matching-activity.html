@@ -2,154 +2,623 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>Matching Game – IT Support Specialist Vocabulary</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Matching Interactive: IT Support Responsibilities and Environments</title>
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-      line-height: 1.6;
-      color: #333;
-      background-color: #f4f7f6;
-      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #1f2933;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
     }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background-color: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      padding: 30px;
-    }
-    h1, h2, h3, h4 {
-      color: #003366;
-      margin-top: 0;
-    }
-    .objective-header {
-      background: #e6f2ff; /* Lighter blue for objective */
-      padding: 15px;
-      border-left: 5px solid #0066cc;
-      margin-bottom: 20px;
-      border-radius: 4px;
-    }
-    .objective-header p {
-      margin: 5px 0;
-      font-size: 1.1em;
-    }
-    .terms-descriptions-grid {
+
+    .app {
+      background: #f9fafb;
+      max-width: 1000px;
+      width: 100%;
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+      overflow: hidden;
       display: flex;
-      flex-wrap: wrap;
-      gap: 30px; /* Increased gap for better separation */
-      margin-top: 20px;
+      flex-direction: column;
     }
-    .terms-column, .descriptions-column {
-      flex: 1 1 350px; /* Allow columns to grow and shrink, with a base width */
-      min-width: 280px; /* Minimum width before wrapping */
+
+    /* Header with UVA branding colors */
+    .header {
+      background: linear-gradient(135deg, #1e5ba8 0%, #2d7a3e 100%);
+      padding: 20px 24px 16px;
+      color: white;
+      position: relative;
     }
-    ol {
-      padding-left: 25px;
-      margin-top: 10px;
+
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      position: relative;
+      z-index: 1;
     }
-    ol.alpha-list {
-      list-style-type: upper-alpha;
+
+    .title-block { display: flex; flex-direction: column; gap: 4px; }
+
+    .title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
     }
-    li {
-      margin-bottom: 10px;
+
+    .subtitle { font-size: 0.9rem; opacity: 0.95; }
+
+    /* Blinking badge for "Interactive Activity" with RED dot */
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
-    .instructions-section {
-      margin-top: 25px;
-      padding-top: 15px;
-      border-top: 1px solid #e1e4e8;
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #ef4444;
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.35);
+      animation: pulse 2s ease-in-out infinite;
     }
-    .instructions-section ul {
-      list-style-type: disc;
-      padding-left: 25px;
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.1); }
     }
-    .extension-section {
-      margin-top: 15px;
-      padding: 10px 15px;
-      background-color: #f0f4f8;
-      border-left: 4px solid #0066cc;
-      border-radius: 4px;
+
+    /* Logo container in white area below header */
+    .logo-container {
+      padding: 16px 24px 12px;
+      background: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .logo-container img {
+      height: 80px;
+      width: auto;
+    }
+
+    .score-display {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    .score-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #f3f4f6;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .score-item.correct { color: #166534; background: #ecfdf3; }
+    .score-item.incorrect { color: #b91c1c; background: #fef2f2; }
+
+    .main {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .instructions {
+      background: white;
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .instructions h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .instructions p {
+      font-size: 0.9rem;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0c4a6e;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+
+    .game-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .column-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+      text-align: center;
+      padding: 8px;
+      background: white;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 2px solid #e5e7eb;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+      user-select: none;
+      position: relative;
+    }
+
+    .card:hover {
+      border-color: #1e5ba8;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(30, 91, 168, 0.15);
+    }
+
+    .card.selected {
+      border-color: #1e5ba8;
+      background: #eff6ff;
+      box-shadow: 0 0 0 3px rgba(30, 91, 168, 0.2);
+    }
+
+    .card.matched {
+      border-color: #22c55e;
+      background: #ecfdf3;
+      cursor: default;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .card.incorrect {
+      border-color: #ef4444;
+      background: #fef2f2;
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .card-label {
+      font-size: 0.75rem;
+      color: #6b7280;
+      font-weight: 600;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-content {
+      font-size: 0.95rem;
+      color: #111827;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .card.matched .card-content {
+      color: #166534;
+    }
+
+    .card-icon {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 1.2rem;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .card.matched .card-icon {
+      opacity: 1;
+    }
+
+    .feedback {
+      background: white;
+      border-radius: 14px;
+      padding: 16px 18px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      text-align: center;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .feedback.show {
+      animation: fadeIn 0.3s ease;
+    }
+
+    .feedback.correct {
+      background: #ecfdf3;
+      border-color: #22c55e;
+      color: #166534;
+    }
+
+    .feedback.incorrect {
+      background: #fef2f2;
+      border-color: #ef4444;
+      color: #b91c1c;
+    }
+
+    .feedback.complete {
+      background: linear-gradient(135deg, #ecfdf3 0%, #dbeafe 100%);
+      border-color: #22c55e;
+      color: #111827;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reset-btn {
+      align-self: center;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      border: none;
+      background: #1e5ba8;
+      color: white;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 18px rgba(30, 91, 168, 0.4);
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+
+    .reset-btn:hover {
+      background: #164a87;
+      box-shadow: 0 10px 20px rgba(30, 91, 168, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .reset-btn:active {
+      transform: translateY(0);
+    }
+
+    .footer {
+      padding: 8px 16px 12px;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      border-top: 1px solid rgba(229, 231, 235, 0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      background: rgba(249, 250, 251, 0.95);
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        grid-template-columns: 1fr;
+      }
+      .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .logo-container {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .score-display {
+        flex-direction: column;
+        gap: 8px;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="app">
+    <!-- Colored header with title and Interactive Activity badge -->
+    <header class="header">
+      <div class="header-top">
+        <div class="title-block">
+          <div class="title">Vocabulary Matching Game</div>
+          <div class="subtitle">Match IT Support Specialist Terms with Their Definitions</div>
+        </div>
+        <div class="badge">
+          <span class="badge-dot"></span>
+          <span>Interactive Activity</span>
+        </div>
+      </div>
+    </header>
 
-<div class="container">
-
-  <h1 style="text-align: center;">Matching Interactive: IT Support Responsibilities and Environments</h1>
-
-  <!-- Header with Objective + Time -->
-  <div class="objective-header">
-    <p><strong>🎯 Objective:</strong> Match common IT support responsibilities and work environments with their correct descriptions.</p>
-    <p><strong>⏱️ Approx. Time:</strong> 5–8 minutes</p>
-  </div>
-
-  <p style="margin-bottom: 15px;">
-    Use what you learned from the scenario and lesson content. Match each <strong>IT support term (1–6)</strong> with the correct
-    <strong>description (A–F)</strong>. You can respond in your notes, on paper, or in a text box if your teacher provides one.
-  </p>
-
-  <div class="terms-descriptions-grid">
-
-    <!-- Terms Column -->
-    <div class="terms-column">
-      <h4>Terms (Write the Letter)</h4>
-      <ol>
-        <li><strong>Troubleshooting</strong></li>
-        <li><strong>Help Desk / Service Desk</strong></li>
-        <li><strong>Ticket</strong></li>
-        <li><strong>On-site Support</strong></li>
-        <li><strong>Remote Support</strong></li>
-        <li><strong>Customer Service Skills</strong></li>
-      </ol>
+    <!-- Logo and score display in white area below header -->
+    <div class="logo-container">
+      <img src="https://cdn.abacus.ai/images/478bd722-7cdf-43f5-b020-8ae983199728.png" alt="University View Academy Logo">
+      <div class="score-display">
+        <div class="score-item correct">
+          <span>✓</span>
+          <span>Correct: <strong id="correctCount">0</strong></span>
+        </div>
+        <div class="score-item incorrect">
+          <span>✗</span>
+          <span>Attempts: <strong id="incorrectCount">0</strong></span>
+        </div>
+      </div>
     </div>
 
-    <!-- Descriptions Column -->
-    <div class="descriptions-column">
-      <h4>Descriptions</h4>
-      <ol class="alpha-list">
-        <li>
-          Talking to people in a calm, respectful way, listening to their problem, and explaining solutions in simple language.
-        </li>
-        <li>
-          A record of a problem or request that gets entered into a system so IT staff can track, prioritize, and resolve it.
-        </li>
-        <li>
-          Visiting someone’s physical location (like a classroom or office) to work on their device or equipment directly.
-        </li>
-        <li>
-          A centralized place (often a team) where users contact IT for help with technical issues, questions, and requests.
-        </li>
-        <li>
-          Using tools to connect to another person’s device over the network so you can see and control their screen from your own computer.
-        </li>
-        <li>
-          A step-by-step process of figuring out what is causing a problem and testing possible solutions.
-        </li>
-      </ol>
-    </div>
+    <main class="main">
+      <div class="instructions">
+        <h2>🎯 How to Play</h2>
+        <p>
+          Click a <strong>term</strong> on the left, then click its matching <strong>definition</strong> on the right.
+          If you're correct, both cards will turn green and lock in place. If you're incorrect, they'll shake and you can try again.
+        </p>
+        <div class="pill">
+          <span>🎓</span>
+          <span>Objective: Match all 8 IT support specialist vocabulary terms correctly</span>
+        </div>
+      </div>
+
+      <div class="game-container">
+        <!-- Terms Column -->
+        <div class="column">
+          <div class="column-title">📘 Terms</div>
+          <div id="termsColumn"></div>
+        </div>
+
+        <!-- Definitions Column -->
+        <div class="column">
+          <div class="column-title">📖 Definitions</div>
+          <div id="definitionsColumn"></div>
+        </div>
+      </div>
+
+      <div class="feedback" id="feedback">
+        Select a term and then its matching definition to begin.
+      </div>
+
+      <button class="reset-btn" id="resetBtn" style="display:none;">
+        <span>🔄</span>
+        <span>Play Again</span>
+      </button>
+    </main>
+
+    <footer class="footer">
+      <span>💻 Lesson 1: The Role of an IT Specialist</span>
+      <span>Match all terms to complete the activity</span>
+    </footer>
   </div>
 
-  <!-- Student Instructions -->
-  <div class="instructions-section">
-    <p style="margin-bottom: 5px;"><strong>How to Answer:</strong></p>
-    <ul>
-      <li>Write your answers like this: <em>1 – [letter], 2 – [letter], 3 – [letter], …</em></li>
-      <li>Check back with the lesson text if you are unsure about any terms.</li>
-      <li>If your teacher enables it, you may type your answers directly into a Canvas text box.</li>
-    </ul>
-  </div>
+  <script>
+    const pairs = [
+      {
+        term: "Help Desk Technician",
+        definition: "An IT professional who provides first-level technical support to end users, answering questions and solving basic hardware and software problems."
+      },
+      {
+        term: "Troubleshooting",
+        definition: "A systematic process of identifying, diagnosing, and resolving technical problems step-by-step."
+      },
+      {
+        term: "Network Administrator",
+        definition: "An IT specialist responsible for managing, maintaining, and securing an organization's network infrastructure."
+      },
+      {
+        term: "End User",
+        definition: "The person who uses a computer, device, or software application in their daily work or personal life."
+      },
+      {
+        term: "Escalation",
+        definition: "The process of transferring a technical issue to a higher-level specialist or department when it cannot be resolved at the current support level."
+      },
+      {
+        term: "Remote Support",
+        definition: "Providing technical assistance to users from a different location using software tools that allow access to their computer or device."
+      },
+      {
+        term: "Ticket System",
+        definition: "A software tool used to track, manage, and prioritize technical support requests from users."
+      },
+      {
+        term: "Active Listening",
+        definition: "A communication skill where the support specialist fully concentrates, understands, and responds thoughtfully to what the user is saying."
+      }
+    ];
 
-  <!-- Optional Quick Check Prompt -->
-  <div class="extension-section">
-    <p style="margin: 0;">
-      <strong>Extension (Optional):</strong> Choose <strong>one</strong> term from the list and write your own sentence using it to describe the job of an IT support specialist.
-    </p>
-  </div>
+    let selectedTerm = null;
+    let selectedDefinition = null;
+    let correctCount = 0;
+    let incorrectCount = 0;
+    let matchedPairs = [];
 
-</div>
+    const termsColumn = document.getElementById("termsColumn");
+    const definitionsColumn = document.getElementById("definitionsColumn");
+    const feedback = document.getElementById("feedback");
+    const correctCountEl = document.getElementById("correctCount");
+    const incorrectCountEl = document.getElementById("incorrectCount");
+    const resetBtn = document.getElementById("resetBtn");
 
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initGame() {
+      termsColumn.innerHTML = "";
+      definitionsColumn.innerHTML = "";
+      selectedTerm = null;
+      selectedDefinition = null;
+      correctCount = 0;
+      incorrectCount = 0;
+      matchedPairs = [];
+      correctCountEl.textContent = "0";
+      incorrectCountEl.textContent = "0";
+      feedback.textContent = "Select a term and then its matching definition to begin.";
+      feedback.className = "feedback";
+      resetBtn.style.display = "none";
+
+      const shuffledTerms = shuffle(pairs);
+      const shuffledDefinitions = shuffle(pairs);
+
+      shuffledTerms.forEach((pair, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.id = pairs.indexOf(pair);
+        card.dataset.type = "term";
+        card.innerHTML = `
+          <div class="card-label">Term ${index + 1}</div>
+          <div class="card-content">${pair.term}</div>
+          <div class="card-icon">✓</div>
+        `;
+        card.addEventListener("click", () => selectCard(card, "term"));
+        termsColumn.appendChild(card);
+      });
+
+      shuffledDefinitions.forEach((pair, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.dataset.id = pairs.indexOf(pair);
+        card.dataset.type = "definition";
+        card.innerHTML = `
+          <div class="card-label">Definition ${index + 1}</div>
+          <div class="card-content">${pair.definition}</div>
+          <div class="card-icon">✓</div>
+        `;
+        card.addEventListener("click", () => selectCard(card, "definition"));
+        definitionsColumn.appendChild(card);
+      });
+    }
+
+    function selectCard(card, type) {
+      if (card.classList.contains("matched")) return;
+
+      if (type === "term") {
+        if (selectedTerm) {
+          selectedTerm.classList.remove("selected");
+        }
+        selectedTerm = card;
+        card.classList.add("selected");
+      } else {
+        if (selectedDefinition) {
+          selectedDefinition.classList.remove("selected");
+        }
+        selectedDefinition = card;
+        card.classList.add("selected");
+      }
+
+      if (selectedTerm && selectedDefinition) {
+        checkMatch();
+      }
+    }
+
+    function checkMatch() {
+      const termId = selectedTerm.dataset.id;
+      const defId = selectedDefinition.dataset.id;
+
+      if (termId === defId) {
+        // Correct match
+        selectedTerm.classList.add("matched");
+        selectedDefinition.classList.add("matched");
+        selectedTerm.classList.remove("selected");
+        selectedDefinition.classList.remove("selected");
+        matchedPairs.push(termId);
+        correctCount++;
+        correctCountEl.textContent = correctCount;
+
+        feedback.textContent = `✓ Correct! "${pairs[termId].term}" matches perfectly.`;
+        feedback.className = "feedback correct show";
+
+        selectedTerm = null;
+        selectedDefinition = null;
+
+        if (matchedPairs.length === pairs.length) {
+          setTimeout(() => {
+            feedback.textContent = `🎉 Excellent work! You matched all ${pairs.length} terms correctly. You're ready to use this vocabulary confidently!`;
+            feedback.className = "feedback complete show";
+            resetBtn.style.display = "inline-flex";
+          }, 800);
+        }
+      } else {
+        // Incorrect match
+        incorrectCount++;
+        incorrectCountEl.textContent = incorrectCount;
+
+        selectedTerm.classList.add("incorrect");
+        selectedDefinition.classList.add("incorrect");
+
+        feedback.textContent = `✗ Not quite. Try again! Read both cards carefully.`;
+        feedback.className = "feedback incorrect show";
+
+        setTimeout(() => {
+          selectedTerm.classList.remove("incorrect", "selected");
+          selectedDefinition.classList.remove("incorrect", "selected");
+          selectedTerm = null;
+          selectedDefinition = null;
+          feedback.textContent = "Select a term and then its matching definition.";
+          feedback.className = "feedback";
+        }, 1200);
+      }
+    }
+
+    resetBtn.addEventListener("click", initGame);
+
+    initGame();
+  </script>
 </body>
 </html>
