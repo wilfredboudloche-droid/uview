@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>IT Support Specialist: Responsibilities & Settings Matcher</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+        Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #1f2933;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app {
+      background: #f9fafb;
+      max-width: 1000px;
+      width: 100%;
+      border-radius: 18px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      background: radial-gradient(circle at top left, #facc15, #f97316, #ec4899);
+      padding: 20px 24px;
+      color: white;
+      position: relative;
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 60%);
+      pointer-events: none;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 6px;
+    }
+
+    .subtitle { font-size: 0.95rem; opacity: 0.95; }
+
+    .instructions {
+      background: white;
+      padding: 18px 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .instructions h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .instructions p {
+      font-size: 0.9rem;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .main {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .matching-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .column-header {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-column, .responsibilities-column {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .setting-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .setting-card:hover {
+      border-color: #6366f1;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .setting-card.selected {
+      border-color: #4f46e5;
+      background: #eef2ff;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+
+    .setting-card.correct {
+      border-color: #22c55e;
+      background: #f0fdf4;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+    }
+
+    .setting-card.incorrect {
+      border-color: #ef4444;
+      background: #fef2f2;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-4px); }
+      75% { transform: translateX(4px); }
+    }
+
+    .setting-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .setting-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .setting-desc {
+      font-size: 0.8rem;
+      color: #6b7280;
+      line-height: 1.4;
+    }
+
+    .responsibility-card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      min-height: 80px;
+    }
+
+    .responsibility-card:hover {
+      border-color: #6366f1;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .responsibility-card.selected {
+      border-color: #4f46e5;
+      background: #eef2ff;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+    }
+
+    .responsibility-card.matched {
+      opacity: 0.4;
+      pointer-events: none;
+      border-color: #d1d5db;
+    }
+
+    .responsibility-icon {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .responsibility-text {
+      flex: 1;
+      font-size: 0.9rem;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .status-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    .setting-card.correct .status-badge {
+      display: block;
+      background: #22c55e;
+      color: white;
+    }
+
+    .setting-card.incorrect .status-badge {
+      display: block;
+      background: #ef4444;
+      color: white;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      background: white;
+      border-top: 1px solid #e5e7eb;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .score-display {
+      font-size: 0.9rem;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .score-number {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #4f46e5;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: #4f46e5;
+      color: white;
+      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.4);
+    }
+
+    .btn-primary:hover {
+      background: #4338ca;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.5);
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-secondary:hover {
+      background: #d1d5db;
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .completion-screen {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .completion-screen.active {
+      display: block;
+    }
+
+    .completion-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+    }
+
+    .completion-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 8px;
+    }
+
+    .completion-text {
+      font-size: 1rem;
+      color: #4b5563;
+      margin-bottom: 20px;
+    }
+
+    .game-area {
+      display: block;
+    }
+
+    .game-area.hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .matching-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .title {
+        font-size: 1.2rem;
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="header-content">
+        <div class="title">🎯 IT Support Specialist Matcher</div>
+        <div class="subtitle">Match each responsibility to the correct work setting</div>
+      </div>
+    </header>
+
+    <section class="instructions">
+      <h2>📋 How to Play</h2>
+      <p>
+        <strong>Step 1:</strong> Click a <strong>responsibility</strong> on the right.<br>
+        <strong>Step 2:</strong> Click the <strong>work setting</strong> on the left where that responsibility is most common.<br>
+        <strong>Step 3:</strong> Get instant feedback! Match all 4 to complete the activity.
+      </p>
+    </section>
+
+    <main class="main game-area" id="gameArea">
+      <div class="matching-grid">
+        <!-- Left Column: Settings -->
+        <div class="settings-column">
+          <div class="column-header">🏢 Work Settings</div>
+          
+          <div class="setting-card" data-setting="school">
+            <span class="status-badge">✓ Matched</span>
+            <img src="setting-school.png" alt="School help desk" class="setting-image">
+            <div class="setting-name">School Help Desk</div>
+            <div class="setting-desc">K-12 or university tech support for students and teachers</div>
+          </div>
+
+          <div class="setting-card" data-setting="corporate">
+            <span class="status-badge">✓ Matched</span>
+            <img src="setting-corporate.png" alt="Corporate IT department" class="setting-image">
+            <div class="setting-name">Corporate IT Department</div>
+            <div class="setting-desc">Business office supporting employees and operations</div>
+          </div>
+
+          <div class="setting-card" data-setting="healthcare">
+            <span class="status-badge">✓ Matched</span>
+            <img src="setting-healthcare.png" alt="Healthcare IT support" class="setting-image">
+            <div class="setting-name">Healthcare IT Support</div>
+            <div class="setting-desc">Hospital or clinic supporting medical staff and systems</div>
+          </div>
+
+          <div class="setting-card" data-setting="remote">
+            <span class="status-badge">✓ Matched</span>
+            <img src="setting-remote.png" alt="Remote support center" class="setting-image">
+            <div class="setting-name">Remote Support Center</div>
+            <div class="setting-desc">Call center or virtual help desk serving customers remotely</div>
+          </div>
+        </div>
+
+        <!-- Right Column: Responsibilities -->
+        <div class="responsibilities-column">
+          <div class="column-header">💼 Responsibilities</div>
+
+          <div class="responsibility-card" data-responsibility="school">
+            <div class="responsibility-icon">🖨️</div>
+            <div class="responsibility-text">
+              Helping teachers troubleshoot classroom printers and projectors before lessons start
+            </div>
+          </div>
+
+          <div class="responsibility-card" data-responsibility="corporate">
+            <div class="responsibility-icon">💻</div>
+            <div class="responsibility-text">
+              Setting up new employee workstations with software, email accounts, and network access
+            </div>
+          </div>
+
+          <div class="responsibility-card" data-responsibility="healthcare">
+            <div class="responsibility-icon">🏥</div>
+            <div class="responsibility-text">
+              Ensuring medical staff can access patient records systems securely and without downtime
+            </div>
+          </div>
+
+          <div class="responsibility-card" data-responsibility="remote">
+            <div class="responsibility-icon">📞</div>
+            <div class="responsibility-text">
+              Answering support calls from customers across the country who need help with software issues
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="completion-screen" id="completionScreen">
+      <div class="completion-icon">🎉</div>
+      <div class="completion-title">Perfect Match!</div>
+      <div class="completion-text">
+        You've successfully matched all IT support responsibilities to their work settings.<br>
+        Great job understanding where IT specialists work and what they do!
+      </div>
+      <button class="btn btn-primary" id="tryAgainBtn">🔄 Try Again</button>
+    </div>
+
+    <footer class="controls">
+      <div class="score-display">
+        <span>Matches:</span>
+        <span class="score-number" id="scoreDisplay">0 / 4</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn btn-secondary" id="resetBtn">🔄 Reset</button>
+        <button class="btn btn-primary" id="checkBtn" disabled>✓ Check Match</button>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    let selectedResponsibility = null;
+    let selectedSetting = null;
+    let matchedCount = 0;
+    const totalMatches = 4;
+
+    const responsibilityCards = document.querySelectorAll('.responsibility-card');
+    const settingCards = document.querySelectorAll('.setting-card');
+    const checkBtn = document.getElementById('checkBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const tryAgainBtn = document.getElementById('tryAgainBtn');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const gameArea = document.getElementById('gameArea');
+    const completionScreen = document.getElementById('completionScreen');
+
+    // Click responsibility
+    responsibilityCards.forEach(card => {
+      card.addEventListener('click', () => {
+        if (card.classList.contains('matched')) return;
+        
+        responsibilityCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedResponsibility = card.dataset.responsibility;
+        updateCheckButton();
+      });
+    });
+
+    // Click setting
+    settingCards.forEach(card => {
+      card.addEventListener('click', () => {
+        if (card.classList.contains('correct')) return;
+        
+        settingCards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedSetting = card.dataset.setting;
+        updateCheckButton();
+      });
+    });
+
+    function updateCheckButton() {
+      checkBtn.disabled = !(selectedResponsibility && selectedSetting);
+    }
+
+    checkBtn.addEventListener('click', () => {
+      if (selectedResponsibility === selectedSetting) {
+        // Correct match
+        const respCard = document.querySelector(`.responsibility-card[data-responsibility="${selectedResponsibility}"]`);
+        const setCard = document.querySelector(`.setting-card[data-setting="${selectedSetting}"]`);
+        
+        respCard.classList.add('matched');
+        respCard.classList.remove('selected');
+        
+        setCard.classList.add('correct');
+        setCard.classList.remove('selected');
+        
+        matchedCount++;
+        scoreDisplay.textContent = `${matchedCount} / ${totalMatches}`;
+        
+        if (matchedCount === totalMatches) {
+          setTimeout(() => {
+            gameArea.classList.add('hidden');
+            completionScreen.classList.add('active');
+          }, 800);
+        }
+      } else {
+        // Incorrect match
+        const setCard = document.querySelector(`.setting-card[data-setting="${selectedSetting}"]`);
+        setCard.classList.add('incorrect');
+        
+        setTimeout(() => {
+          setCard.classList.remove('incorrect');
+          setCard.classList.remove('selected');
+        }, 600);
+      }
+      
+      selectedResponsibility = null;
+      selectedSetting = null;
+      updateCheckButton();
+    });
+
+    resetBtn.addEventListener('click', resetGame);
+    tryAgainBtn.addEventListener('click', resetGame);
+
+    function resetGame() {
+      responsibilityCards.forEach(card => {
+        card.classList.remove('selected', 'matched');
+      });
+      
+      settingCards.forEach(card => {
+        card.classList.remove('selected', 'correct', 'incorrect');
+      });
+      
+      selectedResponsibility = null;
+      selectedSetting = null;
+      matchedCount = 0;
+      scoreDisplay.textContent = '0 / 4';
+      updateCheckButton();
+      
+      gameArea.classList.remove('hidden');
+      completionScreen.classList.remove('active');
+    }
+  </script>
+</body>
+</html>
