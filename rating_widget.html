@@ -417,15 +417,15 @@
         }
     });
 
+    // SUBMIT RATING - FIXED
     submitBtn.addEventListener('click', function () {
         if (!selectedRating) return;
 
         submitBtn.disabled = true;
         showStatus('Submitting rating...', false);
 
-        fetch(WEB_APP_URL + '?origin=' + encodeURIComponent(window.location.origin), {
+        fetch(WEB_APP_URL, {
             method: 'POST',
-            mode: 'no-cors',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -436,13 +436,25 @@
                 userAgent: navigator.userAgent,
                 clientId: getClientId()
             })
-        }).catch(function () {
-            // Swallow errors in no-cors mode
-        }).finally(function () {
-            thankYou.classList.add('show');
-            submitBtn.classList.remove('show');
-            showStatus('Your rating has been recorded.', false);
-        });
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Submit error:', data.error);
+                    showStatus('Error: ' + (data.error || 'Could not save rating'), true);
+                    return;
+                }
+                thankYou.classList.add('show');
+                submitBtn.classList.remove('show');
+                showStatus('Your rating has been recorded.', false);
+            })
+            .catch(err => {
+                console.error('Fetch error:', err);
+                showStatus('Network error while submitting rating.', true);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+            });
     });
 
     viewResultsBtn.addEventListener('click', function () {
@@ -460,13 +472,14 @@
         }
     });
 
+    // LOAD STATS - FIXED
     function loadStats() {
         const payload = {
             action: 'getStats',
             lessonId: LESSON_ID
         };
 
-        fetch(WEB_APP_URL + '?origin=' + encodeURIComponent(window.location.origin), {
+        fetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
@@ -509,13 +522,14 @@
         countEl.textContent = `Based on ${total} response${total === 1 ? '' : 's'}`;
     }
 
+    // ADMIN CLEAR - FIXED
     adminClearBtn.addEventListener('click', function () {
         const key = prompt('Admin key to clear data for this lesson:');
         if (!key) return;
 
         showStatus('Clearing data...', false);
 
-        fetch(WEB_APP_URL + '?origin=' + encodeURIComponent(window.location.origin), {
+        fetch(WEB_APP_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
