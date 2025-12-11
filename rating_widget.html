@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Rating Widget</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: transparent;
+            padding: 20px;
+        }
+
+        .rating-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f9f9f9;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .rating-question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .stars {
+            font-size: 60px;
+            margin-bottom: 20px;
+            user-select: none;
+            line-height: 1;
+        }
+
+        .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+            margin: 0 5px;
+        }
+
+        .star:hover { transform: scale(1.1); }
+
+        .star.filled { color: #fdb813; }
+
+        .rating-label {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        .rating-label.selected {
+            color: #333;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.1s ease;
+            display: none;
+        }
+
+        .submit-btn.show { display: inline-block; }
+
+        .submit-btn:hover { background: #357abd; }
+
+        .submit-btn:active { transform: scale(0.98); }
+
+        .thank-you {
+            display: none;
+            color: #27ae60;
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        .thank-you.show { display: block; }
+
+        .view-results-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .view-results-btn, .admin-clear-btn {
+            background: #9b59b6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin: 4px;
+        }
+
+        .view-results-btn:hover { background: #8e44ad; }
+
+        .admin-clear-btn {
+            background: #c0392b;
+        }
+
+        .admin-clear-btn:hover {
+            background: #a93226;
+        }
+
+        .status-message {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .status-message.error { color: #e74c3c; }
+
+        .status-message.success { color: #27ae60; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover { color: #333; }
+
+        .modal-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .modal-title i {
+            color: #4a90e2;
+            margin-right: 8px;
+        }
+
+        .results-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .results-label {
+            width: 80px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .results-bar-bg {
+            flex: 1;
+            background: #e0e0e0;
+            height: 24px;
+            border-radius: 12px;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+
+        .results-bar-fill {
+            background: linear-gradient(90deg, #fdb813, #f39c12);
+            height: 100%;
+            width: 0;
+            transition: width 0.5s ease;
+        }
+
+        .results-percent {
+            width: 45px;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        .average-box {
+            text-align: center;
+            padding: 20px;
+            background: #f0f8ff;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .average-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #4a90e2;
+            margin: 0;
+        }
+
+        .average-label {
+            margin: 4px 0;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .average-subtext {
+            margin: 0;
+            font-size: 13px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+<div class="rating-container">
+    <div class="rating-question">
+        How well do you understand the role of an IT Support Specialist?
+    </div>
+
+    <div class="stars" id="stars">
+        <span class="star" data-value="1">&#9734;</span>
+        <span class="star" data-value="2">&#9734;</span>
+        <span class="star" data-value="3">&#9734;</span>
+        <span class="star" data-value="4">&#9734;</span>
+        <span class="star" data-value="5">&#9734;</span>
+    </div>
+
+    <div class="rating-label" id="ratingLabel">
+        Select your rating
+    </div>
+
+    <button class="submit-btn" id="submitBtn">Submit Rating</button>
+
+    <div class="thank-you" id="thankYou">
+        <i class="fas fa-check-circle"></i> Thank you for your feedback!
+    </div>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="view-results-container">
+        <button class="view-results-btn" id="viewResultsBtn">
+            <i class="fas fa-chart-bar"></i> View Class Results
+        </button>
+        <button class="admin-clear-btn" id="adminClearBtn" title="Admin only">
+            <i class="fas fa-broom"></i> Admin: Clear Lesson Data
+        </button>
+    </div>
+</div>
+
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <button class="close-btn" id="closeBtn">&times;</button>
+        <h3 class="modal-title">
+            <i class="fas fa-chart-bar"></i> Class Understanding Results
+        </h3>
+
+        <div id="resultsContent">
+            <div class="results-bar">
+                <span class="results-label">5 Stars:</span>
+                <div class="results-bar-bg">
+                    <div class="results-bar-fill" id="bar5"></div>
+                </div>
+                <span class="results-percent" id="percent5">0%</span>
+            </div>
+
+            <div class="results-bar">
+                <span class="results-label">4 Stars:</span>
+                <div class="results-bar-bg">
+                    <div class="results-bar-fill" id="bar4"></div>
+                </div>
+                <span class="results-percent" id="percent4">0%</span>
+            </div>
+
+            <div class="results-bar">
+                <span class="results-label">3 Stars:</span>
+                <div class="results-bar-bg">
+                    <div class="results-bar-fill" id="bar3"></div>
+                </div>
+                <span class="results-percent" id="percent3">0%</span>
+            </div>
+
+            <div class="results-bar">
+                <span class="results-label">2 Stars:</span>
+                <div class="results-bar-bg">
+                    <div class="results-bar-fill" id="bar2"></div>
+                </div>
+                <span class="results-percent" id="percent2">0%</span>
+            </div>
+
+            <div class="results-bar">
+                <span class="results-label">1 Star:</span>
+                <div class="results-bar-bg">
+                    <div class="results-bar-fill" id="bar1"></div>
+                </div>
+                <span class="results-percent" id="percent1">0%</span>
+            </div>
+
+            <div class="average-box">
+                <p class="average-number" id="avgValue">0.0</p>
+                <p class="average-label">Average Rating</p>
+                <p class="average-subtext" id="responseCount">Based on 0 responses</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    // CONFIGURATION
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzo3nuFYqFxFz2Axg7r-eAKGuz--dLdN7mJ8r5QVXPGiEvxSPue5YTMz59OwkAv9UP4cQ/exec';
+    const LESSON_ID = 'IT1010-1.1';
+
+    let selectedRating = 0;
+    const ratingLabels = {
+        1: "1 Star - I'm confused and need help",
+        2: "2 Stars - I understand a little",
+        3: "3 Stars - I understand most of it",
+        4: "4 Stars - I understand it well",
+        5: "5 Stars - I could teach this to someone else!"
+    };
+
+    const stars = document.querySelectorAll('.star');
+    const ratingLabel = document.getElementById('ratingLabel');
+    const submitBtn = document.getElementById('submitBtn');
+    const thankYou = document.getElementById('thankYou');
+    const viewResultsBtn = document.getElementById('viewResultsBtn');
+    const adminClearBtn = document.getElementById('adminClearBtn');
+    const modal = document.getElementById('modal');
+    const closeBtn = document.getElementById('closeBtn');
+    const starsContainer = document.getElementById('stars');
+    const statusMessage = document.getElementById('statusMessage');
+
+    // Helper: pseudo client id
+    function getClientId() {
+        try {
+            const key = 'lesson_rating_client_id';
+            let id = localStorage.getItem(key);
+            if (!id) {
+                id = 'client-' + Math.random().toString(36).substring(2) +
+                    '-' + Date.now().toString(36);
+                localStorage.setItem(key, id);
+            }
+            return id;
+        } catch (e) {
+            return '';
+        }
+    }
+
+    function showStatus(msg, isError) {
+        statusMessage.textContent = msg;
+        statusMessage.className = 'status-message ' + (isError ? 'error' : 'success');
+    }
+
+    function clearStatus() {
+        statusMessage.textContent = '';
+        statusMessage.className = 'status-message';
+    }
+
+    function fillStars(count) {
+        stars.forEach(function (star, index) {
+            if (index < count) {
+                star.textContent = '★';
+                star.classList.add('filled');
+            } else {
+                star.textContent = '☆';
+                star.classList.remove('filled');
+            }
+        });
+    }
+
+    stars.forEach(function (star) {
+        star.addEventListener('mouseenter', function () {
+            const value = parseInt(this.getAttribute('data-value'));
+            fillStars(value);
+        });
+
+        star.addEventListener('click', function () {
+            selectedRating = parseInt(this.getAttribute('data-value'));
+            fillStars(selectedRating);
+            ratingLabel.textContent = ratingLabels[selectedRating];
+            ratingLabel.classList.add('selected');
+            submitBtn.classList.add('show');
+            clearStatus();
+        });
+    });
+
+    starsContainer.addEventListener('mouseleave', function () {
+        if (selectedRating > 0) {
+            fillStars(selectedRating);
+        } else {
+            fillStars(0);
+        }
+    });
+
+    // SUBMIT RATING - FIXED
+    submitBtn.addEventListener('click', function () {
+        if (!selectedRating) return;
+
+        submitBtn.disabled = true;
+        showStatus('Submitting rating...', false);
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                action: 'submitRating',
+                rating: selectedRating,
+                lessonId: LESSON_ID,
+                userAgent: navigator.userAgent,
+                clientId: getClientId()
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Submit error:', data.error);
+                    showStatus('Error: ' + (data.error || 'Could not save rating'), true);
+                    return;
+                }
+                thankYou.classList.add('show');
+                submitBtn.classList.remove('show');
+                showStatus('Your rating has been recorded.', false);
+            })
+            .catch(err => {
+                console.error('Fetch error:', err);
+                showStatus('Network error while submitting rating.', true);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+            });
+    });
+
+    viewResultsBtn.addEventListener('click', function () {
+        modal.classList.add('show');
+        loadStats();
+    });
+
+    closeBtn.addEventListener('click', function () {
+        modal.classList.remove('show');
+    });
+
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+            modal.classList.remove('show');
+        }
+    });
+
+    // LOAD STATS - FIXED
+    function loadStats() {
+        const payload = {
+            action: 'getStats',
+            lessonId: LESSON_ID
+        };
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Error loading stats:', data.error);
+                    return;
+                }
+                updateStatsUI(data);
+            })
+            .catch(err => {
+                console.error('Error:', err);
+            });
+    }
+
+    function updateStatsUI(data) {
+        const dist = data.distribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        const total = data.total || 0;
+
+        function setBar(stars, count) {
+            const percent = total ? Math.round((count / total) * 100) : 0;
+            const barEl = document.getElementById('bar' + stars);
+            const percentEl = document.getElementById('percent' + stars);
+            barEl.style.width = percent + '%';
+            percentEl.textContent = percent + '%';
+        }
+
+        setBar(5, dist[5] || 0);
+        setBar(4, dist[4] || 0);
+        setBar(3, dist[3] || 0);
+        setBar(2, dist[2] || 0);
+        setBar(1, dist[1] || 0);
+
+        const avgEl = document.getElementById('avgValue');
+        const countEl = document.getElementById('responseCount');
+
+        avgEl.textContent = (data.average || 0).toFixed(1);
+        countEl.textContent = `Based on ${total} response${total === 1 ? '' : 's'}`;
+    }
+
+    // ADMIN CLEAR - FIXED
+    adminClearBtn.addEventListener('click', function () {
+        const key = prompt('Admin key to clear data for this lesson:');
+        if (!key) return;
+
+        showStatus('Clearing data...', false);
+
+        fetch(WEB_APP_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'clearData',
+                lessonId: LESSON_ID,
+                adminKey: key
+            })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showStatus('Lesson data cleared successfully.', false);
+                    // Reset modal stats view
+                    updateStatsUI({
+                        total: 0,
+                        average: 0,
+                        distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+                    });
+                } else {
+                    showStatus(data.error || 'Failed to clear data.', true);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showStatus('Error while clearing data.', true);
+            });
+    });
+})();
+</script>
+</body>
+</html>
