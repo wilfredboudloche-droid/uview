@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lesson Rating Results</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6fb;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            max-width: 700px;
+            width: 100%;
+            padding: 24px 28px;
+        }
+
+        h1 {
+            margin: 0 0 4px 0;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .subtitle {
+            color: #777;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .lesson-id {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .back-link {
+            font-size: 13px;
+            color: #1e88e5;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .avg-box {
+            text-align: center;
+            margin: 15px 0 25px 0;
+        }
+
+        .avg-score {
+            font-size: 40px;
+            font-weight: bold;
+            color: #1e88e5;
+            margin-bottom: 4px;
+        }
+
+        .avg-label {
+            font-size: 13px;
+            color: #777;
+        }
+
+        .total-responses {
+            font-size: 13px;
+            color: #555;
+            margin-top: 3px;
+        }
+
+        .dist-section {
+            margin-top: 10px;
+        }
+
+        .dist-title {
+            font-size: 15px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .row {
+            margin-bottom: 10px;
+        }
+
+        .row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .row-label {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .row-count {
+            font-size: 13px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .bar-bg {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0;
+            transition: width 0.4s ease;
+        }
+
+        .star5 { background: linear-gradient(90deg, #4caf50, #8bc34a); }
+        .star4 { background: linear-gradient(90deg, #8bc34a, #cddc39); }
+        .star3 { background: linear-gradient(90deg, #ffc107, #ffeb3b); }
+        .star2 { background: linear-gradient(90deg, #ff9800, #ffc107); }
+        .star1 { background: linear-gradient(90deg, #f44336, #ff5722); }
+
+        .status-message {
+            font-size: 13px;
+            color: #c62828;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 18px 16px;
+            }
+            h1 {
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header-row">
+        <div>
+            <h1>Lesson Rating Results</h1>
+            <div class="subtitle">Class summary of student understanding</div>
+        </div>
+        <a href="javascript:window.close()" class="back-link">
+            ← Close
+        </a>
+    </div>
+
+    <div class="lesson-id" id="lessonIdLabel"></div>
+
+    <div class="avg-box">
+        <div class="avg-score" id="avgScore">–</div>
+        <div class="avg-label">Average Rating</div>
+        <div class="total-responses" id="totalResponses">Loading...</div>
+    </div>
+
+    <div class="dist-section">
+        <div class="dist-title">Rating Distribution</div>
+
+        <div class="row">
+            <div class="row-header">
+                <span class="row-label">⭐⭐⭐⭐⭐ 5 Stars</span>
+                <span class="row-count" id="row5Count"></span>
+            </div>
+            <div class="bar-bg">
+                <div class="bar-fill star5" id="row5Bar"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="row-header">
+                <span class="row-label">⭐⭐⭐⭐ 4 Stars</span>
+                <span class="row-count" id="row4Count"></span>
+            </div>
+            <div class="bar-bg">
+                <div class="bar-fill star4" id="row4Bar"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="row-header">
+                <span class="row-label">⭐⭐⭐ 3 Stars</span>
+                <span class="row-count" id="row3Count"></span>
+            </div>
+            <div class="bar-bg">
+                <div class="bar-fill star3" id="row3Bar"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="row-header">
+                <span class="row-label">⭐⭐ 2 Stars</span>
+                <span class="row-count" id="row2Count"></span>
+            </div>
+            <div class="bar-bg">
+                <div class="bar-fill star2" id="row2Bar"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="row-header">
+                <span class="row-label">⭐ 1 Star</span>
+                <span class="row-count" id="row1Count"></span>
+            </div>
+            <div class="bar-bg">
+                <div class="bar-fill star1" id="row1Bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-message" id="statusMessage"></div>
+</div>
+
+<script>
+(function () {
+    // Same Apps Script endpoint you already use
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyaH6oZSnJIVfRO0nfAGiE3hEsPJ6HL1ULXs8ujDquALSaQZ9d43u0e8U8256dmMPt_/exec';
+
+    const params = new URLSearchParams(window.location.search);
+    const lessonId = params.get('lessonId') || 'IT1010-1.1';
+
+    const lessonIdLabel = document.getElementById('lessonIdLabel');
+    const avgScore = document.getElementById('avgScore');
+    const totalResponses = document.getElementById('totalResponses');
+    const statusMessage = document.getElementById('statusMessage');
+
+    const rowCounts = {
+        5: document.getElementById('row5Count'),
+        4: document.getElementById('row4Count'),
+        3: document.getElementById('row3Count'),
+        2: document.getElementById('row2Count'),
+        1: document.getElementById('row1Count')
+    };
+
+    const rowBars = {
+        5: document.getElementById('row5Bar'),
+        4: document.getElementById('row4Bar'),
+        3: document.getElementById('row3Bar'),
+        2: document.getElementById('row2Bar'),
+        1: document.getElementById('row1Bar')
+    };
+
+    lessonIdLabel.textContent = 'Lesson ID: ' + lessonId;
+
+    function getPercentage(count, total) {
+        return total > 0 ? Math.round((count / total) * 100) : 0;
+    }
+
+    function loadStats() {
+        statusMessage.textContent = '';
+
+        const qs = new URLSearchParams({
+            action: 'getStats',
+            lessonId: lessonId
+        });
+
+        fetch(WEB_APP_URL + '?' + qs.toString(), {
+            method: 'GET',
+            redirect: 'follow'
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Error loading stats:', data.error);
+                    statusMessage.textContent = 'Error loading stats: ' + (data.error || '');
+                    return;
+                }
+
+                const dist = data.distribution || {1:0,2:0,3:0,4:0,5:0};
+                const total = data.total || 0;
+                const average = data.average ? data.average.toFixed(2) : '0.00';
+
+                avgScore.textContent = average;
+                totalResponses.textContent = total === 1
+                    ? '1 response'
+                    : total + ' responses';
+
+                [5,4,3,2,1].forEach(star => {
+                    const count = dist[star] || 0;
+                    const pct = getPercentage(count, total);
+                    if (rowCounts[star]) {
+                        rowCounts[star].textContent = `${count} (${pct}%)`;
+                    }
+                    if (rowBars[star]) {
+                        rowBars[star].style.width = pct + '%';
+                    }
+                });
+            })
+            .catch(err => {
+                console.error('Network error:', err);
+                statusMessage.textContent = 'Network error loading stats.';
+            });
+    }
+
+    loadStats();
+})();
+</script>
+</body>
+</html>
