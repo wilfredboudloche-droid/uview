@@ -395,11 +395,10 @@
         });
 
         // ============= VIEW RESULTS (opens in new tab) =============
-        viewResultsBtn.addEventListener('click', function () {
-            // Replace with your actual GitHub Pages URL
-            const resultsUrl = `https://wilfredboudloche-droid.github.io/uview/rating-widget/results.html?lessonId=${encodeURIComponent(LESSON_ID)}`;
-            window.open(resultsUrl, '_blank');
-        });
+       viewResultsBtn.addEventListener('click', function () {
+    const resultsUrl = `https://wilfredboudloche-droid.github.io/uview/results.html?lessonId=${encodeURIComponent(LESSON_ID)}`;
+    window.open(resultsUrl, '_blank');
+});
     })();
     </script>
 </body>
