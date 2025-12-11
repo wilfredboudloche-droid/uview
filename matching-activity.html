@@ -10,7 +10,7 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
         Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #1e5ba8;
       color: #1f2933;
       min-height: 100vh;
       display: flex;
@@ -31,23 +31,23 @@
     }
 
     .header {
-      background: radial-gradient(circle at top left, #facc15, #f97316, #ec4899);
+      background: #2d6e3e;
       padding: 20px 24px;
       color: white;
       position: relative;
-    }
-
-    .header::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 60%);
-      pointer-events: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     .header-content {
-      position: relative;
-      z-index: 1;
+      flex: 1;
+    }
+
+    .school-logo {
+      width: 80px;
+      height: auto;
+      flex-shrink: 0;
     }
 
     .title {
@@ -69,7 +69,7 @@
       font-size: 1rem;
       font-weight: 600;
       margin-bottom: 8px;
-      color: #111827;
+      color: #1e5ba8;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -97,7 +97,7 @@
     .column-header {
       font-size: 1rem;
       font-weight: 600;
-      color: #111827;
+      color: #1e5ba8;
       margin-bottom: 12px;
       display: flex;
       align-items: center;
@@ -122,27 +122,27 @@
     }
 
     .setting-card:hover {
-      border-color: #6366f1;
+      border-color: #1e5ba8;
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 8px 20px rgba(30, 91, 168, 0.2);
     }
 
     .setting-card.selected {
-      border-color: #4f46e5;
-      background: #eef2ff;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      border-color: #1e5ba8;
+      background: #e8f0f9;
+      box-shadow: 0 0 0 3px rgba(30, 91, 168, 0.2);
     }
 
     .setting-card.correct {
-      border-color: #22c55e;
-      background: #f0fdf4;
-      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+      border-color: #2d6e3e;
+      background: #e8f5eb;
+      box-shadow: 0 0 0 3px rgba(45, 110, 62, 0.2);
     }
 
     .setting-card.incorrect {
-      border-color: #ef4444;
+      border-color: #dc2626;
       background: #fef2f2;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
       animation: shake 0.3s ease;
     }
 
@@ -188,15 +188,15 @@
     }
 
     .responsibility-card:hover {
-      border-color: #6366f1;
+      border-color: #1e5ba8;
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.2);
+      box-shadow: 0 8px 20px rgba(30, 91, 168, 0.2);
     }
 
     .responsibility-card.selected {
-      border-color: #4f46e5;
-      background: #eef2ff;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+      border-color: #1e5ba8;
+      background: #e8f0f9;
+      box-shadow: 0 0 0 3px rgba(30, 91, 168, 0.2);
     }
 
     .responsibility-card.matched {
@@ -230,13 +230,13 @@
 
     .setting-card.correct .status-badge {
       display: block;
-      background: #22c55e;
+      background: #2d6e3e;
       color: white;
     }
 
     .setting-card.incorrect .status-badge {
       display: block;
-      background: #ef4444;
+      background: #dc2626;
       color: white;
     }
 
@@ -262,7 +262,7 @@
     .score-number {
       font-weight: 700;
       font-size: 1.1rem;
-      color: #4f46e5;
+      color: #1e5ba8;
     }
 
     .btn {
@@ -279,15 +279,15 @@
     }
 
     .btn-primary {
-      background: #4f46e5;
+      background: #1e5ba8;
       color: white;
-      box-shadow: 0 8px 18px rgba(79, 70, 229, 0.4);
+      box-shadow: 0 4px 12px rgba(30, 91, 168, 0.3);
     }
 
     .btn-primary:hover {
-      background: #4338ca;
+      background: #174a8a;
       transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(79, 70, 229, 0.5);
+      box-shadow: 0 6px 16px rgba(30, 91, 168, 0.4);
     }
 
     .btn-secondary {
@@ -324,7 +324,7 @@
     .completion-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #111827;
+      color: #1e5ba8;
       margin-bottom: 8px;
     }
 
@@ -351,6 +351,10 @@
         font-size: 1.2rem;
       }
 
+      .school-logo {
+        width: 60px;
+      }
+
       .controls {
         flex-direction: column;
         align-items: stretch;
@@ -365,6 +369,7 @@
         <div class="title">🎯 IT Support Specialist Matcher</div>
         <div class="subtitle">Match each responsibility to the correct work setting</div>
       </div>
+      <img src="uview_logo.png" alt="University View Academy" class="school-logo">
     </header>
 
     <section class="instructions">
