@@ -394,23 +394,25 @@
                 });
         });
 
-        // ============= VIEW RESULTS (opens in new tab) =============
-       viewResultsBtn.addEventListener('click', function () {
-    const resultsUrl = `https://wilfredboudloche-droid.github.io/uview/results.html?lessonId=${encodeURIComponent(LESSON_ID)}`;
-    
-    // Calculate center position
-    const width = 750;
-    const height = 650;
-    const left = (screen.width / 2) - (width / 2);
-    const top = (screen.height / 2) - (height / 2);
-    
-    // Open centered popup with restricted features
-    window.open(
-        resultsUrl,
-        'LessonResults',
-        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no`
-    );
-});
-    </script>
+        // ============= VIEW RESULTS (opens popup) =============
+        viewResultsBtn.addEventListener('click', function () {
+            const resultsUrl = `https://wilfredboudloche-droid.github.io/uview/results.html?lessonId=${encodeURIComponent(LESSON_ID)}`;
+            
+            // Calculate center position
+            const width = 750;
+            const height = 650;
+            const left = (screen.width / 2) - (width / 2);
+            const top = (screen.height / 2) - (height / 2);
+            
+            // Open centered popup with restricted features
+            window.open(
+                resultsUrl,
+                'LessonResults',
+                `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,status=no`
+            );
+        });
+
+    })(); // <-- THIS WAS MISSING!
+</script>
 </body>
 </html>
