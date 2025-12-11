@@ -175,6 +175,40 @@
             text-align: right;
         }
 
+        .lesson-feedback-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .lesson-feedback-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .lesson-feedback-item {
+            background: #fff8e1;
+            border-left: 3px solid #ffc107;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .lesson-feedback-meta {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .lesson-feedback-text {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.4;
+            font-style: italic;
+        }
+
         .feedback-section {
             background: white;
             padding: 30px;
@@ -277,7 +311,7 @@
 
             <!-- Student Feedback -->
             <div class="feedback-section">
-                <div class="section-title">Student Feedback (Ratings < 4)</div>
+                <div class="section-title">All Student Feedback (Ratings < 4)</div>
                 <div id="feedbackContainer"></div>
             </div>
         </div>
@@ -392,11 +426,21 @@
                     lessonMap[r.lessonId] = {
                         lessonId: r.lessonId,
                         ratings: [],
-                        dist: {1:0, 2:0, 3:0, 4:0, 5:0}
+                        dist: {1:0, 2:0, 3:0, 4:0, 5:0},
+                        feedbackItems: []
                     };
                 }
                 lessonMap[r.lessonId].ratings.push(r.rating);
                 lessonMap[r.lessonId].dist[r.rating]++;
+                
+                // Collect feedback for ratings < 4
+                if (r.rating < 4 && r.feedback && r.feedback.trim()) {
+                    lessonMap[r.lessonId].feedbackItems.push({
+                        rating: r.rating,
+                        feedback: r.feedback,
+                        timestamp: r.timestamp
+                    });
+                }
             });
 
             const lessonGrid = document.getElementById('lessonGrid');
@@ -408,6 +452,22 @@
 
                 const card = document.createElement('div');
                 card.className = 'lesson-card';
+                
+                let feedbackHTML = '';
+                if (lesson.feedbackItems.length > 0) {
+                    feedbackHTML = `
+                        <div class="lesson-feedback-section">
+                            <div class="lesson-feedback-title">📝 Student Feedback:</div>
+                            ${lesson.feedbackItems.map(item => `
+                                <div class="lesson-feedback-item">
+                                    <div class="lesson-feedback-meta">${item.rating}★ • ${new Date(item.timestamp).toLocaleDateString()}</div>
+                                    <div class="lesson-feedback-text">"${item.feedback}"</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+                
                 card.innerHTML = `
                     <div class="lesson-header">
                         <div class="lesson-id">${lesson.lessonId}</div>
@@ -429,6 +489,7 @@
                             `;
                         }).join('')}
                     </div>
+                    ${feedbackHTML}
                 `;
                 lessonGrid.appendChild(card);
             });
