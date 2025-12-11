@@ -5,11 +5,7 @@
   <title>Branching Scenario – First Day on the Help Desk</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
@@ -58,11 +54,7 @@
       z-index: 1;
     }
 
-    .title-block {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .title-block { display: flex; flex-direction: column; gap: 4px; }
 
     .title {
       font-size: 1.4rem;
@@ -70,10 +62,7 @@
       letter-spacing: 0.02em;
     }
 
-    .subtitle {
-      font-size: 0.9rem;
-      opacity: 0.9;
-    }
+    .subtitle { font-size: 0.9rem; opacity: 0.9; }
 
     .badge {
       background: rgba(15, 23, 42, 0.15);
@@ -94,11 +83,7 @@
       box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.35);
     }
 
-    .progress-bar-wrapper {
-      position: relative;
-      z-index: 1;
-      margin-top: 16px;
-    }
+    .progress-bar-wrapper { position: relative; z-index: 1; margin-top: 16px; }
 
     .progress-label {
       display: flex;
@@ -151,18 +136,14 @@
       color: #374151;
     }
 
-    .pill span.icon {
-      font-size: 0.9rem;
-    }
+    .pill span.icon { font-size: 0.9rem; }
 
     .screen {
       display: none;
       animation: fadeIn 0.25s ease-out;
     }
 
-    .screen.active {
-      display: block;
-    }
+    .screen.active { display: block; }
 
     .card {
       background: white;
@@ -205,6 +186,15 @@
       margin-bottom: 12px;
     }
 
+    .scenario-image {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: block;
+      object-fit: cover;
+      max-height: 260px;
+    }
+
     .choices-label {
       font-size: 0.85rem;
       font-weight: 600;
@@ -212,12 +202,7 @@
       margin-bottom: 6px;
     }
 
-    .choices {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 6px;
-    }
+    .choices { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
 
     .choice-btn {
       width: 100%;
@@ -243,9 +228,7 @@
       text-align: center;
     }
 
-    .choice-text {
-      flex: 1;
-    }
+    .choice-text { flex: 1; }
 
     .choice-btn:hover {
       background: #eef2ff;
@@ -267,6 +250,15 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+    }
+
+    .outcome-image {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: block;
+      object-fit: cover;
+      max-height: 260px;
     }
 
     .outcome-header {
@@ -316,13 +308,9 @@
       color: #4b5563;
     }
 
-    .outcome-keypoint strong {
-      color: #111827;
-    }
+    .outcome-keypoint strong { color: #111827; }
 
-    .outcome-keypoint + .outcome-keypoint {
-      margin-top: 2px;
-    }
+    .outcome-keypoint + .outcome-keypoint { margin-top: 2px; }
 
     .outcome-footer {
       font-size: 0.8rem;
@@ -403,9 +391,7 @@
       margin-bottom: 10px;
     }
 
-    .reflection-list li {
-      margin-bottom: 4px;
-    }
+    .reflection-list li { margin-bottom: 4px; }
 
     textarea {
       width: 100%;
@@ -443,44 +429,19 @@
       background: rgba(249, 250, 251, 0.95);
     }
 
-    .footer span {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
+    .footer span { display: inline-flex; align-items: center; gap: 4px; }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 640px) {
-      body {
-        padding: 10px;
-      }
-
-      .header {
-        padding: 16px 14px;
-      }
-
-      .main {
-        padding: 14px 12px 16px;
-      }
-
-      .header-top {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .title {
-        font-size: 1.2rem;
-      }
+      body { padding: 10px; }
+      .header { padding: 16px 14px; }
+      .main { padding: 14px 12px 16px; }
+      .header-top { flex-direction: column; align-items: flex-start; }
+      .title { font-size: 1.2rem; }
     }
   </style>
 </head>
@@ -509,20 +470,13 @@
     </header>
 
     <main class="main">
+      <div class="ticket-meta" id="ticketMeta"></div>
 
-      <!-- Ticket meta row -->
-      <div class="ticket-meta" id="ticketMeta">
-        <!-- Filled dynamically per screen -->
-      </div>
-
-      <!-- SCREENS -->
-
-      <!-- Screen 0: Intro -->
+      <!-- Intro -->
       <section class="screen active" data-screen="intro">
         <div class="card">
-          <h2 class="screen-title">
-            👋 Welcome to TechCare Solutions
-          </h2>
+          <img src="hero-helpdesk.png" alt="IT help desk technician at workstation" class="scenario-image">
+          <h2 class="screen-title">👋 Welcome to TechCare Solutions</h2>
           <p class="scenario-text">
             You're a brand new <strong>Help Desk Technician</strong>, and today is your first day taking support tickets on your own.
             Your job is to help staff solve technical problems calmly and efficiently.
@@ -543,18 +497,16 @@
           <p class="scenario-text">
             You will handle <strong>three tickets</strong> and then complete a short reflection.
           </p>
-
           <div class="nav-row">
-            <button class="nav-btn" id="startBtn">
-              Start Your Shift →
-            </button>
+            <button class="nav-btn" id="startBtn">Start Your Shift →</button>
           </div>
         </div>
       </section>
 
-      <!-- Screen 1: Ticket #1047 choice -->
+      <!-- Ticket #1047 -->
       <section class="screen" data-screen="ticket1">
         <div class="card">
+          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1047 <span class="ticket-tag">"I can't print!"</span>
           </h2>
@@ -584,13 +536,12 @@
         </div>
       </section>
 
-      <!-- Screen 1A: Outcome poor -->
+      <!-- Ticket #1047 outcomes (text only, share same visual context) -->
       <section class="screen" data-screen="ticket1A">
         <div class="outcome-card">
+          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill poor">
-              <span>✖</span><span>Poor Outcome</span>
-            </div>
+            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>Uh oh... you rushed in without information.</span>
           </div>
           <p class="outcome-main">
@@ -613,19 +564,15 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="ticket2">
-            Continue to Next Ticket →
-          </button>
+          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
         </div>
       </section>
 
-      <!-- Screen 1B: Outcome good -->
       <section class="screen" data-screen="ticket1B">
         <div class="outcome-card">
+          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill good">
-              <span>✔</span><span>Strong Outcome</span>
-            </div>
+            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You're thinking like an IT pro.</span>
           </div>
           <p class="outcome-main">
@@ -647,19 +594,15 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="ticket2">
-            Continue to Next Ticket →
-          </button>
+          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
         </div>
       </section>
 
-      <!-- Screen 1C: Outcome okay -->
       <section class="screen" data-screen="ticket1C">
         <div class="outcome-card">
+          <img src="ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill okay">
-              <span>!</span><span>Mixed Outcome</span>
-            </div>
+            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>Not terrible, but you skipped a step.</span>
           </div>
           <p class="outcome-main">
@@ -676,15 +619,14 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="ticket2">
-            Continue to Next Ticket →
-          </button>
+          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
         </div>
       </section>
 
-      <!-- Screen 2: Ticket #1053 choice -->
+      <!-- Ticket #1053 -->
       <section class="screen" data-screen="ticket2">
         <div class="card">
+          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1053 <span class="ticket-tag">"My computer is really slow."</span>
           </h2>
@@ -722,13 +664,12 @@
         </div>
       </section>
 
-      <!-- Screen 2A: Outcome good -->
+      <!-- Ticket #1053 outcomes -->
       <section class="screen" data-screen="ticket2A">
         <div class="outcome-card">
+          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill good">
-              <span>✔</span><span>Strong Outcome</span>
-            </div>
+            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You identified the real issue.</span>
           </div>
           <p class="outcome-main">
@@ -745,19 +686,15 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="ticket3">
-            Continue to Next Ticket →
-          </button>
+          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
         </div>
       </section>
 
-      <!-- Screen 2B: Outcome poor -->
       <section class="screen" data-screen="ticket2B">
         <div class="outcome-card">
+          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill poor">
-              <span>✖</span><span>Poor Outcome</span>
-            </div>
+            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>You jumped to the wrong conclusion.</span>
           </div>
           <p class="outcome-main">
@@ -774,19 +711,15 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="ticket3">
-            Continue to Next Ticket →
-          </button>
+          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
         </div>
       </section>
 
-      <!-- Screen 2C: Outcome okay -->
       <section class="screen" data-screen="ticket2C">
         <div class="outcome-card">
+          <img src="ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill okay">
-              <span>!</span><span>Mixed Outcome</span>
-            </div>
+            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>You went too big, too fast.</span>
           </div>
           <p class="outcome-main">
@@ -802,15 +735,14 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="ticket3">
-            Continue to Next Ticket →
-          </button>
+          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
         </div>
       </section>
 
-      <!-- Screen 3: Ticket #1061 choice -->
+      <!-- Ticket #1061 -->
       <section class="screen" data-screen="ticket3">
         <div class="card">
+          <img src="ticket-network.png" alt="School network room with router alert" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1061 <span class="ticket-tag">"The whole building lost internet."</span>
           </h2>
@@ -844,13 +776,12 @@
         </div>
       </section>
 
-      <!-- Screen 3A: Outcome okay -->
+      <!-- Ticket #1061 outcomes -->
       <section class="screen" data-screen="ticket3A">
         <div class="outcome-card">
+          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill okay">
-              <span>!</span><span>Mixed Outcome</span>
-            </div>
+            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>You took initiative, but...</span>
           </div>
           <p class="outcome-main">
@@ -867,19 +798,15 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="summary">
-            Finish Your Shift →
-          </button>
+          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
         </div>
       </section>
 
-      <!-- Screen 3B: Outcome poor -->
       <section class="screen" data-screen="ticket3B">
         <div class="outcome-card">
+          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill poor">
-              <span>✖</span><span>Poor Outcome</span>
-            </div>
+            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>You focused on the wrong level of the problem.</span>
           </div>
           <p class="outcome-main">
@@ -896,19 +823,15 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="summary">
-            Finish Your Shift →
-          </button>
+          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
         </div>
       </section>
 
-      <!-- Screen 3C: Outcome good -->
       <section class="screen" data-screen="ticket3C">
         <div class="outcome-card">
+          <img src="ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
-            <div class="outcome-pill good">
-              <span>✔</span><span>Strong Outcome</span>
-            </div>
+            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You escalated to the right person immediately.</span>
           </div>
           <p class="outcome-main">
@@ -926,18 +849,15 @@
           </p>
         </div>
         <div class="nav-row">
-          <button class="nav-btn" data-next="summary">
-            Finish Your Shift →
-          </button>
+          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
         </div>
       </section>
 
-      <!-- Summary + Reflection -->
+      <!-- Summary -->
       <section class="screen" data-screen="summary">
         <div class="card" style="margin-bottom:12px;">
-          <h2 class="screen-title">
-            ✅ Shift Complete: What Did You Learn?
-          </h2>
+          <img src="scenario-complete.png" alt="Completion badge for IT support training" class="scenario-image">
+          <h2 class="screen-title">✅ Shift Complete: What Did You Learn?</h2>
           <p class="scenario-text">
             You handled three different support tickets that showed key responsibilities of an IT support specialist:
           </p>
@@ -978,27 +898,15 @@
     </main>
 
     <footer class="footer">
-      <span>
-        <span>💻</span>
-        <span>Scenario: Role of an IT Support Specialist</span>
-      </span>
+      <span><span>💻</span><span>Scenario: Role of an IT Support Specialist</span></span>
       <span id="footerHint">Make thoughtful choices to see how your decisions affect each ticket.</span>
     </footer>
   </div>
 
   <script>
-    // Simple state: which "step" of progress we're on (0–4)
-    const SCREENS = [
-      "intro",   // 0
-      "ticket1", // 1
-      "ticket2", // 2
-      "ticket3", // 3
-      "summary"  // 4
-    ];
-
-    let currentStep = 0; // index in SCREENS for progress bar
-    const totalSteps = SCREENS.length - 1; // last index
-
+    const SCREENS = ["intro","ticket1","ticket2","ticket3","summary"];
+    let currentStep = 0;
+    const totalSteps = SCREENS.length - 1;
     const progressFill = document.getElementById("progressFill");
     const progressText = document.getElementById("progressText");
     const ticketMetaEl = document.getElementById("ticketMeta");
@@ -1009,8 +917,6 @@
       const percent = Math.round((stepIndex / totalSteps) * 100);
       progressFill.style.width = percent + "%";
       progressText.textContent = percent + "%";
-
-      // Update footer hint subtly
       if (stepIndex === 0) {
         footerHint.textContent = "Make thoughtful choices to see how your decisions affect each ticket.";
       } else if (stepIndex === 4) {
@@ -1024,14 +930,9 @@
       document.querySelectorAll(".screen").forEach(s => {
         s.classList.toggle("active", s.dataset.screen === screenName);
       });
-
-      // Update progress if screen is one of the main steps
       const idx = SCREENS.indexOf(screenName);
-      if (idx !== -1) {
-        setProgress(idx);
-      }
+      if (idx !== -1) setProgress(idx);
 
-      // Update ticket meta row text
       let metaHtml = "";
       switch (screenName) {
         case "intro":
@@ -1077,32 +978,20 @@
       ticketMetaEl.innerHTML = metaHtml;
     }
 
-    // Start button
-    document.getElementById("startBtn").addEventListener("click", () => {
-      showScreen("ticket1");
-    });
-
-    // Choice buttons
+    document.getElementById("startBtn").addEventListener("click", () => showScreen("ticket1"));
     document.querySelectorAll(".choice-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const next = btn.getAttribute("data-next");
-        if (next) {
-          showScreen(next);
-        }
+        if (next) showScreen(next);
       });
     });
-
-    // Navigation buttons
     document.querySelectorAll(".nav-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const next = btn.getAttribute("data-next");
-        if (next) {
-          showScreen(next);
-        }
+        if (next) showScreen(next);
       });
     });
 
-    // Initialize
     showScreen("intro");
   </script>
 </body>
