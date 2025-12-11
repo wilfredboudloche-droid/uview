@@ -5,341 +5,341 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rate This Lesson</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-   <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
-
-    .container {
-        background: white;
-        border-radius: 20px;
-        padding: 25px 35px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        max-width: 700px;
-        width: 100%;
-        text-align: center;
-    }
-
-    h1 {
-        color: #333;
-        margin-bottom: 5px;
-        font-size: 24px;
-    }
-
-    .subtitle {
-        color: #666;
-        margin-bottom: 15px;
-        font-size: 14px;
-    }
-
-    .stars {
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        margin: 15px 0;
-    }
-
-    .star {
-        font-size: 42px;
-        color: #ddd;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        user-select: none;
-    }
-
-    .star:hover {
-        transform: scale(1.15);
-    }
-
-    .star.filled {
-        color: #ffd700;
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-    }
-
-    .rating-label {
-        min-height: 25px;
-        color: #666;
-        font-size: 15px;
-        margin: 12px 0;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .rating-label.selected {
-        opacity: 1;
-        color: #667eea;
-        font-weight: 600;
-    }
-
-    .submit-btn {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 12px 35px;
-        font-size: 16px;
-        border-radius: 50px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        opacity: 0;
-        transform: translateY(10px);
-        pointer-events: none;
-        margin-top: 10px;
-    }
-
-    .submit-btn.show {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: all;
-    }
-
-    .submit-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-    }
-
-    .submit-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    .thank-you {
-        margin-top: 15px;
-        padding: 15px;
-        background: #e8f5e9;
-        border-radius: 10px;
-        color: #2e7d32;
-        font-size: 16px;
-        opacity: 0;
-        transform: scale(0.8);
-        transition: all 0.3s ease;
-        pointer-events: none;
-    }
-
-    .thank-you.show {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    .status-message {
-        margin-top: 12px;
-        padding: 8px;
-        border-radius: 5px;
-        font-size: 13px;
-        min-height: 18px;
-    }
-
-    .status-message.success {
-        background: #e8f5e9;
-        color: #2e7d32;
-    }
-
-    .status-message.error {
-        background: #ffebee;
-        color: #c62828;
-    }
-
-    .action-buttons {
-        margin-top: 15px;
-        display: flex;
-        gap: 12px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .action-btn {
-        background: #f5f5f5;
-        color: #333;
-        border: 2px solid #ddd;
-        padding: 10px 24px;
-        font-size: 14px;
-        border-radius: 25px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .action-btn:hover {
-        background: #667eea;
-        color: white;
-        border-color: #667eea;
-    }
-
-    /* Modal Styles */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
-
-    .modal.show {
-        display: flex;
-    }
-
-    .modal-content {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        max-width: 500px;
-        width: 100%;
-        max-height: 85vh;
-        overflow-y: auto;
-        position: relative;
-    }
-
-    .close-btn {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        font-size: 24px;
-        cursor: pointer;
-        color: #999;
-        background: none;
-        border: none;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .close-btn:hover {
-        color: #333;
-    }
-
-    .modal h2 {
-        color: #333;
-        margin-bottom: 20px;
-        font-size: 22px;
-    }
-
-    .stats-content {
-        text-align: left;
-        color: #666;
-        font-size: 14px;
-    }
-
-    .stats-content p {
-        margin: 10px 0;
-    }
-
-    .stats-content h4 {
-        margin-top: 20px;
-        margin-bottom: 10px;
-        color: #333;
-        font-size: 16px;
-    }
-
-    .stats-content ul {
-        list-style: none;
-        padding: 0;
-    }
-
-    .stats-content li {
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-        font-size: 14px;
-    }
-
-    .stats-content li:last-child {
-        border-bottom: none;
-    }
-
-    .admin-section {
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 2px solid #eee;
-    }
-
-    .admin-section h3 {
-        color: #c62828;
-        margin-bottom: 15px;
-        font-size: 16px;
-    }
-
-    .admin-input {
-        width: 100%;
-        padding: 10px;
-        border: 2px solid #ddd;
-        border-radius: 5px;
-        font-size: 14px;
-        margin-bottom: 10px;
-    }
-
-    .admin-clear-btn {
-        background: #c62828;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-        width: 100%;
-    }
-
-    .admin-clear-btn:hover:not(:disabled) {
-        background: #b71c1c;
-    }
-
-    .admin-clear-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .container {
-            max-width: 500px;
-            padding: 20px 25px;
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .star {
-            font-size: 36px;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px 35px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
         }
 
         h1 {
-            font-size: 20px;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 24px;
         }
-    }
 
-    @media (max-width: 480px) {
-        .container {
-            max-width: 100%;
-            padding: 18px 20px;
+        .subtitle {
+            color: #666;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0;
         }
 
         .star {
-            font-size: 32px;
-            gap: 8px;
+            font-size: 42px;
+            color: #ddd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .star:hover {
+            transform: scale(1.15);
+        }
+
+        .star.filled {
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .rating-label {
+            min-height: 25px;
+            color: #666;
+            font-size: 15px;
+            margin: 12px 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .rating-label.selected {
+            opacity: 1;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            font-size: 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            margin-top: 10px;
+        }
+
+        .submit-btn.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: all;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .thank-you {
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 10px;
+            color: #2e7d32;
+            font-size: 16px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .thank-you.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .status-message {
+            margin-top: 12px;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 13px;
+            min-height: 18px;
+        }
+
+        .status-message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-message.error {
+            background: #ffebee;
+            color: #c62828;
         }
 
         .action-buttons {
-            flex-direction: column;
+            margin-top: 15px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .action-btn {
+            background: #f5f5f5;
+            color: #333;
+            border: 2px solid #ddd;
+            padding: 10px 24px;
+            font-size: 14px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            background: none;
+            border: none;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .stats-content {
+            text-align: left;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stats-content p {
+            margin: 10px 0;
+        }
+
+        .stats-content h4 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .stats-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .stats-content li {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .stats-content li:last-child {
+            border-bottom: none;
+        }
+
+        .admin-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .admin-section h3 {
+            color: #c62828;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .admin-clear-btn {
+            background: #c62828;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
             width: 100%;
         }
-    }
-</style>
+
+        .admin-clear-btn:hover:not(:disabled) {
+            background: #b71c1c;
+        }
+
+        .admin-clear-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 500px;
+                padding: 20px 25px;
+            }
+
+            .star {
+                font-size: 36px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                padding: 18px 20px;
+            }
+
+            .star {
+                font-size: 32px;
+                gap: 8px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -575,17 +575,75 @@
             const total = data.total || 0;
             const average = data.average ? data.average.toFixed(2) : '0.00';
 
+            // Calculate percentages for progress bars
+            const getPercentage = (count) => {
+                return total > 0 ? Math.round((count / total) * 100) : 0;
+            };
+
             statsContent.innerHTML = `
-                <p><strong>Total Responses:</strong> ${total}</p>
-                <p><strong>Average Rating:</strong> ${average}</p>
-                <h4>Distribution:</h4>
-                <ul>
-                    <li>⭐ 1 Star: ${dist[1] || 0}</li>
-                    <li>⭐⭐ 2 Stars: ${dist[2] || 0}</li>
-                    <li>⭐⭐⭐ 3 Stars: ${dist[3] || 0}</li>
-                    <li>⭐⭐⭐⭐ 4 Stars: ${dist[4] || 0}</li>
-                    <li>⭐⭐⭐⭐⭐ 5 Stars: ${dist[5] || 0}</li>
-                </ul>
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <div style="font-size: 48px; color: #667eea; font-weight: bold; margin-bottom: 5px;">
+                        ${average}
+                    </div>
+                    <div style="color: #999; font-size: 14px;">Average Rating</div>
+                    <div style="color: #666; font-size: 14px; margin-top: 5px;">
+                        ${total} ${total === 1 ? 'response' : 'responses'}
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 15px; color: #333; font-size: 16px;">Rating Distribution</h4>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span style="font-size: 13px; color: #666;">⭐⭐⭐⭐⭐ 5 Stars</span>
+                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[5] || 0} (${getPercentage(dist[5])}%)</span>
+                        </div>
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #4caf50, #8bc34a); height: 100%; width: ${getPercentage(dist[5])}%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span style="font-size: 13px; color: #666;">⭐⭐⭐⭐ 4 Stars</span>
+                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[4] || 0} (${getPercentage(dist[4])}%)</span>
+                        </div>
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #8bc34a, #cddc39); height: 100%; width: ${getPercentage(dist[4])}%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span style="font-size: 13px; color: #666;">⭐⭐⭐ 3 Stars</span>
+                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[3] || 0} (${getPercentage(dist[3])}%)</span>
+                        </div>
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #ffc107, #ffeb3b); height: 100%; width: ${getPercentage(dist[3])}%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span style="font-size: 13px; color: #666;">⭐⭐ 2 Stars</span>
+                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[2] || 0} (${getPercentage(dist[2])}%)</span>
+                        </div>
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #ff9800, #ffc107); height: 100%; width: ${getPercentage(dist[2])}%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <span style="font-size: 13px; color: #666;">⭐ 1 Star</span>
+                            <span style="font-size: 13px; color: #666; font-weight: 600;">${dist[1] || 0} (${getPercentage(dist[1])}%)</span>
+                        </div>
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div style="background: linear-gradient(90deg, #f44336, #ff5722); height: 100%; width: ${getPercentage(dist[1])}%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                </div>
             `;
         }
 
