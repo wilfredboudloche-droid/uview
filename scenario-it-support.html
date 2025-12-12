@@ -571,6 +571,39 @@
       display: flex;
     }
 
+    /* DEBUG CONSOLE */
+    .debug-console {
+      background: #1f2937;
+      color: #10b981;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.75rem;
+      max-height: 200px;
+      overflow-y: auto;
+      border: 2px solid #10b981;
+    }
+
+    .debug-console h4 {
+      color: #fbbf24;
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+    }
+
+    .debug-log {
+      margin-bottom: 4px;
+      padding: 2px 0;
+    }
+
+    .debug-log.error {
+      color: #ef4444;
+    }
+
+    .debug-log.success {
+      color: #22c55e;
+    }
+
     .footer {
       padding: 8px 16px 12px;
       font-size: 0.75rem;
@@ -1111,6 +1144,12 @@
             <span>Success! Your scenario data has been recorded. You can now close this page or copy your reflection to Canvas.</span>
           </div>
         </div>
+
+        <!-- DEBUG CONSOLE -->
+        <div class="debug-console">
+          <h4>🔍 Debug Console (Testing Mode)</h4>
+          <div id="debugLog"></div>
+        </div>
       </section>
     </main>
 
@@ -1121,8 +1160,22 @@
   </div>
 
   <script>
+    // 🔥 DEBUG MODE - Enhanced logging
+    const debugLog = document.getElementById('debugLog');
+    
+    function addDebugLog(message, type = 'info') {
+      const logEntry = document.createElement('div');
+      logEntry.className = `debug-log ${type}`;
+      logEntry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      debugLog.appendChild(logEntry);
+      debugLog.scrollTop = debugLog.scrollHeight;
+      console.log(message);
+    }
+
     // 🔥 Analytics & Tracking System
     const SCRIPT_URL = 'https://script.google.com/a/macros/uview.academy/s/AKfycby_X0DOR20-0NJt5_65lCj7vXbr8wIW29L47MVzU89Gx6RItfOsnavlL07wRmhUgSrfcg/exec';
+
+    addDebugLog('Script initialized. Google Apps Script URL: ' + SCRIPT_URL);
 
     // Generate or retrieve session ID
     function getSessionId() {
@@ -1130,12 +1183,14 @@
       if (!sessionId) {
         sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('scenario_session_id', sessionId);
+        addDebugLog('New session ID created: ' + sessionId, 'success');
+      } else {
+        addDebugLog('Existing session ID retrieved: ' + sessionId, 'success');
       }
       return sessionId;
     }
 
     const SESSION_ID = getSessionId();
-    console.log('Session ID:', SESSION_ID);
 
     // Track events progressively
     function trackEvent(eventType, stepId, eventValue) {
@@ -1150,11 +1205,30 @@
         user_agent: navigator.userAgent
       };
 
-      // Use sendBeacon for reliable tracking
-      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
-      navigator.sendBeacon(SCRIPT_URL, blob);
+      addDebugLog(`Tracking event: ${eventType} | ${stepId} | ${eventValue}`);
 
-      console.log('Event tracked:', payload);
+      // Try multiple methods for reliability
+      
+      // Method 1: sendBeacon (most reliable for page unload)
+      if (navigator.sendBeacon) {
+        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+        const beaconResult = navigator.sendBeacon(SCRIPT_URL, blob);
+        addDebugLog(`sendBeacon result: ${beaconResult}`, beaconResult ? 'success' : 'error');
+      }
+
+      // Method 2: fetch with no-cors (backup)
+      fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        addDebugLog('Fetch request sent successfully', 'success');
+      })
+      .catch(error => {
+        addDebugLog('Fetch error: ' + error.message, 'error');
+      });
     }
 
     // Track page load
@@ -1252,6 +1326,7 @@
         if (ticket && choice) {
           trackEvent('decision', 'ticket_' + ticket, 'Choice ' + choice);
           studentChoices['ticket' + ticket] = choice;
+          addDebugLog(`Student chose: Ticket ${ticket} - Choice ${choice}`, 'success');
         }
 
         if (next) showScreen(next);
@@ -1299,19 +1374,24 @@
         reflection: reflection
       };
 
+      addDebugLog('Final submission payload: ' + JSON.stringify(finalPayload));
+
       try {
-        await fetch(SCRIPT_URL, {
+        const response = await fetch(SCRIPT_URL, {
           method: 'POST',
           mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(finalPayload)
         });
 
+        addDebugLog('Final submission sent (no-cors mode - response not readable)', 'success');
+        
         successMessage.classList.add('show');
         submitBtn.style.display = 'none';
         trackEvent('form_submit', 'summary', 'Final submission completed');
 
       } catch (error) {
+        addDebugLog('Submission error: ' + error.message, 'error');
         alert('Error submitting data: ' + error.message);
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<span>✅</span><span>Submit My Scenario Data</span>';
@@ -1319,6 +1399,7 @@
     });
 
     showScreen("intro");
+    addDebugLog('Page ready. Waiting for user interaction...');
   </script>
 </body>
 </html>
