@@ -30,7 +30,6 @@
       flex-direction: column;
     }
 
-    /* Updated header */
     .header {
       background: linear-gradient(135deg, #1e5ba8 0%, #2d7a3e 100%);
       padding: 20px 24px 16px;
@@ -64,7 +63,6 @@
 
     .subtitle { font-size: 0.9rem; opacity: 0.95; }
 
-    /* Blinking badge for "Live Simulation" with RED dot */
     .badge {
       background: rgba(255, 255, 255, 0.2);
       border-radius: 999px;
@@ -119,7 +117,6 @@
       transition: width 0.35s ease;
     }
 
-    /* Persistent objective pill container with logo */
     .objective-container {
       padding: 14px 24px;
       background: white;
@@ -481,6 +478,99 @@
       margin-top: 6px;
     }
 
+    .submit-form {
+      background: #f0f9ff;
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .submit-form h4 {
+      font-size: 0.95rem;
+      color: #1e40af;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 4px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 0.9rem;
+      font-family: inherit;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #1e5ba8;
+      box-shadow: 0 0 0 1px #1e5ba8;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #1e5ba8 0%, #2d7a3e 100%);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 8px 18px rgba(30, 91, 168, 0.4);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(30, 91, 168, 0.5);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .success-message {
+      background: #ecfdf3;
+      border: 2px solid #22c55e;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      color: #166534;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .success-message.show {
+      display: flex;
+    }
+
     .footer {
       padding: 8px 16px 12px;
       font-size: 0.75rem;
@@ -519,7 +609,6 @@
 </head>
 <body>
   <div class="app">
-    <!-- Colored header -->
     <header class="header">
       <div class="header-top">
         <div class="title-block">
@@ -546,7 +635,6 @@
       </div>
     </header>
 
-    <!-- Logo and persistent objective/time pills -->
     <div class="objective-container">
       <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/clear_logo.png" alt="University View Academy Logo" class="objective-logo">
       <div class="objective-pills">
@@ -612,15 +700,15 @@
           </p>
           <div class="choices-label">Choose your response:</div>
           <div class="choices">
-            <button class="choice-btn" data-next="ticket1A">
+            <button class="choice-btn" data-next="ticket1A" data-choice="A" data-ticket="1047">
               <span class="choice-key">A</span>
               <span class="choice-text">"I'll be right there to fix it."</span>
             </button>
-            <button class="choice-btn" data-next="ticket1B">
+            <button class="choice-btn" data-next="ticket1B" data-choice="B" data-ticket="1047">
               <span class="choice-key">B</span>
               <span class="choice-text">"Let me ask a few questions first. What happens when you try to print?"</span>
             </button>
-            <button class="choice-btn" data-next="ticket1C">
+            <button class="choice-btn" data-next="ticket1C" data-choice="C" data-ticket="1047">
               <span class="choice-key">C</span>
               <span class="choice-text">"Have you tried turning the printer off and on again?"</span>
             </button>
@@ -740,15 +828,15 @@
           </p>
           <div class="choices-label">Choose your response:</div>
           <div class="choices">
-            <button class="choice-btn" data-next="ticket2A">
+            <button class="choice-btn" data-next="ticket2A" data-choice="A" data-ticket="1053">
               <span class="choice-key">A</span>
               <span class="choice-text">"Let's close some tabs and background programs first to free up memory."</span>
             </button>
-            <button class="choice-btn" data-next="ticket2B">
+            <button class="choice-btn" data-next="ticket2B" data-choice="B" data-ticket="1053">
               <span class="choice-key">B</span>
               <span class="choice-text">"I'll run a full virus scan right now. It may take a couple of hours."</span>
             </button>
-            <button class="choice-btn" data-next="ticket2C">
+            <button class="choice-btn" data-next="ticket2C" data-choice="C" data-ticket="1053">
               <span class="choice-key">C</span>
               <span class="choice-text">"You probably need a new computer. I'll submit a request to order one."</span>
             </button>
@@ -852,15 +940,15 @@
           </p>
           <div class="choices-label">Choose your response:</div>
           <div class="choices">
-            <button class="choice-btn" data-next="ticket3A">
+            <button class="choice-btn" data-next="ticket3A" data-choice="A" data-ticket="1061">
               <span class="choice-key">A</span>
               <span class="choice-text">"I'll try to fix the router myself. I can probably figure it out."</span>
             </button>
-            <button class="choice-btn" data-next="ticket3B">
+            <button class="choice-btn" data-next="ticket3B" data-choice="B" data-ticket="1061">
               <span class="choice-key">B</span>
               <span class="choice-text">"I'll reboot everyone's computers. That might help."</span>
             </button>
-            <button class="choice-btn" data-next="ticket3C">
+            <button class="choice-btn" data-next="ticket3C" data-choice="C" data-ticket="1061">
               <span class="choice-key">C</span>
               <span class="choice-text">"This is a network-level problem. I need to escalate to the network admin right away."</span>
             </button>
@@ -986,6 +1074,43 @@
             into the Canvas assignment to receive credit.
           </p>
         </div>
+
+        <!-- Submit Form -->
+        <div class="submit-form">
+          <h4>📊 Submit Your Scenario Data</h4>
+          <p class="reflection-text" style="margin-bottom:12px;">
+            Help us track your learning by submitting your choices. This data helps your instructor
+            see which paths students take and improve future lessons.
+          </p>
+          <form id="finalSubmitForm">
+            <div class="form-group">
+              <label for="studentName">Your Name *</label>
+              <input type="text" id="studentName" required placeholder="First and Last Name">
+            </div>
+            <div class="form-group">
+              <label for="classSection">Class / Section *</label>
+              <select id="classSection" required>
+                <option value="">-- Select Your Class --</option>
+                <option value="IT Support A">IT Support A</option>
+                <option value="IT Support B">IT Support B</option>
+                <option value="IT Support C">IT Support C</option>
+              </select>
+            </div>
+            <input type="hidden" id="sessionId">
+            <input type="hidden" id="scenarioPath">
+            <input type="hidden" id="decision1">
+            <input type="hidden" id="decision2">
+            <input type="hidden" id="decision3">
+            <button type="submit" class="submit-btn" id="submitBtn">
+              <span>✅</span>
+              <span>Submit My Scenario Data</span>
+            </button>
+          </form>
+          <div class="success-message" id="successMessage">
+            <span style="font-size:1.5rem;">✅</span>
+            <span>Success! Your scenario data has been recorded. You can now close this page or copy your reflection to Canvas.</span>
+          </div>
+        </div>
       </section>
     </main>
 
@@ -996,6 +1121,53 @@
   </div>
 
   <script>
+    // 🔥 Analytics & Tracking System
+    const SCRIPT_URL = 'https://script.google.com/a/macros/uview.academy/s/AKfycby_X0DOR20-0NJt5_65lCj7vXbr8wIW29L47MVzU89Gx6RItfOsnavlL07wRmhUgSrfcg/exec';
+
+    // Generate or retrieve session ID
+    function getSessionId() {
+      let sessionId = localStorage.getItem('scenario_session_id');
+      if (!sessionId) {
+        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('scenario_session_id', sessionId);
+      }
+      return sessionId;
+    }
+
+    const SESSION_ID = getSessionId();
+    console.log('Session ID:', SESSION_ID);
+
+    // Track events progressively
+    function trackEvent(eventType, stepId, eventValue) {
+      const payload = {
+        action: 'event',
+        session_id: SESSION_ID,
+        event_type: eventType,
+        step_id: stepId,
+        event_value: eventValue,
+        timestamp: new Date().toISOString(),
+        page: 'scenario-it-support',
+        user_agent: navigator.userAgent
+      };
+
+      // Use sendBeacon for reliable tracking
+      const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+      navigator.sendBeacon(SCRIPT_URL, blob);
+
+      console.log('Event tracked:', payload);
+    }
+
+    // Track page load
+    trackEvent('page_load', 'intro', 'Scenario loaded');
+
+    // Store student choices
+    const studentChoices = {
+      ticket1047: null,
+      ticket1053: null,
+      ticket1061: null
+    };
+
+    // Scenario Logic
     const SCREENS = ["intro","ticket1","ticket2","ticket3","summary"];
     let currentStep = 0;
     const totalSteps = SCREENS.length - 1;
@@ -1023,6 +1195,8 @@
       });
       const idx = SCREENS.indexOf(screenName);
       if (idx !== -1) setProgress(idx);
+
+      trackEvent('screen_view', screenName, 'User viewed ' + screenName);
 
       const ticketMetaEl = document.getElementById("ticketMeta");
       let metaHtml = "";
@@ -1057,25 +1231,91 @@
         case "summary":
           metaHtml = `
             <span class="pill"><span class="icon">✅</span><span>Shift Complete</span></span>
-            <span class="pill"><span class="icon">✍️</span><span>Next Step: Canvas Reflection</span></span>
+            <span class="pill"><span class="icon">✍️</span><span>Next Step: Canvas Reflection</span>
           `;
           break;
       }
       ticketMetaEl.innerHTML = metaHtml;
     }
 
-    document.getElementById("startBtn").addEventListener("click", () => showScreen("ticket1"));
+    document.getElementById("startBtn").addEventListener("click", () => {
+      trackEvent('button_click', 'intro', 'Start Your Shift');
+      showScreen("ticket1");
+    });
+
     document.querySelectorAll(".choice-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const next = btn.getAttribute("data-next");
+        const choice = btn.getAttribute("data-choice");
+        const ticket = btn.getAttribute("data-ticket");
+
+        if (ticket && choice) {
+          trackEvent('decision', 'ticket_' + ticket, 'Choice ' + choice);
+          studentChoices['ticket' + ticket] = choice;
+        }
+
         if (next) showScreen(next);
       });
     });
+
     document.querySelectorAll(".nav-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         const next = btn.getAttribute("data-next");
+        trackEvent('navigation', 'continue_btn', 'Continue to ' + next);
         if (next) showScreen(next);
       });
+    });
+
+    // Final form submission
+    document.getElementById('finalSubmitForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submitBtn');
+      const successMessage = document.getElementById('successMessage');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>⏳</span><span>Submitting...</span>';
+
+      const studentName = document.getElementById('studentName').value;
+      const classSection = document.getElementById('classSection').value;
+      const reflection = document.getElementById('reflectionText').value;
+
+      let scenarioPath = 'Mixed Path';
+      if (studentChoices.ticket1047 === 'B' && studentChoices.ticket1053 === 'A' && studentChoices.ticket1061 === 'C') {
+        scenarioPath = 'Optimal Path (All Strong Outcomes)';
+      } else if (studentChoices.ticket1047 === 'A' || studentChoices.ticket1053 === 'B' || studentChoices.ticket1061 === 'B') {
+        scenarioPath = 'Challenging Path (Some Poor Outcomes)';
+      }
+
+      const finalPayload = {
+        action: 'final',
+        session_id: SESSION_ID,
+        student_name: studentName,
+        class_section: classSection,
+        scenario_path: scenarioPath,
+        decision_1: 'Ticket #1047: Choice ' + (studentChoices.ticket1047 || 'Not selected'),
+        decision_2: 'Ticket #1053: Choice ' + (studentChoices.ticket1053 || 'Not selected'),
+        decision_3: 'Ticket #1061: Choice ' + (studentChoices.ticket1061 || 'Not selected'),
+        reflection: reflection
+      };
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(finalPayload)
+        });
+
+        successMessage.classList.add('show');
+        submitBtn.style.display = 'none';
+        trackEvent('form_submit', 'summary', 'Final submission completed');
+
+      } catch (error) {
+        alert('Error submitting data: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span>✅</span><span>Submit My Scenario Data</span>';
+      }
     });
 
     showScreen("intro");
