@@ -53,6 +53,13 @@
       font-size: 1.4rem;
       font-weight: 700;
       letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-icon {
+      font-size: 1.5rem;
     }
 
     .subtitle { font-size: 0.9rem; opacity: 0.95; }
@@ -516,7 +523,10 @@
     <header class="header">
       <div class="header-top">
         <div class="title-block">
-          <div class="title">First Day on the Help Desk</div>
+          <div class="title">
+            <span class="title-icon">🎓</span>
+            <span>First Day on the Help Desk</span>
+          </div>
           <div class="subtitle">Interactive Branching Scenario – IT Support Specialist</div>
         </div>
         <div class="badge">
@@ -538,7 +548,7 @@
 
     <!-- Logo and persistent objective/time pills -->
     <div class="objective-container">
-      <img src="https://github.com/wilfredboudloche-droid/uview/clear_logo.png" alt="University View Academy Logo" class="objective-logo">
+      <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/clear_logo.png" alt="University View Academy Logo" class="objective-logo">
       <div class="objective-pills">
         <div class="objective-pill">
           <span class="icon">🎯</span>
@@ -557,7 +567,7 @@
       <!-- Intro -->
       <section class="screen active" data-screen="intro">
         <div class="card">
-          <img src="https://github.com/wilfredboudloche-droid/uview/hero-helpdesk.png" alt="IT help desk technician at workstation" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/hero-helpdesk.png" alt="IT help desk technician at workstation" class="scenario-image">
           <h2 class="screen-title">👋 Welcome to TechCare Solutions</h2>
           <p class="scenario-text">
             You're a brand new <strong>Help Desk Technician</strong>, and today is your first day taking support tickets on your own.
@@ -588,7 +598,7 @@
       <!-- Ticket #1047 -->
       <section class="screen" data-screen="ticket1">
         <div class="card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-print.png" alt="Teacher with printer issue in classroom" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-print.png" alt="Teacher with printer issue in classroom" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1047 <span class="ticket-tag">"I can't print!"</span>
           </h2>
@@ -621,7 +631,7 @@
       <!-- Ticket #1047 outcomes -->
       <section class="screen" data-screen="ticket1A">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>Uh oh... you rushed in without information.</span>
@@ -652,7 +662,7 @@
 
       <section class="screen" data-screen="ticket1B">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You're thinking like an IT pro.</span>
@@ -682,7 +692,7 @@
 
       <section class="screen" data-screen="ticket1C">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>Not terrible, but you skipped a step.</span>
@@ -708,7 +718,7 @@
       <!-- Ticket #1053 -->
       <section class="screen" data-screen="ticket2">
         <div class="card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1053 <span class="ticket-tag">"My computer is really slow."</span>
           </h2>
@@ -749,7 +759,7 @@
       <!-- Ticket #1053 outcomes -->
       <section class="screen" data-screen="ticket2A">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You identified the real issue.</span>
@@ -774,7 +784,7 @@
 
       <section class="screen" data-screen="ticket2B">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>You jumped to the wrong conclusion.</span>
@@ -799,7 +809,7 @@
 
       <section class="screen" data-screen="ticket2C">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>You went too big, too fast.</span>
@@ -824,7 +834,7 @@
       <!-- Ticket #1061 -->
       <section class="screen" data-screen="ticket3">
         <div class="card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-network.png" alt="School network room with router alert" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-network.png" alt="School network room with router alert" class="scenario-image">
           <h2 class="screen-title">
             Ticket #1061 <span class="ticket-tag">"The whole building lost internet."</span>
           </h2>
@@ -861,7 +871,7 @@
       <!-- Ticket #1061 outcomes -->
       <section class="screen" data-screen="ticket3A">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
             <span>You took initiative, but...</span>
@@ -886,7 +896,7 @@
 
       <section class="screen" data-screen="ticket3B">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
             <span>You focused on the wrong level of the problem.</span>
@@ -911,7 +921,7 @@
 
       <section class="screen" data-screen="ticket3C">
         <div class="outcome-card">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-network.png" alt="School network room with router alert" class="outcome-image">
           <div class="outcome-header">
             <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
             <span>You escalated to the right person immediately.</span>
@@ -938,7 +948,7 @@
       <!-- Summary -->
       <section class="screen" data-screen="summary">
         <div class="card" style="margin-bottom:12px;">
-          <img src="https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/uview/scenario-complete.png" alt="Completion badge for IT support training" class="scenario-image">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/scenario-complete.png" alt="Completion badge for IT support training" class="scenario-image">
           <h2 class="screen-title">✅ Shift Complete: What Did You Learn?</h2>
           <p class="scenario-text">
             You handled three different support tickets that showed key responsibilities of an IT support specialist:
