@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT Support Branching Scenario - Submit Your Choices</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Submit Your Scenario Choices</h1>
+        <p class="subtitle">Record your decisions from the IT Support branching scenario activity.</p>
+        
+        <div id="message" class="message"></div>
+        
+        <form id="scenarioForm">
+            <div class="form-group">
+                <label for="student_name">Your Name <span class="required">*</span></label>
+                <input type="text" id="student_name" name="student_name" required placeholder="First and Last Name">
+            </div>
+            
+            <div class="form-group">
+                <label for="class_section">Class / Section <span class="required">*</span></label>
+                <select id="class_section" name="class_section" required>
+                    <option value="">-- Select Your Class --</option>
+                    <option value="IT Support A">IT Support A</option>
+                    <option value="IT Support B">IT Support B</option>
+                    <option value="IT Support C">IT Support C</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="scenario_path">Which scenario path did you choose? <span class="required">*</span></label>
+                <select id="scenario_path" name="scenario_path" required>
+                    <option value="">-- Select Path --</option>
+                    <option value="Path A – Help Desk: Password Reset">Path A – Help Desk: Password Reset</option>
+                    <option value="Path B – Classroom: Wi-Fi Troubleshooting">Path B – Classroom: Wi-Fi Troubleshooting</option>
+                    <option value="Path C – Office: Computer Won't Boot">Path C – Office: Computer Won't Boot</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="decision_1">Decision at Checkpoint 1 <span class="required">*</span></label>
+                <select id="decision_1" name="decision_1" required>
+                    <option value="">-- Select Decision --</option>
+                    <option value="Asked clarifying questions first">Asked clarifying questions first</option>
+                    <option value="Immediately restarted the device">Immediately restarted the device</option>
+                    <option value="Changed settings without asking">Changed settings without asking</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="decision_2">Decision at Checkpoint 2 <span class="required">*</span></label>
+                <select id="decision_2" name="decision_2" required>
+                    <option value="">-- Select Decision --</option>
+                    <option value="Documented the issue and solution">Documented the issue and solution</option>
+                    <option value="Escalated to supervisor">Escalated to supervisor</option>
+                    <option value="Tried a different approach">Tried a different approach</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="decision_3">Decision at Checkpoint 3 (if applicable)</label>
+                <select id="decision_3" name="decision_3">
+                    <option value="">-- Select Decision (Optional) --</option>
+                    <option value="Followed up with user">Followed up with user</option>
+                    <option value="Closed the ticket">Closed the ticket</option>
+                    <option value="Created knowledge base article">Created knowledge base article</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="reflection">Reflection: What did you learn about the IT Support role? <span class="required">*</span></label>
+                <textarea id="reflection" name="reflection" required placeholder="In 2-3 sentences, explain what you learned from this scenario..."></textarea>
+            </div>
+            
+            <button type="submit" id="submitBtn">Submit My Choices</button>
+        </form>
+    </div>
+    
+    <script>
+        // ⚠️ REPLACE THIS WITH YOUR ACTUAL WEB APP URL FROM STEP 2
+        const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+        
+        const form = document.getElementById('scenarioForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageDiv = document.getElementById('message');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Disable button and show loading state
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            messageDiv.className = 'message';
+            messageDiv.textContent = '';
+            
+            // Collect form data
+            const formData = {
+                student_name: document.getElementById('student_name').value,
+                class_section: document.getElementById('class_section').value,
+                scenario_path: document.getElementById('scenario_path').value,
+                decision_1: document.getElementById('decision_1').value,
+                decision_2: document.getElementById('decision_2').value,
+                decision_3: document.getElementById('decision_3').value,
+                reflection: document.getElementById('reflection').value
+            };
+            
+            try {
+                // Send to Google Apps Script
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Required for Apps Script
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                // Show success message
+                messageDiv.className = 'message success show';
+                messageDiv.textContent = '✅ Success! Your choices have been recorded. You can close this page.';
+                
+                // Reset form
+                form.reset();
+                
+            } catch (error) {
+                // Show error message
+                messageDiv.className = 'message error show';
+                messageDiv.textContent = '❌ Error: ' + error.message + '. Please try again or contact your instructor.';
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit My Choices';
+            }
+        });
+    </script>
+</body>
+</html>
