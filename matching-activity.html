@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Matching Game – IT Support Specialist Vocabulary</title>
+  <title>Branching Scenario – First Day on the Help Desk</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14,14 +14,14 @@
       color: #1f2933;
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
       padding: 20px;
     }
 
     .app {
       background: #f9fafb;
-      max-width: 1000px;
+      max-width: 900px;
       width: 100%;
       border-radius: 18px;
       box-shadow: 0 18px 40px rgba(15, 23, 42, 0.35);
@@ -30,7 +30,7 @@
       flex-direction: column;
     }
 
-    /* Header with UVA branding colors */
+    /* Updated header */
     .header {
       background: linear-gradient(135deg, #1e5ba8 0%, #2d7a3e 100%);
       padding: 20px 24px 16px;
@@ -53,11 +53,18 @@
       font-size: 1.4rem;
       font-weight: 700;
       letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title-icon {
+      font-size: 1.5rem;
     }
 
     .subtitle { font-size: 0.9rem; opacity: 0.95; }
 
-    /* Blinking badge for "Interactive Activity" with RED dot */
+    /* Blinking badge for "Live Simulation" with RED dot */
     .badge {
       background: rgba(255, 255, 255, 0.2);
       border-radius: 999px;
@@ -84,71 +91,103 @@
       50% { opacity: 0.6; transform: scale(1.1); }
     }
 
-    /* Logo container in white area below header */
-    .logo-container {
-      padding: 16px 24px 12px;
-      background: white;
+    .progress-bar-wrapper { position: relative; z-index: 1; margin-top: 16px; }
+
+    .progress-label {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      font-size: 0.75rem;
+      opacity: 0.95;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.25);
+      height: 7px;
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #22c55e, #a3e635);
+      box-shadow: 0 0 12px rgba(190, 242, 100, 0.7);
+      transition: width 0.35s ease;
+    }
+
+    /* Persistent objective pill container with logo */
+    .objective-container {
+      padding: 14px 24px;
+      background: white;
       border-bottom: 1px solid #e5e7eb;
-    }
-
-    .logo-container img {
-      height: 80px;
-      width: auto;
-    }
-
-    .score-display {
       display: flex;
+      justify-content: center;
       align-items: center;
       gap: 16px;
-      font-size: 0.9rem;
-      color: #374151;
     }
 
-    .score-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      background: #f3f4f6;
-      border-radius: 999px;
-      font-weight: 600;
+    .objective-logo {
+      height: 70px;
+      width: auto;
+      flex-shrink: 0;
     }
 
-    .score-item.correct { color: #166534; background: #ecfdf3; }
-    .score-item.incorrect { color: #b91c1c; background: #fef2f2; }
-
-    .main {
-      padding: 24px 20px;
+    .objective-pills {
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 8px;
+      flex: 1;
+      max-width: 700px;
     }
 
-    .instructions {
-      background: white;
-      border-radius: 14px;
-      padding: 16px 18px;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-    }
-
-    .instructions h2 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #111827;
-      display: flex;
+    .objective-pill {
+      display: inline-flex;
       align-items: center;
       gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1e40af;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: 1px solid #bfdbfe;
     }
 
-    .instructions p {
-      font-size: 0.9rem;
-      color: #4b5563;
-      line-height: 1.5;
+    .time-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.88rem;
+      font-weight: 600;
+      border: 1px solid #fde68a;
+    }
+
+    .objective-pill .icon,
+    .time-pill .icon { 
+      font-size: 1.1rem; 
+    }
+
+    .main {
+      padding: 20px 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .ticket-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: #6b7280;
     }
 
     .pill {
@@ -157,183 +196,289 @@
       gap: 6px;
       padding: 4px 10px;
       border-radius: 999px;
-      background: #e0f2fe;
-      color: #0c4a6e;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-top: 8px;
-    }
-
-    .game-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .column {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .column-title {
-      font-size: 0.95rem;
-      font-weight: 600;
+      background: #e5e7eb;
       color: #374151;
-      margin-bottom: 4px;
-      text-align: center;
-      padding: 8px;
-      background: white;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
     }
+
+    .pill span.icon { font-size: 0.9rem; }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .screen.active { display: block; }
 
     .card {
       background: white;
-      border-radius: 12px;
-      padding: 14px 16px;
-      border: 2px solid #e5e7eb;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-      user-select: none;
-      position: relative;
-    }
-
-    .card:hover {
-      border-color: #1e5ba8;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(30, 91, 168, 0.15);
-    }
-
-    .card.selected {
-      border-color: #1e5ba8;
-      background: #eff6ff;
-      box-shadow: 0 0 0 3px rgba(30, 91, 168, 0.2);
-    }
-
-    .card.matched {
-      border-color: #22c55e;
-      background: #ecfdf3;
-      cursor: default;
-      pointer-events: none;
-      opacity: 0.7;
-    }
-
-    .card.incorrect {
-      border-color: #ef4444;
-      background: #fef2f2;
-      animation: shake 0.4s ease;
-    }
-
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-8px); }
-      75% { transform: translateX(8px); }
-    }
-
-    .card-label {
-      font-size: 0.75rem;
-      color: #6b7280;
-      font-weight: 600;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .card-content {
-      font-size: 0.95rem;
-      color: #111827;
-      font-weight: 500;
-      line-height: 1.4;
-    }
-
-    .card.matched .card-content {
-      color: #166534;
-    }
-
-    .card-icon {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 1.2rem;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-
-    .card.matched .card-icon {
-      opacity: 1;
-    }
-
-    .feedback {
-      background: white;
       border-radius: 14px;
-      padding: 16px 18px;
+      padding: 18px 16px 16px;
       border: 1px solid #e5e7eb;
       box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      text-align: center;
-      min-height: 80px;
+    }
+
+    .screen-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      color: #6b7280;
-    }
-
-    .feedback.show {
-      animation: fadeIn 0.3s ease;
-    }
-
-    .feedback.correct {
-      background: #ecfdf3;
-      border-color: #22c55e;
-      color: #166534;
-    }
-
-    .feedback.incorrect {
-      background: #fef2f2;
-      border-color: #ef4444;
-      color: #b91c1c;
-    }
-
-    .feedback.complete {
-      background: linear-gradient(135deg, #ecfdf3 0%, #dbeafe 100%);
-      border-color: #22c55e;
+      gap: 8px;
       color: #111827;
-      font-weight: 600;
-      font-size: 1rem;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-4px); }
-      to { opacity: 1; transform: translateY(0); }
+    .screen-title .ticket-tag {
+      font-size: 0.8rem;
+      color: #6b7280;
+      font-weight: 500;
     }
 
-    .reset-btn {
-      align-self: center;
-      border-radius: 999px;
-      padding: 10px 20px;
+    .scenario-text {
       font-size: 0.9rem;
+      margin-bottom: 14px;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .callout {
+      background: #eff6ff;
+      border-left: 3px solid #3b82f6;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      color: #1d4ed8;
+      margin-bottom: 12px;
+    }
+
+    .scenario-image {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: block;
+      object-fit: cover;
+      max-height: 260px;
+    }
+
+    .choices-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4b5563;
+      margin-bottom: 6px;
+    }
+
+    .choices { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+
+    .choice-btn {
+      width: 100%;
+      border-radius: 999px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      text-align: left;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      color: #111827;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, transform 0.08s ease;
+    }
+
+    .choice-key {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #6b7280;
+      min-width: 22px;
+      text-align: center;
+    }
+
+    .choice-text { flex: 1; }
+
+    .choice-btn:hover {
+      background: #e0f2fe;
+      border-color: #1e5ba8;
+      transform: translateY(-1px);
+    }
+
+    .choice-btn:active {
+      transform: translateY(0);
+      background: #bae6fd;
+    }
+
+    .outcome-card {
+      border-radius: 14px;
+      padding: 16px 14px 12px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      background: white;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .outcome-image {
+      width: 100%;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      display: block;
+      object-fit: cover;
+      max-height: 260px;
+    }
+
+    .outcome-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .outcome-pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .outcome-pill.good {
+      background: #ecfdf3;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .outcome-pill.okay {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fed7aa;
+    }
+
+    .outcome-pill.poor {
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    .outcome-main {
+      font-size: 0.9rem;
+      color: #374151;
+      line-height: 1.5;
+    }
+
+    .outcome-keypoint {
+      font-size: 0.85rem;
+      color: #4b5563;
+    }
+
+    .outcome-keypoint strong { color: #111827; }
+
+    .outcome-keypoint + .outcome-keypoint { margin-top: 2px; }
+
+    .outcome-footer {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .nav-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-btn {
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
       border: none;
       background: #1e5ba8;
       color: white;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       box-shadow: 0 8px 18px rgba(30, 91, 168, 0.4);
-      transition: all 0.2s ease;
-      font-weight: 600;
+      transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
     }
 
-    .reset-btn:hover {
+    .nav-btn.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    .nav-btn:hover {
       background: #164a87;
       box-shadow: 0 10px 20px rgba(30, 91, 168, 0.5);
       transform: translateY(-1px);
     }
 
-    .reset-btn:active {
+    .nav-btn.secondary:hover {
+      background: #d1d5db;
+      transform: translateY(-1px);
+    }
+
+    .nav-btn:active {
       transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(30, 91, 168, 0.4);
+    }
+
+    .reflection-card {
+      background: white;
+      border-radius: 14px;
+      padding: 18px 16px 16px;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .reflection-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+
+    .reflection-text {
+      font-size: 0.88rem;
+      color: #4b5563;
+      margin-bottom: 10px;
+    }
+
+    .reflection-list {
+      font-size: 0.86rem;
+      color: #374151;
+      padding-left: 18px;
+      margin-bottom: 10px;
+    }
+
+    .reflection-list li { margin-bottom: 4px; }
+
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      border-radius: 10px;
+      border: 1px solid #d1d5db;
+      padding: 8px 10px;
+      font-size: 0.9rem;
+      resize: vertical;
+      font-family: inherit;
+      line-height: 1.4;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #1e5ba8;
+      box-shadow: 0 0 0 1px #1e5ba8;
+    }
+
+    .small-note {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 6px;
     }
 
     .footer {
@@ -348,277 +493,592 @@
       background: rgba(249, 250, 251, 0.95);
     }
 
-    @media (max-width: 768px) {
-      .game-container {
-        grid-template-columns: 1fr;
-      }
-      .header-top {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .logo-container {
+    .footer span { display: inline-flex; align-items: center; gap: 4px; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 10px; }
+      .header { padding: 16px 14px; }
+      .main { padding: 14px 12px 16px; }
+      .header-top { flex-direction: column; align-items: flex-start; }
+      .title { font-size: 1.2rem; }
+      .objective-container { 
+        padding: 12px 14px; 
         flex-direction: column;
         gap: 12px;
       }
-      .score-display {
-        flex-direction: column;
-        gap: 8px;
-      }
+      .objective-logo { height: 55px; }
+      .objective-pills { gap: 6px; }
+      .objective-pill, .time-pill { font-size: 0.82rem; padding: 6px 12px; }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <!-- Colored header with title and Interactive Activity badge -->
+    <!-- Colored header -->
     <header class="header">
       <div class="header-top">
         <div class="title-block">
-          <div class="title">Vocabulary Matching Game</div>
-          <div class="subtitle">Match IT Support Specialist Terms with Their Definitions</div>
+          <div class="title">
+            <span class="title-icon">🎓</span>
+            <span>First Day on the Help Desk</span>
+          </div>
+          <div class="subtitle">Interactive Branching Scenario – IT Support Specialist</div>
         </div>
         <div class="badge">
           <span class="badge-dot"></span>
-          <span>Interactive Activity</span>
+          <span>Live Simulation</span>
+        </div>
+      </div>
+
+      <div class="progress-bar-wrapper">
+        <div class="progress-label">
+          <span>Progress</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
     </header>
 
-    <!-- Logo and score display in white area below header -->
-    <div class="logo-container">
-      <img src="https://cdn.abacus.ai/images/478bd722-7cdf-43f5-b020-8ae983199728.png" alt="University View Academy Logo">
-      <div class="score-display">
-        <div class="score-item correct">
-          <span>✓</span>
-          <span>Correct: <strong id="correctCount">0</strong></span>
+    <!-- Logo and persistent objective/time pills -->
+    <div class="objective-container">
+      <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/clear_logo.png" alt="University View Academy Logo" class="objective-logo">
+      <div class="objective-pills">
+        <div class="objective-pill">
+          <span class="icon">🎯</span>
+          <span>Objective: Explore a realistic scenario to see what an IT support specialist actually does during a typical workday.</span>
         </div>
-        <div class="score-item incorrect">
-          <span>✗</span>
-          <span>Attempts: <strong id="incorrectCount">0</strong></span>
+        <div class="time-pill">
+          <span class="icon">⏱</span>
+          <span>Approx. Time: 10–15 minutes</span>
         </div>
       </div>
     </div>
 
     <main class="main">
-      <div class="instructions">
-        <h2>🎯 How to Play</h2>
-        <p>
-          Click a <strong>term</strong> on the left, then click its matching <strong>definition</strong> on the right.
-          If you're correct, both cards will turn green and lock in place. If you're incorrect, they'll shake and you can try again.
-        </p>
-        <div class="pill">
-          <span>🎓</span>
-          <span>Objective: Match all 8 IT support specialist vocabulary terms correctly</span>
+      <div class="ticket-meta" id="ticketMeta"></div>
+
+      <!-- Intro -->
+      <section class="screen active" data-screen="intro">
+        <div class="card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/hero-helpdesk.png" alt="IT help desk technician at workstation" class="scenario-image">
+          <h2 class="screen-title">👋 Welcome to TechCare Solutions</h2>
+          <p class="scenario-text">
+            You're a brand new <strong>Help Desk Technician</strong>, and today is your first day taking support tickets on your own.
+            Your job is to help staff solve technical problems calmly and efficiently.
+          </p>
+          <div class="callout">
+            <strong>Your goal:</strong> Make decisions like a real IT support specialist. Pay attention to
+            how you gather information, troubleshoot, and decide when to escalate.
+          </div>
+          <p class="scenario-text" style="margin-top: 6px;">
+            Remember, strong IT support specialists:
+          </p>
+          <ul class="reflection-list" style="margin-bottom: 6px;">
+            <li>Ask clarifying questions before acting</li>
+            <li>Use basic troubleshooting steps first</li>
+            <li>Stay patient and professional under pressure</li>
+            <li>Know when to escalate to a network or systems administrator</li>
+          </ul>
+          <p class="scenario-text">
+            You will handle <strong>three tickets</strong> and then complete a short reflection.
+          </p>
+          <div class="nav-row">
+            <button class="nav-btn" id="startBtn">Start Your Shift →</button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="game-container">
-        <!-- Terms Column -->
-        <div class="column">
-          <div class="column-title">📘 Terms</div>
-          <div id="termsColumn"></div>
+      <!-- Ticket #1047 -->
+      <section class="screen" data-screen="ticket1">
+        <div class="card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-print.png" alt="Teacher with printer issue in classroom" class="scenario-image">
+          <h2 class="screen-title">
+            Ticket #1047 <span class="ticket-tag">"I can't print!"</span>
+          </h2>
+          <p class="scenario-text">
+            <strong>Caller:</strong> Ms. Rodriguez, 3rd grade teacher<br>
+            <strong>Issue:</strong> "My printer isn't working! I need to print worksheets for my class in 10 minutes.
+            Can you just come fix it right now?"
+          </p>
+          <p class="scenario-text">
+            You can hear the stress in her voice. What do you do <em>first</em>?
+          </p>
+          <div class="choices-label">Choose your response:</div>
+          <div class="choices">
+            <button class="choice-btn" data-next="ticket1A">
+              <span class="choice-key">A</span>
+              <span class="choice-text">"I'll be right there to fix it."</span>
+            </button>
+            <button class="choice-btn" data-next="ticket1B">
+              <span class="choice-key">B</span>
+              <span class="choice-text">"Let me ask a few questions first. What happens when you try to print?"</span>
+            </button>
+            <button class="choice-btn" data-next="ticket1C">
+              <span class="choice-key">C</span>
+              <span class="choice-text">"Have you tried turning the printer off and on again?"</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ticket #1047 outcomes -->
+      <section class="screen" data-screen="ticket1A">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
+            <span>Uh oh... you rushed in without information.</span>
+          </div>
+          <p class="outcome-main">
+            You grabbed your toolkit and rushed to Ms. Rodriguez's classroom. When you arrive, you discover:
+          </p>
+          <ul class="reflection-list" style="margin-bottom:4px;">
+            <li>The printer is working correctly.</li>
+            <li>The real problem is that she's printing from a document that isn't saved correctly.</li>
+            <li>You spent 15 minutes in the room before realizing this.</li>
+          </ul>
+          <p class="outcome-keypoint">
+            <strong>What went wrong?</strong> You skipped the most important first step: gathering information.
+            Good IT support specialists ask clarifying questions <em>before</em> they rush to a location or solution.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Troubleshooting starts by understanding the problem, not guessing.
+          </p>
+          <p class="outcome-footer">
+            It's okay—this is why you're practicing in a safe scenario.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="ticket1B">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
+            <span>You're thinking like an IT pro.</span>
+          </div>
+          <p class="outcome-main">
+            <strong>You:</strong> "Let me ask a few questions first. What happens when you try to print?"<br>
+            <strong>Ms. Rodriguez:</strong> "Well, I click print, but nothing comes out. Wait... I see an error
+            message that says 'Document not found.'"
+          </p>
+          <p class="outcome-main">
+            You realize she's trying to print from a cloud document that hasn't been downloaded properly.
+            You walk her through downloading it or printing directly from the correct location, and she
+            prints her worksheets in just a few minutes—without you leaving your desk.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Why this worked:</strong> You used active listening and clarifying questions to find the root
+            cause instead of guessing.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Gather clear information and troubleshoot systematically.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="ticket1C">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-print.png" alt="Teacher with printer issue in classroom" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
+            <span>Not terrible, but you skipped a step.</span>
+          </div>
+          <p class="outcome-main">
+            You asked her to power-cycle the printer before fully understanding the problem. After some back-and-forth,
+            you eventually ask what she sees on screen and discover the same "Document not found" error.
+            You then guide her to open and print the correct file.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>What could be better?</strong> "Turn it off and on" is a valid troubleshooting step, but it
+            shouldn't be your very first move before you know what's actually happening.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Ask open-ended questions before suggesting fixes.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="ticket2">Continue to Next Ticket →</button>
+        </div>
+      </section>
+
+      <!-- Ticket #1053 -->
+      <section class="screen" data-screen="ticket2">
+        <div class="card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="scenario-image">
+          <h2 class="screen-title">
+            Ticket #1053 <span class="ticket-tag">"My computer is really slow."</span>
+          </h2>
+          <p class="scenario-text">
+            <strong>Caller:</strong> Mr. Kim, office manager<br>
+            <strong>Issue:</strong> "My computer has been super slow for the past two days.
+            It takes forever to open programs. I think I might have a virus."
+          </p>
+          <p class="scenario-text">
+            You remotely check his computer and see:
+          </p>
+          <ul class="reflection-list" style="margin-bottom:6px;">
+            <li>47 browser tabs open</li>
+            <li>12 programs running in the background</li>
+            <li>Only 2 GB of RAM available out of 8 GB</li>
+          </ul>
+          <p class="scenario-text">
+            What do you do?
+          </p>
+          <div class="choices-label">Choose your response:</div>
+          <div class="choices">
+            <button class="choice-btn" data-next="ticket2A">
+              <span class="choice-key">A</span>
+              <span class="choice-text">"Let's close some tabs and background programs first to free up memory."</span>
+            </button>
+            <button class="choice-btn" data-next="ticket2B">
+              <span class="choice-key">B</span>
+              <span class="choice-text">"I'll run a full virus scan right now. It may take a couple of hours."</span>
+            </button>
+            <button class="choice-btn" data-next="ticket2C">
+              <span class="choice-key">C</span>
+              <span class="choice-text">"You probably need a new computer. I'll submit a request to order one."</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ticket #1053 outcomes -->
+      <section class="screen" data-screen="ticket2A">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
+            <span>You identified the real issue.</span>
+          </div>
+          <p class="outcome-main">
+            You guide Mr. Kim to close unnecessary browser tabs and background apps, then restart his computer.
+            After the restart, his system runs much faster.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Why this worked:</strong> You used your technical knowledge to diagnose that
+            low available memory was the likely cause, and you started with a simple, effective fix.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Apply basic troubleshooting steps before assuming
+            serious problems like malware or hardware failure.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="ticket2B">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
+            <span>You jumped to the wrong conclusion.</span>
+          </div>
+          <p class="outcome-main">
+            You start a full virus scan that locks up his computer for nearly two hours.
+            When the scan finally finishes, it shows no infections—but Mr. Kim lost a significant amount of work time.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>What went wrong?</strong> You assumed it was a virus without checking simpler, more
+            likely causes like too many running programs.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Follow a logical troubleshooting order—start with quick,
+            basic checks before moving to advanced or time-consuming solutions.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="ticket2C">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-slow-pc.png" alt="Office worker at slow overloaded computer" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
+            <span>You went too big, too fast.</span>
+          </div>
+          <p class="outcome-main">
+            You suggest ordering a new computer right away. Mr. Kim seems surprised and asks if there's anything
+            else you can try first. You then notice his 47 tabs and background programs and fix the issue that way.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>What could be better?</strong> Recommending new hardware is expensive and should be
+            a last resort. Software and settings problems are more common and often easy to fix.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Try reasonable, low-cost solutions first before replacing equipment.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="ticket3">Continue to Next Ticket →</button>
+        </div>
+      </section>
+
+      <!-- Ticket #1061 -->
+      <section class="screen" data-screen="ticket3">
+        <div class="card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-network.png" alt="School network room with router alert" class="scenario-image">
+          <h2 class="screen-title">
+            Ticket #1061 <span class="ticket-tag">"The whole building lost internet."</span>
+          </h2>
+          <p class="scenario-text">
+            <strong>Caller:</strong> Principal Davis<br>
+            <strong>Issue:</strong> "None of the computers in the building can connect to the internet.
+            We have state testing today—this is urgent!"
+          </p>
+          <p class="scenario-text">
+            You quickly check the network dashboard and see that the main router appears to be offline.
+            You've never worked on that router before, and you don't have admin-level access.
+          </p>
+          <p class="scenario-text">
+            What do you do?
+          </p>
+          <div class="choices-label">Choose your response:</div>
+          <div class="choices">
+            <button class="choice-btn" data-next="ticket3A">
+              <span class="choice-key">A</span>
+              <span class="choice-text">"I'll try to fix the router myself. I can probably figure it out."</span>
+            </button>
+            <button class="choice-btn" data-next="ticket3B">
+              <span class="choice-key">B</span>
+              <span class="choice-text">"I'll reboot everyone's computers. That might help."</span>
+            </button>
+            <button class="choice-btn" data-next="ticket3C">
+              <span class="choice-key">C</span>
+              <span class="choice-text">"This is a network-level problem. I need to escalate to the network admin right away."</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Ticket #1061 outcomes -->
+      <section class="screen" data-screen="ticket3A">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill okay"><span>!</span><span>Mixed Outcome</span></div>
+            <span>You took initiative, but...</span>
+          </div>
+          <p class="outcome-main">
+            You head to the server room and experiment with the router, even though you don't have full access or experience.
+            After 20 minutes, things still aren't working. Only then do you call the network administrator,
+            who identifies and fixes the issue in minutes.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>What could be better?</strong> Initiative is good, but so is recognizing when a problem is outside
+            your role or permissions.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Know your scope of work and when to escalate to specialized roles.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="ticket3B">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill poor"><span>✖</span><span>Poor Outcome</span></div>
+            <span>You focused on the wrong level of the problem.</span>
+          </div>
+          <p class="outcome-main">
+            You spend 30 minutes rebooting individual computers, but nothing changes—because the real problem
+            is the main router, not the devices.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>What went wrong?</strong> You treated a building-wide network failure like a simple device issue.
+            No amount of restarting individual computers will fix an offline router.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Recognize the difference between device-level issues
+            (like one person's computer) and network-level issues (like the whole building).
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="ticket3C">
+        <div class="outcome-card">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/ticket-network.png" alt="School network room with router alert" class="outcome-image">
+          <div class="outcome-header">
+            <div class="outcome-pill good"><span>✔</span><span>Strong Outcome</span></div>
+            <span>You escalated to the right person immediately.</span>
+          </div>
+          <p class="outcome-main">
+            You recognize this as a building-wide, network-level problem and quickly contact the network administrator,
+            sharing what you see about the router being offline. The network admin fixes the configuration issue
+            and restores internet access in minutes.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Why this worked:</strong> You understood that this problem was outside your role and permissions.
+            Escalating quickly helped minimize downtime for the entire building.
+          </p>
+          <p class="outcome-keypoint">
+            <strong>Key Responsibility:</strong> Communicate clearly and escalate network-level issues
+            to the right specialist.
+          </p>
+        </div>
+        <div class="nav-row">
+          <button class="nav-btn" data-next="summary">Finish Your Shift →</button>
+        </div>
+      </section>
+
+      <!-- Summary -->
+      <section class="screen" data-screen="summary">
+        <div class="card" style="margin-bottom:12px;">
+          <img src="https://raw.githubusercontent.com/wilfredboudloche-droid/uview/main/scenario-complete.png" alt="Completion badge for IT support training" class="scenario-image">
+          <h2 class="screen-title">✅ Shift Complete: What Did You Learn?</h2>
+          <p class="scenario-text">
+            You handled three different support tickets that showed key responsibilities of an IT support specialist:
+          </p>
+          <ul class="reflection-list" style="margin-bottom:6px;">
+            <li>Asking clarifying questions instead of guessing</li>
+            <li>Starting with simple troubleshooting steps (like closing programs or restarting)</li>
+            <li>Using technical knowledge to identify likely causes</li>
+            <li>Knowing when to escalate network-level problems to specialists</li>
+            <li>Staying calm and professional when others are stressed</li>
+          </ul>
+          <p class="scenario-text">
+            Now, take a moment to reflect on your decisions.
+          </p>
         </div>
 
-        <!-- Definitions Column -->
-        <div class="column">
-          <div class="column-title">📖 Definitions</div>
-          <div id="definitionsColumn"></div>
+        <div class="reflection-card">
+          <h3>Reflection (for Canvas Submission)</h3>
+          <p class="reflection-text">
+            In 3–5 sentences, respond to the questions below. You can type your draft here, then copy it
+            into your Canvas assignment submission box.
+          </p>
+          <ol class="reflection-list" style="margin-bottom:8px;">
+            <li>Which decision point (Ticket #1047, #1053, or #1061) was hardest for you? Why?</li>
+            <li>What is ONE key responsibility of an IT support specialist that this scenario helped you understand better?</li>
+            <li>How would you describe the role of an IT support specialist to someone who has never heard of it before?</li>
+          </ol>
+          <p class="reflection-text" style="margin-bottom:4px;">
+            Try to use at least <strong>two vocabulary terms</strong> from this lesson in your answer
+            (for example: <em>help desk technician, troubleshooting, network administrator</em>).
+          </p>
+          <textarea id="reflectionText" placeholder="Type your reflection draft here..."></textarea>
+          <p class="small-note">
+            This text area does not auto-submit anywhere. Be sure to select all and copy your response
+            into the Canvas assignment to receive credit.
+          </p>
         </div>
-      </div>
-
-      <div class="feedback" id="feedback">
-        Select a term and then its matching definition to begin.
-      </div>
-
-      <button class="reset-btn" id="resetBtn" style="display:none;">
-        <span>🔄</span>
-        <span>Play Again</span>
-      </button>
+      </section>
     </main>
 
     <footer class="footer">
-      <span>💻 Lesson 1: The Role of an IT Specialist</span>
-      <span>Match all terms to complete the activity</span>
+      <span><span>💻</span><span>Scenario: Role of an IT Support Specialist</span></span>
+      <span id="footerHint">Make thoughtful choices to see how your decisions affect each ticket.</span>
     </footer>
   </div>
 
   <script>
-    const pairs = [
-      {
-        term: "Help Desk Technician",
-        definition: "An IT professional who provides first-level technical support to end users, answering questions and solving basic hardware and software problems."
-      },
-      {
-        term: "Troubleshooting",
-        definition: "A systematic process of identifying, diagnosing, and resolving technical problems step-by-step."
-      },
-      {
-        term: "Network Administrator",
-        definition: "An IT specialist responsible for managing, maintaining, and securing an organization's network infrastructure."
-      },
-      {
-        term: "End User",
-        definition: "The person who uses a computer, device, or software application in their daily work or personal life."
-      },
-      {
-        term: "Escalation",
-        definition: "The process of transferring a technical issue to a higher-level specialist or department when it cannot be resolved at the current support level."
-      },
-      {
-        term: "Remote Support",
-        definition: "Providing technical assistance to users from a different location using software tools that allow access to their computer or device."
-      },
-      {
-        term: "Ticket System",
-        definition: "A software tool used to track, manage, and prioritize technical support requests from users."
-      },
-      {
-        term: "Active Listening",
-        definition: "A communication skill where the support specialist fully concentrates, understands, and responds thoughtfully to what the user is saying."
-      }
-    ];
+    const SCREENS = ["intro","ticket1","ticket2","ticket3","summary"];
+    let currentStep = 0;
+    const totalSteps = SCREENS.length - 1;
+    const progressFill = document.getElementById("progressFill");
+    const progressText = document.getElementById("progressText");
+    const footerHint = document.getElementById("footerHint");
 
-    let selectedTerm = null;
-    let selectedDefinition = null;
-    let correctCount = 0;
-    let incorrectCount = 0;
-    let matchedPairs = [];
-
-    const termsColumn = document.getElementById("termsColumn");
-    const definitionsColumn = document.getElementById("definitionsColumn");
-    const feedback = document.getElementById("feedback");
-    const correctCountEl = document.getElementById("correctCount");
-    const incorrectCountEl = document.getElementById("incorrectCount");
-    const resetBtn = document.getElementById("resetBtn");
-
-    function shuffle(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function initGame() {
-      termsColumn.innerHTML = "";
-      definitionsColumn.innerHTML = "";
-      selectedTerm = null;
-      selectedDefinition = null;
-      correctCount = 0;
-      incorrectCount = 0;
-      matchedPairs = [];
-      correctCountEl.textContent = "0";
-      incorrectCountEl.textContent = "0";
-      feedback.textContent = "Select a term and then its matching definition to begin.";
-      feedback.className = "feedback";
-      resetBtn.style.display = "none";
-
-      const shuffledTerms = shuffle(pairs);
-      const shuffledDefinitions = shuffle(pairs);
-
-      shuffledTerms.forEach((pair, index) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.dataset.id = pairs.indexOf(pair);
-        card.dataset.type = "term";
-        card.innerHTML = `
-          <div class="card-label">Term ${index + 1}</div>
-          <div class="card-content">${pair.term}</div>
-          <div class="card-icon">✓</div>
-        `;
-        card.addEventListener("click", () => selectCard(card, "term"));
-        termsColumn.appendChild(card);
-      });
-
-      shuffledDefinitions.forEach((pair, index) => {
-        const card = document.createElement("div");
-        card.className = "card";
-        card.dataset.id = pairs.indexOf(pair);
-        card.dataset.type = "definition";
-        card.innerHTML = `
-          <div class="card-label">Definition ${index + 1}</div>
-          <div class="card-content">${pair.definition}</div>
-          <div class="card-icon">✓</div>
-        `;
-        card.addEventListener("click", () => selectCard(card, "definition"));
-        definitionsColumn.appendChild(card);
-      });
-    }
-
-    function selectCard(card, type) {
-      if (card.classList.contains("matched")) return;
-
-      if (type === "term") {
-        if (selectedTerm) {
-          selectedTerm.classList.remove("selected");
-        }
-        selectedTerm = card;
-        card.classList.add("selected");
+    function setProgress(stepIndex) {
+      currentStep = stepIndex;
+      const percent = Math.round((stepIndex / totalSteps) * 100);
+      progressFill.style.width = percent + "%";
+      progressText.textContent = percent + "%";
+      if (stepIndex === 0) {
+        footerHint.textContent = "Make thoughtful choices to see how your decisions affect each ticket.";
+      } else if (stepIndex === 4) {
+        footerHint.textContent = "Use your experience from the scenario to write a strong reflection.";
       } else {
-        if (selectedDefinition) {
-          selectedDefinition.classList.remove("selected");
-        }
-        selectedDefinition = card;
-        card.classList.add("selected");
-      }
-
-      if (selectedTerm && selectedDefinition) {
-        checkMatch();
+        footerHint.textContent = "Notice what each outcome teaches you about an IT support specialist's responsibilities.";
       }
     }
 
-    function checkMatch() {
-      const termId = selectedTerm.dataset.id;
-      const defId = selectedDefinition.dataset.id;
+    function showScreen(screenName) {
+      document.querySelectorAll(".screen").forEach(s => {
+        s.classList.toggle("active", s.dataset.screen === screenName);
+      });
+      const idx = SCREENS.indexOf(screenName);
+      if (idx !== -1) setProgress(idx);
 
-      if (termId === defId) {
-        // Correct match
-        selectedTerm.classList.add("matched");
-        selectedDefinition.classList.add("matched");
-        selectedTerm.classList.remove("selected");
-        selectedDefinition.classList.remove("selected");
-        matchedPairs.push(termId);
-        correctCount++;
-        correctCountEl.textContent = correctCount;
-
-        feedback.textContent = `✓ Correct! "${pairs[termId].term}" matches perfectly.`;
-        feedback.className = "feedback correct show";
-
-        selectedTerm = null;
-        selectedDefinition = null;
-
-        if (matchedPairs.length === pairs.length) {
-          setTimeout(() => {
-            feedback.textContent = `🎉 Excellent work! You matched all ${pairs.length} terms correctly. You're ready to use this vocabulary confidently!`;
-            feedback.className = "feedback complete show";
-            resetBtn.style.display = "inline-flex";
-          }, 800);
-        }
-      } else {
-        // Incorrect match
-        incorrectCount++;
-        incorrectCountEl.textContent = incorrectCount;
-
-        selectedTerm.classList.add("incorrect");
-        selectedDefinition.classList.add("incorrect");
-
-        feedback.textContent = `✗ Not quite. Try again! Read both cards carefully.`;
-        feedback.className = "feedback incorrect show";
-
-        setTimeout(() => {
-          selectedTerm.classList.remove("incorrect", "selected");
-          selectedDefinition.classList.remove("incorrect", "selected");
-          selectedTerm = null;
-          selectedDefinition = null;
-          feedback.textContent = "Select a term and then its matching definition.";
-          feedback.className = "feedback";
-        }, 1200);
+      const ticketMetaEl = document.getElementById("ticketMeta");
+      let metaHtml = "";
+      switch (screenName) {
+        case "ticket1":
+        case "ticket1A":
+        case "ticket1B":
+        case "ticket1C":
+          metaHtml = `
+            <span class="pill"><span class="icon">🎟</span><span>Ticket #1047 – Print Issue</span></span>
+            <span class="pill"><span class="icon">👂</span><span>Skill: Asking clarifying questions</span></span>
+          `;
+          break;
+        case "ticket2":
+        case "ticket2A":
+        case "ticket2B":
+        case "ticket2C":
+          metaHtml = `
+            <span class="pill"><span class="icon">🎟</span><span>Ticket #1053 – Slow Computer</span></span>
+            <span class="pill"><span class="icon">🛠</span><span>Skill: Basic troubleshooting steps</span></span>
+          `;
+          break;
+        case "ticket3":
+        case "ticket3A":
+        case "ticket3B":
+        case "ticket3C":
+          metaHtml = `
+            <span class="pill"><span class="icon">🎟</span><span>Ticket #1061 – Network Outage</span></span>
+            <span class="pill"><span class="icon">📡</span><span>Skill: Knowing when to escalate</span></span>
+          `;
+          break;
+        case "summary":
+          metaHtml = `
+            <span class="pill"><span class="icon">✅</span><span>Shift Complete</span></span>
+            <span class="pill"><span class="icon">✍️</span><span>Next Step: Canvas Reflection</span></span>
+          `;
+          break;
       }
+      ticketMetaEl.innerHTML = metaHtml;
     }
 
-    resetBtn.addEventListener("click", initGame);
+    document.getElementById("startBtn").addEventListener("click", () => showScreen("ticket1"));
+    document.querySelectorAll(".choice-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const next = btn.getAttribute("data-next");
+        if (next) showScreen(next);
+      });
+    });
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const next = btn.getAttribute("data-next");
+        if (next) showScreen(next);
+      });
+    });
 
-    initGame();
+    showScreen("intro");
   </script>
 </body>
 </html>
