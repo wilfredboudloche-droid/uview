@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Ninja | University View Academy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Nunito:wght@400;600;700;800&display=swap');
+
+    :root {
+      --uva-blue: #1a4fa0;
+      --uva-green: #2e7d32;
+      --uva-light-green: #43a047;
+      --uva-gold: #ffd600;
+      --ninja-dark: #1a1a2e;
+      --ninja-purple: #4a0080;
+      --accent-orange: #ff6d00;
+      --accent-pink: #e91e8c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, var(--ninja-dark) 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* ── STARS BACKGROUND ── */
+    .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+    .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 3s infinite alternate; }
+    @keyframes twinkle { from { opacity: 0.2; } to { opacity: 1; } }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; z-index: 10;
+      background: linear-gradient(90deg, var(--uva-blue), var(--ninja-purple), var(--uva-blue));
+      padding: 12px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      border-bottom: 3px solid var(--uva-gold);
+    }
+    .header-logo { display: flex; align-items: center; gap: 12px; }
+    .logo-circle {
+      width: 54px; height: 54px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--uva-blue), var(--uva-green));
+      border: 3px solid var(--uva-gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .header-title { font-family: 'Bangers', cursive; font-size: 1.6rem; letter-spacing: 2px; color: var(--uva-gold); text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+    .header-sub { font-size: 0.75rem; color: #cce; font-weight: 600; }
+    .ribbon {
+      background: var(--uva-green); color: #fff;
+      padding: 6px 16px; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;
+      border: 2px solid var(--uva-gold);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .container { position: relative; z-index: 5; max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+
+    /* ── MISSION CARD ── */
+    .mission-card {
+      background: linear-gradient(135deg, rgba(26,79,160,0.9), rgba(74,0,128,0.9));
+      border: 2px solid var(--uva-gold);
+      border-radius: 16px; padding: 20px 24px; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .ninja-mascot { font-size: 64px; flex-shrink: 0; animation: float 3s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+    .mission-text h2 { font-family: 'Bangers', cursive; font-size: 1.8rem; color: var(--uva-gold); letter-spacing: 2px; }
+    .mission-text p { font-size: 0.95rem; color: #dde; line-height: 1.5; margin-top: 4px; }
+    .mission-target {
+      background: rgba(255,214,0,0.15); border: 2px dashed var(--uva-gold);
+      border-radius: 10px; padding: 10px 16px; margin-top: 10px;
+      font-weight: 800; color: var(--uva-gold); font-size: 1rem;
+    }
+
+    /* ── SCORE BAR ── */
+    .score-bar {
+      display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .score-pill {
+      background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 30px; padding: 8px 18px;
+      display: flex; align-items: center; gap: 8px; font-weight: 700;
+    }
+    .score-pill .icon { font-size: 1.2rem; }
+    .score-pill .label { font-size: 0.75rem; color: #aac; }
+    .score-pill .value { font-size: 1.1rem; color: #fff; }
+    #score-val { color: var(--uva-gold); }
+    #level-val { color: #7fff7f; }
+
+    /* ── PROGRESS BAR ── */
+    .progress-wrap { background: rgba(255,255,255,0.1); border-radius: 20px; height: 12px; margin-bottom: 20px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--uva-green), var(--uva-gold)); transition: width 0.5s ease; }
+
+    /* ── GAME AREA ── */
+    .game-area { display: grid; grid-template-columns: 300px 1fr; gap: 16px; }
+    @media (max-width: 700px) { .game-area { grid-template-columns: 1fr; } }
+
+    /* ── FILTER PANEL ── */
+    .filter-panel {
+      background: rgba(255,255,255,0.07); border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 16px; padding: 16px;
+    }
+    .filter-panel h3 { font-family: 'Bangers', cursive; font-size: 1.3rem; color: var(--uva-gold); letter-spacing: 1px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .filter-group { margin-bottom: 14px; }
+    .filter-group label { font-size: 0.8rem; font-weight: 800; color: #aac; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px; }
+    .filter-btn-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filter-btn {
+      background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.2);
+      color: #cce; border-radius: 20px; padding: 5px 12px; font-size: 0.8rem;
+      font-family: 'Nunito', sans-serif; font-weight: 700; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { background: rgba(255,214,0,0.15); border-color: var(--uva-gold); color: var(--uva-gold); }
+    .filter-btn.active { background: var(--uva-green); border-color: #7fff7f; color: #fff; box-shadow: 0 0 10px rgba(67,160,71,0.5); }
+    .filter-btn.active-blue { background: var(--uva-blue); border-color: #7fb3ff; color: #fff; box-shadow: 0 0 10px rgba(26,79,160,0.5); }
+    .filter-btn.active-orange { background: var(--accent-orange); border-color: #ffb74d; color: #fff; box-shadow: 0 0 10px rgba(255,109,0,0.5); }
+    .filter-btn.active-pink { background: var(--accent-pink); border-color: #ff80c8; color: #fff; box-shadow: 0 0 10px rgba(233,30,140,0.5); }
+
+    .search-shortcut {
+      background: rgba(255,214,0,0.1); border: 2px solid var(--uva-gold);
+      border-radius: 10px; padding: 10px; margin-top: 10px; font-size: 0.8rem; color: #ffd;
+    }
+    .search-shortcut strong { color: var(--uva-gold); }
+    .kbd { background: rgba(255,255,255,0.2); border-radius: 4px; padding: 1px 6px; font-family: monospace; font-size: 0.85rem; }
+
+    .apply-btn {
+      width: 100%; margin-top: 14px;
+      background: linear-gradient(135deg, var(--uva-green), var(--uva-light-green));
+      border: none; border-radius: 30px; padding: 12px;
+      font-family: 'Bangers', cursive; font-size: 1.2rem; letter-spacing: 2px;
+      color: #fff; cursor: pointer; transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(46,125,50,0.4);
+    }
+    .apply-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46,125,50,0.6); }
+    .apply-btn:active { transform: translateY(0); }
+
+    /* ── FILE LIST ── */
+    .file-list-panel {
+      background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 16px; padding: 16px; overflow: hidden;
+    }
+    .file-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .file-list-header h3 { font-family: 'Bangers', cursive; font-size: 1.3rem; color: var(--uva-gold); letter-spacing: 1px; }
+    .file-count { font-size: 0.8rem; color: #aac; font-weight: 700; }
+
+    .file-grid { display: flex; flex-direction: column; gap: 6px; max-height: 420px; overflow-y: auto; padding-right: 4px; }
+    .file-grid::-webkit-scrollbar { width: 6px; }
+    .file-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 3px; }
+    .file-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+    .file-item {
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px; padding: 10px 14px;
+      display: flex; align-items: center; gap: 12px;
+      transition: all 0.3s ease; cursor: pointer;
+    }
+    .file-item:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); }
+    .file-item.filtered-out { opacity: 0.15; transform: scale(0.97); pointer-events: none; }
+    .file-item.correct-answer { background: rgba(67,160,71,0.3); border-color: #7fff7f; box-shadow: 0 0 20px rgba(67,160,71,0.5); animation: pulse-green 1s ease; }
+    .file-item.wrong-answer { background: rgba(244,67,54,0.3); border-color: #ff5252; animation: shake 0.4s ease; }
+    @keyframes pulse-green { 0%,100% { box-shadow: 0 0 20px rgba(67,160,71,0.5); } 50% { box-shadow: 0 0 40px rgba(67,160,71,0.9); } }
+    @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+
+    .file-icon { font-size: 1.6rem; flex-shrink: 0; }
+    .file-info { flex: 1; min-width: 0; }
+    .file-name { font-weight: 700; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-meta { font-size: 0.72rem; color: #99a; margin-top: 2px; }
+    .file-badge {
+      font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px;
+      text-transform: uppercase; letter-spacing: 0.5px; flex-shrink: 0;
+    }
+    .badge-pdf { background: rgba(244,67,54,0.3); color: #ff8a80; border: 1px solid #ff5252; }
+    .badge-doc { background: rgba(33,150,243,0.3); color: #82b1ff; border: 1px solid #2196f3; }
+    .badge-sheet { background: rgba(76,175,80,0.3); color: #b9f6ca; border: 1px solid #4caf50; }
+    .badge-slide { background: rgba(255,152,0,0.3); color: #ffe082; border: 1px solid #ff9800; }
+    .badge-img { background: rgba(156,39,176,0.3); color: #e040fb; border: 1px solid #9c27b0; }
+
+    /* ── FEEDBACK OVERLAY ── */
+    .feedback-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7); z-index: 100;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
+    }
+    .feedback-overlay.show { opacity: 1; pointer-events: all; }
+    .feedback-box {
+      background: linear-gradient(135deg, #1a1a2e, #16213e);
+      border: 3px solid var(--uva-gold); border-radius: 24px;
+      padding: 40px; text-align: center; max-width: 420px; width: 90%;
+      transform: scale(0.8); transition: transform 0.3s;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+    }
+    .feedback-overlay.show .feedback-box { transform: scale(1); }
+    .feedback-emoji { font-size: 80px; margin-bottom: 16px; }
+    .feedback-title { font-family: 'Bangers', cursive; font-size: 2.5rem; letter-spacing: 3px; margin-bottom: 8px; }
+    .feedback-msg { font-size: 1rem; color: #cce; line-height: 1.5; margin-bottom: 20px; }
+    .feedback-fact { background: rgba(255,214,0,0.1); border: 2px solid var(--uva-gold); border-radius: 10px; padding: 12px; font-size: 0.85rem; color: #ffd; margin-bottom: 20px; }
+    .feedback-fact strong { color: var(--uva-gold); }
+    .next-btn {
+      background: linear-gradient(135deg, var(--uva-blue), var(--ninja-purple));
+      border: 2px solid var(--uva-gold); border-radius: 30px;
+      padding: 12px 32px; font-family: 'Bangers', cursive; font-size: 1.3rem;
+      letter-spacing: 2px; color: var(--uva-gold); cursor: pointer;
+      transition: all 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    .next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
+
+    /* ── WIN SCREEN ── */
+    .win-screen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, var(--ninja-dark), var(--ninja-purple));
+      z-index: 200; display: none; align-items: center; justify-content: center;
+      flex-direction: column; text-align: center; padding: 20px;
+    }
+    .win-screen.show { display: flex; }
+    .win-title { font-family: 'Bangers', cursive; font-size: 4rem; color: var(--uva-gold); letter-spacing: 4px; text-shadow: 0 0 30px rgba(255,214,0,0.8); animation: glow 2s ease-in-out infinite; }
+    @keyframes glow { 0%,100% { text-shadow: 0 0 20px rgba(255,214,0,0.5); } 50% { text-shadow: 0 0 50px rgba(255,214,0,1), 0 0 80px rgba(255,214,0,0.5); } }
+    .win-ninjas { font-size: 80px; margin: 20px 0; }
+    .win-score { font-size: 1.5rem; color: #cce; margin-bottom: 10px; }
+    .win-score span { color: var(--uva-gold); font-weight: 800; font-size: 2rem; }
+    .win-ribbon { background: var(--uva-green); border: 3px solid var(--uva-gold); border-radius: 10px; padding: 10px 30px; font-family: 'Bangers', cursive; font-size: 1.5rem; letter-spacing: 3px; color: #fff; margin: 16px 0; }
+    .restart-btn {
+      background: linear-gradient(135deg, var(--uva-green), var(--uva-light-green));
+      border: 3px solid var(--uva-gold); border-radius: 30px;
+      padding: 14px 40px; font-family: 'Bangers', cursive; font-size: 1.5rem;
+      letter-spacing: 2px; color: #fff; cursor: pointer; margin-top: 20px;
+      transition: all 0.2s; box-shadow: 0 6px 20px rgba(46,125,50,0.5);
+    }
+    .restart-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(46,125,50,0.7); }
+
+    /* ── CONFETTI ── */
+    .confetti-piece { position: fixed; width: 10px; height: 10px; top: -10px; animation: confetti-fall linear forwards; z-index: 300; border-radius: 2px; }
+    @keyframes confetti-fall { to { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+    /* ── HINT BOX ── */
+    .hint-box {
+      background: rgba(255,109,0,0.15); border: 2px solid var(--accent-orange);
+      border-radius: 10px; padding: 10px 14px; margin-top: 12px;
+      font-size: 0.82rem; color: #ffd; display: none;
+    }
+    .hint-box.show { display: block; }
+    .hint-box strong { color: var(--accent-orange); }
+
+    .attempts-display { font-size: 0.8rem; color: #aac; margin-top: 8px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<!-- Stars -->
+<div class="stars" id="stars"></div>
+
+<!-- Header -->
+<header>
+  <div class="header-logo">
+    <div class="logo-circle">🎓</div>
+    <div>
+      <div class="header-title">🥷 SEARCH NINJA</div>
+      <div class="header-sub">University View Academy · Computer Tech Literacy</div>
+    </div>
+  </div>
+  <div class="ribbon">VIRTUE • VIGOR • VISION</div>
+</header>
+
+<div class="container">
+
+  <!-- Mission Card -->
+  <div class="mission-card" id="mission-card">
+    <div class="ninja-mascot" id="ninja-mascot">🥷</div>
+    <div class="mission-text">
+      <h2>🎯 MISSION <span id="mission-num">1</span> OF 5</h2>
+      <p id="mission-desc">Loading mission...</p>
+      <div class="mission-target" id="mission-target">🔍 Find: ...</div>
+    </div>
+  </div>
+
+  <!-- Score Bar -->
+  <div class="score-bar">
+    <div class="score-pill">
+      <span class="icon">⭐</span>
+      <div><div class="label">Score</div><div class="value" id="score-val">0</div></div>
+    </div>
+    <div class="score-pill">
+      <span class="icon">🥷</span>
+      <div><div class="label">Rank</div><div class="value" id="level-val">Trainee</div></div>
+    </div>
+    <div class="score-pill">
+      <span class="icon">💥</span>
+      <div><div class="label">Streak</div><div class="value" id="streak-val">0</div></div>
+    </div>
+    <div class="score-pill">
+      <span class="icon">❤️</span>
+      <div><div class="label">Lives</div><div class="value" id="lives-val">3</div></div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+
+  <!-- Game Area -->
+  <div class="game-area">
+
+    <!-- Filter Panel -->
+    <div class="filter-panel">
+      <h3>🔍 Search Filters</h3>
+
+      <div class="filter-group">
+        <label>📄 File Type</label>
+        <div class="filter-btn-group" id="type-filters">
+          <button class="filter-btn" data-group="type" data-val="PDF">PDF</button>
+          <button class="filter-btn" data-group="type" data-val="Doc">Doc</button>
+          <button class="filter-btn" data-group="type" data-val="Sheet">Sheet</button>
+          <button class="filter-btn" data-group="type" data-val="Slide">Slide</button>
+          <button class="filter-btn" data-group="type" data-val="Image">Image</button>
+          <button class="filter-btn" data-group="type" data-val="Any">Any</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>📅 Date Modified</label>
+        <div class="filter-btn-group" id="date-filters">
+          <button class="filter-btn" data-group="date" data-val="Today">Today</button>
+          <button class="filter-btn" data-group="date" data-val="This Week">This Week</button>
+          <button class="filter-btn" data-group="date" data-val="This Month">This Month</button>
+          <button class="filter-btn" data-group="date" data-val="Last Year">Last Year</button>
+          <button class="filter-btn" data-group="date" data-val="Any">Any</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>👤 Owner / Shared By</label>
+        <div class="filter-btn-group" id="owner-filters">
+          <button class="filter-btn" data-group="owner" data-val="Me">Me</button>
+          <button class="filter-btn" data-group="owner" data-val="Ms. Rivera">Ms. Rivera</button>
+          <button class="filter-btn" data-group="owner" data-val="Mr. Thompson">Mr. Thompson</button>
+          <button class="filter-btn" data-group="owner" data-val="Coach Davis">Coach Davis</button>
+          <button class="filter-btn" data-group="owner" data-val="Anyone">Anyone</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>⭐ Starred</label>
+        <div class="filter-btn-group" id="star-filters">
+          <button class="filter-btn" data-group="star" data-val="Starred">⭐ Starred Only</button>
+          <button class="filter-btn" data-group="star" data-val="Any">Any</button>
+        </div>
+      </div>
+
+      <div class="search-shortcut">
+        <strong>💡 Pro Tip:</strong> In real Google Drive, press <span class="kbd">/</span> to jump to the search bar instantly!
+      </div>
+
+      <div class="hint-box" id="hint-box">
+        <strong>🥷 Ninja Hint:</strong> <span id="hint-text"></span>
+      </div>
+
+      <button class="apply-btn" id="apply-btn" onclick="applyFilters()">⚡ APPLY FILTERS</button>
+      <div class="attempts-display" id="attempts-display"></div>
+    </div>
+
+    <!-- File List -->
+    <div class="file-list-panel">
+      <div class="file-list-header">
+        <h3>📁 Drive Files</h3>
+        <div class="file-count" id="file-count">Showing 20 files</div>
+      </div>
+      <div class="file-grid" id="file-grid"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Feedback Overlay -->
+<div class="feedback-overlay" id="feedback-overlay">
+  <div class="feedback-box">
+    <div class="feedback-emoji" id="fb-emoji"></div>
+    <div class="feedback-title" id="fb-title"></div>
+    <div class="feedback-msg" id="fb-msg"></div>
+    <div class="feedback-fact" id="fb-fact"></div>
+    <button class="next-btn" onclick="nextMission()">NEXT MISSION ➡️</button>
+  </div>
+</div>
+
+<!-- Win Screen -->
+<div class="win-screen" id="win-screen">
+  <div class="win-title">🏆 NINJA MASTER! 🏆</div>
+  <div class="win-ninjas">🥷🥷🥷</div>
+  <div class="win-score">Final Score: <span id="final-score">0</span></div>
+  <div class="win-ribbon">VIRTUE • VIGOR • VISION</div>
+  <p style="color:#cce; max-width:400px; line-height:1.6;">You've mastered Google Drive's search and filter tools! You can now find any file in seconds like a true Search Ninja! 🎉</p>
+  <button class="restart-btn" onclick="restartGame()">🔄 PLAY AGAIN</button>
+</div>
+
+<script>
+  // ── STARS ──
+  const starsEl = document.getElementById('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 3 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s`;
+    starsEl.appendChild(s);
+  }
+
+  // ── GAME DATA ──
+  const allFiles = [
+    { name: "2024-03-10_Biology_LabReport.pdf", type: "PDF", date: "Today", owner: "Me", starred: false, icon: "📄", badge: "badge-pdf" },
+    { name: "Algebra_HW_Chapter5.sheet", type: "Sheet", date: "This Week", owner: "Me", starred: false, icon: "📊", badge: "badge-sheet" },
+    { name: "History_Essay_Draft.doc", type: "Doc", date: "This Month", owner: "Me", starred: true, icon: "📝", badge: "badge-doc" },
+    { name: "PE_Fitness_Log_Spring.sheet", type: "Sheet", date: "This Week", owner: "Coach Davis", starred: false, icon: "📊", badge: "badge-sheet" },
+    { name: "English_ReadingGuide_Unit3.pdf", type: "PDF", date: "This Month", owner: "Ms. Rivera", starred: false, icon: "📄", badge: "badge-pdf" },
+    { name: "Science_Fair_Slides.slide", type: "Slide", date: "Last Year", owner: "Me", starred: true, icon: "📑", badge: "badge-slide" },
+    { name: "Class_Photo_Spring2024.jpg", type: "Image", date: "This Month", owner: "Mr. Thompson", starred: false, icon: "🖼️", badge: "badge-img" },
+    { name: "Math_Midterm_StudyGuide.pdf", type: "PDF", date: "This Week", owner: "Mr. Thompson", starred: true, icon: "📄", badge: "badge-pdf" },
+    { name: "Spanish_Vocab_List.doc", type: "Doc", date: "Today", owner: "Ms. Rivera", starred: false, icon: "📝", badge: "badge-doc" },
+    { name: "Budget_Tracker_ClubFunds.sheet", type: "Sheet", date: "This Month", owner: "Me", starred: true, icon: "📊", badge: "badge-sheet" },
+    { name: "Art_Project_Inspiration.jpg", type: "Image", date: "Last Year", owner: "Me", starred: false, icon: "🖼️", badge: "badge-img" },
+    { name: "Chemistry_Notes_Week7.doc", type: "Doc", date: "This Week", owner: "Me", starred: false, icon: "📝", badge: "badge-doc" },
+    { name: "Gym_Schedule_Fall.pdf", type: "PDF", date: "Last Year", owner: "Coach Davis", starred: false, icon: "📄", badge: "badge-pdf" },
+    { name: "Literature_Presentation.slide", type: "Slide", date: "This Month", owner: "Ms. Rivera", starred: false, icon: "📑", badge: "badge-slide" },
+    { name: "Robotics_Club_Minutes.doc", type: "Doc", date: "Today", owner: "Mr. Thompson", starred: true, icon: "📝", badge: "badge-doc" },
+    { name: "Geography_MapProject.img", type: "Image", date: "This Week", owner: "Me", starred: false, icon: "🖼️", badge: "badge-img" },
+    { name: "Physics_Lab_Data.sheet", type: "Sheet", date: "Today", owner: "Mr. Thompson", starred: false, icon: "📊", badge: "badge-sheet" },
+    { name: "College_Prep_Checklist.pdf", type: "PDF", date: "This Month", owner: "Ms. Rivera", starred: true, icon: "📄", badge: "badge-pdf" },
+    { name: "Drama_Script_ActII.doc", type: "Doc", date: "Last Year", owner: "Me", starred: false, icon: "📝", badge: "badge-doc" },
+    { name: "Track_Meet_Results.sheet", type: "Sheet", date: "This Week", owner: "Coach Davis", starred: true, icon: "📊", badge: "badge-sheet" },
+  ];
+
+  const missions = [
+    {
+      num: 1,
+      desc: "Your teacher Ms. Rivera shared a PDF with you last month. You need it for tonight's homework but can't remember the name!",
+      target: "Find the PDF shared by Ms. Rivera this month",
+      filters: { type: "PDF", date: "This Month", owner: "Ms. Rivera", star: "Any" },
+      answer: "English_ReadingGuide_Unit3.pdf",
+      hint: "Filter by File Type: PDF, then narrow by who shared it with you.",
+      fact: "Using the <strong>Owner filter</strong> in Google Drive lets you instantly see files shared by a specific person — no more scrolling through hundreds of files!",
+      successEmoji: "🥷⚡",
+      ninjaReaction: "🥷"
+    },
+    {
+      num: 2,
+      desc: "Coach Davis shared a spreadsheet with you this week. You need to log your fitness data before class tomorrow!",
+      target: "Find Coach Davis's spreadsheet from this week",
+      filters: { type: "Sheet", date: "This Week", owner: "Coach Davis", star: "Any" },
+      answer: "PE_Fitness_Log_Spring.sheet",
+      hint: "Think about what type of file a fitness log would be — spreadsheets are great for tracking data!",
+      fact: "The <strong>File Type filter</strong> is one of the most powerful search tools in Drive. Google Sheets, Docs, Slides, and PDFs each have their own filter option.",
+      successEmoji: "💪🥷",
+      ninjaReaction: "🥷"
+    },
+    {
+      num: 3,
+      desc: "You starred an important study guide from Mr. Thompson earlier this week. Finals are coming — find it fast!",
+      target: "Find your starred PDF from Mr. Thompson this week",
+      filters: { type: "PDF", date: "This Week", owner: "Mr. Thompson", star: "Starred" },
+      answer: "Math_Midterm_StudyGuide.pdf",
+      hint: "You starred this file for quick access! The Star filter + owner filter combo is super powerful.",
+      fact: "The <strong>Star/Favorite feature</strong> in Google Drive lets you prioritize critical files. Starred files appear in a dedicated view — bypassing complex folder structures entirely!",
+      successEmoji: "⭐🥷",
+      ninjaReaction: "🥷"
+    },
+    {
+      num: 4,
+      desc: "Mr. Thompson uploaded a photo to Drive today. You need it for the school newsletter you're working on!",
+      target: "Find the image Mr. Thompson uploaded today",
+      filters: { type: "Image", date: "Today", owner: "Mr. Thompson", star: "Any" },
+      answer: "Class_Photo_Spring2024.jpg",
+      hint: "Photos are Image files. Combine the date 'Today' with the owner to narrow it down quickly!",
+      fact: "Google Drive stores <strong>all file types</strong> — not just Google-native files. Images, PDFs, and Office files can all be filtered and found using the same search tools.",
+      successEmoji: "📸🥷",
+      ninjaReaction: "🥷"
+    },
+    {
+      num: 5,
+      desc: "FINAL MISSION! You have a starred spreadsheet you created to track club funds. It's somewhere this month — the treasurer needs it NOW!",
+      target: "Find YOUR starred spreadsheet from this month",
+      filters: { type: "Sheet", date: "This Month", owner: "Me", star: "Starred" },
+      answer: "Budget_Tracker_ClubFunds.sheet",
+      hint: "This is YOUR file (Owner: Me), it's a Sheet, it's starred, and it was modified this month.",
+      fact: "Combining <strong>multiple filters at once</strong> — type + date + owner + starred — is the hallmark of a true Google Drive Power User. You can find any file in seconds!",
+      successEmoji: "🏆🥷",
+      ninjaReaction: "🥷"
+    }
+  ];
+
+  // ── STATE ──
+  let currentMission = 0;
+  let score = 0;
+  let streak = 0;
+  let lives = 3;
+  let attempts = 0;
+  let activeFilters = { type: null, date: null, owner: null, star: null };
+  let filtersApplied = false;
+
+  const ranks = [
+    { min: 0, name: "Trainee", emoji: "🥷" },
+    { min: 100, name: "Apprentice", emoji: "🥷⚡" },
+    { min: 250, name: "Shadow", emoji: "🥷🌑" },
+    { min: 400, name: "Blade", emoji: "🥷⚔️" },
+    { min: 600, name: "Master", emoji: "🥷🏆" },
+  ];
+
+  function getRank(s) {
+    let r = ranks[0];
+    for (const rank of ranks) { if (s >= rank.min) r = rank; }
+    return r;
+  }
+
+  // ── INIT ──
+  function initGame() {
+    renderFiles(allFiles);
+    loadMission(0);
+  }
+
+  function loadMission(idx) {
+    const m = missions[idx];
+    document.getElementById('mission-num').textContent = m.num;
+    document.getElementById('mission-desc').textContent = m.desc;
+    document.getElementById('mission-target').textContent = '🔍 Find: ' + m.target;
+    document.getElementById('ninja-mascot').textContent = m.ninjaReaction;
+    document.getElementById('progress-fill').style.width = (idx / missions.length * 100) + '%';
+    document.getElementById('attempts-display').textContent = '';
+    document.getElementById('hint-box').classList.remove('show');
+    attempts = 0;
+    filtersApplied = false;
+    activeFilters = { type: null, date: null, owner: null, star: null };
+    // Reset filter buttons
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.className = 'filter-btn';
+    });
+    renderFiles(allFiles);
+  }
+
+  function renderFiles(files) {
+    const grid = document.getElementById('file-grid');
+    grid.innerHTML = '';
+    let visible = 0;
+    files.forEach(f => {
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.dataset.name = f.name;
+      div.innerHTML = `
+        <span class="file-icon">${f.icon}</span>
+        <div class="file-info">
+          <div class="file-name">${f.name}</div>
+          <div class="file-meta">Modified: ${f.date}  |  Owner: ${f.owner} ${f.starred ? '⭐' : ''}</div>
+        </div>
+        <span class="file-badge ${f.badge}">${f.type}</span>
+      `;
+      div.addEventListener('click', () => selectFile(f.name));
+      grid.appendChild(div);
+      visible++;
+    });
+    document.getElementById('file-count').textContent = `Showing ${visible} files`;
+  }
+
+  // ── FILTER BUTTONS ──
+  const colorMap = { type: 'active', date: 'active-blue', owner: 'active-orange', star: 'active-pink' };
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.group;
+      const val = btn.dataset.val;
+      // Deactivate siblings
+      document.querySelectorAll(`.filter-btn[data-group="${group}"]`).forEach(b => b.className = 'filter-btn');
+      btn.classList.add(colorMap[group]);
+      activeFilters[group] = val;
+    });
+  });
+
+  function applyFilters() {
+    const m = missions[currentMission];
+    const filtered = allFiles.filter(f => {
+      let show = true;
+      if (activeFilters.type && activeFilters.type !== 'Any') show = show && f.type === activeFilters.type;
+      if (activeFilters.date && activeFilters.date !== 'Any') show = show && f.date === activeFilters.date;
+      if (activeFilters.owner && activeFilters.owner !== 'Anyone') show = show && f.owner === activeFilters.owner;
+      if (activeFilters.star && activeFilters.star !== 'Any') show = show && f.starred === true;
+      return show;
+    });
+
+    // Apply visual filter-out
+    const items = document.querySelectorAll('.file-item');
+    const visibleNames = new Set(filtered.map(f => f.name));
+    let visibleCount = 0;
+    items.forEach(item => {
+      if (visibleNames.has(item.dataset.name)) {
+        item.classList.remove('filtered-out');
+        visibleCount++;
+      } else {
+        item.classList.add('filtered-out');
+      }
+    });
+    document.getElementById('file-count').textContent = `Showing ${visibleCount} files`;
+    filtersApplied = true;
+  }
+
+  function selectFile(name) {
+    if (!filtersApplied) {
+      showToast("⚡ Apply your filters first, Ninja!");
+      return;
+    }
+    const m = missions[currentMission];
+    const item = document.querySelector(`.file-item[data-name="${name}"]`);
+    if (name === m.answer) {
+      item.classList.add('correct-answer');
+      const points = Math.max(50, 100 - attempts * 20) + (streak * 10);
+      score += points;
+      streak++;
+      lives = Math.min(3, lives); // don't lose life on correct
+      updateHUD();
+      setTimeout(() => showFeedback(true, m, points), 600);
+    } else {
+      item.classList.add('wrong-answer');
+      attempts++;
+      lives = Math.max(0, lives - 1);
+      streak = 0;
+      updateHUD();
+      setTimeout(() => item.classList.remove('wrong-answer'), 500);
+      if (attempts >= 2) {
+        document.getElementById('hint-text').textContent = m.hint;
+        document.getElementById('hint-box').classList.add('show');
+      }
+      document.getElementById('attempts-display').textContent = `❌ Not quite! Attempts: ${attempts}/3`;
+      if (lives <= 0) {
+        // Auto-reveal
+        setTimeout(() => {
+          const correct = document.querySelector(`.file-item[data-name="${m.answer}"]`);
+          if (correct) correct.classList.add('correct-answer');
+          setTimeout(() => showFeedback(false, m, 0), 800);
+        }, 400);
+      }
+    }
+  }
+
+  function updateHUD() {
+    document.getElementById('score-val').textContent = score;
+    document.getElementById('streak-val').textContent = streak;
+    document.getElementById('lives-val').textContent = '❤️'.repeat(lives) + '🖤'.repeat(3 - lives);
+    const rank = getRank(score);
+    document.getElementById('level-val').textContent = rank.name;
+  }
+
+  function showFeedback(success, mission, points) {
+    const overlay = document.getElementById('feedback-overlay');
+    document.getElementById('fb-emoji').textContent = success ? mission.successEmoji : '😅';
+    document.getElementById('fb-title').textContent = success ? 'MISSION COMPLETE!' : 'KEEP TRAINING!';
+    document.getElementById('fb-title').style.color = success ? 'var(--uva-gold)' : '#ff8a80';
+    document.getElementById('fb-msg').textContent = success
+      ? `+${points} points! ${streak > 1 ? '🔥 ' + streak + 'x Streak Bonus!' : 'Great work, Ninja!'}`
+      : `The correct file was: ${mission.answer}`;
+    document.getElementById('fb-fact').innerHTML = `<strong>📚 Drive Tip:</strong> ${mission.fact}`;
+    overlay.classList.add('show');
+    if (success) launchConfetti();
+  }
+
+  function nextMission() {
+    document.getElementById('feedback-overlay').classList.remove('show');
+    currentMission++;
+    if (currentMission >= missions.length) {
+      showWinScreen();
+    } else {
+      if (lives <= 0) lives = 3;
+      updateHUD();
+      loadMission(currentMission);
+    }
+  }
+
+  function showWinScreen() {
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('final-score').textContent = score;
+    document.getElementById('win-screen').classList.add('show');
+    launchConfetti(80);
+  }
+
+  function restartGame() {
+    document.getElementById('win-screen').classList.remove('show');
+    score = 0; streak = 0; lives = 3; currentMission = 0; attempts = 0;
+    updateHUD();
+    loadMission(0);
+  }
+
+  function launchConfetti(count = 40) {
+    const colors = ['#ffd600','#2e7d32','#1a4fa0','#e91e8c','#ff6d00','#fff'];
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const c = document.createElement('div');
+        c.className = 'confetti-piece';
+        c.style.cssText = `left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*0.5}s;transform:rotate(${Math.random()*360}deg)`;
+        document.body.appendChild(c);
+        setTimeout(() => c.remove(), 3000);
+      }, i * 30);
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:rgba(26,79,160,0.95);border:2px solid var(--uva-gold);color:#fff;padding:12px 24px;border-radius:30px;font-weight:700;z-index:500;font-size:0.9rem;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2000);
+  }
+
+  initGame();
+</script>
+</body>
+</html>
