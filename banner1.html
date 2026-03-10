@@ -5,24 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tech News Banner - Computer Tech Literacy</title>
     <style>
-        /* Reset and centering */
         body, html {
             margin: 0;
             padding: 0;
             height: 100%;
-            background-color: #050a14; /* Matches the dark blue of your banner */
+            background-color: #050a14;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
         }
 
-        /* Main container that maintains the image aspect ratio */
         .banner-wrapper {
             position: relative;
-            width: 95vw; /* Responsive width */
+            width: 95vw;
             max-width: 1200px;
-            aspect-ratio: 2 / 1; /* Matches your 1200x600 image */
+            aspect-ratio: 2 / 1;
             background-image: url('Tech News Banner with Video Placeholder.png');
             background-size: contain;
             background-repeat: no-repeat;
@@ -30,27 +28,33 @@
             box-shadow: 0 0 40px rgba(0, 162, 255, 0.2);
         }
 
-        /* The container for the YouTube embed */
+        /* Portrait-style video box matching the blue glowing square */
         .video-box {
             position: absolute;
-            /* Positioning based on the blue glowing box in your image */
             top: 21.5%;
             right: 6.8%;
             width: 32.2%;
             height: 53.5%;
-            background-color: #000; /* Black background while loading */
+            background-color: #000;
             border-radius: 2px;
             overflow: hidden;
         }
 
-        /* Make the iframe fill the container */
+        /* Scale the iframe larger than the box, then center it
+           This crops the sides slightly to eliminate black bars */
         .video-box iframe {
-            width: 100%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* 9:16 ratio — height drives the size, width is calculated */
             height: 100%;
+            width: calc(100% * 9 / 16 * (16/9));
+            min-width: 100%;
+            min-height: 100%;
+            transform: translate(-50%, -50%);
             border: none;
         }
 
-        /* Optional: Responsive adjustment for smaller screens */
         @media (max-width: 600px) {
             .banner-wrapper {
                 width: 100vw;
@@ -62,8 +66,16 @@
 
     <div class="banner-wrapper">
         <div class="video-box">
-            <!-- Replace YOUR_VIDEO_ID with the ID from your YouTube Short URL -->
-          <iframe width="372" height="539" src="https://www.youtube.com/embed/EKOvGDauKt0" title="NotebookLM hack you need to know! #aitools" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+            <iframe 
+                width="472" 
+                height="839" 
+                src="https://www.youtube.com/embed/x7aVv6n3Qwo?autoplay=1&mute=1&loop=1&playlist=x7aVv6n3Qwo"
+                title="Notebook LM Test"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen>
+            </iframe>
         </div>
     </div>
 
