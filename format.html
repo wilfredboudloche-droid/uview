@@ -8,11 +8,10 @@
         :root {
             --uva-blue: #1B5EAF;
             --uva-green: #1E7A3E;
-            --uva-light-blue: #eef4fb;
             --bg-gray: #f1f3f4;
             --google-blue: #4285f4;
         }
-
+        * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-gray);
@@ -22,8 +21,6 @@
             height: 100vh;
             overflow: hidden;
         }
-
-        /* UVA Header & Ribbon */
         .uva-header {
             background-color: var(--uva-blue);
             color: white;
@@ -33,8 +30,8 @@
             align-items: center;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             z-index: 100;
+            flex-shrink: 0;
         }
-
         .motto-ribbon {
             background: var(--uva-green);
             padding: 5px 15px;
@@ -42,29 +39,26 @@
             font-style: italic;
             font-weight: bold;
             font-size: 0.9rem;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
         }
-
-        /* Progression Bar */
         .progression-panel {
             background: white;
-            padding: 10px 20px;
+            padding: 8px 20px;
             display: flex;
             gap: 20px;
             align-items: center;
             border-bottom: 1px solid #ddd;
+            flex-shrink: 0;
         }
-
         .rank-badge {
             background: var(--uva-blue);
             color: white;
-            padding: 5px 12px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-weight: bold;
             text-transform: uppercase;
             font-size: 0.8rem;
+            transition: background 0.4s;
         }
-
         .streak-counter {
             color: #d93025;
             font-weight: bold;
@@ -72,411 +66,507 @@
             align-items: center;
             gap: 5px;
         }
-
-        /* Google Docs Simulation UI */
         .docs-container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
-
-        /* Sidebar: Document Outline */
         .outline-pane {
-            width: 220px;
+            width: 210px;
             background: white;
             border-right: 1px solid #ddd;
             padding: 15px;
             display: flex;
             flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
         }
-
         .outline-title {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: bold;
             color: #5f6368;
             margin-bottom: 10px;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-
         .outline-item {
-            font-size: 0.85rem;
-            padding: 4px 0;
+            font-size: 0.82rem;
+            padding: 3px 0 3px 10px;
             color: #1a73e8;
-            border-left: 2px solid transparent;
-            padding-left: 10px;
-            margin-bottom: 2px;
+            border-left: 3px solid transparent;
+            margin-bottom: 3px;
+            transition: border-color 0.3s;
         }
+        .outline-item.h1 { margin-left: 0; font-weight: bold; border-left-color: var(--uva-blue); }
+        .outline-item.h2 { margin-left: 12px; border-left-color: var(--uva-green); }
+        .outline-item.h3 { margin-left: 24px; font-size: 0.78rem; border-left-color: #f4b400; }
 
-        .outline-item.active {
-            border-left-color: var(--uva-blue);
-            font-weight: bold;
-        }
-
-        .outline-item.h1 { margin-left: 0; }
-        .outline-item.h2 { margin-left: 15px; }
-        .outline-item.h3 { margin-left: 30px; }
-
-        /* Main Editor Area */
         .editor-main {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 16px 20px;
             overflow-y: auto;
         }
-
         .toolbar {
             width: 100%;
-            max-width: 800px;
+            max-width: 780px;
             background: #edf2fa;
             border-radius: 24px;
             padding: 8px 16px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+            flex-shrink: 0;
         }
-
         .style-dropdown {
-            padding: 5px 10px;
+            padding: 6px 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             background: white;
             cursor: pointer;
             font-size: 0.9rem;
-            min-width: 120px;
+            min-width: 130px;
         }
-
+        .btn-apply {
+            background: var(--uva-blue);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .btn-apply:hover { background: #154a8a; }
+        .btn-update {
+            background: var(--uva-green);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        .btn-update:hover { background: #155c2e; }
+        .toolbar-hint {
+            font-size: 0.78rem;
+            color: #555;
+            flex: 1;
+            text-align: right;
+        }
         .page {
             width: 100%;
-            max-width: 800px;
+            max-width: 780px;
             background: white;
-            min-height: 1000px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            padding: 50px 70px;
-            box-sizing: border-box;
+            min-height: 500px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+            padding: 40px 60px;
         }
-
-        /* Document Content Styles */
         .doc-text {
-            margin-bottom: 15px;
-            line-height: 1.5;
+            margin-bottom: 12px;
+            line-height: 1.6;
             cursor: pointer;
-            transition: background 0.2s;
-            border-radius: 2px;
-            padding: 2px 5px;
+            border-radius: 3px;
+            padding: 3px 6px;
+            transition: background 0.15s, outline 0.15s;
+            position: relative;
         }
+        .doc-text:hover { background: rgba(66,133,244,0.08); outline: 1px dashed var(--google-blue); }
+        .doc-text.selected { background: rgba(66,133,244,0.18); outline: 2px solid var(--google-blue); }
+        .doc-text.correct { cursor: default; }
+        .doc-text.correct:hover { background: transparent; outline: none; }
 
-        .doc-text:hover {
-            background: rgba(26, 115, 232, 0.1);
-            outline: 1px dashed var(--google-blue);
-        }
-
-        .doc-text.selected {
-            background: rgba(26, 115, 232, 0.2);
-            outline: 2px solid var(--google-blue);
-        }
-
-        /* Feedback Overlays */
+        /* Feedback toast */
         #feedback {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            padding: 15px 25px;
+            bottom: 24px;
+            right: 24px;
+            padding: 14px 22px;
             border-radius: 8px;
             color: white;
             font-weight: bold;
+            font-size: 0.95rem;
             display: none;
-            animation: slideIn 0.3s ease-out;
             z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            max-width: 320px;
         }
+        @keyframes slideIn { from { transform: translateX(110%); opacity:0; } to { transform: translateX(0); opacity:1; } }
+        @keyframes slideOut { from { transform: translateX(0); opacity:1; } to { transform: translateX(110%); opacity:0; } }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-        }
-
-        /* Modal */
+        /* Modals */
         .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.65);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 2000;
         }
-
         .modal-content {
             background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 500px;
+            padding: 35px 40px;
+            border-radius: 14px;
+            max-width: 520px;
+            width: 90%;
             text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
         }
-
+        .modal-content h2 { margin-top: 0; }
         .btn-primary {
             background: var(--uva-blue);
             color: white;
             border: none;
-            padding: 10px 25px;
-            border-radius: 5px;
+            padding: 11px 28px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            margin-top: 15px;
+            font-size: 1rem;
+            margin-top: 10px;
         }
-
         .btn-primary:hover { background: #154a8a; }
 
-        /* Confetti Canvas */
-        #confetti {
+        /* Progress bar */
+        .progress-wrap { flex: 1; }
+        .progress-bar-bg { background: #e0e0e0; border-radius: 10px; height: 10px; overflow: hidden; }
+        .progress-bar-fill { background: var(--uva-green); height: 100%; border-radius: 10px; transition: width 0.5s ease; width: 0%; }
+
+        /* Confetti */
+        #confetti-canvas {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             z-index: 3000;
+            display: none;
+        }
+
+        /* Update-to-match demo panel */
+        .update-demo {
+            background: #fff8e1;
+            border: 1px solid #f4b400;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            color: #555;
+            margin-left: 4px;
         }
     </style>
 </head>
 <body>
 
-    <div class="uva-header">
-        <div>
-            <strong style="font-size: 1.2rem;">UVA TECH LITERACY</strong>
-            <div style="font-size: 0.8rem; opacity: 0.9;">Mission 6.04: Document Architect</div>
-        </div>
-        <div class="motto-ribbon">Virtue, Vigor, Vision</div>
+<!-- UVA Header -->
+<div class="uva-header">
+    <div>
+        <strong style="font-size:1.15rem;">UVA TECH LITERACY</strong>
+        <div style="font-size:0.78rem;opacity:0.85;">Mission 6.04 · Document Architect</div>
     </div>
+    <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+</div>
 
-    <div class="progression-panel">
-        <div>Rank: <span id="rank" class="rank-badge">Trainee</span></div>
-        <div class="streak-counter">🔥 Streak: <span id="streak">0</span></div>
-        <div style="flex-grow: 1; text-align: right; font-weight: bold; color: var(--uva-green);">
-            Score: <span id="score">0</span>/500
-        </div>
+<!-- Progression Panel -->
+<div class="progression-panel">
+    <div>Rank: <span id="rank" class="rank-badge">Trainee</span></div>
+    <div class="streak-counter">🔥 <span id="streak">0</span> streak</div>
+    <div class="progress-wrap">
+        <div style="font-size:0.75rem;color:#555;margin-bottom:3px;">Progress: <span id="prog-label">0/4 headings fixed</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
     </div>
+    <div style="font-weight:bold;color:var(--uva-green);white-space:nowrap;">⭐ <span id="score">0</span> pts</div>
+</div>
 
-    <div class="docs-container">
-        <div class="outline-pane">
-            <div class="outline-title">Document Outline</div>
-            <div id="outline-list">
-                <!-- Outline items will appear here as they are correctly tagged -->
-                <div style="color: #999; font-style: italic; font-size: 0.8rem;">No headings yet...</div>
-            </div>
-        </div>
+<!-- Main Layout -->
+<div class="docs-container">
 
-        <div class="editor-main">
-            <div class="toolbar">
-                <select id="style-select" class="style-dropdown">
-                    <option value="Normal text">Normal text</option>
-                    <option value="Heading 1">Heading 1</option>
-                    <option value="Heading 2">Heading 2</option>
-                    <option value="Heading 3">Heading 3</option>
-                </select>
-                <button id="update-match" class="btn-primary" style="margin-top:0; font-size: 0.8rem; padding: 5px 10px; background: var(--uva-green);">Update 'Heading 1' to Match</button>
-                <div style="font-size: 0.8rem; color: #666;">Select text, then apply style!</div>
-            </div>
-
-            <div class="page">
-                <div id="doc-content">
-                    <div class="doc-text" data-id="1" data-correct="Heading 1" style="font-size: 11pt;">UVA Annual Technology Report 2026</div>
-                    <div class="doc-text" data-id="0" data-correct="Normal text">This report outlines the strategic vision for digital literacy at University View Academy.</div>
-
-                    <div class="doc-text" data-id="2" data-correct="Heading 2" style="font-size: 11pt;">1. Infrastructure Upgrades</div>
-                    <div class="doc-text" data-id="0" data-correct="Normal text">We have implemented high-speed fiber across all learning hubs to ensure seamless access to Canvas LMS.</div>
-
-                    <div class="doc-text" data-id="3" data-correct="Heading 3" style="font-size: 11pt;">1.1 Mobile Device Integration</div>
-                    <div class="doc-text" data-id="0" data-correct="Normal text">Students are now equipped with tablets that support interactive document editing.</div>
-
-                    <div class="doc-text" data-id="4" data-correct="Heading 2" style="font-size: 11pt;">2. Semantic Formatting Goals</div>
-                    <div class="doc-text" data-id="0" data-correct="Normal text">Our primary goal is to ensure all documents are accessible via proper heading hierarchies.</div>
-                </div>
-            </div>
+    <!-- Document Outline Pane -->
+    <div class="outline-pane">
+        <div class="outline-title">📋 Document Outline</div>
+        <div id="outline-list">
+            <div id="outline-placeholder" style="color:#aaa;font-style:italic;font-size:0.8rem;">Apply headings to build the outline…</div>
         </div>
     </div>
 
-    <div id="feedback"></div>
+    <!-- Editor -->
+    <div class="editor-main">
 
-    <div id="start-modal" class="modal">
-        <div class="modal-content">
-            <h2 style="color: var(--uva-blue);">MISSION START</h2>
-            <p>Welcome, Architect! The UVA Annual Report is a mess. Someone used <strong>manual formatting</strong> (just changing font size) instead of <strong>Semantic Styles</strong>.</p>
-            <p><strong>Your Task:</strong> Select the bold lines and apply the correct Heading levels (H1, H2, or H3) to build the Document Outline.</p>
-            <button class="btn-primary" onclick="document.getElementById('start-modal').style.display='none'">BEGIN MISSION</button>
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <select id="style-select" class="style-dropdown">
+                <option value="">— Select Style —</option>
+                <option value="Heading 1">Heading 1</option>
+                <option value="Heading 2">Heading 2</option>
+                <option value="Heading 3">Heading 3</option>
+                <option value="Normal text">Normal text</option>
+            </select>
+            <button class="btn-apply" onclick="applyStyle()">▶ Apply Style</button>
+            <button class="btn-update" onclick="doUpdateToMatch()">🔄 Update H1 to Match</button>
+            <div class="toolbar-hint">① Click a line  ② Pick style  ③ Apply!</div>
         </div>
-    </div>
 
-    <div id="win-modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <h2 style="color: var(--uva-green);">MISSION ACCOMPLISHED!</h2>
-            <p>Excellent work, Master Architect! You've successfully implemented a logical document hierarchy and ensured accessibility for all UVA students.</p>
-            <div id="final-rank" class="rank-badge" style="display: inline-block; margin-bottom: 15px;">MASTER</div>
-            <p>Final Score: <span id="final-score">0</span></p>
-            <button class="btn-primary" onclick="location.reload()">REPLAY MISSION</button>
+        <!-- Document Page -->
+        <div class="page" id="doc-page">
+            <div class="doc-text needs-heading" data-id="1" data-correct="Heading 1">UVA Annual Technology Report 2026</div>
+            <div class="doc-text" data-id="body" data-correct="Normal text">This report outlines the strategic vision for digital literacy at University View Academy for the upcoming academic year.</div>
+
+            <div class="doc-text needs-heading" data-id="2" data-correct="Heading 2">1. Infrastructure Upgrades</div>
+            <div class="doc-text" data-id="body" data-correct="Normal text">We have implemented high-speed fiber across all learning hubs to ensure seamless access to Canvas LMS and Google Workspace.</div>
+
+            <div class="doc-text needs-heading" data-id="3" data-correct="Heading 3">1.1 Mobile Device Integration</div>
+            <div class="doc-text" data-id="body" data-correct="Normal text">Students are now equipped with tablets that support interactive document editing and real-time collaboration.</div>
+
+            <div class="doc-text needs-heading" data-id="4" data-correct="Heading 2">2. Semantic Formatting Goals</div>
+            <div class="doc-text" data-id="body" data-correct="Normal text">Our primary goal is to ensure all documents are accessible via proper heading hierarchies that screen readers can navigate.</div>
         </div>
+
     </div>
+</div>
 
-    <canvas id="confetti"></canvas>
+<!-- Feedback Toast -->
+<div id="feedback"></div>
 
-    <script>
-        let score = 0;
-        let streak = 0;
-        let selectedElement = null;
-        let completedItems = new Set();
-        const totalItems = 4; // Number of headings to fix
+<!-- Start Modal -->
+<div id="start-modal" class="modal">
+    <div class="modal-content">
+        <h2 style="color:var(--uva-blue);">🏛️ MISSION BRIEFING</h2>
+        <p>Welcome, <strong>Document Architect</strong>! The UVA Annual Report has been sabotaged — someone used <em>manual font sizing</em> instead of proper <strong>Semantic Heading Styles</strong>.</p>
+        <p>📌 <strong>Your Mission:</strong></p>
+        <ol style="text-align:left;line-height:1.8;">
+            <li>Click a line in the document to select it</li>
+            <li>Choose the correct Heading level from the dropdown</li>
+            <li>Press <strong>▶ Apply Style</strong></li>
+            <li>Watch the Document Outline build on the left!</li>
+        </ol>
+        <p style="font-size:0.85rem;color:#888;">Bonus: Use <strong>🔄 Update H1 to Match</strong> after styling the title to see global style updates in action.</p>
+        <button class="btn-primary" onclick="document.getElementById('start-modal').style.display='none'">🚀 BEGIN MISSION</button>
+    </div>
+</div>
 
-        const ranks = ["Trainee", "Apprentice", "Expert", "Master"];
+<!-- Win Modal -->
+<div id="win-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <div style="font-size:3rem;">🏆</div>
+        <h2 style="color:var(--uva-green);">MISSION ACCOMPLISHED!</h2>
+        <p>Outstanding work, <strong>Master Architect</strong>! You've restored the document hierarchy and ensured accessibility for all UVA students.</p>
+        <div style="background:var(--uva-blue);color:white;padding:12px 20px;border-radius:8px;margin:10px 0;font-size:1.1rem;">
+            Final Rank: <strong id="final-rank">Master</strong>  |  Score: <strong id="final-score">0</strong> pts
+        </div>
+        <p style="font-size:0.85rem;color:#555;">ISTE Standard 6a: Creative Communicator ✅</p>
+        <button class="btn-primary" onclick="location.reload()">🔄 Replay Mission</button>
+    </div>
+</div>
 
-        // Handle Text Selection
-        document.querySelectorAll('.doc-text').forEach(el => {
-            el.addEventListener('click', () => {
-                if (selectedElement) selectedElement.classList.remove('selected');
-                selectedElement = el;
-                el.classList.add('selected');
-            });
-        });
+<!-- Confetti Canvas -->
+<canvas id="confetti-canvas"></canvas>
 
-        // Handle Style Application
-        document.getElementById('style-select').addEventListener('change', function() {
-            if (!selectedElement) {
-                showFeedback("Select text in the document first!", "#d93025");
-                this.value = "Normal text";
-                return;
-            }
+<script>
+    // ── State ──────────────────────────────────────────────
+    let score = 0;
+    let streak = 0;
+    let selectedEl = null;
+    let completed = new Set();
+    const TOTAL = 4;
+    const RANKS = ["Trainee","Apprentice","Expert","Master"];
+    let h1CustomColor = null; // tracks "Update to Match" demo
 
-            const appliedStyle = this.value;
-            const correctStyle = selectedElement.getAttribute('data-correct');
-            const id = selectedElement.getAttribute('data-id');
-
-            if (id === "0") {
-                showFeedback("This is already Normal Text. Focus on the headings!", "#f4b400");
-                return;
-            }
-
-            if (appliedStyle === correctStyle) {
-                if (!completedItems.has(id)) {
-                    score += 100;
-                    streak++;
-                    completedItems.add(id);
-                    updateUI(true);
-                    applyVisualStyle(selectedElement, appliedStyle);
-                    addToOutline(selectedElement.innerText, appliedStyle);
-                } else {
-                    showFeedback("Already styled correctly!", var(--uva-green));
-                }
+    // ── Click to select ────────────────────────────────────
+    document.querySelectorAll('.doc-text').forEach(el => {
+        el.addEventListener('click', () => {
+            if (el.classList.contains('correct')) return;
+            if (selectedEl) selectedEl.classList.remove('selected');
+            selectedEl = el;
+            el.classList.add('selected');
+            // Mirror selection in dropdown
+            const correct = el.getAttribute('data-correct');
+            const sel = document.getElementById('style-select');
+            if (correct && correct !== 'Normal text') {
+                sel.value = correct;
             } else {
-                streak = 0;
-                updateUI(false);
-                showFeedback("Incorrect Hierarchy! Think: Is this a Title (H1), Section (H2), or Sub-section (H3)?", "#d93025");
-            }
-
-            this.value = "Normal text"; // Reset dropdown
-            selectedElement.classList.remove('selected');
-            selectedElement = null;
-
-            if (completedItems.size === totalItems) {
-                triggerWin();
+                sel.value = '';
             }
         });
+    });
 
-        function applyVisualStyle(el, style) {
-            if (style === "Heading 1") {
-                el.style.fontSize = "24pt";
-                el.style.fontWeight = "bold";
-                el.style.color = "var(--uva-blue)";
-            } else if (style === "Heading 2") {
-                el.style.fontSize = "18pt";
-                el.style.fontWeight = "bold";
-                el.style.color = "#333";
-            } else if (style === "Heading 3") {
-                el.style.fontSize = "14pt";
-                el.style.fontWeight = "bold";
-                el.style.color = "#666";
+    // ── Apply Style button ─────────────────────────────────
+    function applyStyle() {
+        if (!selectedEl) {
+            showFeedback("⚠️ Click a line in the document first!", "#e65100");
+            return;
+        }
+        const chosen = document.getElementById('style-select').value;
+        if (!chosen) {
+            showFeedback("⚠️ Choose a heading style from the dropdown!", "#e65100");
+            return;
+        }
+        const correct = selectedEl.getAttribute('data-correct');
+        const id = selectedEl.getAttribute('data-id');
+
+        if (id === 'body') {
+            showFeedback("ℹ️ That line is already Normal text — target the heading lines!", "#f4b400");
+            return;
+        }
+
+        if (chosen === correct) {
+            if (completed.has(id)) {
+                showFeedback("✅ Already correctly styled!", "#1E7A3E");
+                return;
             }
+            // Correct!
+            score += 100;
+            streak++;
+            completed.add(id);
+            renderHeadingStyle(selectedEl, chosen);
+            addToOutline(selectedEl.innerText.trim(), chosen);
+            selectedEl.classList.remove('selected');
+            selectedEl.classList.add('correct');
+            selectedEl = null;
+            document.getElementById('style-select').value = '';
+            updateHUD(true);
+            if (completed.size === TOTAL) setTimeout(triggerWin, 800);
+        } else {
+            streak = 0;
+            updateHUD(false);
+            showFeedback(`❌ Not quite! Hint: Is this the main title, a section, or a sub-section?`, "#c62828");
         }
+    }
 
-        function addToOutline(text, style) {
-            const list = document.getElementById('outline-list');
-            if (completedItems.size === 1) list.innerHTML = ''; // Clear placeholder
-
-            const item = document.createElement('div');
-            item.className = `outline-item ${style.replace('Heading ', 'h').toLowerCase()}`;
-            item.innerText = text;
-            list.appendChild(item);
+    // ── Render visual heading style ────────────────────────
+    function renderHeadingStyle(el, style) {
+        el.style.transition = 'all 0.4s ease';
+        if (style === 'Heading 1') {
+            el.style.fontSize = '22pt';
+            el.style.fontWeight = 'bold';
+            el.style.color = h1CustomColor || '#1B5EAF';
+            el.style.borderBottom = '2px solid #1B5EAF';
+            el.style.paddingBottom = '6px';
+            el.style.marginBottom = '16px';
+        } else if (style === 'Heading 2') {
+            el.style.fontSize = '16pt';
+            el.style.fontWeight = 'bold';
+            el.style.color = '#1E7A3E';
+            el.style.marginTop = '18px';
+        } else if (style === 'Heading 3') {
+            el.style.fontSize = '13pt';
+            el.style.fontWeight = 'bold';
+            el.style.color = '#555';
+            el.style.fontStyle = 'italic';
         }
+    }
 
-        function updateUI(isCorrect) {
-            document.getElementById('score').innerText = score;
-            document.getElementById('streak').innerText = streak;
+    // ── "Update H1 to Match" button ────────────────────────
+    function doUpdateToMatch() {
+        // Simulate: pick a new accent color and re-render all H1 elements
+        const colors = ['#7B1FA2','#C62828','#00695C','#E65100','#1565C0'];
+        h1CustomColor = colors[Math.floor(Math.random() * colors.length)];
 
-            // Update Rank
-            let rankIdx = Math.floor(score / 150);
-            if (rankIdx > 3) rankIdx = 3;
-            const rankEl = document.getElementById('rank');
-            rankEl.innerText = ranks[rankIdx];
-
-            if (isCorrect) {
-                showFeedback(`Correct! +100 Points. ${streak > 1 ? streak + ' IN A ROW!' : ''}`, "var(--uva-green)");
-            }
+        const h1Els = document.querySelectorAll('.doc-text[data-correct="Heading 1"].correct');
+        if (h1Els.length === 0) {
+            showFeedback("ℹ️ Apply Heading 1 to the title first, then use this to update its style globally!", "#1B5EAF");
+            return;
         }
+        h1Els.forEach(el => {
+            el.style.color = h1CustomColor;
+            el.style.borderBottomColor = h1CustomColor;
+            el.style.transition = 'color 0.5s ease, border-color 0.5s ease';
+        });
+        showFeedback(`🎨 'Heading 1' style updated globally! All H1s now use the new color. This is what 'Update to Match' does in Google Docs!`, "#7B1FA2");
+    }
 
-        function showFeedback(msg, color) {
-            const fb = document.getElementById('feedback');
-            fb.innerText = msg;
-            fb.style.backgroundColor = color;
-            fb.style.display = 'block';
-            setTimeout(() => { fb.style.display = 'none'; }, 3000);
+    // ── Add item to Document Outline ───────────────────────
+    function addToOutline(text, style) {
+        document.getElementById('outline-placeholder').style.display = 'none';
+        const list = document.getElementById('outline-list');
+        const div = document.createElement('div');
+        const cls = style === 'Heading 1' ? 'h1' : style === 'Heading 2' ? 'h2' : 'h3';
+        div.className = `outline-item ${cls}`;
+        div.textContent = text;
+        list.appendChild(div);
+    }
+
+    // ── HUD update ─────────────────────────────────────────
+    function updateHUD(correct) {
+        document.getElementById('score').textContent = score;
+        document.getElementById('streak').textContent = streak;
+
+        const pct = (completed.size / TOTAL) * 100;
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('prog-label').textContent = `${completed.size}/${TOTAL} headings fixed`;
+
+        const rankIdx = Math.min(Math.floor(score / 125), 3);
+        const rankEl = document.getElementById('rank');
+        rankEl.textContent = RANKS[rankIdx];
+        rankEl.style.background = ['#1B5EAF','#1E7A3E','#f4b400','#d93025'][rankIdx];
+
+        if (correct) {
+            const streakMsg = streak >= 3 ? ` 🔥 ${streak} IN A ROW!` : '';
+            showFeedback(`✅ Correct! +100 pts${streakMsg}`, "#1E7A3E");
         }
+    }
 
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
+    // ── Feedback toast ─────────────────────────────────────
+    let feedbackTimer = null;
+    function showFeedback(msg, color) {
+        const fb = document.getElementById('feedback');
+        fb.textContent = msg;
+        fb.style.backgroundColor = color;
+        fb.style.animation = 'slideIn 0.3s ease-out forwards';
+        fb.style.display = 'block';
+        if (feedbackTimer) clearTimeout(feedbackTimer);
+        feedbackTimer = setTimeout(() => {
+            fb.style.animation = 'slideOut 0.3s ease-in forwards';
+            setTimeout(() => { fb.style.display = 'none'; }, 300);
+        }, 3500);
+    }
+
+    // ── Win sequence ───────────────────────────────────────
+    function triggerWin() {
+        document.getElementById('final-score').textContent = score;
+        document.getElementById('final-rank').textContent = RANKS[Math.min(Math.floor(score/125),3)];
+        document.getElementById('win-modal').style.display = 'flex';
+        launchConfetti();
+    }
+
+    // ── Confetti ───────────────────────────────────────────
+    function launchConfetti() {
+        const canvas = document.getElementById('confetti-canvas');
+        canvas.style.display = 'block';
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const ctx = canvas.getContext('2d');
+        const pieces = Array.from({length: 140}, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * -canvas.height,
+            r: Math.random() * 7 + 3,
+            dx: (Math.random() - 0.5) * 2,
+            dy: Math.random() * 3 + 2,
+            color: `hsl(${Math.random()*360},80%,55%)`,
+            rot: Math.random() * 360,
+            drot: (Math.random()-0.5)*4
+        }));
+        let frame = 0;
+        function draw() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            pieces.forEach(p => {
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rot * Math.PI/180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.5);
+                ctx.restore();
+                p.x += p.dx; p.y += p.dy; p.rot += p.drot;
+                if (p.y > canvas.height) { p.y = -10; p.x = Math.random()*canvas.width; }
+            });
+            frame++;
+            if (frame < 300) requestAnimationFrame(draw);
+            else canvas.style.display = 'none';
         }
-
-        function triggerWin() {
-            setTimeout(() => {
-                document.getElementById('win-modal').style.display = 'flex';
-                document.getElementById('final-score').innerText = score;
-                startConfetti();
-            }, 1000);
-        }
-
-        // Simple Confetti Effect
-        function startConfetti() {
-            const canvas = document.getElementById('confetti');
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            let particles = [];
-
-            for (let i = 0; i < 100; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height - canvas.height,
-                    r: Math.random() * 6 + 2,
-                    d: Math.random() * 100,
-                    color: `hsl(${Math.random() * 360}, 70%, 50%)`,
-                    tilt: Math.random() * 10 - 5
-                });
-            }
-
-            function draw() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    ctx.beginPath();
-                    ctx.lineWidth = p.r;
-                    ctx.strokeStyle = p.color;
-                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
-                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
-                    ctx.stroke();
-                    p.y += Math.cos(p.d) + 1 + p.r / 2;
-                    p.x += Math.sin(p.d);
-                    if (p.y > canvas.height) p.y = -20;
-                });
-                requestAnimationFrame(draw);
-            }
-            draw();
-        }
-    </script>
+        draw();
+    }
+</script>
 </body>
 </html>
