@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>What Does Success Look Like? — University View Academy</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 30px 16px; }
+    .header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; background: white; border-radius: 14px; padding: 16px 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); width: 100%; max-width: 860px; }
+    .header img.logo { height: 44px; width: auto; }
+    .header-text { border-left: 2px solid #e5e7eb; padding-left: 14px; }
+    .header-text h1 { font-size: 1.1rem; font-weight: 700; color: #1B5EAF; }
+    .header-text p { font-size: 0.8rem; color: #6b7280; margin-top: 2px; }
+    .card { background: white; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); width: 100%; max-width: 860px; overflow: hidden; }
+    .card-header { background: linear-gradient(135deg, #1B5EAF, #1E7A3E); color: white; padding: 20px 28px; display: flex; align-items: center; gap: 12px; }
+    .card-header h2 { font-size: 1.2rem; font-weight: 700; }
+    .card-header p { font-size: 0.85rem; opacity: 0.85; margin-top: 2px; }
+    .card-body { padding: 28px; text-align: center; }
+    .card-body img { max-width: 100%; border-radius: 10px; border: 2px solid #e5e7eb; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .no-image { color: #9ca3af; padding: 40px 0; font-size: 1rem; }
+    .footer { margin-top: 20px; font-size: 0.75rem; color: #9ca3af; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img class="logo" src="https://www.universityview.academy/wp-content/uploads/2023/06/UVA-Logo-01-Full-Color.svg" alt="University View Academy" />
+    <div class="header-text">
+      <h1>Lesson Builder</h1>
+      <p>University View Academy</p>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header">
+      <span style="font-size:1.8rem;">👀</span>
+      <div>
+        <h2>What Does Success Look Like?</h2>
+        <p>Use this as a reference to guide your work before submitting.</p>
+      </div>
+    </div>
+    <div class="card-body" id="image-container">
+      <div class="no-image">Loading...</div>
+    </div>
+  </div>
+  <div class="footer">University View Academy — Lesson Builder</div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const imgUrl = params.get('img');
+    const container = document.getElementById('image-container');
+    if (imgUrl) {
+      const img = document.createElement('img');
+      img.src = decodeURIComponent(imgUrl);
+      img.alt = 'Success example';
+      container.innerHTML = '';
+      container.appendChild(img);
+    } else {
+      container.innerHTML = '<div class="no-image">No image provided.</div>';
+    }
+  </script>
+</body>
+</html>
