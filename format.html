@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UVA Mission: Document Architecture</title>
+    <style>
+        :root {
+            --uva-blue: #1B5EAF;
+            --uva-green: #1E7A3E;
+            --uva-light-blue: #eef4fb;
+            --bg-gray: #f1f3f4;
+            --google-blue: #4285f4;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-gray);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* UVA Header & Ribbon */
+        .uva-header {
+            background-color: var(--uva-blue);
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 100;
+        }
+
+        .motto-ribbon {
+            background: var(--uva-green);
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-style: italic;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        /* Progression Bar */
+        .progression-panel {
+            background: white;
+            padding: 10px 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .rank-badge {
+            background: var(--uva-blue);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .streak-counter {
+            color: #d93025;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Google Docs Simulation UI */
+        .docs-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar: Document Outline */
+        .outline-pane {
+            width: 220px;
+            background: white;
+            border-right: 1px solid #ddd;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .outline-title {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #5f6368;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .outline-item {
+            font-size: 0.85rem;
+            padding: 4px 0;
+            color: #1a73e8;
+            border-left: 2px solid transparent;
+            padding-left: 10px;
+            margin-bottom: 2px;
+        }
+
+        .outline-item.active {
+            border-left-color: var(--uva-blue);
+            font-weight: bold;
+        }
+
+        .outline-item.h1 { margin-left: 0; }
+        .outline-item.h2 { margin-left: 15px; }
+        .outline-item.h3 { margin-left: 30px; }
+
+        /* Main Editor Area */
+        .editor-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .toolbar {
+            width: 100%;
+            max-width: 800px;
+            background: #edf2fa;
+            border-radius: 24px;
+            padding: 8px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .style-dropdown {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            min-width: 120px;
+        }
+
+        .page {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            min-height: 1000px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            padding: 50px 70px;
+            box-sizing: border-box;
+        }
+
+        /* Document Content Styles */
+        .doc-text {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-radius: 2px;
+            padding: 2px 5px;
+        }
+
+        .doc-text:hover {
+            background: rgba(26, 115, 232, 0.1);
+            outline: 1px dashed var(--google-blue);
+        }
+
+        .doc-text.selected {
+            background: rgba(26, 115, 232, 0.2);
+            outline: 2px solid var(--google-blue);
+        }
+
+        /* Feedback Overlays */
+        #feedback {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            display: none;
+            animation: slideIn 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--uva-blue);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .btn-primary:hover { background: #154a8a; }
+
+        /* Confetti Canvas */
+        #confetti {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 3000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="uva-header">
+        <div>
+            <strong style="font-size: 1.2rem;">UVA TECH LITERACY</strong>
+            <div style="font-size: 0.8rem; opacity: 0.9;">Mission 6.04: Document Architect</div>
+        </div>
+        <div class="motto-ribbon">Virtue, Vigor, Vision</div>
+    </div>
+
+    <div class="progression-panel">
+        <div>Rank: <span id="rank" class="rank-badge">Trainee</span></div>
+        <div class="streak-counter">🔥 Streak: <span id="streak">0</span></div>
+        <div style="flex-grow: 1; text-align: right; font-weight: bold; color: var(--uva-green);">
+            Score: <span id="score">0</span>/500
+        </div>
+    </div>
+
+    <div class="docs-container">
+        <div class="outline-pane">
+            <div class="outline-title">Document Outline</div>
+            <div id="outline-list">
+                <!-- Outline items will appear here as they are correctly tagged -->
+                <div style="color: #999; font-style: italic; font-size: 0.8rem;">No headings yet...</div>
+            </div>
+        </div>
+
+        <div class="editor-main">
+            <div class="toolbar">
+                <select id="style-select" class="style-dropdown">
+                    <option value="Normal text">Normal text</option>
+                    <option value="Heading 1">Heading 1</option>
+                    <option value="Heading 2">Heading 2</option>
+                    <option value="Heading 3">Heading 3</option>
+                </select>
+                <button id="update-match" class="btn-primary" style="margin-top:0; font-size: 0.8rem; padding: 5px 10px; background: var(--uva-green);">Update 'Heading 1' to Match</button>
+                <div style="font-size: 0.8rem; color: #666;">Select text, then apply style!</div>
+            </div>
+
+            <div class="page">
+                <div id="doc-content">
+                    <div class="doc-text" data-id="1" data-correct="Heading 1" style="font-size: 11pt;">UVA Annual Technology Report 2026</div>
+                    <div class="doc-text" data-id="0" data-correct="Normal text">This report outlines the strategic vision for digital literacy at University View Academy.</div>
+
+                    <div class="doc-text" data-id="2" data-correct="Heading 2" style="font-size: 11pt;">1. Infrastructure Upgrades</div>
+                    <div class="doc-text" data-id="0" data-correct="Normal text">We have implemented high-speed fiber across all learning hubs to ensure seamless access to Canvas LMS.</div>
+
+                    <div class="doc-text" data-id="3" data-correct="Heading 3" style="font-size: 11pt;">1.1 Mobile Device Integration</div>
+                    <div class="doc-text" data-id="0" data-correct="Normal text">Students are now equipped with tablets that support interactive document editing.</div>
+
+                    <div class="doc-text" data-id="4" data-correct="Heading 2" style="font-size: 11pt;">2. Semantic Formatting Goals</div>
+                    <div class="doc-text" data-id="0" data-correct="Normal text">Our primary goal is to ensure all documents are accessible via proper heading hierarchies.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="start-modal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--uva-blue);">MISSION START</h2>
+            <p>Welcome, Architect! The UVA Annual Report is a mess. Someone used <strong>manual formatting</strong> (just changing font size) instead of <strong>Semantic Styles</strong>.</p>
+            <p><strong>Your Task:</strong> Select the bold lines and apply the correct Heading levels (H1, H2, or H3) to build the Document Outline.</p>
+            <button class="btn-primary" onclick="closeModal('start-modal')">BEGIN MISSION</button>
+        </div>
+    </div>
+
+    <div id="win-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h2 style="color: var(--uva-green);">MISSION ACCOMPLISHED!</h2>
+            <p>Excellent work, Master Architect! You've successfully implemented a logical document hierarchy and ensured accessibility for all UVA students.</p>
+            <div id="final-rank" class="rank-badge" style="display: inline-block; margin-bottom: 15px;">MASTER</div>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button class="btn-primary" onclick="location.reload()">REPLAY MISSION</button>
+        </div>
+    </div>
+
+    <canvas id="confetti"></canvas>
+
+    <script>
+        let score = 0;
+        let streak = 0;
+        let selectedElement = null;
+        let completedItems = new Set();
+        const totalItems = 4; // Number of headings to fix
+
+        const ranks = ["Trainee", "Apprentice", "Expert", "Master"];
+
+        // Handle Text Selection
+        document.querySelectorAll('.doc-text').forEach(el => {
+            el.addEventListener('click', () => {
+                if (selectedElement) selectedElement.classList.remove('selected');
+                selectedElement = el;
+                el.classList.add('selected');
+            });
+        });
+
+        // Handle Style Application
+        document.getElementById('style-select').addEventListener('change', function() {
+            if (!selectedElement) {
+                showFeedback("Select text in the document first!", "#d93025");
+                this.value = "Normal text";
+                return;
+            }
+
+            const appliedStyle = this.value;
+            const correctStyle = selectedElement.getAttribute('data-correct');
+            const id = selectedElement.getAttribute('data-id');
+
+            if (id === "0") {
+                showFeedback("This is already Normal Text. Focus on the headings!", "#f4b400");
+                return;
+            }
+
+            if (appliedStyle === correctStyle) {
+                if (!completedItems.has(id)) {
+                    score += 100;
+                    streak++;
+                    completedItems.add(id);
+                    updateUI(true);
+                    applyVisualStyle(selectedElement, appliedStyle);
+                    addToOutline(selectedElement.innerText, appliedStyle);
+                } else {
+                    showFeedback("Already styled correctly!", var(--uva-green));
+                }
+            } else {
+                streak = 0;
+                updateUI(false);
+                showFeedback("Incorrect Hierarchy! Think: Is this a Title (H1), Section (H2), or Sub-section (H3)?", "#d93025");
+            }
+
+            this.value = "Normal text"; // Reset dropdown
+            selectedElement.classList.remove('selected');
+            selectedElement = null;
+
+            if (completedItems.size === totalItems) {
+                triggerWin();
+            }
+        });
+
+        function applyVisualStyle(el, style) {
+            if (style === "Heading 1") {
+                el.style.fontSize = "24pt";
+                el.style.fontWeight = "bold";
+                el.style.color = "var(--uva-blue)";
+            } else if (style === "Heading 2") {
+                el.style.fontSize = "18pt";
+                el.style.fontWeight = "bold";
+                el.style.color = "#333";
+            } else if (style === "Heading 3") {
+                el.style.fontSize = "14pt";
+                el.style.fontWeight = "bold";
+                el.style.color = "#666";
+            }
+        }
+
+        function addToOutline(text, style) {
+            const list = document.getElementById('outline-list');
+            if (completedItems.size === 1) list.innerHTML = ''; // Clear placeholder
+
+            const item = document.createElement('div');
+            item.className = `outline-item ${style.replace('Heading ', 'h').toLowerCase()}`;
+            item.innerText = text;
+            list.appendChild(item);
+        }
+
+        function updateUI(isCorrect) {
+            document.getElementById('score').innerText = score;
+            document.getElementById('streak').innerText = streak;
+
+            // Update Rank
+            let rankIdx = Math.floor(score / 150);
+            if (rankIdx > 3) rankIdx = 3;
+            const rankEl = document.getElementById('rank');
+            rankEl.innerText = ranks[rankIdx];
+
+            if (isCorrect) {
+                showFeedback(`Correct! +100 Points. ${streak > 1 ? streak + ' IN A ROW!' : ''}`, "var(--uva-green)");
+            }
+        }
+
+        function showFeedback(msg, color) {
+            const fb = document.getElementById('feedback');
+            fb.innerText = msg;
+            fb.style.backgroundColor = color;
+            fb.style.display = 'block';
+            setTimeout(() => { fb.style.display = 'none'; }, 3000);
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function triggerWin() {
+            setTimeout(() => {
+                document.getElementById('win-modal').style.display = 'flex';
+                document.getElementById('final-score').innerText = score;
+                startConfetti();
+            }, 1000);
+        }
+
+        // Simple Confetti Effect
+        function startConfetti() {
+            const canvas = document.getElementById('confetti');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            let particles = [];
+
+            for (let i = 0; i < 100; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 6 + 2,
+                    d: Math.random() * 100,
+                    color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                    tilt: Math.random() * 10 - 5
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    ctx.beginPath();
+                    ctx.lineWidth = p.r;
+                    ctx.strokeStyle = p.color;
+                    ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                    ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                    ctx.stroke();
+                    p.y += Math.cos(p.d) + 1 + p.r / 2;
+                    p.x += Math.sin(p.d);
+                    if (p.y > canvas.height) p.y = -20;
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+    </script>
+</body>
+</html>
