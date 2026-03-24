@@ -402,7 +402,7 @@ const CONFIG = {
   POINTS_COURSE_COMPLETE: 500,
   POINTS_PERFECT: 1000,
   POINTS_THREE_STAR: 500,
-  SHEETS_API_URL: 'https://script.google.com/macros/s/AKfycbyWiuRRRVVewyzZ7l_e7vCnhQ2IgXGEmnZpFC5dpqjRBzi2-Myv_-LFcR-desZ6PNY/exec' // Set your Google Apps Script Web App URL here
+  SHEETS_API_URL: 'https://script.google.com/macros/s/AKfycbyWiuRRRVVewyzZ7l_e7vCnhQ2IgXGEmnZpFC5dpqjRBzi2-Myv_-LFcR-desZ6PNY/exec'  // Google Apps Script Web App URL
 };
 
 // ===== QUESTIONS =====
@@ -526,7 +526,7 @@ function handleLogin() {
   if(!username || !pass) { $('loginError').textContent='Please fill all fields'; $('loginError').classList.remove('hidden'); return; }
   const users = getUsers();
   const user = users[username];
-  if(!user || user.passwordHash !== simpleHash(pass)) {
+  if(!user || user.password !== pass) {
     $('loginError').textContent='Invalid username or password'; $('loginError').classList.remove('hidden'); return;
   }
   currentUser = user;
@@ -549,7 +549,7 @@ function handleRegister() {
   const users = getUsers();
   if(users[username]) { $('regError').textContent='Username already taken'; $('regError').classList.remove('hidden'); return; }
   const user = {
-    username, displayName: name, email, passwordHash: simpleHash(pass),
+    username, displayName: name, email, password: pass,
     dateJoined: new Date().toISOString(), totalScore: 0, currentCourse: 1, starsEarned: 0, badgesEarned: []
   };
   users[username] = user;
