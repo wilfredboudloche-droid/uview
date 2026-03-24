@@ -500,18 +500,30 @@ function simpleHash(str) {
   return 'h_' + Math.abs(h).toString(36);
 }
 
-// ===== AUTH =====
+// ===== AUTH (Google Sheets Backend) =====
+// Authentication is handled by Google Sheets via the Apps Script web app.
+// localStorage is used ONLY for:
+//   - cta_session   : stores the current username for session persistence
+//   - cta_progress  : local cache of course progress (also synced to Sheets)
+//   - cta_userdata  : local cache of user profile (refreshed from Sheets on login/session restore)
+
+/** Get cached user data object for all known users (local cache for leaderboard/display) */
 function getUsers() { return JSON.parse(localStorage.getItem('cta_users') || '{}'); }
 function saveUsers(u) { localStorage.setItem('cta_users', JSON.stringify(u)); }
+
+/** Get progress for the current user from local cache */
 function getUserProgress() {
   if(!currentUser) return {};
   const all = JSON.parse(localStorage.getItem('cta_progress') || '{}');
   return all[currentUser.username] || {};
 }
+/** Save progress locally AND sync to Google Sheets */
 function saveUserProgress(prog) {
   const all = JSON.parse(localStorage.getItem('cta_progress') || '{}');
   all[currentUser.username] = prog;
   localStorage.setItem('cta_progress', JSON.stringify(all));
+  // Also persist to Google Sheets
+  syncToSheets();
 }
 
 function toggleAuth(e) {
@@ -520,45 +532,116 @@ function toggleAuth(e) {
   $('registerForm').classList.toggle('hidden');
 }
 
-function handleLogin() {
-  const username = $('loginUser').value.trim().toLowerCase();
-  const pass = $('loginPass').value;
-  if(!username || !pass) { $('loginError').textContent='Please fill all fields'; $('loginError').classList.remove('hidden'); return; }
-  const users = getUsers();
-  const user = users[username];
-  if(!user || user.password !== pass) {
-    $('loginError').textContent='Invalid username or password'; $('loginError').classList.remove('hidden'); return;
-  }
-  currentUser = user;
-  localStorage.setItem('cta_session', username);
-  showScreen('dashboardScreen');
-  toast('Welcome back, '+user.displayName+'!', 'success');
-  syncToSheets('login');
+/** Helper: call the Google Sheets API (POST) and return parsed JSON */
+async function sheetsAPI(payload) {
+  const resp = await fetch(CONFIG.SHEETS_API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(payload)
+  });
+  return resp.json();
 }
 
-function handleRegister() {
+/** Set button loading state */
+function setBtnLoading(btn, loading) {
+  if(loading) {
+    btn._origText = btn.textContent;
+    btn.textContent = '⏳ Please wait…';
+    btn.disabled = true;
+  } else {
+    btn.textContent = btn._origText || btn.textContent;
+    btn.disabled = false;
+  }
+}
+
+/**
+ * LOGIN — authenticates against Google Sheets (not localStorage).
+ * On success, caches user data locally and enters the dashboard.
+ */
+async function handleLogin() {
+  const username = $('loginUser').value.trim().toLowerCase();
+  const pass = $('loginPass').value;
+  $('loginError').classList.add('hidden');
+  if(!username || !pass) { $('loginError').textContent='Please fill all fields'; $('loginError').classList.remove('hidden'); return; }
+
+  const btn = $('authScreen').querySelector('.btn-primary');
+  setBtnLoading(btn, true);
+
+  try {
+    const data = await sheetsAPI({ action: 'login', username, password: pass });
+    if(!data.success) {
+      $('loginError').textContent = data.error || 'Invalid username or password';
+      $('loginError').classList.remove('hidden');
+      setBtnLoading(btn, false);
+      return;
+    }
+    // Cache user data and progress locally
+    currentUser = data.user;
+    if(!currentUser.badgesEarned) currentUser.badgesEarned = [];
+    const users = getUsers();
+    users[currentUser.username] = currentUser;
+    saveUsers(users);
+    // Cache progress
+    if(data.progress) {
+      const all = JSON.parse(localStorage.getItem('cta_progress') || '{}');
+      all[currentUser.username] = data.progress;
+      localStorage.setItem('cta_progress', JSON.stringify(all));
+    }
+    localStorage.setItem('cta_session', username);
+    showScreen('dashboardScreen');
+    toast('Welcome back, ' + currentUser.displayName + '!', 'success');
+  } catch(err) {
+    $('loginError').textContent = 'Network error — please try again.';
+    $('loginError').classList.remove('hidden');
+  }
+  setBtnLoading(btn, false);
+}
+
+/**
+ * REGISTER — creates a new student in Google Sheets.
+ * Client-side validation first, then server-side duplicate check.
+ */
+async function handleRegister() {
   const name = $('regName').value.trim();
   const username = $('regUser').value.trim().toLowerCase();
   const email = $('regEmail').value.trim();
   const pass = $('regPass').value;
   const pass2 = $('regPassConfirm').value;
+  $('regError').classList.add('hidden');
   if(!name || !username || !email || !pass) { $('regError').textContent='Please fill all fields'; $('regError').classList.remove('hidden'); return; }
   if(pass.length < 6) { $('regError').textContent='Password must be at least 6 characters'; $('regError').classList.remove('hidden'); return; }
   if(pass !== pass2) { $('regError').textContent='Passwords do not match'; $('regError').classList.remove('hidden'); return; }
   if(!/^[a-z0-9_]+$/.test(username)) { $('regError').textContent='Username: lowercase letters, numbers, underscores only'; $('regError').classList.remove('hidden'); return; }
-  const users = getUsers();
-  if(users[username]) { $('regError').textContent='Username already taken'; $('regError').classList.remove('hidden'); return; }
-  const user = {
-    username, displayName: name, email, password: pass,
-    dateJoined: new Date().toISOString(), totalScore: 0, currentCourse: 1, starsEarned: 0, badgesEarned: []
-  };
-  users[username] = user;
-  saveUsers(users);
-  currentUser = user;
-  localStorage.setItem('cta_session', username);
-  showScreen('dashboardScreen');
-  toast('Account created! Welcome, '+name+'!', 'success');
-  syncToSheets('register');
+
+  const btn = $('authScreen').querySelector('.btn-success');
+  setBtnLoading(btn, true);
+
+  try {
+    const data = await sheetsAPI({ action: 'register', username, displayName: name, email, password: pass });
+    if(!data.success) {
+      $('regError').textContent = data.error || 'Registration failed';
+      $('regError').classList.remove('hidden');
+      setBtnLoading(btn, false);
+      return;
+    }
+    currentUser = data.user;
+    if(!currentUser.badgesEarned) currentUser.badgesEarned = [];
+    const users = getUsers();
+    users[currentUser.username] = currentUser;
+    saveUsers(users);
+    if(data.progress) {
+      const all = JSON.parse(localStorage.getItem('cta_progress') || '{}');
+      all[currentUser.username] = data.progress;
+      localStorage.setItem('cta_progress', JSON.stringify(all));
+    }
+    localStorage.setItem('cta_session', username);
+    showScreen('dashboardScreen');
+    toast('Account created! Welcome, ' + name + '!', 'success');
+  } catch(err) {
+    $('regError').textContent = 'Network error — please try again.';
+    $('regError').classList.remove('hidden');
+  }
+  setBtnLoading(btn, false);
 }
 
 function handleLogout() {
@@ -567,11 +650,44 @@ function handleLogout() {
   showScreen('authScreen');
 }
 
-function checkSession() {
+/**
+ * SESSION RESTORE — if a session exists, fetch user data from Google Sheets.
+ * Falls back to local cache if the network call fails.
+ */
+async function checkSession() {
   const sess = localStorage.getItem('cta_session');
-  if(sess) {
-    const users = getUsers();
-    if(users[sess]) { currentUser = users[sess]; showScreen('dashboardScreen'); return; }
+  if(!sess) return;
+
+  // Immediately show dashboard from local cache (fast UX)
+  const users = getUsers();
+  if(users[sess]) {
+    currentUser = users[sess];
+    showScreen('dashboardScreen');
+  }
+
+  // Then refresh from Sheets in the background
+  try {
+    const resp = await fetch(CONFIG.SHEETS_API_URL + '?action=getUser&username=' + encodeURIComponent(sess));
+    const data = await resp.json();
+    if(data.success && data.user) {
+      currentUser = data.user;
+      if(!currentUser.badgesEarned) currentUser.badgesEarned = [];
+      users[currentUser.username] = currentUser;
+      saveUsers(users);
+      if(data.progress) {
+        const all = JSON.parse(localStorage.getItem('cta_progress') || '{}');
+        all[currentUser.username] = data.progress;
+        localStorage.setItem('cta_progress', JSON.stringify(all));
+      }
+      // Re-render dashboard with fresh data
+      if($('dashboardScreen').classList.contains('active')) renderDashboard();
+    } else {
+      // User not found on server — clear session
+      handleLogout();
+    }
+  } catch(err) {
+    // Network error — keep using cached data (already loaded above)
+    console.log('Session refresh failed (offline mode):', err);
   }
 }
 
@@ -917,6 +1033,9 @@ function completeCourse() {
     if(getRank(currentUser.totalScore).name === 'Chief Technology Officer') awardBadge('valedictorian');
   }
 
+  // Final sync to Google Sheets (after score + badges are all updated)
+  syncToSheets();
+
   // Render complete screen
   const starHtml = [1,2,3].map((s,i) =>
     '<span style="animation:starBounce .5s '+(i*0.2)+'s ease both;color:'+(s<=stars?'var(--gold)':'#ddd')+'">★</span>'
@@ -1013,52 +1132,58 @@ function spawnConfetti() {
 }
 
 // ===== GOOGLE SHEETS SYNC =====
-function syncToSheets(action) {
+/**
+ * Sync current user data + progress to Google Sheets.
+ * Called after every progress save and score update.
+ */
+function syncToSheets() {
   if(!CONFIG.SHEETS_API_URL || !currentUser) return;
   const prog = getUserProgress();
   const payload = {
-    action,
+    action: 'saveProgress',
     user: {
       username: currentUser.username,
       displayName: currentUser.displayName,
       email: currentUser.email,
       totalScore: currentUser.totalScore,
       starsEarned: currentUser.starsEarned,
-      badgesEarned: (currentUser.badgesEarned||[]).join(','),
+      badgesEarned: currentUser.badgesEarned || [],
       currentCourse: currentUser.currentCourse
     },
     progress: prog
   };
   fetch(CONFIG.SHEETS_API_URL, {
     method: 'POST',
-    mode: 'no-cors',
-    headers: {'Content-Type': 'application/json'},
+    headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
-  }).catch(() => {});
+  }).catch(err => console.log('Sync error:', err));
 }
 
+/**
+ * Load leaderboard data from Google Sheets and merge into local cache.
+ */
 function loadLeaderboardFromSheets() {
   if(!CONFIG.SHEETS_API_URL) return;
   fetch(CONFIG.SHEETS_API_URL + '?action=leaderboard')
     .then(r => r.json())
     .then(data => {
       if(data.leaderboard) {
+        const users = getUsers();
         data.leaderboard.forEach(entry => {
-          const users = getUsers();
-          if(!users[entry.username]) {
-            users[entry.username] = {
-              username: entry.username,
-              displayName: entry.displayName,
-              totalScore: entry.totalScore,
-              starsEarned: entry.starsEarned || 0,
-              badgesEarned: []
-            };
-            saveUsers(users);
-          }
+          // Update local cache with server data (server is authoritative)
+          users[entry.username] = {
+            ...(users[entry.username] || {}),
+            username: entry.username,
+            displayName: entry.displayName,
+            totalScore: entry.totalScore,
+            starsEarned: entry.starsEarned || 0,
+            badgesEarned: users[entry.username]?.badgesEarned || []
+          };
         });
+        saveUsers(users);
         renderLeaderboard();
       }
-    }).catch(() => {});
+    }).catch(err => console.log('Leaderboard load error:', err));
 }
 
 // ===== INIT =====
