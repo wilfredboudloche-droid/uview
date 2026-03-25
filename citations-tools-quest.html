@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Docs Citation Tools - Interactive Mission</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1B5EAF 0%, #1E7A3E 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1B5EAF 0%, #1E7A3E 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .motto-ribbon {
+            background: #1E7A3E;
+            color: white;
+            padding: 8px 20px;
+            display: inline-block;
+            margin-bottom: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        .progress-bar-container {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: #FFD700;
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 3px solid #1B5EAF;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1B5EAF;
+            margin-top: 5px;
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #333;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .streak-indicator {
+            color: #FF6B6B;
+            font-weight: bold;
+            animation: pulse 0.5s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .mission-container {
+            padding: 30px;
+        }
+
+        .mission-header {
+            background: linear-gradient(135deg, #1B5EAF, #1E7A3E);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .mission-number {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .mission-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .mission-description {
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .simulation-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .google-docs-ui {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .menu-bar {
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+        }
+
+        .menu-item {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 3px;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #e8eaed;
+        }
+
+        .menu-item.clickable {
+            background: #1B5EAF;
+            color: white;
+            font-weight: bold;
+            animation: highlight 1s infinite;
+        }
+
+        @keyframes highlight {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(27, 94, 175, 0.7); }
+            50% { box-shadow: 0 0 0 8px rgba(27, 94, 175, 0); }
+        }
+
+        .citation-sidebar {
+            background: white;
+            border: 2px solid #1B5EAF;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1B5EAF;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #1E7A3E;
+        }
+
+        .style-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .style-option {
+            background: white;
+            border: 2px solid #dee2e6;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .style-option:hover {
+            border-color: #1B5EAF;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(27, 94, 175, 0.2);
+        }
+
+        .style-option.selected {
+            background: #1B5EAF;
+            color: white;
+            border-color: #1B5EAF;
+        }
+
+        .form-group {
+            margin: 15px 0;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1B5EAF;
+        }
+
+        .btn {
+            background: #1E7A3E;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background: #166030;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-primary {
+            background: #1B5EAF;
+        }
+
+        .btn-primary:hover {
+            background: #154a8f;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            display: block;
+        }
+
+        .in-text-citation {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #ffc107;
+        }
+
+        .bibliography-preview {
+            background: white;
+            border: 2px solid #1B5EAF;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Times New Roman', serif;
+            line-height: 2;
+        }
+
+        .bibliography-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .citation-entry {
+            margin-left: 40px;
+            text-indent: -40px;
+            margin-bottom: 10px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            position: absolute;
+            animation: confetti-fall 3s linear;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .completion-badge {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            animation: badge-appear 0.5s ease;
+        }
+
+        @keyframes badge-appear {
+            from {
+                transform: scale(0) rotate(-180deg);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        .final-score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #1B5EAF;
+            margin: 20px 0;
+        }
+
+        .final-rank {
+            font-size: 32px;
+            color: #1E7A3E;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .mission-container {
+                padding: 20px;
+            }
+        }
+
+        .hint-box {
+            background: #e7f3ff;
+            border-left: 4px solid #1B5EAF;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .source-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .source-type-btn {
+            background: white;
+            border: 2px solid #dee2e6;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .source-type-btn:hover {
+            border-color: #1B5EAF;
+        }
+
+        .source-type-btn.selected {
+            background: #1B5EAF;
+            color: white;
+            border-color: #1B5EAF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="motto-ribbon">⚡ Virtue, Vigor, Vision ⚡</div>
+            <h1>🎓 Google Docs Citation Master Quest</h1>
+            <p>Complete missions to master citation tools and become a research expert!</p>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="scoreDisplay">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Streak</div>
+                <div class="stat-value streak-indicator" id="streakDisplay">0 🔥</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Rank</div>
+                <div class="stat-value"><span class="rank-badge" id="rankDisplay">Trainee</span></div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Mission</div>
+                <div class="stat-value" id="missionDisplay">1/7</div>
+            </div>
+        </div>
+
+        <div class="mission-container" id="missionContainer">
+            <!-- Missions will be dynamically loaded here -->
+        </div>
+
+        <div class="completion-screen" id="completionScreen">
+            <div class="completion-badge">🏆</div>
+            <h2>Mission Complete!</h2>
+            <div class="final-score" id="finalScore"></div>
+            <div class="final-rank" id="finalRank"></div>
+            <p style="font-size: 18px; margin: 20px 0;">You've mastered Google Docs Citation Tools!</p>
+            <div class="motto-ribbon" style="margin-top: 20px;">Virtue, Vigor, Vision - UVA Excellence</div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            currentMission: 0,
+            score: 0,
+            streak: 0,
+            totalMissions: 7,
+            selectedStyle: '',
+            selectedSourceType: '',
+            sourceData: {},
+            citationInserted: false
+        };
+
+        // Rank System
+        const ranks = [
+            { name: 'Trainee', minScore: 0 },
+            { name: 'Apprentice', minScore: 200 },
+            { name: 'Expert', minScore: 500 },
+            { name: 'Master', minScore: 700 }
+        ];
+
+        // Missions Configuration
+        const missions = [
+            {
+                id: 1,
+                title: 'Access the Citation Tools',
+                description: 'Your first mission: Navigate to the Citations feature in Google Docs. Click on the correct menu item to open the citation tools.',
+                type: 'menu-navigation',
+                points: 100
+            },
+            {
+                id: 2,
+                title: 'Select Your Citation Style',
+                description: 'Choose the correct citation style. Google Docs supports MLA 9th edition, APA 7th edition, and Chicago (Author-Date). Select the style you need for your research paper.',
+                type: 'style-selection',
+                points: 100
+            },
+            {
+                id: 3,
+                title: 'Choose Source Type',
+                description: 'You need to cite a book for your research. Select the appropriate source type from the citation sidebar.',
+                type: 'source-type',
+                points: 100
+            },
+            {
+                id: 4,
+                title: 'Enter Source Metadata',
+                description: 'Fill in the source information for the book you\'re citing. Complete all required fields accurately.',
+                type: 'metadata-entry',
+                points: 150
+            },
+            {
+                id: 5,
+                title: 'Insert In-Text Citation',
+                description: 'Now insert an in-text citation in your document. Remember to replace the # placeholder with the specific page number.',
+                type: 'in-text-citation',
+                points: 150
+            },
+            {
+                id: 6,
+                title: 'Generate Bibliography',
+                description: 'Generate your Works Cited or Bibliography. Click the button to create a formatted reference list.',
+                type: 'bibliography',
+                points: 100
+            },
+            {
+                id: 7,
+                title: 'Professional Tools Knowledge',
+                description: 'When should you consider using professional citation managers like Zotero or Paperpile?',
+                type: 'knowledge-check',
+                points: 100
+            }
+        ];
+
+        // Initialize Game
+        function initGame() {
+            updateStats();
+            loadMission(0);
+        }
+
+        // Update Stats Display
+        function updateStats() {
+            document.getElementById('scoreDisplay').textContent = gameState.score;
+            document.getElementById('streakDisplay').textContent = gameState.streak + ' 🔥';
+            document.getElementById('missionDisplay').textContent = `${gameState.currentMission + 1}/${gameState.totalMissions}`;
+            
+            // Update rank
+            let currentRank = ranks[0].name;
+            for (let rank of ranks) {
+                if (gameState.score >= rank.minScore) {
+                    currentRank = rank.name;
+                }
+            }
+            document.getElementById('rankDisplay').textContent = currentRank;
+            
+            // Update progress bar
+            const progress = ((gameState.currentMission) / gameState.totalMissions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        // Load Mission
+        function loadMission(index) {
+            if (index >= missions.length) {
+                showCompletion();
+                return;
+            }
+
+            const mission = missions[index];
+            const container = document.getElementById('missionContainer');
+            
+            let missionHTML = `
+                <div class="mission-header">
+                    <div class="mission-number">MISSION ${mission.id} OF ${gameState.totalMissions}</div>
+                    <div class="mission-title">${mission.title}</div>
+                    <div class="mission-description">${mission.description}</div>
+                </div>
+            `;
+
+            // Add mission-specific content
+            switch(mission.type) {
+                case 'menu-navigation':
+                    missionHTML += createMenuNavigationMission();
+                    break;
+                case 'style-selection':
+                    missionHTML += createStyleSelectionMission();
+                    break;
+                case 'source-type':
+                    missionHTML += createSourceTypeMission();
+                    break;
+                case 'metadata-entry':
+                    missionHTML += createMetadataEntryMission();
+                    break;
+                case 'in-text-citation':
+                    missionHTML += createInTextCitationMission();
+                    break;
+                case 'bibliography':
+                    missionHTML += createBibliographyMission();
+                    break;
+                case 'knowledge-check':
+                    missionHTML += createKnowledgeCheckMission();
+                    break;
+            }
+
+            container.innerHTML = missionHTML;
+            attachEventListeners(mission.type);
+        }
+
+        // Mission 1: Menu Navigation
+        function createMenuNavigationMission() {
+            return `
+                <div class="simulation-box">
+                    <div class="hint-box">💡 Hint: In Google Docs, citation tools are found under the Tools menu.</div>
+                    <div class="google-docs-ui">
+                        <div class="menu-bar">
+                            <div class="menu-item" data-menu="file">File</div>
+                            <div class="menu-item" data-menu="edit">Edit</div>
+                            <div class="menu-item" data-menu="view">View</div>
+                            <div class="menu-item" data-menu="insert">Insert</div>
+                            <div class="menu-item clickable" data-menu="tools">Tools</div>
+                            <div class="menu-item" data-menu="extensions">Extensions</div>
+                            <div class="menu-item" data-menu="help">Help</div>
+                        </div>
+                        <div id="toolsSubmenu" style="display: none; margin-left: 20px; background: white; border: 1px solid #ccc; padding: 10px; border-radius: 4px;">
+                            <div class="menu-item" data-submenu="spelling">Spelling and grammar</div>
+                            <div class="menu-item" data-submenu="word-count">Word count</div>
+                            <div class="menu-item clickable" data-submenu="citations">Citations</div>
+                            <div class="menu-item" data-submenu="explore">Explore</div>
+                        </div>
+                    </div>
+                    <div id="feedback1" class="feedback"></div>
+                </div>
+            `;
+        }
+
+        // Mission 2: Style Selection
+        function createStyleSelectionMission() {
+            return `
+                <div class="simulation-box">
+                    <div class="hint-box">💡 Hint: Google Docs supports the latest versions: MLA 9, APA 7, and Chicago (Author-Date).</div>
+                    <div class="citation-sidebar">
+                        <div class="sidebar-title">📚 Citation Style</div>
+                        <p style="margin-bottom: 15px; font-size: 14px;">Select the citation format for your document:</p>
+                        <div class="style-selector">
+                            <div class="style-option" data-style="mla">
+                                <div style="font-weight: bold;">MLA</div>
+                                <div style="font-size: 12px; margin-top: 5px;">9th Edition</div>
+                            </div>
+                            <div class="style-option" data-style="apa">
+                                <div style="font-weight: bold;">APA</div>
+                                <div style="font-size: 12px; margin-top: 5px;">7th Edition</div>
+                            </div>
+                            <div class="style-option" data-style="chicago">
+                                <div style="font-weight: bold;">Chicago</div>
+                                <div style="font-size: 12px; margin-top: 5px;">Author-Date</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" id="confirmStyle" style="margin-top: 15px; width: 100%;" disabled>Confirm Style</button>
+                    </div>
+                    <div id="feedback2" class="feedback"></div>
+                </div>
+            `;
+        }
+
+        // Mission 3: Source Type
+        function createSourceTypeMission() {
+            return `
+                <div class="simulation-box">
+                    <div class="hint-box">💡 Hint: You're citing a book. Select the source type that matches.</div>
+                    <div class="citation-sidebar">
+                        <div class="sidebar-title">📖 Add Citation Source</div>
+                        <p style="margin-bottom: 15px; font-size: 14px;">Select source type:</p>
+                        <div class="source-type-selector">
+                            <div class="source-type-btn" data-source="book">Book</div>
+                            <div class="source-type-btn" data-source="journal">Journal Article</div>
+                            <div class="source-type-btn" data-source="website">Website</div>
+                            <div class="source-type-btn" data-source="newspaper">Newspaper</div>
+                            <div class="source-type-btn" data-source="film">Film/Video</div>
+                            <div class="source-type-btn" data-source="other">Other</div>
+                        </div>
+                        <button class="btn btn-primary" id="confirmSourceType" style="margin-top: 15px; width: 100%;" disabled>Continue</button>
+                    </div>
+                    <div id="feedback3" class="feedback"></div>
+                </div>
+            `;
+        }
+
+        // Mission 4: Metadata Entry
+        function createMetadataEntryMission() {
+            return `
+                <div class="simulation-box">
+                    <div class="hint-box">💡 Hint: Fill in all required fields. You're citing: "The Research Writer's Handbook" by John Smith, published by Academic Press in 2023.</div>
+                    <div class="citation-sidebar">
+                        <div class="sidebar-title">✍️ Enter Source Information</div>
+                        <div class="form-group">
+                            <label class="form-label">Author (Last, First)*</label>
+                            <input type="text" class="form-input" id="author" placeholder="Smith, John">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Title*</label>
+                            <input type="text" class="form-input" id="title" placeholder="The Research Writer's Handbook">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Publisher*</label>
+                            <input type="text" class="form-input" id="publisher" placeholder="Academic Press">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Year*</label>
+                            <input type="text" class="form-input" id="year" placeholder="2023">
+                        </div>
+                        <button class="btn btn-primary" id="saveSource" style="margin-top: 15px; width: 100%;">Save Source</button>
+                    </div>
+                    <div id="feedback4" class="feedback"></div>
+                </div>
+            `;
+        }
+
+        // Mission 5: In-Text Citation
+        function createInTextCitationMission() {
+            return `
+                <div class="simulation-box">
+                    <div class="hint-box">💡 Hint: Replace the # symbol with the specific page number (e.g., 42). This creates a proper in-text citation with a locator.</div>
+                    <div class="google-docs-ui">
+                        <p style="margin-bottom: 15px;">Your document text:</p>
+                        <div style="background: white; padding: 15px; border: 1px solid #ccc; border-radius: 4px; line-height: 1.8;">
+                            Research shows that proper citation is essential for academic integrity <span class="in-text-citation" id="citationPlaceholder">(Smith #)</span>. This practice helps readers locate original sources.
+                        </div>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label class="form-label">Replace # with page number:</label>
+                            <input type="text" class="form-input" id="pageNumber" placeholder="Enter page number (e.g., 42)" style="max-width: 300px;">
+                        </div>
+                        <button class="btn btn-primary" id="insertCitation" style="margin-top: 15px;">Insert Citation</button>
+                    </div>
+                    <div id="feedback5" class="feedback"></div>
+                </div>
+            `;
+        }
+
+        // Mission 6: Bibliography
+        function createBibliographyMission() {
+            return `
+                <div class="simulation-box">
+                    <div class="hint-box">💡 Hint: Google Docs automatically formats your bibliography based on the citation style you selected (MLA, APA, or Chicago).</div>
+                    <div class="citation-sidebar">
+                        <div class="sidebar-title">📋 Generate Bibliography</div>
+                        <p style="margin-bottom: 15px; font-size: 14px;">Your citations are ready. Click below to insert a formatted bibliography at your cursor position.</p>
+                        <button class="btn" id="generateBib" style="width: 100%;">📚 Insert Bibliography</button>
+                    </div>
+                    <div id="bibliographyPreview" style="display: none; margin-top: 20px;">
+                        <div class="bibliography-preview">
+                            <div class="bibliography-title">Works Cited</div>
+                            <div class="citation-entry">Smith, John. <i>The Research Writer's Handbook</i>. Academic Press, 2023.</div>
+                        </div>
+                    </div>
+                    <div id="feedback6" class="feedback"></div>
+                </div>
+            `;
+        }
+
+        // Mission 7: Knowledge Check
+        function createKnowledgeCheckMission() {
+            return `
+                <div class="simulation-box">
+                    <div class="hint-box">💡 Think about when the built-in Google Docs tools might not be enough for your research needs.</div>
+                    <div class="citation-sidebar">
+                        <div class="sidebar-title">🎓 Professional Citation Managers</div>
+                        <p style="margin-bottom: 20px; font-size: 15px; font-weight: bold;">When should you consider using Zotero or Paperpile instead of Google Docs built-in citations?</p>
+                        <div class="style-selector" style="grid-template-columns: 1fr;">
+                            <div class="style-option" data-answer="a" style="text-align: left; padding: 15px;">
+                                <strong>A)</strong> When you only need to cite 2-3 sources for a short essay
+                            </div>
+                            <div class="style-option" data-answer="b" style="text-align: left; padding: 15px;">
+                                <strong>B)</strong> When you're managing 50+ sources across multiple research projects
+                            </div>
+                            <div class="style-option" data-answer="c" style="text-align: left; padding: 15px;">
+                                <strong>C)</strong> When you only write papers in MLA format
+                            </div>
+                            <div class="style-option" data-answer="d" style="text-align: left; padding: 15px;">
+                                <strong>D)</strong> When you never collaborate with other researchers
+                            </div>
+                        </div>
+                    </div>
+                    <div id="feedback7" class="feedback"></div>
+                </div>
+            `;
+        }
+
+        // Attach Event Listeners
+        function attachEventListeners(missionType) {
+            switch(missionType) {
+                case 'menu-navigation':
+                    document.querySelectorAll('[data-menu]').forEach(item => {
+                        item.addEventListener('click', function() {
+                            if (this.dataset.menu === 'tools') {
+                                document.getElementById('toolsSubmenu').style.display = 'block';
+                            }
+                        });
+                    });
+                    document.querySelectorAll('[data-submenu]').forEach(item => {
+                        item.addEventListener('click', function() {
+                            if (this.dataset.submenu === 'citations') {
+                                handleCorrectAnswer('feedback1', 100);
+                            } else {
+                                handleIncorrectAnswer('feedback1');
+                            }
+                        });
+                    });
+                    break;
+
+                case 'style-selection':
+                    document.querySelectorAll('[data-style]').forEach(item => {
+                        item.addEventListener('click', function() {
+                            document.querySelectorAll('[data-style]').forEach(el => el.classList.remove('selected'));
+                            this.classList.add('selected');
+                            gameState.selectedStyle = this.dataset.style;
+                            document.getElementById('confirmStyle').disabled = false;
+                        });
+                    });
+                    document.getElementById('confirmStyle').addEventListener('click', function() {
+                        if (gameState.selectedStyle) {
+                            handleCorrectAnswer('feedback2', 100);
+                        }
+                    });
+                    break;
+
+                case 'source-type':
+                    document.querySelectorAll('[data-source]').forEach(item => {
+                        item.addEventListener('click', function() {
+                            document.querySelectorAll('[data-source]').forEach(el => el.classList.remove('selected'));
+                            this.classList.add('selected');
+                            gameState.selectedSourceType = this.dataset.source;
+                            document.getElementById('confirmSourceType').disabled = false;
+                        });
+                    });
+                    document.getElementById('confirmSourceType').addEventListener('click', function() {
+                        if (gameState.selectedSourceType === 'book') {
+                            handleCorrectAnswer('feedback3', 100);
+                        } else {
+                            handleIncorrectAnswer('feedback3');
+                        }
+                    });
+                    break;
+
+                case 'metadata-entry':
+                    document.getElementById('saveSource').addEventListener('click', function() {
+                        const author = document.getElementById('author').value.trim();
+                        const title = document.getElementById('title').value.trim();
+                        const publisher = document.getElementById('publisher').value.trim();
+                        const year = document.getElementById('year').value.trim();
+
+                        if (author && title && publisher && year) {
+                            if (author.toLowerCase().includes('smith') && 
+                                title.toLowerCase().includes('research') && 
+                                publisher.toLowerCase().includes('academic') && 
+                                year === '2023') {
+                                gameState.sourceData = { author, title, publisher, year };
+                                handleCorrectAnswer('feedback4', 150);
+                            } else {
+                                handleIncorrectAnswer('feedback4', 'Make sure all information matches the hint provided.');
+                            }
+                        } else {
+                            handleIncorrectAnswer('feedback4', 'Please fill in all required fields.');
+                        }
+                    });
+                    break;
+
+                case 'in-text-citation':
+                    document.getElementById('insertCitation').addEventListener('click', function() {
+                        const pageNum = document.getElementById('pageNumber').value.trim();
+                        if (pageNum && !isNaN(pageNum)) {
+                            document.getElementById('citationPlaceholder').textContent = `(Smith ${pageNum})`;
+                            handleCorrectAnswer('feedback5', 150);
+                        } else {
+                            handleIncorrectAnswer('feedback5', 'Please enter a valid page number.');
+                        }
+                    });
+                    break;
+
+                case 'bibliography':
+                    document.getElementById('generateBib').addEventListener('click', function() {
+                        document.getElementById('bibliographyPreview').style.display = 'block';
+                        handleCorrectAnswer('feedback6', 100);
+                    });
+                    break;
+
+                case 'knowledge-check':
+                    document.querySelectorAll('[data-answer]').forEach(item => {
+                        item.addEventListener('click', function() {
+                            if (this.dataset.answer === 'b') {
+                                document.querySelectorAll('[data-answer]').forEach(el => el.classList.remove('selected'));
+                                this.classList.add('selected');
+                                handleCorrectAnswer('feedback7', 100, 'Correct! Professional tools like Zotero and Paperpile are ideal for high-volume research with many sources.');
+                            } else {
+                                handleIncorrectAnswer('feedback7', 'Not quite. Think about when you need advanced features for managing many sources.');
+                            }
+                        });
+                    });
+                    break;
+            }
+        }
+
+        // Handle Correct Answer
+        function handleCorrectAnswer(feedbackId, points, customMessage = '') {
+            const feedback = document.getElementById(feedbackId);
+            feedback.className = 'feedback correct';
+            feedback.textContent = customMessage || '✅ Excellent work! Mission complete!';
+            
+            gameState.score += points;
+            gameState.streak++;
+            
+            // Bonus for streaks
+            if (gameState.streak >= 3) {
+                gameState.score += 50;
+                feedback.textContent += ` 🔥 ${gameState.streak} in a row! +50 bonus!`;
+            }
+            
+            updateStats();
+            createConfetti();
+            
+            setTimeout(() => {
+                gameState.currentMission++;
+                loadMission(gameState.currentMission);
+            }, 2000);
+        }
+
+        // Handle Incorrect Answer
+        function handleIncorrectAnswer(feedbackId, customMessage = '') {
+            const feedback = document.getElementById(feedbackId);
+            feedback.className = 'feedback incorrect';
+            feedback.textContent = customMessage || '❌ Not quite right. Try again!';
+            gameState.streak = 0;
+            updateStats();
+        }
+
+        // Create Confetti
+        function createConfetti() {
+            const colors = ['#FFD700', '#FFA500', '#1B5EAF', '#1E7A3E', '#FF6B6B'];
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 3000);
+                }, i * 50);
+            }
+        }
+
+        // Show Completion Screen
+        function showCompletion() {
+            document.getElementById('missionContainer').style.display = 'none';
+            const completionScreen = document.getElementById('completionScreen');
+            completionScreen.style.display = 'block';
+            
+            document.getElementById('finalScore').textContent = `Final Score: ${gameState.score}`;
+            
+            let finalRank = ranks[0].name;
+            for (let rank of ranks) {
+                if (gameState.score >= rank.minScore) {
+                    finalRank = rank.name;
+                }
+            }
+            document.getElementById('finalRank').textContent = `Rank Achieved: ${finalRank}`;
+            
+            // Epic confetti
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => createConfetti(), i * 30);
+            }
+        }
+
+        // Start the game
+        initGame();
+    </script>
+</body>
+</html>
