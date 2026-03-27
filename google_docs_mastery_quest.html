@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Architect's Handbook: Google Docs Mastery Quest</title>
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────── */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --blue:#1B5EAF;--blue-light:#2A7ADB;--blue-dark:#14477E;
+    --green:#1E7A3E;--green-light:#28A352;
+    --gold:#F0A500;--gold-light:#FFD166;
+    --bg:#F4F6FA;--card:#FFFFFF;--text:#1E293B;--text-light:#64748B;
+    --radius:12px;--shadow:0 4px 24px rgba(0,0,0,.08);
+    --transition:.35s cubic-bezier(.4,0,.2,1);
+  }
+  html{scroll-behavior:smooth}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden}
+
+  /* ── Ribbon Banner ────────────────────────────────────────── */
+  .ribbon-banner{
+    background:linear-gradient(135deg,var(--blue-dark),var(--blue),var(--blue-light));
+    color:#fff;text-align:center;padding:14px 20px;position:relative;
+    box-shadow:0 4px 20px rgba(27,94,175,.35);z-index:100;
+  }
+  .ribbon-banner::before,.ribbon-banner::after{
+    content:'';position:absolute;bottom:-10px;width:0;height:0;
+    border-style:solid;
+  }
+  .ribbon-banner::before{left:0;border-width:10px 0 0 14px;border-color:var(--blue-dark) transparent transparent transparent}
+  .ribbon-banner::after{right:0;border-width:10px 14px 0 0;border-color:var(--blue-dark) transparent transparent transparent}
+  .ribbon-motto{font-size:1.05rem;font-weight:700;letter-spacing:3px;text-transform:uppercase}
+  .ribbon-motto .dot{color:var(--gold-light);margin:0 8px;font-size:1.2rem}
+  .ribbon-school{font-size:.78rem;opacity:.85;margin-top:2px;letter-spacing:1px}
+
+  /* ── Header ───────────────────────────────────────────────── */
+  .app-header{
+    background:var(--card);padding:28px 20px 20px;text-align:center;
+    border-bottom:3px solid var(--blue);position:relative;
+  }
+  .app-header h1{font-size:1.65rem;color:var(--blue-dark);margin-bottom:4px}
+  .app-header h1 .icon{font-size:1.4rem;margin-right:6px}
+  .app-header p{color:var(--text-light);font-size:.92rem}
+
+  /* ── Stats Bar ────────────────────────────────────────────── */
+  .stats-bar{
+    display:flex;flex-wrap:wrap;gap:12px;justify-content:center;align-items:center;
+    padding:16px 20px;background:var(--card);border-bottom:1px solid #e2e8f0;
+  }
+  .stat-chip{
+    display:flex;align-items:center;gap:6px;padding:8px 16px;
+    border-radius:40px;font-weight:600;font-size:.88rem;
+    background:#EFF6FF;color:var(--blue);border:1px solid #BFDBFE;
+  }
+  .stat-chip.rank{background:linear-gradient(135deg,var(--gold),#F59E0B);color:#fff;border:none;font-size:.92rem}
+  .stat-chip.streak{background:#ECFDF5;color:var(--green);border-color:#A7F3D0}
+  .stat-chip .num{font-size:1.1rem}
+
+  /* ── Progress Bar ─────────────────────────────────────────── */
+  .progress-wrap{padding:12px 24px 16px;background:var(--card)}
+  .progress-label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--text-light);margin-bottom:6px;font-weight:600}
+  .progress-track{height:10px;background:#E2E8F0;border-radius:10px;overflow:hidden}
+  .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:10px;transition:width .6s ease}
+
+  /* ── Main Container ───────────────────────────────────────── */
+  .container{max-width:820px;margin:0 auto;padding:24px 16px 80px}
+
+  /* ── Screen (generic) ─────────────────────────────────────── */
+  .screen{display:none;animation:fadeUp .45s ease}
+  .screen.active{display:block}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ── Mission Card ─────────────────────────────────────────── */
+  .mission-card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    overflow:hidden;margin-bottom:20px;
+  }
+  .mission-header{
+    background:linear-gradient(135deg,var(--blue),var(--blue-light));
+    color:#fff;padding:20px 24px;position:relative;
+  }
+  .mission-header .mission-num{
+    font-size:.72rem;text-transform:uppercase;letter-spacing:2px;
+    opacity:.8;margin-bottom:4px;
+  }
+  .mission-header h2{font-size:1.3rem;margin-bottom:4px}
+  .mission-header p{font-size:.88rem;opacity:.9}
+  .mission-body{padding:24px}
+
+  /* ── Scenario Box ─────────────────────────────────────────── */
+  .scenario-box{
+    background:#F8FAFC;border-left:4px solid var(--blue);
+    padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:20px;
+    font-size:.93rem;line-height:1.7;
+  }
+  .scenario-box strong{color:var(--blue)}
+
+  /* ── Choices ──────────────────────────────────────────────── */
+  .choices{display:flex;flex-direction:column;gap:10px}
+  .choice-btn{
+    display:flex;align-items:flex-start;gap:12px;padding:14px 18px;
+    border:2px solid #E2E8F0;border-radius:10px;background:#fff;
+    cursor:pointer;text-align:left;font-size:.92rem;
+    transition:all var(--transition);position:relative;
+  }
+  .choice-btn:hover:not(.disabled){border-color:var(--blue);background:#EFF6FF;transform:translateX(4px)}
+  .choice-btn .letter{
+    flex-shrink:0;width:30px;height:30px;border-radius:50%;
+    background:var(--blue);color:#fff;display:flex;align-items:center;
+    justify-content:center;font-weight:700;font-size:.82rem;
+  }
+  .choice-btn.correct{border-color:var(--green);background:#ECFDF5}
+  .choice-btn.correct .letter{background:var(--green)}
+  .choice-btn.wrong{border-color:#EF4444;background:#FEF2F2}
+  .choice-btn.wrong .letter{background:#EF4444}
+  .choice-btn.disabled{pointer-events:none;opacity:.7}
+
+  /* ── Feedback Panel ───────────────────────────────────────── */
+  .feedback{
+    margin-top:16px;padding:16px 20px;border-radius:10px;
+    font-size:.9rem;line-height:1.65;display:none;
+    animation:slideIn .35s ease;
+  }
+  .feedback.show{display:block}
+  .feedback.correct{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46}
+  .feedback.wrong{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+  .feedback .fb-title{font-weight:700;font-size:.95rem;margin-bottom:4px}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ── Next / Action Buttons ────────────────────────────────── */
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:12px 28px;
+    border:none;border-radius:8px;font-size:.95rem;font-weight:600;
+    cursor:pointer;transition:all var(--transition);
+  }
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-light));color:#fff}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,94,175,.35)}
+  .btn-green{background:linear-gradient(135deg,var(--green),var(--green-light));color:#fff}
+  .btn-green:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(30,122,62,.35)}
+  .btn-gold{background:linear-gradient(135deg,var(--gold),#F59E0B);color:#fff}
+  .btn-gold:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(240,165,0,.35)}
+  .btn-outline{background:transparent;border:2px solid var(--blue);color:var(--blue)}
+  .btn-outline:hover{background:var(--blue);color:#fff}
+  .action-row{display:flex;justify-content:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+
+  /* ── Welcome / Completion Screens ─────────────────────────── */
+  .hero-icon{font-size:3.5rem;margin-bottom:12px}
+  .welcome-card,.complete-card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:40px 28px;text-align:center;
+  }
+  .welcome-card h2,.complete-card h2{color:var(--blue-dark);font-size:1.5rem;margin-bottom:8px}
+  .welcome-card p,.complete-card p{color:var(--text-light);max-width:560px;margin:0 auto 16px;font-size:.93rem}
+  .role-badge{
+    display:inline-block;padding:8px 24px;border-radius:40px;
+    background:linear-gradient(135deg,var(--gold),#F59E0B);
+    color:#fff;font-weight:700;font-size:1rem;margin:12px 0 20px;
+  }
+  .badge-grid{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin:20px 0}
+  .badge-item{
+    width:90px;text-align:center;padding:12px 8px;border-radius:10px;
+    background:#F8FAFC;border:1px solid #E2E8F0;
+  }
+  .badge-item.earned{background:#ECFDF5;border-color:var(--green)}
+  .badge-item .badge-icon{font-size:2rem;display:block;margin-bottom:4px}
+  .badge-item .badge-label{font-size:.7rem;font-weight:600;color:var(--text-light)}
+
+  /* ── Streak Popup ─────────────────────────────────────────── */
+  .streak-popup{
+    position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
+    background:linear-gradient(135deg,var(--gold),#F59E0B);color:#fff;
+    padding:20px 40px;border-radius:16px;font-size:1.4rem;font-weight:800;
+    z-index:999;box-shadow:0 10px 40px rgba(240,165,0,.5);
+    transition:transform .35s cubic-bezier(.34,1.56,.64,1);
+    text-align:center;
+  }
+  .streak-popup.show{transform:translate(-50%,-50%) scale(1)}
+  .streak-popup .sub{font-size:.85rem;font-weight:600;opacity:.9}
+
+  /* ── Confetti Canvas ──────────────────────────────────────── */
+  #confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998}
+
+  /* ── Responsive ───────────────────────────────────────────── */
+  @media(max-width:600px){
+    .ribbon-motto{font-size:.88rem;letter-spacing:1.5px}
+    .app-header h1{font-size:1.25rem}
+    .mission-header h2{font-size:1.1rem}
+    .stats-bar{gap:8px}
+    .stat-chip{padding:6px 12px;font-size:.8rem}
+    .container{padding:16px 10px 60px}
+    .mission-body{padding:16px}
+    .welcome-card,.complete-card{padding:28px 16px}
+  }
+
+  /* Google Docs mock elements */
+  .mock-toolbar{
+    background:#F1F3F4;border:1px solid #DADCE0;border-radius:8px;
+    padding:8px 12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;
+    margin:12px 0;font-size:.78rem;color:#5F6368;
+  }
+  .mock-toolbar .tb-btn{
+    padding:4px 8px;border-radius:4px;background:#fff;border:1px solid #DADCE0;
+    font-size:.75rem;cursor:default;
+  }
+  .mock-toolbar .tb-sep{width:1px;height:18px;background:#DADCE0;margin:0 4px}
+  .mock-folder-tree{
+    background:#F8FAFC;border:1px solid #E2E8F0;border-radius:8px;
+    padding:14px 18px;font-family:'Courier New',monospace;font-size:.84rem;
+    line-height:1.9;margin:12px 0;
+  }
+  .mock-folder-tree .folder{color:var(--blue);font-weight:700}
+  .mock-folder-tree .file{color:#5F6368}
+  .mock-folder-tree .indent{margin-left:20px}
+  .mock-folder-tree .indent2{margin-left:40px}
+  .mock-heading-preview{
+    background:#fff;border:1px solid #DADCE0;border-radius:8px;
+    padding:18px 22px;margin:12px 0;
+  }
+  .mock-heading-preview .h-title{font-size:1.6rem;color:#1A1A1A;font-weight:400;margin-bottom:8px;font-family:'Georgia',serif}
+  .mock-heading-preview .h-h1{font-size:1.25rem;color:#1A1A1A;font-weight:700;margin-bottom:6px}
+  .mock-heading-preview .h-h2{font-size:1.05rem;color:#333;font-weight:600;margin-bottom:4px;margin-left:8px}
+  .mock-heading-preview .h-h3{font-size:.92rem;color:#555;font-weight:600;margin-left:16px}
+</style>
+</head>
+<body>
+
+<!-- Ribbon Banner -->
+<div class="ribbon-banner">
+  <div class="ribbon-motto">Virtue<span class="dot">✦</span>Vigor<span class="dot">✦</span>Vision</div>
+  <div class="ribbon-school">University View Academy</div>
+</div>
+
+<!-- App Header -->
+<header class="app-header">
+  <h1><span class="icon">🏗️</span> The Architect's Handbook</h1>
+  <p>Google Docs Mastery Quest — Become a Certified Document Architect</p>
+</header>
+
+<!-- Stats Bar -->
+<div class="stats-bar">
+  <div class="stat-chip rank" id="rank-chip">🎖️ <span id="rank-text">Trainee</span></div>
+  <div class="stat-chip">⭐ Score: <span class="num" id="score-text">0</span></div>
+  <div class="stat-chip streak">🔥 Streak: <span class="num" id="streak-text">0</span></div>
+  <div class="stat-chip">📋 Mission: <span class="num" id="mission-text">—</span><span>/5</span></div>
+</div>
+
+<!-- Progress Bar -->
+<div class="progress-wrap">
+  <div class="progress-label"><span id="prog-label">Quest Progress</span><span id="prog-pct">0%</span></div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+</div>
+
+<!-- Main Container -->
+<div class="container">
+
+  <!-- ════════ WELCOME SCREEN ════════ -->
+  <div class="screen active" id="screen-welcome">
+    <div class="welcome-card">
+      <div class="hero-icon">🏛️</div>
+      <h2>Welcome, Junior Architect!</h2>
+      <p>You've just been hired at <strong>Pinnacle Design Studio</strong>, a professional consulting firm. Your first day starts now — prove your skills across <strong>5 missions</strong> covering Google Drive organization, document creation, heading structures, precision formatting, and collaborative feedback.</p>
+      <div class="role-badge">👷 Junior Document Architect</div>
+      <p style="font-size:.84rem;color:var(--text-light)">Make correct choices to earn points, build streaks, and climb the ranks from <strong>Trainee</strong> all the way to <strong>Master Architect</strong>!</p>
+      <h4 style="margin:18px 0 10px;color:var(--blue)">Ranks to Earn</h4>
+      <div class="badge-grid" id="welcome-badges">
+        <div class="badge-item earned"><span class="badge-icon">📐</span><span class="badge-label">Trainee</span></div>
+        <div class="badge-item"><span class="badge-icon">🔧</span><span class="badge-label">Apprentice</span></div>
+        <div class="badge-item"><span class="badge-icon">⚙️</span><span class="badge-label">Expert</span></div>
+        <div class="badge-item"><span class="badge-icon">🏆</span><span class="badge-label">Master</span></div>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="startQuest()">🚀 Begin Your Quest</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ MISSION SCREENS (dynamically filled) ════════ -->
+  <div class="screen" id="screen-mission"></div>
+
+  <!-- ════════ COMPLETION SCREEN ════════ -->
+  <div class="screen" id="screen-complete">
+    <div class="complete-card">
+      <div class="hero-icon">🎓</div>
+      <h2 id="final-title">Quest Complete!</h2>
+      <p id="final-msg"></p>
+      <div class="role-badge" id="final-rank"></div>
+      <div style="margin:16px 0">
+        <div class="stat-chip" style="display:inline-flex;font-size:1.05rem;padding:10px 24px">⭐ Final Score: <span class="num" id="final-score">0</span> / <span id="final-max">0</span></div>
+      </div>
+      <h4 style="margin:18px 0 10px;color:var(--blue)">Badges Earned</h4>
+      <div class="badge-grid" id="final-badges"></div>
+      <div class="action-row">
+        <button class="btn btn-primary" onclick="restartQuest()">🔄 Play Again</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- Streak Popup -->
+<div class="streak-popup" id="streak-popup">
+  <div id="streak-popup-text">🔥 3 in a row!</div>
+  <div class="sub">Keep it going!</div>
+</div>
+
+<!-- Confetti Canvas -->
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   MISSION DATA
+   ═══════════════════════════════════════════════════════════════ */
+const MISSIONS = [
+  // ── MISSION 1: Drive Organization ──
+  {
+    id:1,
+    title:"Drive Organization",
+    subtitle:"Organize the firm's Google Drive like a pro",
+    questions:[
+      {
+        scenario:`Your team lead at Pinnacle Design Studio hands you a cluttered Google Drive shared folder with dozens of loose files. She says:<br><br><strong>"Before you touch any documents, organize this mess. We need a proper folder structure for our new client project — Riverside Community Center."</strong><br><br>Which folder structure follows professional Drive organization best practices?`,
+        mock:`<div class="mock-folder-tree">
+          <div class="folder">📁 Shared Drives / Pinnacle Design Studio</div>
+          <div class="indent file">📄 notes.docx</div>
+          <div class="indent file">📄 budget_final_v2_REAL.xlsx</div>
+          <div class="indent file">📄 Copy of meeting notes (1).docx</div>
+          <div class="indent file">📷 logo.png</div>
+          <div class="indent file">📄 Riverside proposal draft maybe.docx</div>
+        </div>`,
+        choices:[
+          {
+            text:`Create folders: <strong>📁 Riverside Community Center</strong> → sub-folders: <strong>01_Proposals</strong>, <strong>02_Contracts</strong>, <strong>03_Meeting Notes</strong>, <strong>04_Assets</strong>`,
+            correct:true,
+            feedback:`Excellent! Numbered prefix folders (01_, 02_) enforce consistent sort order, and nesting under a clear client-name parent folder keeps projects isolated and easy to navigate. This is industry-standard Drive architecture.`
+          },
+          {
+            text:`Move everything into one folder called <strong>"Riverside Stuff"</strong>`,
+            correct:false,
+            feedback:`A single vague folder doesn't provide any sub-categorization. Professional Drive organization uses descriptive, hierarchical folder structures so team members can find files quickly.`
+          },
+          {
+            text:`Leave files in root but rename them all with the prefix "RCC_"`,
+            correct:false,
+            feedback:`Prefixing helps with sorting, but files still clutter the root level. Without folder hierarchy, the Drive becomes unmanageable as projects grow. Always combine naming conventions with folder structures.`
+          },
+          {
+            text:`Create a Google Doc index file that links to each document`,
+            correct:false,
+            feedback:`An index doc can supplement organization, but it doesn't replace proper folder structure. If someone adds a new file, the index is instantly outdated. Folder hierarchy is the foundation — indexes are optional extras.`
+          }
+        ]
+      },
+      {
+        scenario:`Great structure! Now your lead asks you to <strong>color-code</strong> the project folders so the team can visually identify project status at a glance in Google Drive.<br><br>In Google Drive, how do you apply a color to a folder?`,
+        choices:[
+          {
+            text:`Right-click the folder → <strong>Organize</strong> → <strong>Change color</strong> → Select from the 24-color palette`,
+            correct:true,
+            feedback:`That's the correct path! Google Drive lets you right-click any folder, go to Organize, then Change color. The palette offers 24 colors. This is a powerful visual organization tool that many users overlook.`
+          },
+          {
+            text:`Open folder settings and change the background theme`,
+            correct:false,
+            feedback:`Google Drive doesn't have "folder settings" or background themes. The color-coding feature is accessed by right-clicking the folder → Organize → Change color.`
+          },
+          {
+            text:`Rename the folder with a colored emoji like 🔴 or 🟢`,
+            correct:false,
+            feedback:`While emojis in folder names can add visual cues, Google Drive has a built-in color feature (right-click → Organize → Change color) that tints the actual folder icon — much more visible and professional.`
+          }
+        ]
+      },
+      {
+        scenario:`Your team decides on this color-coding system:<br>• <span style="color:#4285F4;font-weight:700">Blue</span> = Active projects<br>• <span style="color:#0F9D58;font-weight:700">Green</span> = Completed<br>• <span style="color:#F4B400;font-weight:700">Yellow</span> = Pending review<br><br>The Riverside Community Center project just kicked off. Which color should you apply?`,
+        choices:[
+          {
+            text:`<span style="color:#F4B400;font-weight:700">🟡 Yellow</span> — it's pending review`,
+            correct:false,
+            feedback:`The project just kicked off, meaning active work is beginning — it's not waiting for review yet. Yellow would be appropriate after deliverables are submitted for client feedback.`
+          },
+          {
+            text:`<span style="color:#4285F4;font-weight:700">🔵 Blue</span> — it's an active project`,
+            correct:true,
+            feedback:`Correct! The project just kicked off, so it's actively being worked on. Blue = Active is the right status. Color-coding only works when the whole team applies colors consistently.`
+          },
+          {
+            text:`<span style="color:#0F9D58;font-weight:700">🟢 Green</span> — start optimistic!`,
+            correct:false,
+            feedback:`Ha — optimism is great, but green means Completed. Applying the wrong color defeats the purpose of the system. The project is actively in progress, so Blue is correct.`
+          }
+        ]
+      }
+    ]
+  },
+
+  // ── MISSION 2: Document Initialization ──
+  {
+    id:2,
+    title:"Document Initialization",
+    subtitle:"Create and configure a new professional document",
+    questions:[
+      {
+        scenario:`Time to create the first deliverable — a project proposal for Riverside Community Center. Your lead reminds you:<br><br><strong>"Document names are like street addresses. If you can't find it in search, it doesn't exist."</strong><br><br>Which file name follows professional naming conventions?`,
+        choices:[
+          {
+            text:`<strong>Riverside_Community_Center_Proposal_2026-03-25</strong>`,
+            correct:true,
+            feedback:`This name is searchable, descriptive, and includes a date stamp (ISO 8601 format: YYYY-MM-DD) for version tracking. Underscores prevent issues across platforms. This is professional-grade naming.`
+          },
+          {
+            text:`<strong>Proposal</strong>`,
+            correct:false,
+            feedback:`"Proposal" is far too generic. Imagine searching Drive for "Proposal" across 50 projects — you'd get hundreds of results. Always include the client/project name and date.`
+          },
+          {
+            text:`<strong>RCC proposal FINAL v2 (use this one).docx</strong>`,
+            correct:false,
+            feedback:`Phrases like "FINAL," "use this one," and random version numbers signal chaotic versioning. Google Docs has built-in Version History (File → Version history) — use that instead of filename version tracking.`
+          },
+          {
+            text:`<strong>Document 1</strong>`,
+            correct:false,
+            feedback:`Default names like "Document 1" or "Untitled document" are a hallmark of disorganized work. Always rename immediately upon creation with a descriptive, searchable title.`
+          }
+        ]
+      },
+      {
+        scenario:`You're about to create the document. Where should you create it to follow the organization system you just set up?`,
+        mock:`<div class="mock-folder-tree">
+          <div class="folder">📁 Riverside Community Center</div>
+          <div class="indent folder">📁 01_Proposals</div>
+          <div class="indent folder">📁 02_Contracts</div>
+          <div class="indent folder">📁 03_Meeting Notes</div>
+          <div class="indent folder">📁 04_Assets</div>
+        </div>`,
+        choices:[
+          {
+            text:`Navigate to <strong>📁 01_Proposals</strong> → Click <strong>New</strong> → <strong>Google Docs</strong> → <strong>Blank document</strong>`,
+            correct:true,
+            feedback:`Creating the file directly inside the correct folder means it's organized from the moment it exists. No need to create-then-move. This prevents orphaned files in My Drive root.`
+          },
+          {
+            text:`Create it in <strong>My Drive</strong> root, then move it later`,
+            correct:false,
+            feedback:`Creating in root and moving later introduces risk — you might forget to move it, creating a cluttered root. Best practice: navigate to the destination folder first, then create the file there.`
+          },
+          {
+            text:`Create it from <strong>docs.google.com</strong> (which saves to My Drive root) since it's faster`,
+            correct:false,
+            feedback:`While docs.google.com/create is quick, documents default to My Drive root. For organized teams, always create files from within the target folder in Google Drive to ensure correct placement.`
+          }
+        ]
+      },
+      {
+        scenario:`Your document is created! Now your lead wants you to set up <strong>Page Setup</strong> before writing. Which setting is accessed through <strong>File → Page setup</strong> in Google Docs?`,
+        mock:`<div class="mock-toolbar">
+          <span class="tb-btn">File</span>
+          <span class="tb-btn">Edit</span>
+          <span class="tb-btn">View</span>
+          <span class="tb-btn">Insert</span>
+          <span class="tb-btn">Format</span>
+          <span class="tb-btn">Tools</span>
+          <span class="tb-btn">Extensions</span>
+          <span class="tb-btn">Help</span>
+        </div>`,
+        choices:[
+          {
+            text:`Page orientation (Portrait/Landscape), margins, page color, and paper size`,
+            correct:true,
+            feedback:`Correct! File → Page setup controls the physical page properties: orientation, margins (top/bottom/left/right), page color, and paper size (Letter, A4, Legal, etc.). These are foundational settings before any content is added.`
+          },
+          {
+            text:`Font size, line spacing, and paragraph indentation`,
+            correct:false,
+            feedback:`Font size, line spacing, and indentation are <em>paragraph/text formatting</em> options found under Format → Line & paragraph spacing or in the toolbar. Page setup is about the physical page dimensions and layout.`
+          },
+          {
+            text:`Headers, footers, and page numbers`,
+            correct:false,
+            feedback:`Headers and footers are added via Insert → Headers & footers. Page numbers go under Insert → Page numbers. These are content elements, not page setup properties.`
+          }
+        ]
+      }
+    ]
+  },
+
+  // ── MISSION 3: Heading Hierarchy ──
+  {
+    id:3,
+    title:"Heading Hierarchy",
+    subtitle:"Build proper semantic document architecture",
+    questions:[
+      {
+        scenario:`Your proposal document needs proper heading structure. Your lead explains:<br><br><strong>"Think of headings like a building's blueprint — the Title is the building name, Heading 1s are floors, Heading 2s are rooms, and Heading 3s are furniture. You never put furniture before building the room."</strong><br><br>Which heading hierarchy is correctly structured for a project proposal?`,
+        mock:`<div class="mock-heading-preview">
+          <div class="h-title">Riverside Community Center — Project Proposal</div>
+          <div class="h-h1">1. Executive Summary</div>
+          <div class="h-h1">2. Project Scope</div>
+          <div class="h-h2">2.1 Deliverables</div>
+          <div class="h-h2">2.2 Timeline</div>
+          <div class="h-h3">2.2.1 Phase One Milestones</div>
+          <div class="h-h1">3. Budget</div>
+        </div>`,
+        choices:[
+          {
+            text:`<strong>Title</strong> → <strong>Heading 1</strong> for main sections → <strong>Heading 2</strong> for subsections → <strong>Heading 3</strong> for details (as shown above)`,
+            correct:true,
+            feedback:`This is proper semantic hierarchy! Title sits at the top, H1 marks major sections, H2 subdivides within H1, and H3 provides granular detail under H2. This structure also powers the automatic Table of Contents and Document Outline.`
+          },
+          {
+            text:`Make everything <strong>Bold + larger font size</strong> instead of using heading styles`,
+            correct:false,
+            feedback:`Manually bolding and resizing text may look similar, but it doesn't create semantic structure. Google Docs' heading styles (Title, H1, H2, H3) power the Document Outline sidebar, Table of Contents, accessibility tools, and screen readers.`
+          },
+          {
+            text:`Use <strong>Heading 1</strong> for the title, then <strong>Heading 3</strong> for everything else`,
+            correct:false,
+            feedback:`Skipping heading levels (H1 → H3, missing H2) breaks the semantic hierarchy. This confuses screen readers, breaks Table of Contents formatting, and makes the Document Outline look disjointed. Always follow the cascade: Title → H1 → H2 → H3.`
+          }
+        ]
+      },
+      {
+        scenario:`Your lead wants to quickly see the document's heading structure without scrolling through 20 pages. Which Google Docs feature shows a navigable outline of all headings?`,
+        choices:[
+          {
+            text:`<strong>View → Show outline</strong> (Document Outline sidebar)`,
+            correct:true,
+            feedback:`The Document Outline (View → Show outline) displays a clickable sidebar showing all headings in hierarchical order. It only works with proper heading styles — another reason to use them instead of manual bold formatting!`
+          },
+          {
+            text:`<strong>Insert → Table of contents</strong>`,
+            correct:false,
+            feedback:`A Table of Contents is inserted <em>into</em> the document as visible text — it's great for printed documents, but for quick navigation while editing, the Document Outline sidebar (View → Show outline) is the tool you want.`
+          },
+          {
+            text:`<strong>Tools → Word count</strong>`,
+            correct:false,
+            feedback:`Word count (Tools → Word count) shows statistics like word count, character count, and page count. It doesn't display document structure. Use View → Show outline for the heading navigator.`
+          }
+        ]
+      },
+      {
+        scenario:`A colleague applied headings to the document but made mistakes. Which of these violates heading hierarchy rules?`,
+        mock:`<div class="mock-heading-preview">
+          <div class="h-h1" style="color:#cc0000">Budget Overview</div>
+          <div class="h-h3" style="color:#cc0000;margin-left:16px">Quarterly Breakdown</div>
+          <div class="h-h2" style="margin-left:8px">Annual Summary</div>
+        </div>`,
+        choices:[
+          {
+            text:`Going from <strong>Heading 1</strong> directly to <strong>Heading 3</strong> (skipping Heading 2)`,
+            correct:true,
+            feedback:`Correct! Jumping from H1 to H3 skips a level. "Quarterly Breakdown" should be Heading 2, since it's a subsection directly under the H1. You must cascade: H1 → H2 → H3 without skipping.`
+          },
+          {
+            text:`Having <strong>Heading 2</strong> ("Annual Summary") after <strong>Heading 3</strong>`,
+            correct:false,
+            feedback:`Actually, going back "up" from H3 to H2 is perfectly fine — it means starting a new subsection at the H2 level. The real violation here is skipping from H1 directly to H3 without an H2 in between.`
+          },
+          {
+            text:`Using <strong>Heading 1</strong> for "Budget Overview"`,
+            correct:false,
+            feedback:`Using H1 for a major section is correct — that's exactly what H1 is for. The problem is the jump from H1 to H3 without using H2 first.`
+          }
+        ]
+      }
+    ]
+  },
+
+  // ── MISSION 4: Precision Formatting ──
+  {
+    id:4,
+    title:"Precision Formatting",
+    subtitle:"Apply professional formatting techniques",
+    questions:[
+      {
+        scenario:`Your proposal draft looks like a wall of text. Your lead says:<br><br><strong>"Professional documents breathe. Add spacing between paragraphs instead of hitting Enter twice."</strong><br><br>What is the correct way to add space between paragraphs in Google Docs?`,
+        mock:`<div class="mock-toolbar">
+          <span class="tb-btn">Format</span> → 
+          <span class="tb-btn">Line & paragraph spacing</span> →
+          <span class="tb-btn">Add space before/after paragraph</span>
+        </div>`,
+        choices:[
+          {
+            text:`<strong>Format → Line & paragraph spacing → Add space after paragraph</strong>`,
+            correct:true,
+            feedback:`This is the professional method! "Add space after paragraph" inserts consistent spacing (typically ~10pt) after each paragraph without extra blank lines. This keeps formatting clean and consistent throughout the document.`
+          },
+          {
+            text:`Press <strong>Enter</strong> twice between paragraphs for an empty line`,
+            correct:false,
+            feedback:`Double-Enter creates an actual blank paragraph that can cause formatting inconsistencies — it may show as extra space in exports, shift layout unpredictably, and makes global spacing changes harder. Use paragraph spacing settings instead.`
+          },
+          {
+            text:`Increase the <strong>font size</strong> of blank lines to create more space`,
+            correct:false,
+            feedback:`Resizing empty lines is a formatting hack that creates maintenance nightmares. If anyone edits that blank line, the spacing breaks. Always use Format → Line & paragraph spacing for reliable spacing.`
+          }
+        ]
+      },
+      {
+        scenario:`Your lead wants the body text set to <strong>1.15 line spacing</strong> across the whole document. What's the most efficient way to do this?`,
+        choices:[
+          {
+            text:`Select all text (<strong>Ctrl+A</strong>) → <strong>Format → Line & paragraph spacing → 1.15</strong>`,
+            correct:true,
+            feedback:`Ctrl+A selects everything, then Format → Line & paragraph spacing → 1.15 applies it globally. Google Docs offers presets (Single, 1.15, 1.5, Double) and a "Custom spacing" option for precise values.`
+          },
+          {
+            text:`Change line spacing paragraph by paragraph`,
+            correct:false,
+            feedback:`Applying spacing to each paragraph individually is extremely inefficient and error-prone. Use Ctrl+A to select all text first, then apply the spacing once for consistency across the entire document.`
+          },
+          {
+            text:`Change the font to a taller typeface to simulate more spacing`,
+            correct:false,
+            feedback:`Changing fonts to fake spacing is not a real solution. Different fonts have different x-heights and line metrics. Use the actual line spacing feature (Format → Line & paragraph spacing) for precise control.`
+          }
+        ]
+      },
+      {
+        scenario:`The executive summary paragraph needs to be <strong>justified</strong> (aligned evenly on both left and right margins). Which alignment option and keyboard shortcut does this?`,
+        choices:[
+          {
+            text:`<strong>Justify</strong> alignment — keyboard shortcut <strong>Ctrl+Shift+J</strong>`,
+            correct:true,
+            feedback:`Justify (Ctrl+Shift+J) distributes text evenly across both margins. The four alignment options are: Left (Ctrl+Shift+L), Center (Ctrl+Shift+E), Right (Ctrl+Shift+R), and Justify (Ctrl+Shift+J).`
+          },
+          {
+            text:`<strong>Center</strong> alignment — keyboard shortcut <strong>Ctrl+Shift+E</strong>`,
+            correct:false,
+            feedback:`Center alignment (Ctrl+Shift+E) centers each line — it doesn't align to both margins. Justify (Ctrl+Shift+J) is what creates the clean, even look on both sides like you see in newspapers and formal reports.`
+          },
+          {
+            text:`Manually add spaces to each line until it reaches the right margin`,
+            correct:false,
+            feedback:`Manually spacing lines would take forever and break instantly if any text is edited. Justify alignment (Ctrl+Shift+J) automatically adjusts word spacing to create flush left and right margins.`
+          }
+        ]
+      }
+    ]
+  },
+
+  // ── MISSION 5: Collaborative Feedback ──
+  {
+    id:5,
+    title:"Collaborative Feedback",
+    subtitle:"Master comments and suggestion mode",
+    questions:[
+      {
+        scenario:`Your lead reviewed the proposal and left this comment on a paragraph:<br><br><em style="color:#1967D2">"This section needs a stronger opening sentence. Can you revise?"</em><br><br>After you've revised the paragraph, what should you do with the comment?`,
+        choices:[
+          {
+            text:`Click the <strong>✓ (checkmark/Resolve)</strong> button on the comment to mark it as resolved`,
+            correct:true,
+            feedback:`Resolving a comment (✓) archives it while preserving the conversation history. Resolved comments can be reopened via the Comments button (top-right) if needed. This is the professional way to close a feedback loop.`
+          },
+          {
+            text:`Delete the comment entirely`,
+            correct:false,
+            feedback:`Deleting removes all record of the feedback. Resolving (✓) is preferred because it archives the conversation — team leads can review what was discussed, and comments can be reopened if the issue comes back.`
+          },
+          {
+            text:`Reply "Done" and leave the comment open`,
+            correct:false,
+            feedback:`Replying "Done" communicates progress, but leaving the comment open clutters the sidebar. Best practice: reply "Done" if needed AND click Resolve (✓) to close the feedback loop cleanly.`
+          }
+        ]
+      },
+      {
+        scenario:`A colleague wants to edit your proposal but shouldn't change it directly without your approval. Which Google Docs editing mode should they use?`,
+        mock:`<div class="mock-toolbar">
+          <span class="tb-btn" style="background:#E8F0FE;border-color:#1967D2;color:#1967D2">Editing ▾</span>
+          <span style="margin:0 4px">→</span>
+          <span class="tb-btn">Editing</span>
+          <span class="tb-sep"></span>
+          <span class="tb-btn" style="background:#E6F4EA;border-color:#137333;color:#137333">Suggesting</span>
+          <span class="tb-sep"></span>
+          <span class="tb-btn">Viewing</span>
+        </div>`,
+        choices:[
+          {
+            text:`<strong>Suggesting</strong> mode — their changes appear as tracked suggestions you can Accept or Reject`,
+            correct:true,
+            feedback:`Suggesting mode (the green pencil icon) shows all edits as color-coded suggestions with Accept/Reject buttons. This is the foundation of professional document collaboration — edits are proposed, not imposed.`
+          },
+          {
+            text:`<strong>Editing</strong> mode — they can make changes freely`,
+            correct:false,
+            feedback:`Editing mode allows direct changes to the document with no approval step. While changes appear in Version History, there's no inline accept/reject workflow. Suggesting mode is the correct choice for proposed edits.`
+          },
+          {
+            text:`<strong>Viewing</strong> mode — they can only read the document`,
+            correct:false,
+            feedback:`Viewing mode is read-only — the colleague can't make any edits or suggestions. They need Suggesting mode to propose changes that you can review and accept or reject.`
+          }
+        ]
+      },
+      {
+        scenario:`You receive a suggestion in the document that replaces "The project will start soon" with <span style="color:#137333">"The project commences on April 15, 2026."</span><br><br>The replacement is better — more specific and professional. What do you do?`,
+        choices:[
+          {
+            text:`Click the <strong>✓ (Accept)</strong> checkmark on the suggestion to apply the change`,
+            correct:true,
+            feedback:`Accepting (✓) applies the suggested edit directly into the document. The old text is removed and replaced with the suggestion. This is how collaborative editing flows in professional environments.`
+          },
+          {
+            text:`Click <strong>✕ (Reject)</strong> and retype the same improvement manually`,
+            correct:false,
+            feedback:`Rejecting and retyping wastes time and doesn't credit the collaborator's contribution. If the suggestion is good, accept it! That's the whole point of Suggesting mode — streamlined review and approval.`
+          },
+          {
+            text:`Reply to the suggestion saying "Looks good!" but leave it pending`,
+            correct:false,
+            feedback:`Leaving suggestions pending clutters the document. If you agree with the change, Accept it immediately. Pending suggestions can confuse other reviewers about the document's current state.`
+          }
+        ]
+      }
+    ]
+  }
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   GAME STATE
+   ═══════════════════════════════════════════════════════════════ */
+let state = {
+  score:0,
+  streak:0,
+  bestStreak:0,
+  missionIdx:0,   // current mission index in MISSIONS[]
+  questionIdx:0,  // current question within mission
+  totalCorrect:0,
+  totalQuestions:0,
+  answered:false,
+  badges:[]        // mission ids completed
+};
+
+const RANKS = [
+  {name:'Trainee',     icon:'📐', minScore:0},
+  {name:'Apprentice',  icon:'🔧', minScore:4},
+  {name:'Expert',      icon:'⚙️', minScore:8},
+  {name:'Master Architect', icon:'🏆', minScore:12}
+];
+
+function totalPossible(){return MISSIONS.reduce((s,m)=>s+m.questions.length,0)}
+function currentRank(){
+  let r=RANKS[0];
+  for(const rank of RANKS) if(state.score>=rank.minScore) r=rank;
+  return r;
+}
+function progressPct(){
+  const total=totalPossible();
+  return total?Math.round((state.totalQuestions/total)*100):0;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UI UPDATES
+   ═══════════════════════════════════════════════════════════════ */
+function updateStats(){
+  const rank=currentRank();
+  document.getElementById('rank-text').textContent=rank.name;
+  document.getElementById('score-text').textContent=state.score;
+  document.getElementById('streak-text').textContent=state.streak;
+  document.getElementById('mission-text').textContent=state.missionIdx<MISSIONS.length?state.missionIdx+1:'✓';
+  const pct=progressPct();
+  document.getElementById('prog-pct').textContent=pct+'%';
+  document.getElementById('prog-fill').style.width=pct+'%';
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SHUFFLE (Fisher-Yates)
+   ═══════════════════════════════════════════════════════════════ */
+let currentShuffledChoices = []; // stores shuffled choices for current question
+
+function shuffleArray(arr){
+  const a=[...arr]; // shallow copy so original is untouched
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RENDER MISSION QUESTION
+   ═══════════════════════════════════════════════════════════════ */
+function renderQuestion(){
+  state.answered=false;
+  const mission=MISSIONS[state.missionIdx];
+  const q=mission.questions[state.questionIdx];
+  const qNum=state.questionIdx+1;
+  const qTotal=mission.questions.length;
+  const letters='ABCD';
+
+  // Shuffle choices for this question
+  currentShuffledChoices = shuffleArray(q.choices);
+
+  let html=`
+    <div class="mission-card">
+      <div class="mission-header">
+        <div class="mission-num">Mission ${mission.id} of ${MISSIONS.length} — Question ${qNum}/${qTotal}</div>
+        <h2>🎯 ${mission.title}</h2>
+        <p>${mission.subtitle}</p>
+      </div>
+      <div class="mission-body">
+        <div class="scenario-box">${q.scenario}</div>
+        ${q.mock||''}
+        <div class="choices" id="choices">`;
+
+  currentShuffledChoices.forEach((c,i)=>{
+    html+=`<button class="choice-btn" data-idx="${i}" onclick="handleChoice(${i})">
+      <span class="letter">${letters[i]}</span>
+      <span>${c.text}</span>
+    </button>`;
+  });
+
+  html+=`</div>
+        <div class="feedback" id="feedback"></div>
+        <div class="action-row" id="action-row" style="display:none"></div>
+      </div>
+    </div>`;
+
+  document.getElementById('screen-mission').innerHTML=html;
+  showScreen('screen-mission');
+  updateStats();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HANDLE CHOICE
+   ═══════════════════════════════════════════════════════════════ */
+function handleChoice(idx){
+  if(state.answered) return;
+
+  const mission=MISSIONS[state.missionIdx];
+  const q=mission.questions[state.questionIdx];
+  const choice=currentShuffledChoices[idx];
+  const btns=document.querySelectorAll('.choice-btn');
+  const fb=document.getElementById('feedback');
+  const actionRow=document.getElementById('action-row');
+
+  if(choice.correct){
+    state.answered=true;
+    state.score++;
+    state.streak++;
+    state.totalCorrect++;
+    state.totalQuestions++;
+    if(state.streak>state.bestStreak) state.bestStreak=state.streak;
+
+    // Mark buttons
+    btns.forEach((b,i)=>{
+      b.classList.add('disabled');
+      if(i===idx) b.classList.add('correct');
+    });
+
+    // Feedback
+    fb.className='feedback show correct';
+    fb.innerHTML=`<div class="fb-title">✅ Correct!</div><p>${choice.feedback}</p>`;
+
+    // Streak popup
+    if(state.streak>=3 && state.streak%1===0){
+      showStreakPopup(state.streak);
+    }
+
+    // Next button
+    const isLastQ=state.questionIdx>=mission.questions.length-1;
+    const isLastM=state.missionIdx>=MISSIONS.length-1;
+
+    if(isLastQ && isLastM){
+      actionRow.innerHTML=`<button class="btn btn-gold" onclick="showCompletion()">🎓 See Final Results</button>`;
+    } else if(isLastQ){
+      state.badges.push(mission.id);
+      actionRow.innerHTML=`<button class="btn btn-green" onclick="nextMission()">🎖️ Mission Complete — Continue</button>`;
+      launchConfetti();
+    } else {
+      actionRow.innerHTML=`<button class="btn btn-primary" onclick="nextQuestion()">Next Question →</button>`;
+    }
+    actionRow.style.display='flex';
+    updateStats();
+  } else {
+    // Wrong — allow retry
+    state.streak=0;
+    btns[idx].classList.add('wrong');
+    setTimeout(()=>btns[idx].classList.remove('wrong'),900);
+
+    fb.className='feedback show wrong';
+    fb.innerHTML=`<div class="fb-title">❌ Not quite!</div><p>${choice.feedback}</p><p style="margin-top:8px;font-weight:600">Try again — pick another option!</p>`;
+    updateStats();
+  }
+}
+
+function nextQuestion(){
+  state.questionIdx++;
+  renderQuestion();
+}
+
+function nextMission(){
+  state.missionIdx++;
+  state.questionIdx=0;
+  if(state.missionIdx<MISSIONS.length){
+    renderQuestion();
+  } else {
+    showCompletion();
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   START / RESTART / COMPLETION
+   ═══════════════════════════════════════════════════════════════ */
+function startQuest(){
+  state={score:0,streak:0,bestStreak:0,missionIdx:0,questionIdx:0,totalCorrect:0,totalQuestions:0,answered:false,badges:[]};
+  renderQuestion();
+}
+
+function restartQuest(){
+  state={score:0,streak:0,bestStreak:0,missionIdx:0,questionIdx:0,totalCorrect:0,totalQuestions:0,answered:false,badges:[]};
+  updateStats();
+  showScreen('screen-welcome');
+}
+
+function showCompletion(){
+  state.badges.push(MISSIONS[MISSIONS.length-1].id);
+  state.totalQuestions=totalPossible(); // ensure full
+  updateStats();
+
+  const rank=currentRank();
+  const max=totalPossible();
+  const pct=Math.round((state.score/max)*100);
+
+  document.getElementById('final-title').textContent=`🎓 Quest Complete — ${rank.name}!`;
+  document.getElementById('final-msg').innerHTML=`You scored <strong>${state.score}/${max}</strong> (${pct}%) with a best streak of <strong>${state.bestStreak}</strong>. ${pct===100?'Perfect score — incredible work!':'Great effort — review any missions you want to improve!'}`;
+  document.getElementById('final-rank').textContent=`${rank.icon} ${rank.name}`;
+  document.getElementById('final-score').textContent=state.score;
+  document.getElementById('final-max').textContent=max;
+
+  // Badges
+  let bhtml='';
+  MISSIONS.forEach(m=>{
+    const earned=state.badges.includes(m.id);
+    bhtml+=`<div class="badge-item ${earned?'earned':''}">
+      <span class="badge-icon">${earned?'⭐':'🔒'}</span>
+      <span class="badge-label">Mission ${m.id}</span>
+    </div>`;
+  });
+  // Rank badges
+  RANKS.forEach(r=>{
+    const earned=state.score>=r.minScore;
+    bhtml+=`<div class="badge-item ${earned?'earned':''}">
+      <span class="badge-icon">${earned?r.icon:'🔒'}</span>
+      <span class="badge-label">${r.name}</span>
+    </div>`;
+  });
+  document.getElementById('final-badges').innerHTML=bhtml;
+
+  showScreen('screen-complete');
+  launchConfetti();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   STREAK POPUP
+   ═══════════════════════════════════════════════════════════════ */
+function showStreakPopup(n){
+  const el=document.getElementById('streak-popup');
+  document.getElementById('streak-popup-text').textContent=`🔥 ${n} in a row!`;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),1600);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONFETTI 🎊
+   ═══════════════════════════════════════════════════════════════ */
+function launchConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
+
+  const colors=['#1B5EAF','#1E7A3E','#F0A500','#FFD166','#EF4444','#8B5CF6','#EC4899','#14B8A6'];
+  const particles=[];
+  for(let i=0;i<150;i++){
+    particles.push({
+      x:Math.random()*canvas.width,
+      y:Math.random()*canvas.height-canvas.height,
+      w:Math.random()*10+5,
+      h:Math.random()*6+3,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      vy:Math.random()*3+2,
+      vx:(Math.random()-0.5)*2,
+      rot:Math.random()*360,
+      rv:(Math.random()-0.5)*8,
+      opacity:1
+    });
+  }
+
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    particles.forEach(p=>{
+      p.y+=p.vy;
+      p.x+=p.vx;
+      p.rot+=p.rv;
+      if(frame>60) p.opacity-=0.008;
+      if(p.opacity<=0) return;
+      alive=true;
+      ctx.save();
+      ctx.translate(p.x,p.y);
+      ctx.rotate(p.rot*Math.PI/180);
+      ctx.globalAlpha=Math.max(0,p.opacity);
+      ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    frame++;
+    if(alive && frame<300) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+
+/* ── Init ── */
+updateStats();
+</script>
+</body>
+</html>
