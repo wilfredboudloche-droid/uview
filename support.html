@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA Help Desk Technician — Managing Support Procedures</title>
+<style>
+  :root {
+    --primary: #1B5EAF;
+    --primary-dark: #144a8a;
+    --green: #1E7A3E;
+    --green-light: #27a352;
+    --gold: #D4A843;
+    --red: #c0392b;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --text: #1a1a2e;
+    --muted: #5a6a7a;
+    --correct: #d4edda;
+    --correct-border: #28a745;
+    --incorrect: #f8d7da;
+    --incorrect-border: #dc3545;
+    --streak-glow: #ffd700;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: #fff;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    box-shadow: 0 3px 12px rgba(0,0,0,.15);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-left { display:flex; align-items:center; gap:14px; }
+  .logo-shield {
+    width:48px; height:48px;
+  }
+  .header-title h1 { font-size:1.15rem; font-weight:700; letter-spacing:.5px; }
+  .header-title p { font-size:.72rem; opacity:.85; font-style:italic; }
+  .header-stats {
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  .stat-box {
+    text-align:center; background:rgba(255,255,255,.13); border-radius:10px;
+    padding:6px 14px; min-width:80px;
+  }
+  .stat-box .label { font-size:.6rem; text-transform:uppercase; opacity:.8; letter-spacing:.5px; }
+  .stat-box .value { font-size:1.1rem; font-weight:700; }
+  .rank-badge {
+    background: var(--gold); color: #1a1a2e; padding:4px 14px;
+    border-radius:20px; font-weight:700; font-size:.8rem;
+    display:flex; align-items:center; gap:6px;
+    box-shadow: 0 2px 8px rgba(212,168,67,.4);
+  }
+  .rank-badge svg { width:18px; height:18px; }
+  .streak-indicator {
+    background: rgba(255,215,0,.2); border:2px solid var(--streak-glow);
+    border-radius:12px; padding:4px 12px; font-size:.8rem; font-weight:700;
+    color: var(--streak-glow); display:none; animation: streakPulse 1s infinite;
+  }
+  @keyframes streakPulse {
+    0%,100%{ box-shadow:0 0 5px rgba(255,215,0,.3); }
+    50%{ box-shadow:0 0 18px rgba(255,215,0,.7); }
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: rgba(255,255,255,.1); border-radius:6px; height:8px;
+    width:100%; max-width:600px; margin:0 auto;
+  }
+  .progress-bar {
+    height:100%; border-radius:6px; background: linear-gradient(90deg,var(--green),var(--gold));
+    transition: width .6s ease; width:0%;
+  }
+
+  /* MAIN */
+  .container {
+    max-width:820px; margin:0 auto; padding:20px 16px 60px;
+  }
+
+  /* WELCOME SCREEN */
+  .screen { display:none; }
+  .screen.active { display:block; animation: fadeIn .5s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  .welcome-card {
+    background: var(--card); border-radius:16px; padding:40px 32px;
+    text-align:center; box-shadow:0 4px 20px rgba(0,0,0,.08);
+  }
+  .welcome-card h2 { color:var(--primary); font-size:1.6rem; margin-bottom:8px; }
+  .welcome-card .motto { color:var(--green); font-weight:600; font-size:1rem; margin-bottom:20px; }
+  .welcome-card p { color:var(--muted); max-width:560px; margin:0 auto 24px; font-size:.95rem; }
+  .obj-list {
+    text-align:left; max-width:520px; margin:0 auto 28px;
+    list-style:none;
+  }
+  .obj-list li {
+    padding:8px 12px; margin-bottom:6px; background:var(--bg);
+    border-radius:8px; font-size:.88rem; display:flex; align-items:flex-start; gap:8px;
+  }
+  .obj-list li .icon { color:var(--green); font-weight:700; flex-shrink:0; }
+
+  .btn {
+    display:inline-block; padding:12px 32px; border:none; border-radius:10px;
+    font-size:1rem; font-weight:600; cursor:pointer; transition:all .2s;
+    text-decoration:none; color:#fff;
+  }
+  .btn-primary { background:var(--primary); }
+  .btn-primary:hover { background:var(--primary-dark); transform:translateY(-2px); box-shadow:0 4px 12px rgba(27,94,175,.3); }
+  .btn-green { background:var(--green); }
+  .btn-green:hover { background:var(--green-light); transform:translateY(-2px); }
+  .btn-gold { background:var(--gold); color:#1a1a2e; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background:var(--card); border-radius:16px; overflow:hidden;
+    box-shadow:0 4px 20px rgba(0,0,0,.08);
+  }
+  .mission-header {
+    background: linear-gradient(135deg,var(--primary),var(--primary-dark));
+    color:#fff; padding:18px 24px;
+  }
+  .mission-header .mission-label { font-size:.7rem; text-transform:uppercase; letter-spacing:1.5px; opacity:.8; }
+  .mission-header h2 { font-size:1.2rem; margin-top:4px; }
+  .mission-body { padding:24px; }
+
+  .ticket-box {
+    background: #f8f9fb; border-left:4px solid var(--primary); border-radius:8px;
+    padding:16px 18px; margin-bottom:20px;
+  }
+  .ticket-box .ticket-id { font-size:.75rem; color:var(--muted); font-weight:600; }
+  .ticket-box .ticket-desc { margin-top:6px; font-size:.92rem; }
+  .ticket-meta { display:flex; gap:16px; flex-wrap:wrap; margin-top:8px; }
+  .ticket-meta span { font-size:.78rem; color:var(--muted); }
+
+  .question-text { font-weight:600; font-size:1rem; margin-bottom:14px; color:var(--primary-dark); }
+
+  .choices { display:flex; flex-direction:column; gap:10px; }
+  .choice-btn {
+    background:#fff; border:2px solid #d0d8e4; border-radius:10px;
+    padding:12px 16px; text-align:left; cursor:pointer; font-size:.9rem;
+    transition:all .2s; display:flex; align-items:flex-start; gap:10px;
+  }
+  .choice-btn:hover:not(.disabled) { border-color:var(--primary); background:#f0f5ff; }
+  .choice-btn .letter {
+    background:var(--primary); color:#fff; width:26px; height:26px;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:.8rem; flex-shrink:0;
+  }
+  .choice-btn.correct { border-color:var(--correct-border); background:var(--correct); }
+  .choice-btn.correct .letter { background:var(--correct-border); }
+  .choice-btn.incorrect { border-color:var(--incorrect-border); background:var(--incorrect); }
+  .choice-btn.incorrect .letter { background:var(--incorrect-border); }
+  .choice-btn.disabled { pointer-events:none; opacity:.85; }
+  .choice-btn.dimmed { opacity:.5; pointer-events:none; }
+
+  .feedback-box {
+    margin-top:16px; padding:14px 18px; border-radius:10px;
+    font-size:.88rem; display:none; animation:fadeIn .4s ease;
+  }
+  .feedback-box.show { display:block; }
+  .feedback-box.correct-fb { background:var(--correct); border:1px solid var(--correct-border); }
+  .feedback-box.incorrect-fb { background:var(--incorrect); border:1px solid var(--incorrect-border); }
+  .feedback-box strong { display:block; margin-bottom:4px; }
+
+  .next-area { text-align:right; margin-top:18px; }
+
+  /* RESULTS */
+  .results-card {
+    background:var(--card); border-radius:16px; padding:40px 32px;
+    text-align:center; box-shadow:0 4px 20px rgba(0,0,0,.08);
+  }
+  .results-card h2 { color:var(--primary); font-size:1.5rem; }
+  .final-rank {
+    display:inline-block; margin:16px 0; padding:10px 28px;
+    border-radius:30px; font-size:1.3rem; font-weight:700;
+  }
+  .score-ring {
+    width:140px; height:140px; margin:20px auto; position:relative;
+  }
+  .score-ring svg { transform:rotate(-90deg); }
+  .score-ring .score-text {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    font-size:1.8rem; font-weight:700; color:var(--primary);
+  }
+  .results-summary { margin:20px auto; max-width:480px; }
+  .results-summary .obj-row {
+    display:flex; justify-content:space-between; padding:8px 0;
+    border-bottom:1px solid #eee; font-size:.88rem;
+  }
+  .results-summary .obj-row:last-child { border:none; }
+  .badge-row { display:flex; justify-content:center; gap:14px; flex-wrap:wrap; margin:20px 0; }
+  .badge-item {
+    width:72px; text-align:center; font-size:.7rem; color:var(--muted);
+  }
+  .badge-item svg { width:48px; height:48px; }
+  .badge-item.earned svg { filter:none; }
+  .badge-item.locked svg { filter:grayscale(1) opacity(.3); }
+
+  /* CONFETTI */
+  .confetti-container {
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    pointer-events:none; z-index:9999; overflow:hidden;
+  }
+  .confetti-piece {
+    position:absolute; top:-20px; width:10px; height:10px;
+    animation: confettiFall 3s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0%{ transform:translateY(0) rotate(0deg); opacity:1; }
+    100%{ transform:translateY(110vh) rotate(720deg); opacity:0; }
+  }
+
+  /* STREAK POPUP */
+  .streak-popup {
+    position:fixed; top:50%; left:50%; transform:translate(-50%,-50%) scale(0);
+    background:rgba(0,0,0,.85); color:var(--streak-glow); padding:20px 40px;
+    border-radius:16px; font-size:1.6rem; font-weight:700; z-index:9998;
+    border:3px solid var(--streak-glow); text-align:center;
+    transition: transform .3s ease;
+  }
+  .streak-popup.show { transform:translate(-50%,-50%) scale(1); }
+  .streak-popup .streak-sub { font-size:.85rem; color:#ccc; font-weight:400; margin-top:4px; }
+
+  /* Responsive */
+  @media(max-width:600px){
+    .header { padding:12px 14px; }
+    .header-title h1 { font-size:1rem; }
+    .stat-box { min-width:60px; padding:4px 8px; }
+    .mission-body { padding:16px; }
+    .welcome-card, .results-card { padding:24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <svg class="logo-shield" viewBox="0 0 48 48" fill="none">
+      <path d="M24 2L4 12v14c0 12 8.5 18.5 20 22 11.5-3.5 20-10 20-22V12L24 2z" fill="#1B5EAF"/>
+      <path d="M24 6L8 14v12c0 10 7 15.5 16 18.5 9-3 16-8.5 16-18.5V14L24 6z" fill="#fff" opacity=".15"/>
+      <text x="24" y="30" text-anchor="middle" fill="#fff" font-size="16" font-weight="700" font-family="serif">U</text>
+    </svg>
+    <div class="header-title">
+      <h1>UVA Help Desk Academy</h1>
+      <p>"Virtue, Vigor, Vision"</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="streak-indicator" id="streakInd">🔥 <span id="streakCount">0</span> Streak!</div>
+    <div class="stat-box"><div class="label">Score</div><div class="value" id="scoreDisplay">0</div></div>
+    <div class="stat-box"><div class="label">Mission</div><div class="value" id="missionDisplay">0/5</div></div>
+    <div class="rank-badge" id="rankBadge">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.27 5.82 21 7 14.14 2 9.27l6.91-1.01z"/></svg>
+      <span id="rankText">Trainee</span>
+    </div>
+  </div>
+</div>
+<div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="container">
+
+  <!-- WELCOME SCREEN -->
+  <div class="screen active" id="welcomeScreen">
+    <div class="welcome-card">
+      <h2>🎧 Welcome, Help Desk Technician!</h2>
+      <p class="motto">Virtue · Vigor · Vision</p>
+      <p>You've just been hired at the <strong>UVA IT Help Desk</strong>. Today you'll handle real support tickets, classify incidents, escalate issues, and communicate like a pro. Complete all 5 missions to earn your rank!</p>
+      <ul class="obj-list">
+        <li><span class="icon">✓</span> Differentiate policies, SOPs, and guidelines</li>
+        <li><span class="icon">✓</span> Manage the support ticket lifecycle</li>
+        <li><span class="icon">✓</span> Classify severity levels &amp; escalation tiers</li>
+        <li><span class="icon">✓</span> Apply professional communication techniques</li>
+      </ul>
+      <button class="btn btn-primary" onclick="startGame()">🚀 Begin Your Shift</button>
+    </div>
+  </div>
+
+  <!-- MISSION SCREEN (dynamic) -->
+  <div class="screen" id="missionScreen">
+    <div class="mission-card">
+      <div class="mission-header">
+        <div class="mission-label" id="mLabel">Mission 1 of 5</div>
+        <h2 id="mTitle">Mission Title</h2>
+      </div>
+      <div class="mission-body" id="mBody"></div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="screen" id="resultsScreen">
+    <div class="results-card">
+      <h2>🎓 Shift Complete!</h2>
+      <div class="score-ring">
+        <svg width="140" height="140">
+          <circle cx="70" cy="70" r="60" fill="none" stroke="#e0e0e0" stroke-width="12"/>
+          <circle cx="70" cy="70" r="60" fill="none" stroke="var(--green)" stroke-width="12"
+            stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" id="scoreCircle"/>
+        </svg>
+        <div class="score-text" id="finalScoreText">0%</div>
+      </div>
+      <div class="final-rank" id="finalRankBox"></div>
+      <div class="results-summary" id="resultsSummary"></div>
+      <div class="badge-row" id="badgeRow"></div>
+      <button class="btn btn-primary" onclick="restartGame()" style="margin-top:18px;">🔄 Restart Training</button>
+    </div>
+  </div>
+</div>
+
+<!-- Streak Popup -->
+<div class="streak-popup" id="streakPopup"><span id="streakPopupText"></span><div class="streak-sub">Keep it going!</div></div>
+<!-- Confetti Container -->
+<div class="confetti-container" id="confettiBox"></div>
+
+<script>
+// ========== GAME DATA ==========
+const MISSIONS = [
+  // MISSION 1: Policy vs SOP vs Guideline
+  {
+    id:1,
+    title:"📋 Know Your Docs — Policy, SOP, or Guideline?",
+    objective:"Differentiate between a policy, SOP, and guideline",
+    steps:[
+      {
+        ticket:{ id:"TKT-4401", from:"Sarah Mitchell, HR Manager", device:"N/A", desc:"Hi Help Desk, we're onboarding 12 new employees next Monday. I need to make sure we follow the correct process for setting up their accounts, devices, and security groups. Can you point me to the right documentation?" },
+        question:"Sarah needs the step-by-step checklist for new-user setup. Which type of documentation should you direct her to?",
+        choices:[
+          {text:"A policy — it provides the overall statement of intent about onboarding.",correct:false,explain:"A policy is a high-level statement of intent (e.g., 'All new employees must be provisioned within 48 hours'). It doesn't contain the step-by-step actions Sarah needs."},
+          {text:"A Standard Operating Procedure (SOP) — it's the step-by-step list of actions for completing the onboarding task.",correct:true,explain:"Correct! An SOP provides the step-by-step actions: verifying credentials, allocating devices, assigning security groups. New-user setup checklists are a classic example of an SOP."},
+          {text:"A guideline — it's flexible advice for situations that aren't fully defined.",correct:false,explain:"Guidelines apply when there are no procedures or the situation is too complex for an SOP. Onboarding has a well-defined process, so an SOP is appropriate."},
+          {text:"A Service Level Agreement (SLA) — it defines the timeline requirements.",correct:false,explain:"An SLA defines the level of service and metrics (like uptime), not the procedural steps for completing a task."}
+        ]
+      },
+      {
+        ticket:{ id:"TKT-4401", from:"Sarah Mitchell, HR Manager", device:"N/A", desc:"Follow-up: One of the new hires has a unique role that doesn't fit any existing security group template. Our standard onboarding checklist doesn't cover this case. What should I refer to?" },
+        question:"The standard onboarding SOP doesn't cover this unique role. What type of documentation addresses situations too complex for a fixed procedure?",
+        choices:[
+          {text:"Still use the SOP — just skip the steps that don't apply.",correct:false,explain:"Skipping steps in an SOP isn't the right approach. SOPs are designed for defined processes, not unique edge cases."},
+          {text:"A guideline — it covers areas where SOPs don't apply because the situation is too variable or complex.",correct:true,explain:"Exactly! Guidelines address areas of policy where there are no procedures, either because the situation hasn't been fully assessed or the decision-making is too complex to capture in an SOP."},
+          {text:"The Acceptable Use Policy (AUP).",correct:false,explain:"The AUP defines what users are allowed to do with company resources — it doesn't help configure unique role permissions."},
+          {text:"A knowledge base article — search for a workaround.",correct:false,explain:"The knowledge base may have helpful info, but the correct documentation type for complex, undefined situations is a guideline."}
+        ]
+      }
+    ]
+  },
+
+  // MISSION 2: Ticket Lifecycle
+  {
+    id:2,
+    title:"🎫 Ticket Lifecycle — From Open to Closed",
+    objective:"Identify the lifecycle stages of a support ticket",
+    steps:[
+      {
+        ticket:{ id:"TKT-5520", from:"James Rivera, Accounting Dept", device:"Dell Optiplex 7090 (Asset #UVA-3892)", desc:"My computer won't boot. I see a blinking cursor on a black screen. I have a financial report due by end of day!" },
+        question:"You've just been assigned this ticket. After capturing user/device info and generating the ticket ID, what is your NEXT step in the ticket lifecycle?",
+        choices:[
+          {text:"Immediately escalate to Tier 2 since it sounds serious.",correct:false,explain:"Escalation happens later. First you need to gather information: have the user describe the issue, then categorize and assess severity."},
+          {text:"Have the user describe the issue in detail and ask clarifying questions for an accurate initial description.",correct:true,explain:"Correct! Step 2 in the ticket lifecycle is getting the user to supply a description of the issue. You may ask clarifying questions to ensure an accurate initial description before categorizing or troubleshooting."},
+          {text:"Close the ticket and tell James to restart his computer.",correct:false,explain:"You should never close a ticket without proper troubleshooting, documentation, and user acceptance that the issue is resolved."},
+          {text:"Start writing the problem resolution notes.",correct:false,explain:"Problem resolution comes at the end of the lifecycle — after troubleshooting identifies and fixes the cause."}
+        ]
+      },
+      {
+        ticket:{ id:"TKT-5520", from:"James Rivera", device:"Dell Optiplex 7090", desc:"Update: You've resolved the boot issue (loose SATA cable). The system is running and James confirmed his files are accessible. What are the final steps to properly close this ticket?" },
+        question:"The issue is fixed and James is satisfied. Which set of actions correctly closes the ticket lifecycle?",
+        choices:[
+          {text:"Just mark the ticket as 'Closed' — the problem is fixed.",correct:false,explain:"Simply closing the ticket misses critical documentation steps. You need to record the resolution and get user confirmation."},
+          {text:"Document the resolution, record what caused the issue and how it was fixed, confirm with James the problem is resolved, then log the ticket as closed.",correct:true,explain:"Correct! The problem resolution phase requires documenting the cause, the fix, testing that the system works, obtaining customer acceptance, and then logging the ticket as closed. You may also send verification via email."},
+          {text:"Email James's manager about the loose cable and close the ticket.",correct:false,explain:"While documentation is important, emailing the manager isn't part of the standard ticket closure process. Focus on documenting in the ticket system."},
+          {text:"Transfer the ticket to Tier 2 for final documentation.",correct:false,explain:"Since you resolved the issue, you should document and close it — there's no need to escalate a resolved ticket."}
+        ]
+      }
+    ]
+  },
+
+  // MISSION 3: Severity Classification & Escalation
+  {
+    id:3,
+    title:"🚨 Severity & Escalation — Triage Time",
+    objective:"Classify severity levels and describe escalation tiers",
+    steps:[
+      {
+        ticket:{ id:"TKT-6678", from:"Multiple Users (Campus-Wide)", device:"Exchange Email Server", desc:"URGENT: The entire campus email system is down. Faculty, staff, and students cannot send or receive emails. Several departments report they cannot communicate with external partners. The outage appears to affect ALL users." },
+        question:"How should you classify the severity of this incident?",
+        choices:[
+          {text:"Minor — email isn't critical to operations.",correct:false,explain:"Email is a core communication tool. A campus-wide outage affecting all users is far more than minor."},
+          {text:"Major — it affects a limited group of customers.",correct:false,explain:"Major incidents affect a limited group. This outage is campus-wide affecting ALL users, making it more severe."},
+          {text:"Critical — it has a widespread effect on customers and services.",correct:true,explain:"Correct! Critical incidents have a widespread effect on customers. A campus-wide email outage affects all users and external communications — this is a textbook critical incident."},
+          {text:"Routine — just create a ticket and wait for normal queue processing.",correct:false,explain:"A campus-wide outage is never routine. It requires immediate attention and senior involvement."}
+        ]
+      },
+      {
+        ticket:{ id:"TKT-6678", from:"Multiple Users", device:"Exchange Server", desc:"Continued: You're a Tier 1 agent and have documented the campus-wide email outage. Initial troubleshooting (service restart, network check) has not resolved it. The issue appears to involve a core server configuration problem." },
+        question:"You cannot resolve this at Tier 1. What is the correct escalation path?",
+        choices:[
+          {text:"Tier 0 — Direct users to the knowledge base for self-service.",correct:false,explain:"Tier 0 is for self-service options like FAQs. A server-level outage cannot be resolved by end users searching the knowledge base."},
+          {text:"Tier 2 Internal — Escalate to senior technicians who can diagnose the server configuration issue.",correct:true,explain:"Correct! When Tier 1 cannot resolve an incident, it escalates to Tier 2 (Internal for senior technicians, or External for third-party support). A server configuration problem needs senior technical expertise."},
+          {text:"Send an email to all users apologizing and wait for the server to self-recover.",correct:false,explain:"Waiting is not an escalation strategy. The issue needs active troubleshooting by appropriately skilled technicians."},
+          {text:"Tier 1 — Keep troubleshooting; you should be able to handle it.",correct:false,explain:"If initial troubleshooting at Tier 1 fails, escalation is the correct response. Continuing to troubleshoot beyond your capabilities delays resolution."}
+        ]
+      },
+      {
+        ticket:{ id:"TKT-6699", from:"Prof. Laura Chen, Biology Dept", device:"Lab Workstation (Asset #UVA-7741)", desc:"My workstation froze while I was grading papers. I rebooted it and it's working now, but I wanted to report it in case it happens again. No data was lost." },
+        question:"How should you classify the severity of this incident?",
+        choices:[
+          {text:"Critical — any system crash is critical.",correct:false,explain:"Not every crash is critical. The key factors are impact and urgency. This affected one user, was self-resolved, and no data was lost."},
+          {text:"Minor — it is not having a significant effect on customer groups. The issue self-resolved and affected only one user.",correct:true,explain:"Correct! Minor incidents don't significantly affect customer groups. This was a single workstation freeze that self-resolved with no data loss. It should be documented but doesn't require urgent escalation."},
+          {text:"Major — a professor's workstation is important.",correct:false,explain:"While the professor's work is important, severity is based on impact scope and urgency. One self-resolved freeze for one user is minor."},
+          {text:"This doesn't need a ticket — it fixed itself.",correct:false,explain:"All incidents should be documented via tickets, even self-resolved ones. This data helps identify patterns (problems) that may need deeper investigation."}
+        ]
+      }
+    ]
+  },
+
+  // MISSION 4: Professional Communication
+  {
+    id:4,
+    title:"💬 Professional Communication — Handle With Care",
+    objective:"Apply professional communication techniques",
+    steps:[
+      {
+        ticket:{ id:"TKT-7802", from:"Dr. Akiko Tanaka, Research Faculty", device:"MacBook Pro (Asset #UVA-5503)", desc:"Phone call received: 'Hello, I am having difficulty with my computer. The application for my research data is not responding, and I have a presentation tomorrow. I am very worried.'" },
+        question:"Dr. Tanaka is anxious about her upcoming presentation. What is the BEST initial response using professional communication techniques?",
+        choices:[
+          {text:"\"Hey, don't worry about it! These things happen all the time. Just reboot and you'll be fine.\"",correct:false,explain:"This is too casual ('Hey'), dismissive of her concern, and assumes a solution without gathering information. It also uses jargon-free but overly informal language."},
+          {text:"\"Dr. Tanaka, I understand this is urgent with your presentation tomorrow. Let me help you get this resolved. Can you tell me exactly what happens when you try to open the application?\"",correct:true,explain:"Excellent! This response demonstrates: addressing her by professional title (cultural sensitivity), acknowledging her concern (empathy/active listening), setting expectations (commitment to help), and starting with an open-ended question to gather information."},
+          {text:"\"What's the app name and error code? Also what OS version are you running?\"",correct:false,explain:"While technically relevant, jumping straight to technical questions without acknowledging the customer's concern fails to demonstrate empathy and active listening. You should address the person before the problem."},
+          {text:"\"You should have reported this earlier. I'll create a ticket and someone will get to it when they can.\"",correct:false,explain:"This is judgmental, dismissive, and sets no clear expectations. It violates multiple professional communication principles."}
+        ]
+      },
+      {
+        ticket:{ id:"TKT-7802", from:"Dr. Tanaka", device:"MacBook Pro", desc:"While troubleshooting, Dr. Tanaka becomes frustrated: 'This is taking too long! I called two hours ago about a different issue and nobody helped me. Your department is terrible at this!'" },
+        question:"Dr. Tanaka is becoming upset. What is the BEST way to handle this difficult situation?",
+        choices:[
+          {text:"\"I understand that's not the experience you should have had, and I'm sorry about the earlier delay. Let me focus on getting your application working right now, and I'll also follow up on that previous ticket. Can we continue with the troubleshooting?\"",correct:true,explain:"Perfect! This demonstrates: empathy without arguing, acknowledging the legitimate complaint honestly, redirecting to a positive action plan, and asking permission to continue — all key techniques for handling difficult situations."},
+          {text:"\"That wasn't my fault — I just started my shift. You should have called back sooner.\"",correct:false,explain:"This is defensive, argumentative, and places blame on the customer. Never take complaints personally or make excuses. The customer's frustration isn't personal."},
+          {text:"\"I can see you're getting upset. Let me transfer you to my manager.\"",correct:false,explain:"While escalating to a manager is appropriate for abusive behavior, frustration about delayed service should be addressed with empathy first. This feels like you're passing the problem along."},
+          {text:"Post on the team chat: 'Dealing with a really difficult professor right now 🙄'",correct:false,explain:"Never post about customer interactions on social media or public channels. This is unprofessional and could have serious consequences."}
+        ]
+      }
+    ]
+  },
+
+  // MISSION 5: Comprehensive Scenario
+  {
+    id:5,
+    title:"🏆 Final Mission — Full Ticket Resolution",
+    objective:"Apply all concepts: documentation, lifecycle, severity, communication",
+    steps:[
+      {
+        ticket:{ id:"TKT-8910", from:"Coach Marcus Williams, Athletics Dept", device:"Department shared PC (Asset #UVA-1120)", desc:"Call received: 'Our shared computer in the coaching office has some kind of pop-up that keeps appearing saying our antivirus is expired. Also, Coach Davis downloaded some free video analysis software from a website yesterday and now the PC is running really slow.'" },
+        question:"Coach Williams reports expired antivirus AND unauthorized software installation. Before troubleshooting, which document should guide your response to the unauthorized software?",
+        choices:[
+          {text:"A guideline — because software issues are complex and variable.",correct:false,explain:"Software installation by users is typically governed by clear, enforceable rules — not flexible guidelines."},
+          {text:"The Acceptable Use Policy (AUP) — it governs what users are allowed to install and use on company equipment.",correct:true,explain:"Correct! The AUP sets out what someone is allowed to use a particular service or resource for. It typically prohibits installation of unauthorized software. Coach Davis downloading unapproved software likely violates the AUP."},
+          {text:"The SLA — check if software support is covered.",correct:false,explain:"SLAs define service delivery metrics, not acceptable use of equipment."},
+          {text:"No documentation needed — just uninstall the software and move on.",correct:false,explain:"Unauthorized software installation is a policy matter that needs to be documented and may need to be reported, not just quietly fixed."}
+        ]
+      },
+      {
+        ticket:{ id:"TKT-8910", from:"Coach Williams", device:"Shared PC", desc:"Update: You've identified that the unauthorized software contained adware. The antivirus is indeed expired. The PC has suspicious network activity. You suspect a potential security breach affecting the athletics department's shared files." },
+        question:"Given the suspected security breach affecting a department, what is the correct severity classification?",
+        choices:[
+          {text:"Minor — it's just one computer.",correct:false,explain:"A suspected security breach is never minor, even on one computer. The potential for data exposure elevates the severity."},
+          {text:"Major — it involves a suspected security violation affecting a limited group.",correct:true,explain:"Correct! Major incidents affect a limited group of customers OR involve a suspected security violation. A suspected breach in the athletics department with suspicious network activity fits the 'major' classification perfectly."},
+          {text:"Critical — all security issues are automatically critical.",correct:false,explain:"Critical requires widespread effect or actual/potential data breach confirmed. This is currently a suspected violation affecting one department — that's major. If confirmed as a data breach, it could escalate to critical."},
+          {text:"No severity needed — just fix the antivirus.",correct:false,explain:"All incidents need severity classification. A suspected security breach absolutely requires proper severity assessment and documentation."}
+        ]
+      },
+      {
+        ticket:{ id:"TKT-8910", from:"Coach Williams", device:"Shared PC", desc:"Final update: You've removed the adware, updated the antivirus, scanned the system, and found no data was actually breached. The PC is running normally. Coach Williams says 'Thanks, it's working great now!'" },
+        question:"The issue is resolved. Which documentation fields should be completed to properly close this ticket?",
+        choices:[
+          {text:"Only the problem resolution field — describe the fix.",correct:false,explain:"The ticket lifecycle requires three documentation fields throughout the process, not just the resolution."},
+          {text:"Issue description (initial report), progress notes (diagnostic steps, AUP violation, adware found), and problem resolution (removal steps, antivirus update, clean scan, user acceptance).",correct:true,explain:"Excellent! The three fields of the ticket lifecycle are: Issue description (initial request details), Progress notes (diagnostics, probable cause identification), and Problem resolution (the fix, testing, and customer acceptance). Clear, concise documentation allows other agents to understand the full history."},
+          {text:"Just add a note saying 'Fixed' and close it.",correct:false,explain:"'Fixed' provides no useful information. Good documentation requires clear, concise details about the issue, diagnosis, and resolution."},
+          {text:"Issue description and resolution only — progress notes are optional.",correct:false,explain:"Progress notes are essential. They record what diagnostic tools and processes discovered and the probable cause. Without them, the ticket history is incomplete."}
+        ]
+      }
+    ]
+  }
+];
+
+// ========== GAME STATE ==========
+let state = {
+  currentMission: 0,
+  currentStep: 0,
+  score: 0,
+  totalQuestions: 0,
+  streak: 0,
+  maxStreak: 0,
+  correctCount: 0,
+  missionScores: [],
+  answeredThisStep: false
+};
+
+// Count total questions
+MISSIONS.forEach(m => state.totalQuestions += m.steps.length);
+
+const RANKS = [
+  { name:"Trainee", min:0, color:"#888", emoji:"🔰" },
+  { name:"Apprentice", min:40, color:"#1B5EAF", emoji:"🛡️" },
+  { name:"Expert", min:70, color:"var(--green)", emoji:"⭐" },
+  { name:"Master", min:90, color:"var(--gold)", emoji:"🏆" }
+];
+
+function getRank(pct) {
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (pct >= r.min) rank = r; }
+  return rank;
+}
+
+// ========== SCREEN MANAGEMENT ==========
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function updateHeader() {
+  const answered = state.missionScores.reduce((a,m)=>a+m.length,0) + (state.answeredThisStep?1:0);
+  const pct = state.totalQuestions > 0 ? Math.round((state.correctCount / state.totalQuestions)*100) : 0;
+  document.getElementById('scoreDisplay').textContent = state.score;
+  document.getElementById('missionDisplay').textContent = `${state.currentMission+1}/5`;
+  const progressPct = (answered / state.totalQuestions) * 100;
+  document.getElementById('progressBar').style.width = progressPct + '%';
+
+  // Rank
+  const rank = getRank(state.totalQuestions > 0 ? Math.round((state.correctCount / Math.max(answered,1))*100) : 0);
+  document.getElementById('rankText').textContent = rank.name;
+
+  // Streak
+  const si = document.getElementById('streakInd');
+  if (state.streak >= 2) {
+    si.style.display = 'inline-block';
+    document.getElementById('streakCount').textContent = state.streak;
+  } else {
+    si.style.display = 'none';
+  }
+}
+
+// ========== GAME FLOW ==========
+function startGame() {
+  state = { currentMission:0, currentStep:0, score:0, totalQuestions:state.totalQuestions, streak:0, maxStreak:0, correctCount:0, missionScores:[], answeredThisStep:false };
+  MISSIONS.forEach(() => state.missionScores.push([]));
+  updateHeader();
+  loadMission();
+  showScreen('missionScreen');
+}
+
+function loadMission() {
+  const m = MISSIONS[state.currentMission];
+  state.currentStep = 0;
+  state.answeredThisStep = false;
+  document.getElementById('mLabel').textContent = `Mission ${m.id} of 5 — ${m.objective}`;
+  document.getElementById('mTitle').textContent = m.title;
+  updateHeader();
+  renderStep();
+}
+
+function renderStep() {
+  const m = MISSIONS[state.currentMission];
+  const step = m.steps[state.currentStep];
+  const body = document.getElementById('mBody');
+  const letters = ['A','B','C','D'];
+  state.answeredThisStep = false;
+
+  let html = `<div class="ticket-box">
+    <div class="ticket-id">📋 ${step.ticket.id}</div>
+    <div class="ticket-desc">${step.ticket.desc}</div>
+    <div class="ticket-meta">
+      <span>👤 ${step.ticket.from}</span>
+      <span>💻 ${step.ticket.device}</span>
+    </div>
+  </div>
+  <div class="question-text">${step.question}</div>
+  <div class="choices" id="choicesArea">`;
+
+  step.choices.forEach((c,i) => {
+    html += `<button class="choice-btn" onclick="selectChoice(${i})" id="choice${i}">
+      <span class="letter">${letters[i]}</span>
+      <span>${c.text}</span>
+    </button>`;
+  });
+
+  html += `</div><div class="feedback-box" id="feedbackBox"></div>
+  <div class="next-area" id="nextArea" style="display:none;">
+    <button class="btn btn-green" onclick="nextStep()">Continue →</button>
+  </div>`;
+
+  body.innerHTML = html;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectChoice(idx) {
+  if (state.answeredThisStep) return;
+  state.answeredThisStep = true;
+
+  const m = MISSIONS[state.currentMission];
+  const step = m.steps[state.currentStep];
+  const chosen = step.choices[idx];
+  const fb = document.getElementById('feedbackBox');
+
+  // Mark buttons
+  step.choices.forEach((c,i) => {
+    const btn = document.getElementById('choice'+i);
+    btn.classList.add('disabled');
+    if (c.correct) btn.classList.add('correct');
+    if (i === idx && !c.correct) btn.classList.add('incorrect');
+    if (i !== idx && !c.correct) btn.classList.add('dimmed');
+  });
+
+  if (chosen.correct) {
+    state.score += 100;
+    state.correctCount++;
+    state.streak++;
+    if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+    state.missionScores[state.currentMission].push(true);
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = `<strong>✅ Correct! +100 points</strong>${chosen.explain}`;
+    if (state.streak >= 3) showStreakPopup(state.streak);
+  } else {
+    state.streak = 0;
+    state.missionScores[state.currentMission].push(false);
+    fb.className = 'feedback-box show incorrect-fb';
+    fb.innerHTML = `<strong>❌ Not quite.</strong>${chosen.explain}`;
+  }
+
+  document.getElementById('nextArea').style.display = 'block';
+  updateHeader();
+}
+
+function nextStep() {
+  const m = MISSIONS[state.currentMission];
+  state.currentStep++;
+  if (state.currentStep < m.steps.length) {
+    renderStep();
+  } else {
+    // Mission complete
+    state.currentMission++;
+    if (state.currentMission < MISSIONS.length) {
+      launchConfetti(15);
+      loadMission();
+    } else {
+      showResults();
+    }
+  }
+}
+
+// ========== RESULTS ==========
+function showResults() {
+  showScreen('resultsScreen');
+  launchConfetti(60);
+
+  const pct = Math.round((state.correctCount / state.totalQuestions)*100);
+  const rank = getRank(pct);
+
+  // Animate score ring
+  const circle = document.getElementById('scoreCircle');
+  const offset = 377 - (377 * pct / 100);
+  setTimeout(()=>{ circle.style.transition='stroke-dashoffset 1.5s ease'; circle.style.strokeDashoffset=offset; },100);
+  document.getElementById('finalScoreText').textContent = pct + '%';
+
+  const rkBox = document.getElementById('finalRankBox');
+  rkBox.style.background = rank.color === 'var(--gold)' ? '#D4A843' : rank.color;
+  rkBox.style.color = '#fff';
+  rkBox.textContent = `${rank.emoji} Final Rank: ${rank.name}`;
+
+  // Summary
+  let sumHtml = '';
+  MISSIONS.forEach((m,i) => {
+    const correct = state.missionScores[i].filter(x=>x).length;
+    const total = m.steps.length;
+    const icon = correct === total ? '🌟' : correct > 0 ? '✔️' : '❌';
+    sumHtml += `<div class="obj-row"><span>${icon} ${m.objective}</span><span>${correct}/${total}</span></div>`;
+  });
+  document.getElementById('resultsSummary').innerHTML = sumHtml;
+
+  // Badges
+  const badges = [
+    { name:"Policy Pro", earned: state.missionScores[0]?.every(x=>x), svg:`<svg viewBox="0 0 48 48"><rect x="8" y="6" width="32" height="36" rx="4" fill="${state.missionScores[0]?.every(x=>x)?'#1B5EAF':'#ccc'}"/><rect x="14" y="14" width="20" height="3" rx="1" fill="#fff"/><rect x="14" y="20" width="20" height="3" rx="1" fill="#fff"/><rect x="14" y="26" width="14" height="3" rx="1" fill="#fff"/></svg>` },
+    { name:"Ticket Master", earned: state.missionScores[1]?.every(x=>x), svg:`<svg viewBox="0 0 48 48"><rect x="4" y="10" width="40" height="28" rx="6" fill="${state.missionScores[1]?.every(x=>x)?'#1E7A3E':'#ccc'}"/><circle cx="24" cy="24" r="8" fill="#fff"/><text x="24" y="28" text-anchor="middle" fill="#1E7A3E" font-size="12" font-weight="700">✓</text></svg>` },
+    { name:"Triage Expert", earned: state.missionScores[2]?.every(x=>x), svg:`<svg viewBox="0 0 48 48"><polygon points="24,4 44,40 4,40" fill="${state.missionScores[2]?.every(x=>x)?'#c0392b':'#ccc'}"/><text x="24" y="34" text-anchor="middle" fill="#fff" font-size="16" font-weight="700">!</text></svg>` },
+    { name:"Communicator", earned: state.missionScores[3]?.every(x=>x), svg:`<svg viewBox="0 0 48 48"><ellipse cx="24" cy="22" rx="18" ry="14" fill="${state.missionScores[3]?.every(x=>x)?'#D4A843':'#ccc'}"/><polygon points="12,32 20,28 16,38" fill="${state.missionScores[3]?.every(x=>x)?'#D4A843':'#ccc'}"/></svg>` },
+    { name:"All-Star", earned: pct === 100, svg:`<svg viewBox="0 0 48 48"><polygon points="24,2 30,18 48,18 34,28 39,46 24,35 9,46 14,28 0,18 18,18" fill="${pct===100?'#D4A843':'#ccc'}"/></svg>` }
+  ];
+  let badgeHtml = '';
+  badges.forEach(b => {
+    badgeHtml += `<div class="badge-item ${b.earned?'earned':'locked'}">${b.svg}<div>${b.name}</div></div>`;
+  });
+  document.getElementById('badgeRow').innerHTML = badgeHtml;
+
+  updateHeader();
+}
+
+function restartGame() {
+  document.getElementById('scoreCircle').style.transition = 'none';
+  document.getElementById('scoreCircle').style.strokeDashoffset = 377;
+  showScreen('welcomeScreen');
+}
+
+// ========== EFFECTS ==========
+function launchConfetti(count) {
+  const box = document.getElementById('confettiBox');
+  const colors = ['#1B5EAF','#1E7A3E','#D4A843','#c0392b','#fff','#f39c12','#8e44ad'];
+  for (let i=0; i<count; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left = Math.random()*100 + '%';
+    el.style.background = colors[Math.floor(Math.random()*colors.length)];
+    el.style.animationDelay = (Math.random()*1.5) + 's';
+    el.style.animationDuration = (2+Math.random()*2) + 's';
+    el.style.width = (6+Math.random()*8)+'px';
+    el.style.height = (6+Math.random()*8)+'px';
+    el.style.borderRadius = Math.random()>.5?'50%':'2px';
+    box.appendChild(el);
+  }
+  setTimeout(()=>{ box.innerHTML=''; }, 4000);
+}
+
+function showStreakPopup(count) {
+  const pop = document.getElementById('streakPopup');
+  document.getElementById('streakPopupText').textContent = `🔥 ${count} in a Row!`;
+  pop.classList.add('show');
+  setTimeout(()=>pop.classList.remove('show'), 1800);
+}
+</script>
+</body>
+</html>
