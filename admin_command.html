@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Managing Windows — IT Command Center</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #14478a;
+    --uva-blue-light: #2a7de6;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #28a352;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --text: #1a2332;
+    --text-light: #5a6a7e;
+    --gold: #f5a623;
+    --red: #d94040;
+    --orange: #e67e22;
+    --streak-glow: #ff6b35;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* RIBBON BANNER */
+  .ribbon-banner {
+    background: linear-gradient(135deg, var(--uva-blue) 0%, var(--uva-blue-dark) 100%);
+    color: white; text-align: center; padding: 10px 20px;
+    font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+    position: relative; overflow: hidden;
+  }
+  .ribbon-banner::before, .ribbon-banner::after {
+    content: '◆'; margin: 0 12px; opacity: 0.5;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--uva-blue) 0%, #0d3a6e 100%);
+    color: white; padding: 18px 24px; display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo {
+    width: 48px; height: 48px; background: white; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; color: var(--uva-blue); font-size: 14px; line-height: 1;
+  }
+  .header-title h1 { font-size: 20px; font-weight: 700; }
+  .header-title p { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+  .header-stats { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+  .stat-box {
+    background: rgba(255,255,255,0.12); border-radius: 10px; padding: 8px 14px;
+    text-align: center; min-width: 80px; backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .stat-box .label { font-size: 10px; opacity: 0.75; text-transform: uppercase; letter-spacing: 1px; }
+  .stat-box .value { font-size: 20px; font-weight: 700; }
+  .rank-box { background: linear-gradient(135deg, var(--gold), #e8941a) !important; border: none !important; }
+  .rank-box .label { color: rgba(0,0,0,0.5); }
+  .rank-box .value { color: #1a1a1a; font-size: 14px; }
+  .streak-box.active { background: rgba(255,107,53,0.3) !important; border-color: var(--streak-glow) !important; animation: streakPulse 0.8s ease infinite alternate; }
+  @keyframes streakPulse { to { box-shadow: 0 0 16px rgba(255,107,53,0.5); } }
+
+  /* PROGRESS BAR */
+  .progress-wrap { background: #e2e8f0; padding: 0; margin: 0; }
+  .progress-bar-track { height: 6px; background: #cbd5e1; position: relative; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--uva-green), var(--uva-green-light)); transition: width 0.6s ease; width: 0%; }
+
+  /* MAIN CONTENT */
+  .main { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* MISSION NAV */
+  .mission-nav {
+    display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center;
+  }
+  .mission-tab {
+    padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; border: 2px solid #cbd5e1; background: white;
+    color: var(--text-light); transition: all 0.2s; user-select: none;
+  }
+  .mission-tab:hover { border-color: var(--uva-blue); color: var(--uva-blue); }
+  .mission-tab.active { background: var(--uva-blue); color: white; border-color: var(--uva-blue); }
+  .mission-tab.completed { background: var(--uva-green); color: white; border-color: var(--uva-green); }
+  .mission-tab.completed::after { content: ' ✓'; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: var(--card); border-radius: 16px; padding: 28px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06); display: none;
+    border-top: 4px solid var(--uva-blue);
+  }
+  .mission-card.active { display: block; animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .mission-header { margin-bottom: 20px; }
+  .mission-number { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--uva-blue); font-weight: 700; }
+  .mission-title { font-size: 22px; font-weight: 700; margin: 4px 0; }
+  .mission-desc { color: var(--text-light); font-size: 14px; line-height: 1.5; }
+  .mission-scenario {
+    background: linear-gradient(135deg, #eef4fb, #e8f0fe); border-left: 4px solid var(--uva-blue);
+    padding: 14px 18px; border-radius: 0 10px 10px 0; margin: 16px 0; font-size: 14px;
+    line-height: 1.6;
+  }
+  .mission-scenario strong { color: var(--uva-blue); }
+
+  /* QUESTION BLOCKS */
+  .question-block { margin: 18px 0; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
+  .question-block.correct { border-color: var(--uva-green); background: #f0fdf4; }
+  .question-block.incorrect { border-color: var(--red); background: #fef2f2; }
+  .q-label { font-weight: 700; font-size: 14px; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+  .q-num { background: var(--uva-blue); color: white; min-width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option-btn {
+    padding: 11px 16px; border-radius: 10px; border: 2px solid #e2e8f0;
+    background: white; cursor: pointer; font-size: 13px; text-align: left;
+    transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+    font-family: inherit; color: var(--text);
+  }
+  .option-btn:hover:not(.disabled) { border-color: var(--uva-blue); background: #f0f6ff; }
+  .option-btn .opt-letter {
+    min-width: 28px; height: 28px; border-radius: 50%; background: #e2e8f0;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; color: var(--text-light); flex-shrink: 0;
+  }
+  .option-btn.selected { border-color: var(--uva-blue); background: #e8f0fe; }
+  .option-btn.selected .opt-letter { background: var(--uva-blue); color: white; }
+  .option-btn.correct-answer { border-color: var(--uva-green); background: #dcfce7; }
+  .option-btn.correct-answer .opt-letter { background: var(--uva-green); color: white; }
+  .option-btn.wrong-answer { border-color: var(--red); background: #fee2e2; }
+  .option-btn.wrong-answer .opt-letter { background: var(--red); color: white; }
+  .option-btn.disabled { cursor: default; opacity: 0.85; }
+
+  /* DRAG AND DROP */
+  .drag-zone { display: flex; flex-wrap: wrap; gap: 8px; min-height: 44px; margin: 10px 0; }
+  .drag-item {
+    padding: 8px 14px; background: var(--uva-blue); color: white; border-radius: 8px;
+    cursor: grab; font-size: 13px; font-weight: 600; user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .drag-item:active { cursor: grabbing; transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  .drag-item.placed { background: var(--uva-green); cursor: default; }
+  .drop-target {
+    display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+    border: 2px dashed #cbd5e1; border-radius: 10px; margin: 8px 0;
+    min-height: 50px; transition: all 0.2s; background: #f8fafc;
+  }
+  .drop-target.drag-over { border-color: var(--uva-blue); background: #e8f0fe; }
+  .drop-target.filled { border-style: solid; border-color: var(--uva-green); background: #f0fdf4; }
+  .drop-target.wrong { border-color: var(--red); background: #fef2f2; }
+  .drop-target .dt-label { flex: 1; font-size: 13px; color: var(--text-light); }
+  .drop-target .dt-slot { min-width: 120px; min-height: 36px; background: white; border-radius: 6px; border: 1px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--text-light); padding: 6px 10px; }
+  .drop-target.filled .dt-slot { border-style: solid; border-color: var(--uva-green); color: var(--text); font-weight: 600; }
+
+  /* ORDERING */
+  .order-list { list-style: none; }
+  .order-item {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+    background: white; border: 2px solid #e2e8f0; border-radius: 10px;
+    margin: 6px 0; cursor: grab; font-size: 13px; transition: all 0.2s;
+    user-select: none;
+  }
+  .order-item:active { cursor: grabbing; box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  .order-item .order-num { min-width: 28px; height: 28px; border-radius: 50%; background: var(--uva-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
+  .order-item.correct-pos { border-color: var(--uva-green); background: #f0fdf4; }
+  .order-item.wrong-pos { border-color: var(--red); background: #fef2f2; }
+
+  /* INPUT */
+  .cmd-input {
+    font-family: 'Consolas', 'Courier New', monospace; padding: 10px 14px;
+    border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px;
+    width: 100%; max-width: 400px; background: #1a1a2e; color: #0f0;
+    outline: none; transition: border-color 0.2s;
+  }
+  .cmd-input:focus { border-color: var(--uva-blue); }
+  .cmd-input::placeholder { color: #555; }
+
+  /* FEEDBACK */
+  .feedback {
+    padding: 12px 16px; border-radius: 10px; margin-top: 10px; font-size: 13px;
+    line-height: 1.5; display: none;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback.correct { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+  .feedback.incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 11px 24px; border-radius: 10px; font-size: 14px; font-weight: 600;
+    cursor: pointer; border: none; transition: all 0.2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--uva-blue); color: white; }
+  .btn-primary:hover { background: var(--uva-blue-dark); transform: translateY(-1px); }
+  .btn-green { background: var(--uva-green); color: white; }
+  .btn-green:hover { background: #16652f; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .mission-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+
+  /* BADGE POPUP */
+  .badge-popup {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+    background: white; border-radius: 20px; padding: 32px 40px; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3); z-index: 1000;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .badge-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .badge-popup .badge-icon { font-size: 60px; margin-bottom: 12px; }
+  .badge-popup .badge-title { font-size: 20px; font-weight: 700; color: var(--uva-blue); }
+  .badge-popup .badge-desc { font-size: 14px; color: var(--text-light); margin-top: 6px; }
+  .badge-dismiss { margin-top: 16px; }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; display: none; }
+  .overlay.show { display: block; }
+
+  /* STREAK TOAST */
+  .streak-toast {
+    position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #ff6b35, #f7931e);
+    color: white; padding: 14px 22px; border-radius: 12px; font-weight: 700;
+    font-size: 16px; z-index: 500; transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 6px 20px rgba(255,107,53,0.4);
+  }
+  .streak-toast.show { transform: translateX(0); }
+
+  /* CONFETTI */
+  .confetti-piece {
+    position: fixed; width: 10px; height: 10px; z-index: 2000;
+    animation: confettiFall linear forwards; pointer-events: none;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+  }
+
+  /* COMPLETION SCREEN */
+  .completion-screen {
+    text-align: center; padding: 40px 20px; display: none;
+  }
+  .completion-screen.active { display: block; animation: fadeIn 0.5s ease; }
+  .completion-icon { font-size: 72px; margin-bottom: 16px; }
+  .completion-title { font-size: 28px; font-weight: 800; color: var(--uva-blue); }
+  .completion-subtitle { font-size: 16px; color: var(--text-light); margin: 8px 0 24px; }
+  .final-stats { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+  .final-stat {
+    background: white; border-radius: 14px; padding: 18px 24px; min-width: 130px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08); border-top: 3px solid var(--uva-blue);
+  }
+  .final-stat .fs-val { font-size: 28px; font-weight: 800; color: var(--uva-blue); }
+  .final-stat .fs-label { font-size: 12px; color: var(--text-light); margin-top: 4px; }
+  .badges-earned { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 20px 0; }
+  .badge-chip {
+    background: linear-gradient(135deg, var(--gold), #e8941a); color: #1a1a1a;
+    padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* INTRO SCREEN */
+  .intro-screen { text-align: center; padding: 40px 20px; }
+  .intro-screen h2 { font-size: 26px; color: var(--uva-blue); margin-bottom: 12px; }
+  .intro-screen p { color: var(--text-light); font-size: 15px; line-height: 1.7; max-width: 600px; margin: 0 auto 24px; }
+  .mission-preview { display: flex; flex-direction: column; gap: 10px; max-width: 520px; margin: 0 auto 28px; text-align: left; }
+  .mp-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: white; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 13px; }
+  .mp-icon { font-size: 22px; }
+
+  /* CODE STYLING */
+  code, .mono { font-family: 'Consolas', 'Courier New', monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .header { padding: 14px 16px; }
+    .header-title h1 { font-size: 16px; }
+    .mission-card { padding: 20px 16px; }
+    .mission-title { font-size: 18px; }
+    .stat-box { min-width: 60px; padding: 6px 10px; }
+    .stat-box .value { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- RIBBON -->
+<div class="ribbon-banner">Virtue, Vigor, Vision</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="header-logo">
+      <svg width="32" height="32" viewBox="0 0 32 32"><rect x="2" y="6" width="28" height="20" rx="2" fill="#1B5EAF"/><rect x="5" y="9" width="10" height="7" rx="1" fill="#fff" opacity="0.9"/><rect x="17" y="9" width="10" height="3" rx="1" fill="#fff" opacity="0.5"/><rect x="17" y="14" width="7" height="2" rx="1" fill="#fff" opacity="0.5"/><rect x="5" y="19" width="22" height="2" rx="1" fill="#1E7A3E" opacity="0.8"/><rect x="5" y="23" width="15" height="1" rx="0.5" fill="#fff" opacity="0.3"/></svg>
+    </div>
+    <div class="header-title">
+      <h1>IT Command Center</h1>
+      <p>Lesson 13 — Managing Windows | CompTIA A+ 220-1102</p>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-box rank-box" id="rankBox">
+      <div class="label">Rank</div>
+      <div class="value" id="rankDisplay">Trainee</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Score</div>
+      <div class="value" id="scoreDisplay">0</div>
+    </div>
+    <div class="stat-box streak-box" id="streakBox">
+      <div class="label">Streak</div>
+      <div class="value" id="streakDisplay">0🔥</div>
+    </div>
+    <div class="stat-box">
+      <div class="label">Missions</div>
+      <div class="value"><span id="completedMissions">0</span>/6</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- MISSION NAV -->
+  <div class="mission-nav" id="missionNav"></div>
+
+  <!-- INTRO -->
+  <div class="mission-card active" id="introScreen">
+    <div class="intro-screen">
+      <div style="font-size:56px;margin-bottom:12px;">🖥️</div>
+      <h2>Windows Admin Command Center</h2>
+      <p>Welcome, Technician! Your company is upgrading its IT infrastructure. Complete 6 missions to prove your Windows administration skills. Master management consoles, command-line tools, and advanced configuration utilities.</p>
+      <div class="mission-preview">
+        <div class="mp-item"><span class="mp-icon">🔌</span> <span><strong>Mission 1:</strong> Console Launcher — Match consoles to their .msc commands</span></div>
+        <div class="mp-item"><span class="mp-icon">⚠️</span> <span><strong>Mission 2:</strong> Device Triage — Troubleshoot drivers in Device Manager</span></div>
+        <div class="mp-item"><span class="mp-icon">💾</span> <span><strong>Mission 3:</strong> Disk Ops — Order Disk Management procedures correctly</span></div>
+        <div class="mp-item"><span class="mp-icon">⌨️</span> <span><strong>Mission 4:</strong> CLI Gauntlet — Master command-line tools &amp; switches</span></div>
+        <div class="mp-item"><span class="mp-icon">🗝️</span> <span><strong>Mission 5:</strong> Registry Recon — Identify root keys &amp; their functions</span></div>
+        <div class="mp-item"><span class="mp-icon">🏆</span> <span><strong>Mission 6:</strong> Final Assessment — Real-world scenario challenges</span></div>
+      </div>
+      <button class="btn btn-primary" onclick="startMissions()" style="font-size:16px;padding:14px 36px;">
+        🚀 Begin Missions
+      </button>
+    </div>
+  </div>
+
+  <!-- MISSIONS CONTAINER -->
+  <div id="missionsContainer"></div>
+
+  <!-- COMPLETION SCREEN -->
+  <div class="completion-screen" id="completionScreen">
+    <div class="completion-icon">🏆</div>
+    <div class="completion-title">All Missions Complete!</div>
+    <div class="completion-subtitle">Outstanding work, Technician. You've proven your Windows administration mastery.</div>
+    <div class="final-stats">
+      <div class="final-stat"><div class="fs-val" id="finalScore">0</div><div class="fs-label">Total Points</div></div>
+      <div class="final-stat"><div class="fs-val" id="finalAccuracy">0%</div><div class="fs-label">Accuracy</div></div>
+      <div class="final-stat"><div class="fs-val" id="finalRank">Trainee</div><div class="fs-label">Final Rank</div></div>
+      <div class="final-stat"><div class="fs-val" id="finalStreak">0</div><div class="fs-label">Best Streak</div></div>
+    </div>
+    <div style="margin:16px 0 8px;font-weight:700;color:var(--uva-blue);">Badges Earned</div>
+    <div class="badges-earned" id="badgesEarned"></div>
+    <button class="btn btn-primary" onclick="location.reload()" style="margin-top:20px;">🔄 Restart Missions</button>
+  </div>
+</div>
+
+<!-- STREAK TOAST -->
+<div class="streak-toast" id="streakToast"></div>
+
+<!-- BADGE POPUP -->
+<div class="overlay" id="overlay"></div>
+<div class="badge-popup" id="badgePopup">
+  <div class="badge-icon" id="badgeIcon"></div>
+  <div class="badge-title" id="badgeTitle"></div>
+  <div class="badge-desc" id="badgeDesc"></div>
+  <button class="btn btn-primary badge-dismiss" onclick="closeBadge()">Continue</button>
+</div>
+
+<script>
+// ========== GAME STATE ==========
+const state = {
+  score: 0, streak: 0, bestStreak: 0, totalQs: 0, correctQs: 0,
+  currentMission: -1, completedMissions: new Set(),
+  badges: [], rank: 'Trainee'
+};
+
+const RANKS = [
+  { name: 'Trainee', min: 0 },
+  { name: 'Apprentice', min: 150 },
+  { name: 'Expert', min: 350 },
+  { name: 'Master', min: 550 }
+];
+
+const BADGES = {
+  firstBlood: { icon: '🎯', title: 'First Strike', desc: 'Complete your first mission' },
+  streak3: { icon: '🔥', title: 'On Fire!', desc: '3 correct answers in a row' },
+  streak5: { icon: '⚡', title: 'Unstoppable', desc: '5 correct answers in a row' },
+  perfect: { icon: '💎', title: 'Perfect Mission', desc: 'Complete a mission with no mistakes' },
+  cliMaster: { icon: '⌨️', title: 'CLI Master', desc: 'Complete the CLI Gauntlet' },
+  allClear: { icon: '🏆', title: 'Windows Admin', desc: 'Complete all 6 missions' },
+  registryPro: { icon: '🗝️', title: 'Registry Pro', desc: 'Ace the Registry Recon mission' },
+};
+
+// ========== MISSION DATA ==========
+const missions = [
+  // MISSION 1: Drag-drop console matching
+  {
+    id: 1, title: 'Console Launcher', icon: '🔌',
+    desc: 'As the new IT admin, you need quick access to Windows management consoles. Match each console to its correct .msc launch command.',
+    scenario: 'Your manager says: "I need you to set up custom MMC shortcuts for the team. Show me you know which command opens which console."',
+    type: 'dragdrop',
+    pairs: [
+      { label: 'Device Manager — View/edit hardware, update drivers', answer: 'devmgmt.msc' },
+      { label: 'Disk Management — Manage partitions and volumes', answer: 'diskmgmt.msc' },
+      { label: 'Group Policy Editor — Configure Windows policies', answer: 'gpedit.msc' },
+      { label: 'Certificate Manager — Manage digital certificates', answer: 'certmgr.msc' },
+      { label: 'Local Security Policy — Modify security settings', answer: 'secpol.msc' },
+      { label: 'Task Scheduler — Automate commands and scripts', answer: 'taskschd.msc' },
+    ],
+    dragItems: ['devmgmt.msc','secpol.msc','taskschd.msc','certmgr.msc','diskmgmt.msc','gpedit.msc'],
+    points: 15
+  },
+  // MISSION 2: Device Manager scenarios
+  {
+    id: 2, title: 'Device Triage', icon: '⚠️',
+    desc: 'Users are reporting hardware problems after the IT infrastructure upgrade. Use your Device Manager knowledge to resolve each ticket.',
+    scenario: 'The helpdesk queue is filling up. Three urgent tickets need your expertise with Device Manager troubleshooting.',
+    type: 'mcq',
+    questions: [
+      {
+        q: 'Ticket #1: A user\'s keyboard shows a <strong>yellow exclamation mark (⚠️)</strong> in Device Manager and is listed as "Unknown Device." What does this indicator mean?',
+        options: [
+          'The device is disabled by the administrator',
+          'Windows cannot find a compatible driver for the device',
+          'The device has been safely removed',
+          'The device driver is up to date but unused'
+        ],
+        correct: 1,
+        explanation: 'A yellow exclamation mark (!) in Device Manager means Windows identified the device but failed to find a working driver, resulting in an "Unknown Device" or generic listing. The OS cannot communicate properly with the hardware.'
+      },
+      {
+        q: 'Ticket #2: After updating a display driver, the user\'s screen flickers constantly. What is the <strong>best first action</strong> in Device Manager?',
+        options: [
+          'Uninstall the device completely',
+          'Disable the display adapter',
+          'Use the "Roll Back Driver" option on the Driver tab',
+          'Run Windows Update to find a newer driver'
+        ],
+        correct: 2,
+        explanation: 'Roll Back Driver returns the device to the previously installed driver version. This is the safest first action when a driver update causes system instability, as it doesn\'t remove the device or leave the user without display output.'
+      },
+      {
+        q: 'Ticket #3: A technician physically removed a USB scanner without ejecting it first. The driver is still installed. What happens when the scanner is reconnected?',
+        options: [
+          'Windows will require a complete driver reinstallation',
+          'The device will appear as "Unknown Device"',
+          'Windows Plug and Play will automatically detect it using the existing driver',
+          'The device will be permanently disabled'
+        ],
+        correct: 2,
+        explanation: 'Physically removing a Plug and Play device keeps the driver installed for future detection. When reconnected, Windows PnP detects the device and uses the existing driver. You would need to explicitly "Uninstall device" to remove the driver software.'
+      },
+      {
+        q: 'Ticket #4: You need to temporarily prevent a malfunctioning webcam from affecting system performance without removing it. In Device Manager, you should:',
+        options: [
+          'Right-click the device and select "Uninstall device"',
+          'Right-click the device and select "Disable device"',
+          'Delete the driver files from System32',
+          'Use the Safely Remove Hardware icon in the taskbar'
+        ],
+        correct: 1,
+        explanation: 'Disabling a device in Device Manager prevents it from affecting system performance while keeping the driver installed. Disabled devices show a down arrow icon (↓). This is ideal when seeking a replacement or waiting for a driver fix.'
+      }
+    ],
+    points: 25
+  },
+  // MISSION 3: Disk Management ordering
+  {
+    id: 3, title: 'Disk Ops', icon: '💾',
+    desc: 'A new SSD has been installed in a workstation. Put the Disk Management steps in the correct order to prepare it for use.',
+    scenario: 'The shipping department received a new 1TB SSD. You need to make it available as drive D: with the NTFS file system. Arrange the steps in the correct workflow order.',
+    type: 'ordering',
+    items: [
+      { id: 'a', text: 'Initialize the disk — Choose MBR or GPT partition style', correctPos: 0 },
+      { id: 'b', text: 'Right-click unpartitioned space — Create a new partition using the wizard', correctPos: 1 },
+      { id: 'c', text: 'Format the partition — Select NTFS file system and assign volume label', correctPos: 2 },
+      { id: 'd', text: 'Assign drive letter D: to the new volume', correctPos: 3 },
+      { id: 'e', text: 'Verify volume shows "Healthy" status in Disk Management', correctPos: 4 },
+    ],
+    followup: [
+      {
+        q: 'The boot volume on Disk 0 shows only 15% free space. Based on the lesson, what warning does Windows display?',
+        options: [
+          'Critical Storage Error when below 10%',
+          'Low Disk Space warning when below 200 MB',
+          'Disk Failure Imminent at 5% free space',
+          'Volume Degraded warning at 25% free'
+        ],
+        correct: 1,
+        explanation: 'Windows triggers a Low Disk Space warning when a volume drops below 200 MB of free space. Performance suffers when the boot volume has less than 20% free space.'
+      },
+      {
+        q: 'Which file system is <strong>required</strong> for the Windows boot partition (where the OS is installed)?',
+        options: ['FAT32', 'exFAT', 'NTFS', 'ext4'],
+        correct: 2,
+        explanation: 'NTFS is the required file system for the Windows boot partition (containing the operating system files). FAT32 is used for the EFI System Partition and for small removable drives.'
+      }
+    ],
+    points: 20
+  },
+  // MISSION 4: CLI Gauntlet
+  {
+    id: 4, title: 'CLI Gauntlet', icon: '⌨️',
+    desc: 'Prove your command-line mastery. Identify the correct commands and switches for real-world IT tasks.',
+    scenario: 'Your team lead wants you to automate several routine maintenance tasks. For each scenario, choose the correct command or syntax.',
+    type: 'mcq',
+    questions: [
+      {
+        q: 'You need to scan and <strong>repair file system errors</strong> on drive C:. Which command and switch do you use?',
+        options: [
+          'sfc /scannow',
+          'chkdsk C: /f',
+          'chkdsk C: /r',
+          'diskpart /fix C:'
+        ],
+        correct: 1,
+        explanation: 'chkdsk C: /f attempts to fix file system errors. The /f switch specifically targets file system errors. The /r switch goes further by also recovering data from bad sectors, but /f is the correct answer for fixing file system errors specifically.'
+      },
+      {
+        q: 'A user reports possible OS corruption. Which command should you run <strong>first</strong> to verify and replace corrupted system files?',
+        options: [
+          'chkdsk C: /r',
+          'winver',
+          'sfc /scannow',
+          'robocopy /verify'
+        ],
+        correct: 2,
+        explanation: 'sfc /scannow is the vital "first response" tool. It runs an immediate scan checking the integrity of all protected system files and replaces corrupted ones from the local WinSxS cache—potentially fixing OS crashes without a full reinstall.'
+      },
+      {
+        q: 'You need to copy a large directory <strong>including all empty subdirectories</strong> while <strong>excluding .log files</strong>. Which command do you use?',
+        options: [
+          'copy /s /xf *.log Source Dest',
+          'xcopy Source Dest /e /exclude:*.log',
+          'robocopy Source Dest /e /xf *.log',
+          'move Source Dest /s /xf *.log'
+        ],
+        correct: 2,
+        explanation: 'robocopy with /e copies all subdirectories including empty ones, and /xf excludes files matching the pattern. Microsoft recommends robocopy over xcopy for better handling of long filenames and NTFS attributes.'
+      },
+      {
+        q: 'A command fails with: <em>"The requested operation requires elevation."</em> What must you do?',
+        options: [
+          'Log out and log back in',
+          'Run Command Prompt as Administrator (right-click → Run as administrator)',
+          'Add /admin switch to the command',
+          'Restart the computer in Safe Mode'
+        ],
+        correct: 1,
+        explanation: 'The elevation error means the command requires administrative privileges. Right-click Command Prompt and select "Run as administrator" (or press Ctrl+Shift+Enter from search). The title bar will show "Administrator: Command Prompt."'
+      },
+      {
+        q: 'A user gets "Access Denied" errors. Which <code>whoami</code> command shows their <strong>security group memberships</strong> for troubleshooting?',
+        options: [
+          'whoami /user',
+          'whoami /priv',
+          'whoami /groups',
+          'whoami /all'
+        ],
+        correct: 2,
+        explanation: 'whoami /groups displays all security groups the current user belongs to, which is critical when troubleshooting "Access Denied" errors. whoami /priv shows user privileges instead.'
+      },
+      {
+        q: 'Which command displays the <strong>Windows version, feature update code, and OS Build number</strong>?',
+        options: [
+          'systeminfo',
+          'ver',
+          'winver',
+          'hostname'
+        ],
+        correct: 2,
+        explanation: 'The winver command provides Windows version information including: Windows 10 or 11 identification, the version/feature update code (e.g., 21H1), and the OS Build number (used to look up patches in Microsoft Knowledge Base).'
+      }
+    ],
+    points: 25
+  },
+  // MISSION 5: Registry Recon
+  {
+    id: 5, title: 'Registry Recon', icon: '🗝️',
+    desc: 'Navigate the Windows Registry. Match each root key to its function and demonstrate your knowledge of safe registry practices.',
+    scenario: 'A senior technician asks you to explain the Registry structure before granting you edit access. Prove you understand each root key\'s purpose.',
+    type: 'mcq',
+    questions: [
+      {
+        q: 'Which registry root key manages <strong>system-wide settings</strong> that apply to every user on the computer?',
+        options: [
+          'HKEY_CURRENT_USER (HKCU)',
+          'HKEY_LOCAL_MACHINE (HKLM)',
+          'HKEY_USERS (HKU)',
+          'HKEY_CURRENT_CONFIG (HKCC)'
+        ],
+        correct: 1,
+        explanation: 'HKEY_LOCAL_MACHINE (HKLM) manages system-wide settings that affect all users. If you want to change a setting for every person who logs into that computer, HKLM is the correct root key.'
+      },
+      {
+        q: 'HKEY_CLASSES_ROOT (HKCR) primarily stores information about:',
+        options: [
+          'Current hardware profiles used at startup',
+          'Individual user desktop personalization settings',
+          'Registered applications, file associations, and OLE object classes',
+          'System-wide password policies'
+        ],
+        correct: 2,
+        explanation: 'HKCR contains information about registered applications, file associations, and OLE object classes. It determines which application opens when you double-click a file type (e.g., .docx opens in Word).'
+      },
+      {
+        q: 'Before editing any registry keys, what critical safety step should you <strong>always</strong> perform?',
+        options: [
+          'Create a new user account as backup',
+          'Run chkdsk /f on the system drive',
+          'Export the registry keys you plan to modify',
+          'Disable Windows Defender temporarily'
+        ],
+        correct: 2,
+        explanation: 'Always Export registry keys before making changes. The exported .reg file can be merged back (double-clicked) to restore the original values if a mistake is made. Registry errors can damage the OS.'
+      },
+      {
+        q: 'Which root key is a <strong>subset of HKEY_USERS</strong> containing settings only for the currently logged-in user?',
+        options: [
+          'HKEY_LOCAL_MACHINE',
+          'HKEY_CURRENT_CONFIG',
+          'HKEY_CURRENT_USER',
+          'HKEY_CLASSES_ROOT'
+        ],
+        correct: 2,
+        explanation: 'HKEY_CURRENT_USER (HKCU) is a subset of HKEY_USERS (HKU) that contains settings specific to the logged-in user, such as desktop wallpaper, application preferences, and environment variables.'
+      },
+      {
+        q: 'The <strong>Group Policy Editor</strong> is preferred over directly editing the registry because:',
+        options: [
+          'It is faster to open than Registry Editor',
+          'It provides a safe, structured way to configure Windows settings and can be applied across multiple computers',
+          'It automatically backs up the registry before changes',
+          'It only affects the current user\'s settings'
+        ],
+        correct: 1,
+        explanation: 'Group Policy Editor offers a robust, structured way to configure Windows settings without directly editing the registry. In large networks, it efficiently applies settings across multiple computers, avoiding manual configuration on each machine.'
+      }
+    ],
+    points: 25
+  },
+  // MISSION 6: Final Assessment
+  {
+    id: 6, title: 'Final Assessment', icon: '🏆',
+    desc: 'Real-world scenario challenges combining everything you\'ve learned. Think like a working IT technician.',
+    scenario: 'It\'s your final evaluation day. Your IT director presents challenging scenarios that test your ability to combine multiple tools and concepts. Choose wisely.',
+    type: 'mcq',
+    questions: [
+      {
+        q: '<strong>Scenario:</strong> You need to delete all volumes on a disk, but the Disk Management GUI won\'t allow it because it includes a system volume. Which command-line tool can perform this destructive action?',
+        options: [
+          'format /force',
+          'sfc /clean',
+          'diskpart',
+          'chkdsk /wipe'
+        ],
+        correct: 2,
+        explanation: 'Unlike the Disk Management GUI, diskpart allows destructive actions such as deleting system or boot volumes. This is why it must be used with extreme caution—it can destroy critical data the GUI tool would protect.'
+      },
+      {
+        q: '<strong>Scenario:</strong> You want to automate a weekly virus scan script. In Task Scheduler, the "event" that causes the script to run at the scheduled time is called a:',
+        options: [
+          'Action',
+          'Trigger',
+          'Condition',
+          'Credential'
+        ],
+        correct: 1,
+        explanation: 'In Task Scheduler, a Trigger is the event that starts a task—such as a calendar date/time, user sign-in, or the machine waking from sleep. The Action is what the task actually performs (running the script).'
+      },
+      {
+        q: '<strong>Scenario:</strong> A Microsoft Management Console (MMC) contains snap-ins like Device Manager and Disk Management. Custom consoles are saved with which file extension?',
+        options: [
+          '.exe',
+          '.dll',
+          '.msc',
+          '.mmc'
+        ],
+        correct: 2,
+        explanation: 'MMC is a customizable container for snap-ins. Custom consoles are saved as .msc files (Microsoft Saved Console) in the Administrative Tools folder. Examples: devmgmt.msc, diskmgmt.msc, gpedit.msc.'
+      },
+      {
+        q: '<strong>Scenario:</strong> An SSD in a workstation needs optimization. Instead of defragmentation, the Optimize Drives tool runs a different operation on SSDs. What is it?',
+        options: [
+          'Disk Cleanup',
+          'Wear Leveling',
+          'TRIM',
+          'Secure Erase'
+        ],
+        correct: 2,
+        explanation: 'On SSDs, the optimizer runs TRIM operations, which allow the drive controller to mark OS-deleted data as writable. Traditional defragmentation (reorganizing contiguous clusters) is an HDD concept. SSD controllers use wear-leveling routines internally.'
+      },
+      {
+        q: '<strong>Scenario:</strong> You need to recover readable data from bad sectors on a failing hard drive. Which is the <strong>most appropriate</strong> command?',
+        options: [
+          'sfc /scannow',
+          'chkdsk D: /f',
+          'chkdsk D: /r',
+          'format D: /fs:NTFS'
+        ],
+        correct: 2,
+        explanation: 'chkdsk /r fixes file system errors AND attempts to recover readable information from bad sectors, saving data as filennnn.chk files. The /f switch only fixes file system errors without attempting bad sector recovery.'
+      }
+    ],
+    points: 25
+  }
+];
+
+// ========== INITIALIZATION ==========
+function init() {
+  buildMissionNav();
+  buildAllMissions();
+}
+
+function buildMissionNav() {
+  const nav = document.getElementById('missionNav');
+  nav.innerHTML = '';
+  missions.forEach((m, i) => {
+    const tab = document.createElement('div');
+    tab.className = 'mission-tab';
+    tab.dataset.idx = i;
+    tab.textContent = `${m.icon} M${m.id}`;
+    tab.title = m.title;
+    tab.onclick = () => showMission(i);
+    nav.appendChild(tab);
+  });
+}
+
+function buildAllMissions() {
+  const container = document.getElementById('missionsContainer');
+  container.innerHTML = '';
+  missions.forEach((m, idx) => {
+    const card = document.createElement('div');
+    card.className = 'mission-card';
+    card.id = `mission-${idx}`;
+    let inner = `
+      <div class="mission-header">
+        <div class="mission-number">Mission ${m.id} of 6</div>
+        <div class="mission-title">${m.icon} ${m.title}</div>
+        <div class="mission-desc">${m.desc}</div>
+      </div>
+      <div class="mission-scenario"><strong>📋 Briefing:</strong> ${m.scenario}</div>
+      <div id="mission-body-${idx}"></div>
+      <div class="mission-actions">
+        <button class="btn btn-primary" id="checkBtn-${idx}" onclick="checkMission(${idx})">✅ Submit Answers</button>
+        <button class="btn btn-green" id="nextBtn-${idx}" onclick="nextMission(${idx})" style="display:none;">Next Mission →</button>
+      </div>
+    `;
+    card.innerHTML = inner;
+    container.appendChild(card);
+    buildMissionBody(m, idx);
+  });
+}
+
+function buildMissionBody(m, idx) {
+  const body = document.getElementById(`mission-body-${idx}`);
+  if (m.type === 'dragdrop') buildDragDrop(m, idx, body);
+  else if (m.type === 'mcq') buildMCQ(m, idx, body);
+  else if (m.type === 'ordering') buildOrdering(m, idx, body);
+}
+
+// ========== DRAG AND DROP ==========
+function buildDragDrop(m, idx, body) {
+  let html = '<div class="drag-zone" id="dragSource-' + idx + '">';
+  const shuffled = [...m.dragItems].sort(() => Math.random() - 0.5);
+  shuffled.forEach(item => {
+    html += `<div class="drag-item" draggable="true" data-value="${item}" ondragstart="onDragStart(event)">${item}</div>`;
+  });
+  html += '</div><div style="margin-top:16px;">';
+  m.pairs.forEach((p, i) => {
+    html += `<div class="drop-target" data-answer="${p.answer}" data-idx="${i}" ondragover="onDragOver(event)" ondrop="onDrop(event, ${idx})" ondragleave="onDragLeave(event)">
+      <div class="dt-label">${p.label}</div>
+      <div class="dt-slot" id="slot-${idx}-${i}">Drop here</div>
+    </div>`;
+  });
+  html += '</div><div class="feedback" id="feedback-dd-' + idx + '"></div>';
+  body.innerHTML = html;
+}
+
+let dragData = null;
+function onDragStart(e) {
+  dragData = e.target.dataset.value;
+  e.target.style.opacity = '0.5';
+  setTimeout(() => { e.target.style.opacity = '1'; }, 0);
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function onDrop(e, mIdx) {
+  e.preventDefault();
+  const target = e.currentTarget;
+  target.classList.remove('drag-over');
+  if (!dragData) return;
+  const slot = target.querySelector('.dt-slot');
+  // Remove from old slot if placed elsewhere
+  document.querySelectorAll(`#mission-body-${mIdx} .dt-slot`).forEach(s => {
+    if (s.textContent === dragData) {
+      s.textContent = 'Drop here';
+      s.parentElement.classList.remove('filled');
+      // Put item back
+      const src = document.getElementById(`dragSource-${mIdx}`);
+      const item = document.createElement('div');
+      item.className = 'drag-item'; item.draggable = true;
+      item.dataset.value = dragData; item.textContent = dragData;
+      item.ondragstart = onDragStart;
+      src.appendChild(item);
+    }
+  });
+  // Remove previous item in this slot
+  if (slot.textContent !== 'Drop here') {
+    const prev = slot.textContent;
+    slot.textContent = 'Drop here'; target.classList.remove('filled');
+    const src = document.getElementById(`dragSource-${mIdx}`);
+    const item = document.createElement('div');
+    item.className = 'drag-item'; item.draggable = true;
+    item.dataset.value = prev; item.textContent = prev;
+    item.ondragstart = onDragStart;
+    src.appendChild(item);
+  }
+  slot.textContent = dragData;
+  target.classList.add('filled');
+  // Remove from source
+  const src = document.getElementById(`dragSource-${mIdx}`);
+  src.querySelectorAll('.drag-item').forEach(di => {
+    if (di.dataset.value === dragData) di.remove();
+  });
+  dragData = null;
+}
+
+// ========== MCQ ==========
+function buildMCQ(m, idx, body) {
+  let html = '';
+  m.questions.forEach((q, qi) => {
+    html += `<div class="question-block" id="qblock-${idx}-${qi}">
+      <div class="q-label"><span class="q-num">${qi+1}</span> <span>${q.q}</span></div>
+      <div class="options">`;
+    const letters = ['A','B','C','D'];
+    q.options.forEach((opt, oi) => {
+      html += `<button class="option-btn" data-q="${qi}" data-o="${oi}" data-m="${idx}" onclick="selectOption(this)">
+        <span class="opt-letter">${letters[oi]}</span> <span>${opt}</span>
+      </button>`;
+    });
+    html += `</div><div class="feedback" id="fb-${idx}-${qi}"></div></div>`;
+  });
+  body.innerHTML = html;
+}
+
+function selectOption(btn) {
+  if (btn.classList.contains('disabled')) return;
+  const m = btn.dataset.m, q = btn.dataset.q;
+  document.querySelectorAll(`button[data-m="${m}"][data-q="${q}"]`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ========== ORDERING ==========
+function buildOrdering(m, idx, body) {
+  const shuffled = [...m.items].sort(() => Math.random() - 0.5);
+  let html = '<p style="font-size:13px;color:var(--text-light);margin-bottom:8px;">↕️ Drag to reorder (or use the arrow buttons):</p>';
+  html += `<ul class="order-list" id="orderList-${idx}">`;
+  shuffled.forEach((item, i) => {
+    html += `<li class="order-item" data-id="${item.id}" draggable="true">
+      <span class="order-num">${i+1}</span>
+      <span style="flex:1">${item.text}</span>
+      <span style="cursor:pointer;font-size:18px;" onclick="moveOrder(${idx}, '${item.id}', -1)">▲</span>
+      <span style="cursor:pointer;font-size:18px;" onclick="moveOrder(${idx}, '${item.id}', 1)">▼</span>
+    </li>`;
+  });
+  html += '</ul><div class="feedback" id="feedback-order-' + idx + '"></div>';
+  // Follow-up questions
+  if (m.followup) {
+    html += '<div id="followup-' + idx + '" style="margin-top:16px;">';
+    m.followup.forEach((fq, fi) => {
+      html += `<div class="question-block" id="qblock-${idx}-f${fi}">
+        <div class="q-label"><span class="q-num">Q</span> <span>${fq.q}</span></div>
+        <div class="options">`;
+      const letters = ['A','B','C','D'];
+      fq.options.forEach((opt, oi) => {
+        html += `<button class="option-btn" data-q="f${fi}" data-o="${oi}" data-m="${idx}" onclick="selectOption(this)">
+          <span class="opt-letter">${letters[oi]}</span> <span>${opt}</span>
+        </button>`;
+      });
+      html += `</div><div class="feedback" id="fb-${idx}-f${fi}"></div></div>`;
+    });
+    html += '</div>';
+  }
+  body.innerHTML = html;
+  // Drag reorder
+  initOrderDrag(idx);
+}
+
+function initOrderDrag(idx) {
+  const list = document.getElementById(`orderList-${idx}`);
+  if (!list) return;
+  let dragEl = null;
+  list.querySelectorAll('.order-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragEl = item; item.style.opacity = '0.4';
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => { item.style.opacity = '1'; dragEl = null; updateOrderNums(idx); });
+    item.addEventListener('dragover', e => { e.preventDefault(); });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      if (dragEl && dragEl !== item) {
+        const items = [...list.children];
+        const from = items.indexOf(dragEl), to = items.indexOf(item);
+        if (from < to) list.insertBefore(dragEl, item.nextSibling);
+        else list.insertBefore(dragEl, item);
+      }
+      updateOrderNums(idx);
+    });
+  });
+}
+
+function moveOrder(idx, id, dir) {
+  const list = document.getElementById(`orderList-${idx}`);
+  const items = [...list.children];
+  const el = items.find(i => i.dataset.id === id);
+  if (!el) return;
+  const i = items.indexOf(el);
+  if (dir === -1 && i > 0) list.insertBefore(el, items[i-1]);
+  else if (dir === 1 && i < items.length - 1) list.insertBefore(items[i+1], el);
+  updateOrderNums(idx);
+}
+
+function updateOrderNums(idx) {
+  const list = document.getElementById(`orderList-${idx}`);
+  list.querySelectorAll('.order-item').forEach((item, i) => {
+    item.querySelector('.order-num').textContent = i + 1;
+  });
+}
+
+// ========== CHECK / GRADE MISSIONS ==========
+function checkMission(idx) {
+  const m = missions[idx];
+  let correct = 0, total = 0;
+  if (m.type === 'dragdrop') {
+    const targets = document.querySelectorAll(`#mission-body-${idx} .drop-target`);
+    targets.forEach(t => {
+      total++;
+      const slot = t.querySelector('.dt-slot');
+      if (slot.textContent === t.dataset.answer) {
+        correct++; t.classList.add('filled'); t.classList.remove('wrong');
+      } else {
+        t.classList.add('wrong'); t.classList.remove('filled');
+      }
+    });
+    showFeedbackBlock(`feedback-dd-${idx}`, correct, total, 'All consoles matched to their correct .msc commands!');
+  } else if (m.type === 'mcq') {
+    m.questions.forEach((q, qi) => {
+      total++;
+      const btns = document.querySelectorAll(`button[data-m="${idx}"][data-q="${qi}"]`);
+      const selected = document.querySelector(`button[data-m="${idx}"][data-q="${qi}"].selected`);
+      btns.forEach(b => { b.classList.add('disabled'); b.onclick = null; });
+      const correctBtn = btns[q.correct];
+      correctBtn.classList.add('correct-answer');
+      if (selected && parseInt(selected.dataset.o) === q.correct) {
+        correct++;
+        showFB(`fb-${idx}-${qi}`, true, q.explanation);
+      } else {
+        if (selected) selected.classList.add('wrong-answer');
+        showFB(`fb-${idx}-${qi}`, false, q.explanation);
+      }
+      document.getElementById(`qblock-${idx}-${qi}`).classList.add(selected && parseInt(selected.dataset.o) === q.correct ? 'correct' : 'incorrect');
+    });
+  } else if (m.type === 'ordering') {
+    const list = document.getElementById(`orderList-${idx}`);
+    const items = [...list.children];
+    const mItems = m.items;
+    let orderCorrect = 0;
+    items.forEach((el, i) => {
+      const orig = mItems.find(mi => mi.id === el.dataset.id);
+      if (orig.correctPos === i) {
+        orderCorrect++; el.classList.add('correct-pos'); el.classList.remove('wrong-pos');
+      } else {
+        el.classList.add('wrong-pos'); el.classList.remove('correct-pos');
+      }
+    });
+    total += items.length;
+    correct += orderCorrect;
+    showFeedbackBlock(`feedback-order-${idx}`, orderCorrect, items.length, 'Perfect workflow order! Initialize → Partition → Format → Assign Letter → Verify.');
+    // Check followup
+    if (m.followup) {
+      m.followup.forEach((fq, fi) => {
+        total++;
+        const btns = document.querySelectorAll(`button[data-m="${idx}"][data-q="f${fi}"]`);
+        const selected = document.querySelector(`button[data-m="${idx}"][data-q="f${fi}"].selected`);
+        btns.forEach(b => { b.classList.add('disabled'); b.onclick = null; });
+        btns[fq.correct].classList.add('correct-answer');
+        if (selected && parseInt(selected.dataset.o) === fq.correct) {
+          correct++;
+          showFB(`fb-${idx}-f${fi}`, true, fq.explanation);
+        } else {
+          if (selected) selected.classList.add('wrong-answer');
+          showFB(`fb-${idx}-f${fi}`, false, fq.explanation);
+        }
+      });
+    }
+  }
+
+  // Score
+  const earned = Math.round((correct / total) * m.points);
+  state.score += earned;
+  state.totalQs += total;
+  state.correctQs += correct;
+
+  // Streak
+  if (correct === total) {
+    state.streak += total;
+    if (!state.badges.includes('perfect')) awardBadge('perfect');
+  } else {
+    // Add individual corrects to streak, reset on first wrong
+    for (let i = 0; i < correct; i++) state.streak++;
+    state.streak = correct; // Reset streak to how many were correct
+  }
+  if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+  if (state.streak >= 3 && !state.badges.includes('streak3')) awardBadge('streak3');
+  if (state.streak >= 5 && !state.badges.includes('streak5')) awardBadge('streak5');
+  if (state.streak >= 3) showStreakToast(state.streak);
+
+  // Mission-specific badges
+  if (idx === 3 && correct === total && !state.badges.includes('cliMaster')) awardBadge('cliMaster');
+  if (idx === 4 && correct === total && !state.badges.includes('registryPro')) awardBadge('registryPro');
+
+  // Mark complete
+  state.completedMissions.add(idx);
+  if (!state.badges.includes('firstBlood')) awardBadge('firstBlood');
+  if (state.completedMissions.size === 6 && !state.badges.includes('allClear')) {
+    awardBadge('allClear');
+    launchConfetti();
+  }
+
+  updateUI();
+  document.getElementById(`checkBtn-${idx}`).style.display = 'none';
+  if (idx < missions.length - 1) {
+    document.getElementById(`nextBtn-${idx}`).style.display = 'inline-flex';
+  } else {
+    const nxtBtn = document.getElementById(`nextBtn-${idx}`);
+    nxtBtn.textContent = '🏁 View Results';
+    nxtBtn.style.display = 'inline-flex';
+    nxtBtn.onclick = () => showCompletion();
+  }
+}
+
+function showFB(id, isCorrect, explanation) {
+  const el = document.getElementById(id);
+  el.className = 'feedback show ' + (isCorrect ? 'correct' : 'incorrect');
+  el.innerHTML = (isCorrect ? '✅ <strong>Correct!</strong> ' : '❌ <strong>Not quite.</strong> ') + explanation;
+}
+
+function showFeedbackBlock(id, correct, total, perfectMsg) {
+  const el = document.getElementById(id);
+  if (correct === total) {
+    el.className = 'feedback show correct';
+    el.innerHTML = `✅ <strong>Perfect! ${correct}/${total}</strong> — ${perfectMsg}`;
+  } else {
+    el.className = 'feedback show incorrect';
+    el.innerHTML = `⚠️ <strong>${correct}/${total} correct.</strong> Review the items marked in red and study the correct order.`;
+  }
+}
+
+// ========== NAVIGATION ==========
+function startMissions() {
+  document.getElementById('introScreen').classList.remove('active');
+  showMission(0);
+}
+
+function showMission(idx) {
+  if (idx < 0 || idx >= missions.length) return;
+  state.currentMission = idx;
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  document.getElementById(`mission-${idx}`).classList.add('active');
+  updateNav();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function nextMission(idx) {
+  if (idx < missions.length - 1) showMission(idx + 1);
+  else showCompletion();
+}
+
+function updateNav() {
+  document.querySelectorAll('.mission-tab').forEach(tab => {
+    const i = parseInt(tab.dataset.idx);
+    tab.classList.remove('active','completed');
+    if (i === state.currentMission) tab.classList.add('active');
+    if (state.completedMissions.has(i)) tab.classList.add('completed');
+  });
+}
+
+// ========== UI UPDATES ==========
+function updateUI() {
+  // Score
+  document.getElementById('scoreDisplay').textContent = state.score;
+  // Streak
+  document.getElementById('streakDisplay').textContent = state.streak + '🔥';
+  const sb = document.getElementById('streakBox');
+  if (state.streak >= 3) sb.classList.add('active'); else sb.classList.remove('active');
+  // Rank
+  let rank = RANKS[0].name;
+  for (const r of RANKS) { if (state.score >= r.min) rank = r.name; }
+  state.rank = rank;
+  document.getElementById('rankDisplay').textContent = rank;
+  // Missions completed
+  document.getElementById('completedMissions').textContent = state.completedMissions.size;
+  // Progress bar
+  document.getElementById('progressFill').style.width = ((state.completedMissions.size / 6) * 100) + '%';
+  updateNav();
+}
+
+// ========== BADGES ==========
+function awardBadge(key) {
+  if (state.badges.includes(key)) return;
+  state.badges.push(key);
+  const b = BADGES[key];
+  document.getElementById('badgeIcon').textContent = b.icon;
+  document.getElementById('badgeTitle').textContent = b.title;
+  document.getElementById('badgeDesc').textContent = b.desc;
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('badgePopup').classList.add('show');
+  miniConfetti();
+}
+
+function closeBadge() {
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('badgePopup').classList.remove('show');
+}
+
+// ========== STREAK TOAST ==========
+function showStreakToast(n) {
+  const t = document.getElementById('streakToast');
+  t.textContent = `${n} in a row! 🔥`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ========== CONFETTI ==========
+function launchConfetti() {
+  const colors = ['#1B5EAF','#1E7A3E','#f5a623','#ff6b35','#e74c3c','#9b59b6','#2ecc71'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.top = '-10px';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (Math.random() * 8 + 6) + 'px';
+      piece.style.height = (Math.random() * 8 + 6) + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 4000);
+    }, i * 30);
+  }
+}
+
+function miniConfetti() {
+  const colors = ['#f5a623','#1B5EAF','#1E7A3E','#ff6b35'];
+  for (let i = 0; i < 20; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = (40 + Math.random() * 20) + 'vw';
+      piece.style.top = '30vh';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (Math.random() * 6 + 4) + 'px';
+      piece.style.height = (Math.random() * 6 + 4) + 'px';
+      piece.style.borderRadius = '50%';
+      piece.style.animationDuration = (Math.random() * 1.5 + 1.5) + 's';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 3000);
+    }, i * 40);
+  }
+}
+
+// ========== COMPLETION ==========
+function showCompletion() {
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('missionNav').style.display = 'none';
+  const cs = document.getElementById('completionScreen');
+  cs.classList.add('active');
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('finalAccuracy').textContent = state.totalQs > 0 ? Math.round((state.correctQs / state.totalQs) * 100) + '%' : '0%';
+  document.getElementById('finalRank').textContent = state.rank;
+  document.getElementById('finalStreak').textContent = state.bestStreak;
+  const be = document.getElementById('badgesEarned');
+  be.innerHTML = '';
+  if (state.badges.length === 0) {
+    be.innerHTML = '<span style="color:var(--text-light);font-size:13px;">No badges earned. Try again!</span>';
+  } else {
+    state.badges.forEach(key => {
+      const b = BADGES[key];
+      be.innerHTML += `<div class="badge-chip">${b.icon} ${b.title}</div>`;
+    });
+  }
+  launchConfetti();
+}
+
+// ========== START ==========
+init();
+</script>
+</body>
+</html>
