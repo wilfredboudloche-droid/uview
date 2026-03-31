@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 12: Configuring Windows — Interactive Mission Hub</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #2a7de1;
+    --green: #1E7A3E;
+    --green-light: #27a352;
+    --gold: #F0A500;
+    --gold-light: #ffc940;
+    --bg: #f0f4f8;
+    --card-bg: #ffffff;
+    --text: #1a1a2e;
+    --text-light: #555;
+    --danger: #d32f2f;
+    --correct: #2e7d32;
+    --incorrect: #c62828;
+    --streak-orange: #ff6d00;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  /* ── HEADER ── */
+  .top-header {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: #fff;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 3px 12px rgba(0,0,0,.25);
+  }
+  .header-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 24px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .header-logo {
+    width: 48px; height: 48px;
+    background: var(--green);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; color: #fff;
+    border: 3px solid rgba(255,255,255,.3);
+    flex-shrink: 0;
+  }
+  .header-title h1 { font-size: 1.15rem; font-weight: 700; letter-spacing: .3px; }
+  .header-title p { font-size: .75rem; opacity: .85; }
+  .header-stats {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  }
+  .stat-box {
+    text-align: center;
+    background: rgba(255,255,255,.12);
+    padding: 6px 14px;
+    border-radius: 8px;
+    min-width: 70px;
+  }
+  .stat-box .stat-val { font-size: 1.25rem; font-weight: 800; }
+  .stat-box .stat-lbl { font-size: .65rem; text-transform: uppercase; opacity: .8; letter-spacing: .5px; }
+  .rank-box .stat-val { color: var(--gold-light); }
+  .streak-box .stat-val { color: #ff9100; }
+  /* ribbon */
+  .motto-ribbon {
+    background: var(--green);
+    text-align: center;
+    padding: 4px 0;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.95);
+  }
+  /* ── PROGRESS BAR ── */
+  .progress-track {
+    background: var(--blue-dark);
+    height: 6px;
+    width: 100%;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    width: 0%;
+    transition: width .6s ease;
+  }
+  /* ── CONTENT ── */
+  .container { max-width: 960px; margin: 0 auto; padding: 20px 16px 60px; }
+  /* ── WELCOME SCREEN ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .welcome-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+  }
+  .welcome-card h2 { font-size: 1.6rem; color: var(--blue); margin-bottom: 8px; }
+  .welcome-card .sub { color: var(--text-light); margin-bottom: 20px; font-size: .95rem; }
+  .mission-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+    text-align: left;
+  }
+  .mission-preview {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 14px;
+    border-left: 4px solid var(--blue);
+  }
+  .mission-preview h4 { font-size: .85rem; color: var(--blue); margin-bottom: 4px; }
+  .mission-preview p { font-size: .75rem; color: var(--text-light); }
+  .btn {
+    display: inline-block;
+    padding: 12px 32px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-gold { background: var(--gold); color: #1a1a2e; }
+  .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+  /* ── MISSION CARD ── */
+  .mission-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 28px 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.08);
+    margin-bottom: 20px;
+  }
+  .mission-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .mission-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .mission-header h2 { font-size: 1.15rem; color: var(--blue); }
+  .mission-desc { color: var(--text-light); font-size: .88rem; margin-bottom: 18px; }
+  .quest-counter {
+    font-size: .78rem;
+    color: var(--blue);
+    font-weight: 600;
+    margin-bottom: 14px;
+    background: rgba(27,94,175,.08);
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  /* ── QUESTION STYLES ── */
+  .question-text {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .scenario-box {
+    background: linear-gradient(135deg, #e8f0fe, #f0f4f8);
+    border-left: 4px solid var(--blue);
+    padding: 14px 16px;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 16px;
+    font-size: .9rem;
+    color: var(--text);
+  }
+  .options-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .opt-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    border: 2px solid #dde3ea;
+    border-radius: 10px;
+    background: #fff;
+    font-size: .92rem;
+    cursor: pointer;
+    transition: all .2s;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .opt-btn:hover { border-color: var(--blue-light); background: rgba(27,94,175,.04); }
+  .opt-btn.correct { border-color: var(--correct); background: #e8f5e9; color: var(--correct); font-weight: 600; }
+  .opt-btn.incorrect { border-color: var(--incorrect); background: #ffebee; color: var(--incorrect); }
+  .opt-btn.disabled { pointer-events: none; opacity: .7; }
+  .feedback-box {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: .88rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback-box.correct { background: #e8f5e9; border: 1px solid #a5d6a7; color: #1b5e20; display: block; }
+  .feedback-box.incorrect { background: #ffebee; border: 1px solid #ef9a9a; color: #b71c1c; display: block; }
+  .next-btn-row { text-align: right; margin-top: 16px; }
+  /* ── DRAG & DROP ── */
+  .drag-zone {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 48px;
+    padding: 10px;
+    margin-bottom: 16px;
+    background: #f7f9fc;
+    border-radius: 10px;
+    border: 2px dashed #c8d3e0;
+  }
+  .drag-item {
+    padding: 8px 14px;
+    background: var(--blue);
+    color: #fff;
+    border-radius: 8px;
+    cursor: grab;
+    font-size: .82rem;
+    font-weight: 600;
+    user-select: none;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .drag-item:active { cursor: grabbing; transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+  .drag-item.placed { opacity: .4; cursor: default; }
+  .drop-targets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 600px) { .drop-targets { grid-template-columns: 1fr; } }
+  .drop-col h4 {
+    font-size: .85rem;
+    color: var(--blue);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .drop-area {
+    min-height: 100px;
+    border: 2px dashed #b0bec5;
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-content: flex-start;
+    transition: background .2s, border-color .2s;
+    background: #fafbfd;
+  }
+  .drop-area.over { background: rgba(27,94,175,.08); border-color: var(--blue); }
+  .drop-area .drag-item { cursor: pointer; }
+  .drop-area .drag-item.correct-placed { background: var(--correct); }
+  .drop-area .drag-item.incorrect-placed { background: var(--incorrect); }
+  /* ── MATCHING ── */
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  @media (max-width: 600px) { .match-grid { grid-template-columns: 1fr; } }
+  .match-item {
+    padding: 10px 14px;
+    border: 2px solid #dde3ea;
+    border-radius: 10px;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: center;
+    background: #fff;
+  }
+  .match-item.selected { border-color: var(--blue); background: rgba(27,94,175,.08); box-shadow: 0 0 0 2px rgba(27,94,175,.2); }
+  .match-item.matched-correct { border-color: var(--correct); background: #e8f5e9; }
+  .match-item.matched-incorrect { border-color: var(--incorrect); background: #ffebee; }
+  .match-item.disabled { pointer-events: none; opacity: .65; }
+  /* ── BADGES ── */
+  .badges-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 16px 0;
+  }
+  .badge {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    border: 3px solid #ddd;
+    background: #eee;
+    opacity: .4;
+    transition: all .4s;
+  }
+  .badge.earned {
+    opacity: 1;
+    border-color: var(--gold);
+    background: linear-gradient(135deg, #fff8e1, #fff3c4);
+    box-shadow: 0 2px 10px rgba(240,165,0,.3);
+    animation: badgePop .5s ease;
+  }
+  @keyframes badgePop {
+    0% { transform: scale(0); }
+    60% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  /* ── STREAK TOAST ── */
+  .streak-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--streak-orange), #ff9100);
+    color: #fff;
+    padding: 18px 36px;
+    border-radius: 16px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    z-index: 200;
+    pointer-events: none;
+    opacity: 0;
+    transition: all .3s ease;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(255,109,0,.4);
+  }
+  .streak-toast.show {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  /* ── CONFETTI ── */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 300;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+  /* ── SUMMARY ── */
+  .summary-card {
+    text-align: center;
+    padding: 36px 28px;
+  }
+  .summary-card h2 { color: var(--blue); margin-bottom: 4px; }
+  .final-score { font-size: 3.5rem; font-weight: 900; color: var(--green); margin: 10px 0; }
+  .final-rank { font-size: 1.3rem; color: var(--gold); font-weight: 700; margin-bottom: 20px; }
+  .summary-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .sum-stat {
+    background: var(--bg);
+    padding: 14px;
+    border-radius: 10px;
+  }
+  .sum-stat .val { font-size: 1.5rem; font-weight: 800; color: var(--blue); }
+  .sum-stat .lbl { font-size: .72rem; color: var(--text-light); text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="top-header">
+  <div class="header-main">
+    <div class="header-left">
+      <div class="header-logo">UVA</div>
+      <div class="header-title">
+        <h1>Module 12: Configuring Windows</h1>
+        <p>CompTIA A+ Core 2 (220-1102) &bull; Interactive Mission Hub</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-box rank-box"><div class="stat-val" id="rankDisplay">Trainee</div><div class="stat-lbl">Rank</div></div>
+      <div class="stat-box"><div class="stat-val" id="scoreDisplay">0</div><div class="stat-lbl">Points</div></div>
+      <div class="stat-box streak-box"><div class="stat-val" id="streakDisplay">0🔥</div><div class="stat-lbl">Streak</div></div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue &bull; Vigor &bull; Vision ✦</div>
+  <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
+</header>
+
+<!-- ══ STREAK TOAST ══ -->
+<div class="streak-toast" id="streakToast"></div>
+<div class="confetti-container" id="confettiBox"></div>
+
+<!-- ══ MAIN CONTENT ══ -->
+<main class="container">
+  <!-- WELCOME -->
+  <section class="screen active" id="welcomeScreen">
+    <div class="welcome-card">
+      <h2>🖥️ Windows Configuration Mission Hub</h2>
+      <p class="sub">Complete 5 missions to master the Windows 10 &amp; 11 configuration skills from Module 12. Earn points, build streaks, and achieve the rank of <strong>Master Technician</strong>!</p>
+      <div class="mission-overview">
+        <div class="mission-preview"><h4>🗂️ Mission 1</h4><p>Settings vs. Control Panel — Sort configuration tools to their correct interface</p></div>
+        <div class="mission-preview"><h4>🔐 Mission 2</h4><p>Account &amp; Security Ops — Solve real-world account management scenarios</p></div>
+        <div class="mission-preview"><h4>📁 Mission 3</h4><p>File Explorer &amp; Storage — Navigate the Windows directory structure</p></div>
+        <div class="mission-preview"><h4>⚡ Mission 4</h4><p>Power &amp; System Mastery — Configure power states and system settings</p></div>
+        <div class="mission-preview"><h4>🛡️ Mission 5</h4><p>Final Field Scenarios — Troubleshoot user issues like a pro tech</p></div>
+      </div>
+      <button class="btn btn-primary" onclick="startMissions()">🚀 Begin Missions</button>
+    </div>
+  </section>
+
+  <!-- MISSION AREA -->
+  <section class="screen" id="missionScreen"></section>
+
+  <!-- SUMMARY -->
+  <section class="screen" id="summaryScreen">
+    <div class="mission-card summary-card">
+      <h2>🏆 All Missions Complete!</h2>
+      <p class="sub">Outstanding work, Technician!</p>
+      <div class="final-score" id="finalScore">0</div>
+      <div>points earned</div>
+      <div class="final-rank" id="finalRank">Trainee</div>
+      <div class="badges-row" id="finalBadges"></div>
+      <div class="summary-details">
+        <div class="sum-stat"><div class="val" id="sumCorrect">0</div><div class="lbl">Correct</div></div>
+        <div class="sum-stat"><div class="val" id="sumTotal">0</div><div class="lbl">Total Quests</div></div>
+        <div class="sum-stat"><div class="val" id="sumAccuracy">0%</div><div class="lbl">Accuracy</div></div>
+        <div class="sum-stat"><div class="val" id="sumBestStreak">0</div><div class="lbl">Best Streak</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="restartAll()" style="margin-top:16px;">🔄 Restart Missions</button>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ══════════════════════════════════════
+   STATE
+   ══════════════════════════════════════ */
+const S = {
+  score: 0,
+  streak: 0,
+  bestStreak: 0,
+  totalCorrect: 0,
+  totalQuestions: 0,
+  currentMission: 0,
+  currentQuest: 0,
+  badges: [false,false,false,false,false],
+  answered: false
+};
+
+const RANKS = [
+  { min: 0, name: 'Trainee' },
+  { min: 80, name: 'Apprentice' },
+  { min: 180, name: 'Expert' },
+  { min: 300, name: 'Master' }
+];
+
+const BADGE_ICONS = ['🗂️','🔐','📁','⚡','🛡️'];
+
+/* ══════════════════════════════════════
+   MISSION DATA
+   ══════════════════════════════════════ */
+const missions = [
+  /* ── MISSION 1: DRAG & DROP — Settings vs Control Panel ── */
+  {
+    title: 'Settings vs. Control Panel',
+    icon: '🗂️',
+    iconBg: '#1B5EAF',
+    desc: 'Windows has two main admin interfaces. Drag each configuration tool to the correct interface.',
+    type: 'dragdrop',
+    quests: [
+      {
+        instruction: 'Drag each item to either <strong>Windows Settings</strong> or <strong>Control Panel</strong>.',
+        columns: ['Windows Settings', 'Control Panel'],
+        items: [
+          { text: 'Privacy & Security toggles', col: 0 },
+          { text: 'Indexing Options applet', col: 1 },
+          { text: 'Time & Language pages', col: 0 },
+          { text: 'File Explorer Options applet', col: 1 },
+          { text: 'Windows Update page', col: 0 },
+          { text: 'Power Options applet (advanced plans)', col: 1 },
+          { text: 'Bluetooth & Devices page', col: 0 },
+          { text: 'User Account Control (UAC) settings', col: 1 }
+        ]
+      },
+      {
+        instruction: 'Sort these items: which belong to <strong>Windows 10 Settings headings</strong> vs. <strong>Windows 11 Settings headings</strong>?',
+        columns: ['Windows 10 Settings', 'Windows 11 Settings'],
+        items: [
+          { text: 'Ease of Access', col: 0 },
+          { text: 'Accessibility', col: 1 },
+          { text: 'Update & Security', col: 0 },
+          { text: 'Gaming (separate heading)', col: 1 },
+          { text: 'Devices (heading name)', col: 0 },
+          { text: 'Bluetooth & devices', col: 1 }
+        ]
+      }
+    ]
+  },
+  /* ── MISSION 2: SCENARIO MCQ — Accounts & Security ── */
+  {
+    title: 'Account & Security Ops',
+    icon: '🔐',
+    iconBg: '#1E7A3E',
+    desc: 'A user needs help with account management and security settings. Solve each scenario.',
+    type: 'mcq',
+    quests: [
+      {
+        scenario: 'A new employee joins the company. You set up a Windows account for them. They should be able to use the PC but must not be allowed to install desktop applications or change system settings.',
+        question: 'What account type should you assign?',
+        options: ['Administrator', 'Standard User', 'Guest account', 'Microsoft Account (admin)'],
+        correct: 1,
+        explanation: 'Standard user accounts have privileges limited to their own profile. Desktop app installation and system-wide changes require administrator privileges, which standard users do not have.'
+      },
+      {
+        scenario: 'A user reports that every time they try to install a software application, a prompt appears asking for administrator credentials before proceeding.',
+        question: 'What Windows security feature is causing this prompt?',
+        options: ['Windows Defender Firewall', 'User Account Control (UAC)', 'BitLocker encryption', 'Windows Hello'],
+        correct: 1,
+        explanation: 'User Account Control (UAC) prevents unauthorized use of administrator privileges. At the default setting, changing an administrative setting requires confirmation or admin credentials.'
+      },
+      {
+        scenario: 'A user wants to sync their desktop settings, personalization, and profile data across their home laptop and office desktop PC.',
+        question: 'What type of Windows account enables this?',
+        options: ['A local-only account on each PC', 'A Microsoft Account with Sync settings', 'An administrator account', 'A domain account with roaming profile'],
+        correct: 1,
+        explanation: 'A Microsoft Account gives access to Microsoft cloud services and allows sign-in and syncs desktop settings and user profile data across multiple devices via "Sync settings."'
+      },
+      {
+        scenario: 'You need to check the privacy settings to prevent Windows from showing personalized ads and tracking app launches on a Windows 11 PC.',
+        question: 'Where do you find these toggles?',
+        options: ['Settings > System > About', 'Settings > Privacy & security > General', 'Control Panel > User Accounts', 'Settings > Personalization > Themes'],
+        correct: 1,
+        explanation: 'In Windows 11, privacy toggles including "Let apps show me personalized ads by using my advertising ID" and "Let Windows improve Start and search results by tracking app launches" are under Privacy & security > General.'
+      }
+    ]
+  },
+  /* ── MISSION 3: MCQ — File Explorer & Directory Structure ── */
+  {
+    title: 'File Explorer & Storage',
+    icon: '📁',
+    iconBg: '#e65100',
+    desc: 'Master the Windows file system — system objects, directory structure, and Explorer options.',
+    type: 'mcq',
+    quests: [
+      {
+        scenario: 'A user cannot find a configuration file they know exists on their C: drive. The file has the Hidden attribute set.',
+        question: 'How do you make hidden files visible in File Explorer?',
+        options: [
+          'Change the file extension to .txt',
+          'Open File Explorer Options > View tab > select "Show hidden files, folders, and drives"',
+          'Right-click the desktop and select Refresh',
+          'Run Windows Update to fix Explorer'
+        ],
+        correct: 1,
+        explanation: 'In File Explorer Options (View tab), selecting "Show hidden files, folders, and drives" reveals files with the Hidden attribute. This is a key CompTIA A+ configuration skill.'
+      },
+      {
+        scenario: 'You are explaining the Windows directory structure to a junior technician.',
+        question: 'Which folder contains the System32 subdirectory with critical OS configuration and driver files?',
+        options: ['C:\\Users', 'C:\\Program Files', 'C:\\Windows', 'C:\\AppData'],
+        correct: 2,
+        explanation: 'C:\\Windows is the system root, containing drivers, logs, system and configuration files — notably the System32 subdirectory which holds critical OS files including the Config and Drivers folders.'
+      },
+      {
+        scenario: 'A user reports that file searches are returning incomplete results and many files are not appearing.',
+        question: 'Which tool should you use to troubleshoot and rebuild the search index?',
+        options: ['Device Manager', 'Indexing Options applet', 'Disk Defragmenter', 'Windows Defender'],
+        correct: 1,
+        explanation: 'The Indexing Options applet allows you to define indexed locations and rebuild the index. A corrupted index is a common cause of search problems — use the Advanced button to Rebuild.'
+      },
+      {
+        scenario: 'A technician is looking at a Windows 10 File Explorer "This PC" view.',
+        question: 'Which of these is NOT a standard system object in the File Explorer navigation pane?',
+        options: ['OneDrive', 'Recycle Bin', 'Registry Editor', 'Network'],
+        correct: 2,
+        explanation: 'The main system objects in File Explorer\'s navigation pane are: User account, OneDrive, This PC, Network, and Recycle Bin. Registry Editor is a separate administrative tool, not a File Explorer system object.'
+      }
+    ]
+  },
+  /* ── MISSION 4: MCQ — Power & System Settings ── */
+  {
+    title: 'Power & System Mastery',
+    icon: '⚡',
+    iconBg: '#6a1b9a',
+    desc: 'Configure power states, system settings, and understand update management.',
+    type: 'mcq',
+    quests: [
+      {
+        scenario: 'A user\'s laptop ran out of battery while in their bag after closing the lid. They expected the laptop to fully turn off when the lid was closed.',
+        question: 'Which setting should you configure to fix this?',
+        options: [
+          'Settings > Display > Brightness',
+          'Control Panel > Power Options > "Choose what closing the lid does"',
+          'Settings > Accounts > Sign-in options',
+          'Control Panel > Device Manager > Battery'
+        ],
+        correct: 1,
+        explanation: 'The Power Options applet in Control Panel allows you to define what pressing the power button and/or closing the lid of a laptop should perform — shut down, sleep, or hibernate.'
+      },
+      {
+        scenario: 'You need to explain the difference between Sleep and Hibernate to a customer.',
+        question: 'Which statement is correct?',
+        options: [
+          'Sleep saves data to disk and powers off; Hibernate keeps data in RAM',
+          'Sleep cuts power to most devices but maintains power to RAM; Hibernate saves memory to disk (hiberfil.sys) and powers off',
+          'Sleep and Hibernate are identical power states',
+          'Hibernate is only available on desktop PCs, not laptops'
+        ],
+        correct: 1,
+        explanation: 'Sleep (Standby/Suspend to RAM) maintains power to memory. Hibernate (Suspend to Disk) saves open file data from memory to disk as hiberfil.sys and then turns the computer off. These correspond to ACPI modes S1-S3 and S4 respectively.'
+      },
+      {
+        scenario: 'A manager asks you to ensure their department\'s PCs receive critical security patches automatically.',
+        question: 'In the basic Windows Update interface, which statement is true?',
+        options: [
+          'Windows Update can be permanently disabled via Settings',
+          'Windows Update can only be paused temporarily and cannot be completely disabled',
+          'Windows Update requires a Microsoft Account to function',
+          'Security patches must be installed manually from Microsoft\'s website'
+        ],
+        correct: 1,
+        explanation: 'In the basic interface, Windows Update can only be paused temporarily and cannot be completely disabled. You can check for updates manually and choose which optional updates to apply.'
+      },
+      {
+        scenario: 'You need to verify the Windows edition, OS build number, and processor info on a user\'s PC.',
+        question: 'Where do you find all this information in one place?',
+        options: [
+          'Settings > System > About',
+          'Control Panel > Network and Sharing Center',
+          'Settings > Apps > Default apps',
+          'File Explorer > This PC > Properties of C: drive'
+        ],
+        correct: 0,
+        explanation: 'The About page in System Settings lists key hardware specifications (device name, processor, RAM, system type) and Windows specifications (edition, version, OS build). It also contains links to BitLocker, system protection, and advanced system settings.'
+      }
+    ]
+  },
+  /* ── MISSION 5: SCENARIO — Field Troubleshooting ── */
+  {
+    title: 'Final Field Scenarios',
+    icon: '🛡️',
+    iconBg: '#00695c',
+    desc: 'Apply everything you\'ve learned to resolve real-world Windows configuration issues.',
+    type: 'mcq',
+    quests: [
+      {
+        scenario: 'A user with low vision reports the text on their Windows 11 PC is too small to read, and they need a tool that follows the cursor and magnifies the area around it.',
+        question: 'Under which Settings heading do you configure the Magnifier tool in Windows 11?',
+        options: ['Settings > System > Display > Scale', 'Settings > Accessibility > Magnifier', 'Settings > Personalization > Fonts', 'Control Panel > Ease of Access Center > Narrator'],
+        correct: 1,
+        explanation: 'In Windows 11, Ease of Access settings are found under the Accessibility heading. The Magnifier zoom tool is configured under Vision settings, enabling audio descriptions and zoom functionality for low-vision users.'
+      },
+      {
+        scenario: 'A user installed a 64-bit Windows edition but a specific USB device is not working. The vendor provided a 32-bit device driver.',
+        question: 'Why is the device not functioning?',
+        options: [
+          'The USB port is defective',
+          'When using a 64-bit edition of Windows, you must use 64-bit device drivers — 32-bit drivers will not work',
+          'The device needs a firmware update from Windows Update',
+          'USB devices do not require drivers on 64-bit Windows'
+        ],
+        correct: 1,
+        explanation: 'When using a 64-bit edition of Windows, you must obtain 64-bit device drivers. 32-bit drivers will not work. The user needs to obtain the correct 64-bit driver from the vendor.'
+      },
+      {
+        scenario: 'A user wants to install a productivity app from the Microsoft Store on their work PC, but they only have a standard user account. Their admin says they cannot install anything.',
+        question: 'Is the admin correct?',
+        options: [
+          'Yes — all software installations require administrator privileges',
+          'No — Store apps run in a sandbox and do not require admin privileges or UAC confirmation for standard users',
+          'Yes — the Microsoft Store is disabled for standard users by default',
+          'No — but only if the IT department has enabled sideloading'
+        ],
+        correct: 1,
+        explanation: 'Store apps run in a restrictive sandbox designed to prevent system-wide changes. This extra level of protection means standard users are allowed to install store apps without UAC confirmation or administrator-level privileges.'
+      },
+      {
+        scenario: 'After a Windows update fails, you need to investigate the cause. A colleague suggests checking a specific log.',
+        question: 'Where does Windows record update activity for troubleshooting?',
+        options: [
+          'C:\\Windows\\System32\\update.log',
+          'Windows Event Viewer > Applications and Service Logs > Microsoft > Windows > WindowsUpdateClient > Operational',
+          'Control Panel > Windows Update > Error Log tab',
+          'Settings > Update & Security > View error report'
+        ],
+        correct: 1,
+        explanation: 'Update activity is recorded by Windows Event Viewer in the Applications and Service Logs > Microsoft\\Windows > WindowsUpdateClient > Operational log file. Failed updates produce error codes you can look up on the Microsoft Knowledge Base.'
+      }
+    ]
+  }
+];
+
+/* ══════════════════════════════════════
+   UI HELPERS
+   ══════════════════════════════════════ */
+function $(id) { return document.getElementById(id); }
+function show(id) { $(id).classList.add('active'); }
+function hide(id) { $(id).classList.remove('active'); }
+
+function updateHeader() {
+  $('scoreDisplay').textContent = S.score;
+  $('streakDisplay').textContent = S.streak + '🔥';
+  const rank = [...RANKS].reverse().find(r => S.score >= r.min);
+  $('rankDisplay').textContent = rank ? rank.name : 'Trainee';
+  const totalQ = missions.reduce((a, m) => a + (m.type === 'dragdrop' ? m.quests.length : m.quests.length), 0);
+  const pct = (S.totalQuestions / totalQ) * 100;
+  $('progressBar').style.width = pct + '%';
+}
+
+function showStreakToast(text) {
+  const t = $('streakToast');
+  t.textContent = text;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+function fireConfetti() {
+  const box = $('confettiBox');
+  const colors = ['#1B5EAF','#1E7A3E','#F0A500','#ff6d00','#e91e63','#9c27b0','#00bcd4'];
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (6 + Math.random() * 8) + 'px';
+    p.style.height = (6 + Math.random() * 8) + 'px';
+    p.style.borderRadius = Math.random() > .5 ? '50%' : '2px';
+    p.style.animationDuration = (2 + Math.random() * 2) + 's';
+    p.style.animationDelay = Math.random() * .8 + 's';
+    box.appendChild(p);
+  }
+  setTimeout(() => { box.innerHTML = ''; }, 4000);
+}
+
+function awardPoints(correct) {
+  if (correct) {
+    S.streak++;
+    if (S.streak > S.bestStreak) S.bestStreak = S.streak;
+    let pts = 10;
+    if (S.streak >= 3) pts += 5;
+    if (S.streak >= 5) pts += 5;
+    S.score += pts;
+    S.totalCorrect++;
+    if (S.streak === 3) showStreakToast('3 in a row! 🔥');
+    else if (S.streak === 5) showStreakToast('5 Streak! ⚡🔥');
+    else if (S.streak === 8) showStreakToast('UNSTOPPABLE! 🔥🔥🔥');
+  } else {
+    S.streak = 0;
+  }
+  S.totalQuestions++;
+  updateHeader();
+}
+
+/* ══════════════════════════════════════
+   RENDER MISSIONS
+   ══════════════════════════════════════ */
+function startMissions() {
+  hide('welcomeScreen');
+  S.currentMission = 0;
+  S.currentQuest = 0;
+  renderMission();
+  show('missionScreen');
+}
+
+function renderMission() {
+  const m = missions[S.currentMission];
+  S.currentQuest = 0;
+  S.answered = false;
+  const area = $('missionScreen');
+  area.innerHTML = '';
+  const card = document.createElement('div');
+  card.className = 'mission-card';
+  card.innerHTML = `
+    <div class="mission-header">
+      <div class="mission-icon" style="background:${m.iconBg};color:#fff;">${m.icon}</div>
+      <div>
+        <h2>Mission ${S.currentMission + 1}: ${m.title}</h2>
+      </div>
+    </div>
+    <p class="mission-desc">${m.desc}</p>
+    <div id="questArea"></div>
+  `;
+  area.appendChild(card);
+  // badges
+  const bRow = document.createElement('div');
+  bRow.className = 'badges-row';
+  bRow.id = 'badgesRow';
+  for (let i = 0; i < 5; i++) {
+    const b = document.createElement('div');
+    b.className = 'badge' + (S.badges[i] ? ' earned' : '');
+    b.textContent = BADGE_ICONS[i];
+    b.title = 'Mission ' + (i+1);
+    bRow.appendChild(b);
+  }
+  area.appendChild(bRow);
+  renderQuest();
+}
+
+function renderQuest() {
+  const m = missions[S.currentMission];
+  S.answered = false;
+  const qa = document.getElementById('questArea');
+  qa.innerHTML = '';
+  const totalQ = m.quests.length;
+  const qIdx = S.currentQuest;
+  qa.innerHTML = `<div class="quest-counter">Quest ${qIdx + 1} of ${totalQ}</div>`;
+
+  if (m.type === 'dragdrop') {
+    renderDragDrop(qa, m.quests[qIdx]);
+  } else {
+    renderMCQ(qa, m.quests[qIdx]);
+  }
+}
+
+/* ── MCQ RENDER ── */
+function renderMCQ(container, q) {
+  let html = '';
+  if (q.scenario) html += `<div class="scenario-box">📋 <strong>Scenario:</strong> ${q.scenario}</div>`;
+  html += `<div class="question-text">${q.question}</div>`;
+  html += `<ul class="options-list" id="optList">`;
+  q.options.forEach((o, i) => {
+    html += `<li><button class="opt-btn" data-idx="${i}" onclick="handleMCQ(this, ${i}, ${q.correct})">${o}</button></li>`;
+  });
+  html += `</ul>`;
+  html += `<div class="feedback-box" id="feedback"></div>`;
+  html += `<div class="next-btn-row"><button class="btn btn-green" id="nextBtn" style="display:none;" onclick="nextQuest()">Next →</button></div>`;
+  container.insertAdjacentHTML('beforeend', html);
+}
+
+function handleMCQ(btn, idx, correct) {
+  if (S.answered) return;
+  S.answered = true;
+  const q = missions[S.currentMission].quests[S.currentQuest];
+  const btns = document.querySelectorAll('#optList .opt-btn');
+  btns.forEach(b => {
+    b.classList.add('disabled');
+    if (parseInt(b.dataset.idx) === correct) b.classList.add('correct');
+  });
+  if (idx !== correct) btn.classList.add('incorrect');
+  const fb = document.getElementById('feedback');
+  if (idx === correct) {
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '✅ <strong>Correct!</strong> ' + q.explanation;
+    awardPoints(true);
+  } else {
+    fb.className = 'feedback-box incorrect';
+    fb.innerHTML = '❌ <strong>Not quite.</strong> ' + q.explanation;
+    awardPoints(false);
+  }
+  document.getElementById('nextBtn').style.display = 'inline-block';
+}
+
+/* ── DRAG & DROP RENDER ── */
+function renderDragDrop(container, q) {
+  let html = `<div class="question-text">${q.instruction}</div>`;
+  html += `<div class="drag-zone" id="sourceZone">`;
+  const shuffled = [...q.items].sort(() => Math.random() - 0.5);
+  shuffled.forEach((item, i) => {
+    const origIdx = q.items.indexOf(item);
+    html += `<div class="drag-item" draggable="true" data-col="${item.col}" data-id="${origIdx}">${item.text}</div>`;
+  });
+  html += `</div>`;
+  html += `<div class="drop-targets">`;
+  q.columns.forEach((colName, ci) => {
+    html += `<div class="drop-col"><h4>${colName}</h4><div class="drop-area" data-col="${ci}" id="dropArea${ci}"></div></div>`;
+  });
+  html += `</div>`;
+  html += `<div class="next-btn-row"><button class="btn btn-green" id="checkDDBtn" onclick="checkDragDrop()">✔ Check Answers</button> <button class="btn btn-green" id="nextBtn" style="display:none;" onclick="nextQuest()">Next →</button></div>`;
+  html += `<div class="feedback-box" id="feedback"></div>`;
+  container.insertAdjacentHTML('beforeend', html);
+
+  // setup drag events
+  const items = container.querySelectorAll('.drag-item');
+  const dropAreas = container.querySelectorAll('.drop-area');
+  const sourceZone = document.getElementById('sourceZone');
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', item.dataset.id);
+      item.style.opacity = '.5';
+    });
+    item.addEventListener('dragend', () => { item.style.opacity = '1'; });
+    // touch support
+    let touchClone = null;
+    item.addEventListener('touchstart', e => {
+      e.preventDefault();
+      touchClone = item;
+      item.style.opacity = '.5';
+    });
+  });
+
+  [...dropAreas, sourceZone].forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('over');
+      const id = e.dataTransfer.getData('text/plain');
+      const dragEl = container.querySelector(`.drag-item[data-id="${id}"]`);
+      if (dragEl) zone.appendChild(dragEl);
+    });
+  });
+}
+
+function checkDragDrop() {
+  if (S.answered) return;
+  S.answered = true;
+  const dropAreas = document.querySelectorAll('.drop-area');
+  let allCorrect = true;
+  let totalItems = 0;
+  let correctItems = 0;
+  dropAreas.forEach(area => {
+    const col = parseInt(area.dataset.col);
+    area.querySelectorAll('.drag-item').forEach(item => {
+      totalItems++;
+      if (parseInt(item.dataset.col) === col) {
+        item.classList.add('correct-placed');
+        correctItems++;
+      } else {
+        item.classList.add('incorrect-placed');
+        allCorrect = false;
+      }
+    });
+  });
+  // items left in source are wrong
+  document.querySelectorAll('#sourceZone .drag-item').forEach(item => {
+    totalItems++;
+    item.classList.add('incorrect-placed');
+    allCorrect = false;
+  });
+
+  const fb = document.getElementById('feedback');
+  if (allCorrect) {
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = `✅ <strong>Perfect!</strong> All ${correctItems} items placed correctly!`;
+    awardPoints(true);
+  } else {
+    fb.className = 'feedback-box incorrect';
+    fb.innerHTML = `❌ ${correctItems} of ${totalItems} correct. Items in green are correct; red are misplaced.`;
+    awardPoints(false);
+  }
+  document.getElementById('checkDDBtn').style.display = 'none';
+  document.getElementById('nextBtn').style.display = 'inline-block';
+  // disable further dragging
+  document.querySelectorAll('.drag-item').forEach(d => d.setAttribute('draggable', 'false'));
+}
+
+/* ── NAVIGATION ── */
+function nextQuest() {
+  const m = missions[S.currentMission];
+  S.currentQuest++;
+  if (S.currentQuest >= m.quests.length) {
+    // Mission complete
+    S.badges[S.currentMission] = true;
+    fireConfetti();
+    showStreakToast(`${m.icon} Mission ${S.currentMission + 1} Complete!`);
+    updateHeader();
+    S.currentMission++;
+    if (S.currentMission >= missions.length) {
+      setTimeout(showSummary, 1200);
+    } else {
+      setTimeout(renderMission, 1200);
+    }
+  } else {
+    renderQuest();
+  }
+}
+
+function showSummary() {
+  hide('missionScreen');
+  fireConfetti();
+  $('finalScore').textContent = S.score;
+  const rank = [...RANKS].reverse().find(r => S.score >= r.min);
+  $('finalRank').textContent = '🎖️ ' + (rank ? rank.name : 'Trainee') + ' Technician';
+  $('sumCorrect').textContent = S.totalCorrect;
+  const totalQ = missions.reduce((a, m) => a + m.quests.length, 0);
+  $('sumTotal').textContent = totalQ;
+  $('sumAccuracy').textContent = totalQ > 0 ? Math.round((S.totalCorrect / totalQ) * 100) + '%' : '0%';
+  $('sumBestStreak').textContent = S.bestStreak;
+  const bRow = $('finalBadges');
+  bRow.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const b = document.createElement('div');
+    b.className = 'badge earned';
+    b.textContent = BADGE_ICONS[i];
+    bRow.appendChild(b);
+  }
+  show('summaryScreen');
+}
+
+function restartAll() {
+  S.score = 0; S.streak = 0; S.bestStreak = 0;
+  S.totalCorrect = 0; S.totalQuestions = 0;
+  S.currentMission = 0; S.currentQuest = 0;
+  S.badges = [false,false,false,false,false];
+  S.answered = false;
+  updateHeader();
+  hide('summaryScreen');
+  hide('missionScreen');
+  show('welcomeScreen');
+}
+
+updateHeader();
+</script>
+</body>
+</html>
