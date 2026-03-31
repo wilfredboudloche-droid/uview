@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Install &amp; Configure Applications – IT Field Ops</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1B5EAF;--blue-dark:#14477F;--blue-light:#E8F0FA;--green:#1E7A3E;--green-light:#E6F4EC;--gold:#D4A843;--red:#C0392B;--orange:#E67E22;--bg:#F4F6FA;--card:#fff;--text:#222;--text-light:#555;--radius:12px;--shadow:0 4px 16px rgba(0,0,0,.08)}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;overflow-x:hidden}
+/* ── Ribbon Banner ── */
+.ribbon-wrap{background:var(--blue);text-align:center;padding:6px 0;position:relative;overflow:hidden}
+.ribbon-wrap::before,.ribbon-wrap::after{content:'';position:absolute;top:0;width:60px;height:100%;background:linear-gradient(90deg,rgba(255,255,255,.12),transparent)}
+.ribbon-wrap::before{left:0}.ribbon-wrap::after{right:0;transform:rotate(180deg)}
+.ribbon-text{color:#fff;font-size:.82rem;letter-spacing:3px;text-transform:uppercase;font-weight:600}
+/* ── Header ── */
+header{background:linear-gradient(135deg,var(--blue) 0%,var(--blue-dark) 100%);color:#fff;padding:20px 24px 18px;position:relative}
+header h1{font-size:1.45rem;font-weight:700;margin-bottom:2px}
+header p.sub{font-size:.82rem;opacity:.85;margin-bottom:10px}
+.hud{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.hud-box{background:rgba(255,255,255,.14);border-radius:8px;padding:6px 14px;font-size:.78rem;display:flex;align-items:center;gap:6px}
+.hud-box .val{font-weight:700;font-size:1rem}
+.rank-badge{background:var(--gold);color:#222;border-radius:20px;padding:4px 14px;font-weight:700;font-size:.82rem;display:inline-flex;align-items:center;gap:4px}
+.streak-indicator{font-size:1rem;min-width:70px;text-align:center}
+.progress-bar-wrap{width:100%;background:rgba(255,255,255,.18);border-radius:8px;height:10px;margin-top:10px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--gold));border-radius:8px;transition:width .5s ease}
+/* ── Mission Nav ── */
+.mission-nav{display:flex;gap:6px;padding:14px 24px;overflow-x:auto;background:#fff;border-bottom:1px solid #e2e6ee}
+.mission-tab{padding:8px 16px;border-radius:20px;font-size:.78rem;font-weight:600;cursor:pointer;border:2px solid transparent;background:var(--blue-light);color:var(--blue);white-space:nowrap;transition:.2s}
+.mission-tab.active{background:var(--blue);color:#fff}
+.mission-tab.completed-tab{background:var(--green-light);color:var(--green);border-color:var(--green)}
+.mission-tab:hover{transform:translateY(-1px)}
+/* ── Missions ── */
+.mission{display:none;padding:20px 24px 40px;max-width:900px;margin:0 auto}
+.mission.active{display:block}
+.mission-header{margin-bottom:18px}
+.mission-header h2{font-size:1.2rem;color:var(--blue);display:flex;align-items:center;gap:8px}
+.mission-header p{font-size:.84rem;color:var(--text-light);margin-top:4px}
+/* ── Cards ── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px;border-left:4px solid var(--blue);transition:.3s}
+.card.correct-card{border-left-color:var(--green);background:#f0faf3}
+.card.wrong-card{border-left-color:var(--red);background:#fdf0ef}
+.card h3{font-size:.95rem;margin-bottom:10px;color:var(--blue-dark)}
+.card p,.card label{font-size:.85rem}
+/* ── Scenario Box ── */
+.scenario-box{background:linear-gradient(135deg,var(--blue-light),#fff);border-radius:var(--radius);padding:16px;margin-bottom:14px;border:1px solid #d0dff0;font-size:.85rem;line-height:1.6}
+.scenario-box strong{color:var(--blue)}
+/* ── Choices ── */
+.choices{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.choice-btn{background:#fff;border:2px solid #d5dce8;border-radius:8px;padding:10px 14px;font-size:.84rem;cursor:pointer;text-align:left;transition:.2s;position:relative}
+.choice-btn:hover:not(.locked){border-color:var(--blue);background:var(--blue-light)}
+.choice-btn.selected-correct{border-color:var(--green);background:var(--green-light)}
+.choice-btn.selected-wrong{border-color:var(--red);background:#fce8e6}
+.choice-btn.locked{cursor:default;opacity:.85}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:.82rem;display:none;line-height:1.5}
+.feedback.show{display:block}
+.feedback.correct{background:var(--green-light);color:#145a2c;border:1px solid #b5dfc5}
+.feedback.wrong{background:#fce8e6;color:#8b1a1a;border:1px solid #f0c0bc}
+/* ── Drag & Drop ── */
+.drop-zone-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+@media(max-width:640px){.drop-zone-grid{grid-template-columns:1fr}}
+.drop-zone{min-height:100px;border:2px dashed #b8c8e0;border-radius:var(--radius);padding:12px;background:#fafbfe;transition:.2s}
+.drop-zone h4{font-size:.82rem;color:var(--blue);margin-bottom:8px;text-align:center}
+.drop-zone.drag-over{border-color:var(--green);background:var(--green-light)}
+.drag-bank{display:flex;flex-wrap:wrap;gap:8px;padding:14px;background:#fff;border-radius:var(--radius);border:1px solid #e2e6ee;min-height:48px;margin-bottom:12px}
+.drag-item{background:var(--blue);color:#fff;padding:6px 14px;border-radius:20px;font-size:.78rem;cursor:grab;user-select:none;transition:.2s;white-space:nowrap}
+.drag-item:active{cursor:grabbing;transform:scale(1.05)}
+.drag-item.in-zone{background:var(--green)}
+.drag-item.wrong-place{background:var(--red)}
+/* ── Matching ── */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+@media(max-width:640px){.match-grid{grid-template-columns:1fr}}
+.match-item{background:#fff;border:2px solid #d5dce8;border-radius:8px;padding:10px 14px;font-size:.82rem;cursor:pointer;transition:.2s;text-align:center}
+.match-item:hover{border-color:var(--blue)}
+.match-item.sel{border-color:var(--blue);background:var(--blue-light)}
+.match-item.matched{border-color:var(--green);background:var(--green-light);cursor:default}
+.match-item.mismatch{border-color:var(--red);background:#fce8e6}
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.2s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-dark)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#166832}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.check-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center}
+/* ── Confetti ── */
+.confetti-piece{position:fixed;width:10px;height:10px;top:-20px;z-index:9999;pointer-events:none;animation:confettiFall 2.5s ease-in forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(0) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+/* ── Toast ── */
+.toast{position:fixed;top:20px;right:20px;padding:12px 22px;border-radius:10px;color:#fff;font-weight:700;font-size:.9rem;z-index:9999;opacity:0;transform:translateY(-20px);transition:.4s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-streak{background:linear-gradient(135deg,var(--orange),var(--gold))}
+.toast-rank{background:linear-gradient(135deg,var(--green),#2ecc71)}
+.toast-badge{background:linear-gradient(135deg,var(--blue),#3498db)}
+/* ── Summary ── */
+.summary-panel{text-align:center;padding:30px}
+.summary-panel h2{font-size:1.4rem;color:var(--blue);margin-bottom:6px}
+.summary-panel .final-score{font-size:3rem;font-weight:800;color:var(--green);margin:10px 0}
+.summary-panel .final-rank{font-size:1.1rem;margin-bottom:16px}
+.badge-row{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:16px 0}
+.badge{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.badge.earned{background:linear-gradient(135deg,var(--gold),#f0c040)}
+.badge.locked{background:#ddd;filter:grayscale(1);opacity:.4}
+.mission-score-detail{font-size:.85rem;color:var(--text-light);margin-top:10px;line-height:1.8}
+/* ── Responsive ── */
+@media(max-width:600px){header h1{font-size:1.15rem}.hud{gap:8px}.hud-box{padding:4px 10px;font-size:.72rem}.mission{padding:14px 14px 30px}.card{padding:14px}}
+</style>
+</head>
+<body>
+
+<!-- Ribbon -->
+<div class="ribbon-wrap"><span class="ribbon-text">✦ Virtue &bull; Vigor &bull; Vision ✦</span></div>
+
+<!-- Header / HUD -->
+<header>
+  <h1>🛡️ IT Field Ops: Install &amp; Configure Applications</h1>
+  <p class="sub">CompTIA A+ Core 2 (220-1102) &mdash; Domains 1.10 &amp; 1.11 &mdash; Module 12 Configuring Windows</p>
+  <div class="hud">
+    <div class="hud-box">⭐ Score <span class="val" id="scoreDisplay">0</span></div>
+    <div class="hud-box" id="streakBox">🔥 Streak <span class="val" id="streakDisplay">0</span></div>
+    <div class="rank-badge" id="rankBadge">🎖️ <span id="rankDisplay">Trainee</span></div>
+    <div class="hud-box">✅ <span class="val" id="progressDisplay">0</span>/<span id="totalQ">20</span></div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+</header>
+
+<!-- Mission Nav -->
+<nav class="mission-nav" id="missionNav">
+  <div class="mission-tab active" data-m="0">🔧 Mission 1: System Reqs</div>
+  <div class="mission-tab" data-m="1">📦 Mission 2: Distribution</div>
+  <div class="mission-tab" data-m="2">⚖️ Mission 3: Business Impact</div>
+  <div class="mission-tab" data-m="3">☁️ Mission 4: Cloud Tools</div>
+  <div class="mission-tab" data-m="4">🔑 Mission 5: Identity Sync</div>
+  <div class="mission-tab" data-m="5">📊 Debrief</div>
+</nav>
+
+<!-- ═══════════ MISSION 0 – System Requirements ═══════════ -->
+<section class="mission active" id="mission0">
+  <div class="mission-header">
+    <h2>🔧 Mission 1: System Requirements Checkpoint</h2>
+    <p>A new employee needs several applications installed. Verify you know the system requirements to evaluate hardware readiness.</p>
+  </div>
+
+  <!-- Q0-0 Scenario -->
+  <div class="card" id="c0_0">
+    <h3>Quest 1 of 4 — 64-Bit Compatibility</h3>
+    <div class="scenario-box">📋 <strong>Service Ticket #1041:</strong> A technician is attempting to install a <em>64-bit</em> financial database application on a workstation. The workstation has a 64-bit CPU but is running a <em>32-bit</em> version of Windows 10.</div>
+    <p><strong>What will happen?</strong></p>
+    <div class="choices" data-qid="0_0" data-answer="2">
+      <button class="choice-btn" data-idx="0">The app installs normally because the CPU is 64-bit.</button>
+      <button class="choice-btn" data-idx="1">The app installs but runs inside WOW64 for compatibility.</button>
+      <button class="choice-btn" data-idx="2">The installation will fail — a 64-bit app requires both a 64-bit CPU <em>and</em> a 64-bit OS.</button>
+      <button class="choice-btn" data-idx="3">Windows automatically upgrades itself to 64-bit to accommodate the app.</button>
+    </div>
+    <div class="feedback correct" id="fb0_0c">✅ Correct! A 64-bit application requires <strong>both</strong> a 64-bit CPU and a 64-bit OS. The 32-bit OS cannot run it, even though the hardware supports 64-bit.</div>
+    <div class="feedback wrong" id="fb0_0w">❌ Not quite. A 64-bit app needs both a 64-bit CPU <strong>and</strong> a 64-bit OS. WOW64 only helps 32-bit apps run on 64-bit platforms — not the other way around.</div>
+  </div>
+
+  <!-- Q0-1 -->
+  <div class="card" id="c0_1">
+    <h3>Quest 2 of 4 — File Path Knowledge</h3>
+    <div class="scenario-box">📋 <strong>Service Ticket #1042:</strong> You installed a 32-bit graphics utility on a 64-bit Windows 10 machine using default settings. A colleague asks where the application files are located.</div>
+    <p><strong>Which directory contains the 32-bit application files?</strong></p>
+    <div class="choices" data-qid="0_1" data-answer="1">
+      <button class="choice-btn" data-idx="0">C:\Program Files</button>
+      <button class="choice-btn" data-idx="1">C:\Program Files (x86)</button>
+      <button class="choice-btn" data-idx="2">C:\Windows\system32</button>
+      <button class="choice-btn" data-idx="3">C:\Windows\syswow64</button>
+    </div>
+    <div class="feedback correct" id="fb0_1c">✅ Correct! On 64-bit Windows, 32-bit applications install to <strong>Program Files (x86)</strong> by default, while 64-bit apps go into Program Files.</div>
+    <div class="feedback wrong" id="fb0_1w">❌ On 64-bit Windows, 32-bit applications default to <strong>C:\Program Files (x86)</strong>. The system32 and syswow64 folders store shared system DLLs/EXEs, not user applications.</div>
+  </div>
+
+  <!-- Q0-2 -->
+  <div class="card" id="c0_2">
+    <h3>Quest 3 of 4 — Hardware Requirements</h3>
+    <div class="scenario-box">📋 <strong>Service Ticket #1043:</strong> A user tries to launch a new 3D modeling application and receives this error: <em>"RTX features are not available for this device. Please make sure you are running with a supported GPU and driver."</em></div>
+    <p><strong>What is the most likely cause and best solution?</strong></p>
+    <div class="choices" data-qid="0_2" data-answer="1">
+      <button class="choice-btn" data-idx="0">Insufficient RAM — add more system memory.</button>
+      <button class="choice-btn" data-idx="1">The system uses integrated graphics — install a dedicated graphics card that meets the app's requirements.</button>
+      <button class="choice-btn" data-idx="2">The CPU does not support hardware-assisted virtualization.</button>
+      <button class="choice-btn" data-idx="3">The hard drive is full — free up storage space.</button>
+    </div>
+    <div class="feedback correct" id="fb0_2c">✅ Correct! The error specifically references GPU/driver support. Demanding applications like 3D modeling require a <strong>dedicated graphics card</strong> with its own video RAM, not integrated graphics.</div>
+    <div class="feedback wrong" id="fb0_2w">❌ The error message points to GPU capability. This app requires a <strong>dedicated graphics card</strong> (with RTX features). Integrated graphics cannot meet this requirement.</div>
+  </div>
+
+  <!-- Q0-3 -->
+  <div class="card" id="c0_3">
+    <h3>Quest 4 of 4 — External Hardware Tokens</h3>
+    <p>Some applications require more secure authentication than a simple password. <strong>What is an external hardware token?</strong></p>
+    <div class="choices" data-qid="0_3" data-answer="2">
+      <button class="choice-btn" data-idx="0">A software-based one-time password generator app on your phone.</button>
+      <button class="choice-btn" data-idx="1">A complex password stored in a password manager.</button>
+      <button class="choice-btn" data-idx="2">A smart card or USB device that stores cryptographic identification data — used with a password, PIN, or biometric.</button>
+      <button class="choice-btn" data-idx="3">The Windows Hello facial recognition camera built into a laptop.</button>
+    </div>
+    <div class="feedback correct" id="fb0_3c">✅ Correct! An external hardware token is a <strong>smart card or USB form-factor device</strong> storing cryptographic user ID data. The user must present the token <em>and</em> supply a password, PIN, or fingerprint.</div>
+    <div class="feedback wrong" id="fb0_3w">❌ An external hardware token is specifically a <strong>smart card or USB device</strong> that stores cryptographic identification data. It requires both the physical token and a password/PIN/biometric to authenticate.</div>
+  </div>
+</section>
+
+<!-- ═══════════ MISSION 1 – Distribution Methods ═══════════ -->
+<section class="mission" id="mission1">
+  <div class="mission-header">
+    <h2>📦 Mission 2: Software Distribution Methods</h2>
+    <p>Match each installer type or distribution method to its correct platform or description. Drag items to the correct zone.</p>
+  </div>
+
+  <!-- Drag-Drop: Installer formats to OS -->
+  <div class="card" id="c1_0">
+    <h3>Quest 1 of 4 — Installer Formats Sorting</h3>
+    <p>Drag each installer format to its correct operating system category.</p>
+    <div class="drag-bank" id="bank1_0">
+      <div class="drag-item" draggable="true" data-id="exe" data-target="win">.EXE</div>
+      <div class="drag-item" draggable="true" data-id="msi" data-target="win">.MSI</div>
+      <div class="drag-item" draggable="true" data-id="dmg" data-target="mac">.DMG</div>
+      <div class="drag-item" draggable="true" data-id="pkg" data-target="mac">.PKG</div>
+      <div class="drag-item" draggable="true" data-id="deb" data-target="linux">.DEB (APT)</div>
+      <div class="drag-item" draggable="true" data-id="rpm" data-target="linux">.RPM (DNF)</div>
+    </div>
+    <div class="drop-zone-grid">
+      <div class="drop-zone" id="zone_win" data-zone="win"><h4>🪟 Windows</h4></div>
+      <div class="drop-zone" id="zone_mac" data-zone="mac"><h4>🍎 macOS</h4></div>
+      <div class="drop-zone" id="zone_linux" data-zone="linux"><h4>🐧 Linux</h4></div>
+    </div>
+    <div class="check-row">
+      <button class="btn btn-primary" id="checkDrag1_0" onclick="checkDragDrop('1_0')">🔍 Verify Sorting</button>
+    </div>
+    <div class="feedback correct" id="fb1_0c">✅ Perfect sorting! Windows uses .EXE and .MSI, macOS uses .DMG and .PKG, and Linux uses .DEB (APT) and .RPM (DNF).</div>
+    <div class="feedback wrong" id="fb1_0w">❌ Some items are misplaced. Windows → .EXE &amp; .MSI | macOS → .DMG &amp; .PKG | Linux → .DEB (APT) &amp; .RPM (DNF). Try the ones that are wrong!</div>
+  </div>
+
+  <!-- Q1-1 Scenario -->
+  <div class="card" id="c1_1">
+    <h3>Quest 2 of 4 — Verifying Downloads</h3>
+    <div class="scenario-box">📋 <strong>Dispatch:</strong> A junior tech downloaded an application installer from a third-party website. Before installing it, what should be done to verify its authenticity?</div>
+    <div class="choices" data-qid="1_1" data-answer="2">
+      <button class="choice-btn" data-idx="0">Check that the file size matches what was expected.</button>
+      <button class="choice-btn" data-idx="1">Open the file in Notepad to inspect the code.</button>
+      <button class="choice-btn" data-idx="2">Verify the digital signature (Windows) or compare the published hash value (Linux) and scan for malware.</button>
+      <button class="choice-btn" data-idx="3">Simply run the installer — Windows Defender will catch any issues.</button>
+    </div>
+    <div class="feedback correct" id="fb1_1c">✅ Correct! Windows uses <strong>digital signatures</strong> to verify publishers. Linux packages are verified by comparing a published <strong>hash value</strong>. Always scan for malware before installing.</div>
+    <div class="feedback wrong" id="fb1_1w">❌ The proper verification method is to check the <strong>digital signature</strong> (Windows) or compare the <strong>hash value</strong> (Linux) <em>and</em> scan for malware. Relying on a single tool is not sufficient.</div>
+  </div>
+
+  <!-- Q1-2 -->
+  <div class="card" id="c1_2">
+    <h3>Quest 3 of 4 — Enterprise Deployment</h3>
+    <div class="scenario-box">📋 <strong>Dispatch:</strong> Your organization needs to deploy a new antivirus client to 500 workstations. Which method avoids requiring admin-level login on each client?</div>
+    <div class="choices" data-qid="1_2" data-answer="3">
+      <button class="choice-btn" data-idx="0">Email the .EXE to all users and ask them to install it.</button>
+      <button class="choice-btn" data-idx="1">Put the installer on a USB thumb drive and walk to each desk.</button>
+      <button class="choice-btn" data-idx="2">Upload it to the company website for download.</button>
+      <button class="choice-btn" data-idx="3">Use Group Policy Objects (GPO) to push the installation remotely via a service account.</button>
+    </div>
+    <div class="feedback correct" id="fb1_2c">✅ Correct! <strong>GPO deployment</strong> runs the installer using a service account, so users don't need local admin privileges. This also allows scheduling deployments during off-peak hours to reduce network congestion.</div>
+    <div class="feedback wrong" id="fb1_2w">❌ The best enterprise approach is <strong>Group Policy Objects (GPO)</strong>. GPO can push installations remotely using a service account — no admin login needed on each client, and it can be scheduled for off-peak hours.</div>
+  </div>
+
+  <!-- Q1-3 -->
+  <div class="card" id="c1_3">
+    <h3>Quest 4 of 4 — ISO Files</h3>
+    <p>An ISO file contains the contents of an optical disc in a single file. <strong>In Windows, how do you access an ISO file's contents?</strong></p>
+    <div class="choices" data-qid="1_3" data-answer="0">
+      <button class="choice-btn" data-idx="0">Right-click the ISO file and select <strong>Mount</strong> — it appears as a virtual drive in File Explorer.</button>
+      <button class="choice-btn" data-idx="1">Rename the .ISO extension to .ZIP and extract it.</button>
+      <button class="choice-btn" data-idx="2">Burn it to a physical DVD first — there is no other way.</button>
+      <button class="choice-btn" data-idx="3">Double-click it to automatically begin the application installation.</button>
+    </div>
+    <div class="feedback correct" id="fb1_3c">✅ Correct! In Windows, <strong>right-click → Mount</strong> makes the ISO appear with the next available drive letter in File Explorer. ISOs are often used for complex installs like databases or VM OS setups.</div>
+    <div class="feedback wrong" id="fb1_3w">❌ The correct method in Windows is to <strong>right-click the ISO and select Mount</strong>. It then appears as a virtual drive with the next available drive letter in File Explorer.</div>
+  </div>
+</section>
+
+<!-- ═══════════ MISSION 2 – Business Impact / Security ═══════════ -->
+<section class="mission" id="mission2">
+  <div class="mission-header">
+    <h2>⚖️ Mission 3: Business Impact, Licensing &amp; Security</h2>
+    <p>Evaluate real-world scenarios involving the risks and responsibilities of deploying software in a corporate environment.</p>
+  </div>
+
+  <!-- Q2-0 -->
+  <div class="card" id="c2_0">
+    <h3>Quest 1 of 4 — Shadow IT</h3>
+    <div class="scenario-box">📋 <strong>Incident Report:</strong> Several employees have installed personal cloud storage apps on their work laptops without IT approval. The security team has flagged this as a risk.</div>
+    <p><strong>This is an example of what concept, and why is it a risk?</strong></p>
+    <div class="choices" data-qid="2_0" data-answer="1">
+      <button class="choice-btn" data-idx="0">Software piracy — the employees are violating licensing agreements.</button>
+      <button class="choice-btn" data-idx="1"><strong>Shadow IT</strong> — unsanctioned software and devices raise substantial operational and business risks because IT lacks control and oversight.</button>
+      <button class="choice-btn" data-idx="2">Network congestion — the cloud apps are using too much bandwidth.</button>
+      <button class="choice-btn" data-idx="3">Compatibility issues — the apps may conflict with existing software.</button>
+    </div>
+    <div class="feedback correct" id="fb2_0c">✅ Correct! <strong>Shadow IT</strong> refers to unsanctioned software and devices deployed without IT oversight. It raises substantial operational and business risks including data leaks, compliance violations, and security threats.</div>
+    <div class="feedback wrong" id="fb2_0w">❌ This is specifically <strong>Shadow IT</strong> — unsanctioned software/devices installed without IT department control. It raises substantial operational and business risks that go beyond any single concern like bandwidth or compatibility.</div>
+  </div>
+
+  <!-- Q2-1 -->
+  <div class="card" id="c2_1">
+    <h3>Quest 2 of 4 — Licensing Compliance</h3>
+    <div class="scenario-box">📋 <strong>Audit Alert:</strong> Your company purchased 50 single-device licenses for a financial application. During an audit, it's discovered the software is installed on 73 workstations.</div>
+    <p><strong>What is the primary consequence?</strong></p>
+    <div class="choices" data-qid="2_1" data-answer="2">
+      <button class="choice-btn" data-idx="0">The software will automatically stop working on the extra 23 machines.</button>
+      <button class="choice-btn" data-idx="1">Nothing — software licenses are rarely enforced.</button>
+      <button class="choice-btn" data-idx="2">The company is exposed to <strong>financial and legal penalties</strong> for violating the license terms.</button>
+      <button class="choice-btn" data-idx="3">The vendor will automatically upgrade the license to cover all 73 machines.</button>
+    </div>
+    <div class="feedback correct" id="fb2_1c">✅ Correct! Installing unlicensed software exposes the company to <strong>financial and legal penalties</strong>. Commercial software must be used within the constraints of its license — whether that restricts device count or user count.</div>
+    <div class="feedback wrong" id="fb2_1w">❌ Exceeding license limits is a serious compliance issue. It exposes the company to <strong>financial and legal penalties</strong>. Licenses restrict either the number of devices or users — violations have real consequences.</div>
+  </div>
+
+  <!-- Q2-2 -->
+  <div class="card" id="c2_2">
+    <h3>Quest 3 of 4 — Security Threats</h3>
+    <p>When evaluating the security impact of installing new software, what is the <strong>principal threat</strong> from untrusted software?</p>
+    <div class="choices" data-qid="2_2" data-answer="0">
+      <button class="choice-btn" data-idx="0">A <strong>Trojan Horse</strong> — software whose true malicious purpose is concealed, potentially stealing data or providing covert remote access.</button>
+      <button class="choice-btn" data-idx="1">A DDoS attack that floods the network.</button>
+      <button class="choice-btn" data-idx="2">Physical damage to the hard drive.</button>
+      <button class="choice-btn" data-idx="3">Automatic deletion of all user files.</button>
+    </div>
+    <div class="feedback correct" id="fb2_2c">✅ Correct! The <strong>Trojan Horse</strong> is identified as the principal threat — malware disguised as legitimate software. It can steal data or provide covert remote access. Always install from trusted, digitally signed sources and test in a lab first.</div>
+    <div class="feedback wrong" id="fb2_2w">❌ The principal threat from untrusted software is a <strong>Trojan Horse</strong> — software whose true malicious purpose is concealed. It can steal data or enable covert remote access to the host or network.</div>
+  </div>
+
+  <!-- Q2-3 -->
+  <div class="card" id="c2_3">
+    <h3>Quest 4 of 4 — Deployment Considerations</h3>
+    <div class="scenario-box">📋 <strong>Planning Meeting:</strong> IT is scheduling a push deployment of a new application image to 200 desktops. The network admin warns about bandwidth impact.</div>
+    <p><strong>What is the recommended scheduling approach?</strong></p>
+    <div class="choices" data-qid="2_3" data-answer="3">
+      <button class="choice-btn" data-idx="0">Deploy immediately during peak hours so employees can start using it right away.</button>
+      <button class="choice-btn" data-idx="1">Deploy to all 200 machines simultaneously at noon.</button>
+      <button class="choice-btn" data-idx="2">Cancel the network deployment and use USB drives instead.</button>
+      <button class="choice-btn" data-idx="3">Schedule the deployment during <strong>non-critical times</strong> such as overnight or on weekends to prevent disruptions during normal operations.</button>
+    </div>
+    <div class="feedback correct" id="fb2_3c">✅ Correct! Pushing installations over the network causes congestion and increased latency. Organizations should limit deployments to <strong>non-critical times</strong> such as overnight or weekends to prevent disruptions.</div>
+    <div class="feedback wrong" id="fb2_3w">❌ Network push deployments should be scheduled during <strong>non-critical times</strong> (overnight, weekends) to prevent network congestion and latency during normal business operations.</div>
+  </div>
+</section>
+
+<!-- ═══════════ MISSION 3 – Cloud-Based Tools ═══════════ -->
+<section class="mission" id="mission3">
+  <div class="mission-header">
+    <h2>☁️ Mission 4: Cloud Productivity Tools</h2>
+    <p>Match cloud-based services to their categories and understand how they work compared to local installations.</p>
+  </div>
+
+  <!-- Matching: Cloud services to categories -->
+  <div class="card" id="c3_0">
+    <h3>Quest 1 of 4 — Cloud Service Matching</h3>
+    <p>Click a service on the left, then click its matching category on the right. Match all 6 pairs.</p>
+    <div class="match-grid" id="matchGrid3_0">
+      <div>
+        <div class="match-item" data-side="left" data-pair="email">Outlook Web / Gmail</div>
+        <div class="match-item" data-side="left" data-pair="storage">OneDrive / Google Drive / iCloud</div>
+        <div class="match-item" data-side="left" data-pair="collab">Google Docs / Office 365 Docs</div>
+        <div class="match-item" data-side="left" data-pair="video">Teams / Zoom / Slack</div>
+        <div class="match-item" data-side="left" data-pair="msg">Teams Chat / Slack Messages</div>
+        <div class="match-item" data-side="left" data-pair="license">Microsoft Entra Admin Center</div>
+      </div>
+      <div>
+        <div class="match-item" data-side="right" data-pair="video">🎥 Video Conferencing</div>
+        <div class="match-item" data-side="right" data-pair="license">📋 License Management</div>
+        <div class="match-item" data-side="right" data-pair="storage">💾 Cloud Storage</div>
+        <div class="match-item" data-side="right" data-pair="email">📧 Cloud Email Systems</div>
+        <div class="match-item" data-side="right" data-pair="collab">📝 Real-Time Collaboration</div>
+        <div class="match-item" data-side="right" data-pair="msg">💬 Instant Messaging</div>
+      </div>
+    </div>
+    <div class="feedback correct" id="fb3_0c">✅ All matched! You've correctly categorized all major cloud-based productivity tools.</div>
+  </div>
+
+  <!-- Q3-1 -->
+  <div class="card" id="c3_1">
+    <h3>Quest 2 of 4 — Cloud Storage Sync</h3>
+    <div class="scenario-box">📋 <strong>User Call:</strong> An employee is traveling and using a mobile hotspot with limited data. OneDrive is consuming excessive bandwidth syncing files. What should you advise?</div>
+    <div class="choices" data-qid="3_1" data-answer="1">
+      <button class="choice-btn" data-idx="0">Uninstall OneDrive completely.</button>
+      <button class="choice-btn" data-idx="1"><strong>Pause or suspend synchronization</strong> — this is designed for metered connections with limited bandwidth or increased data costs.</button>
+      <button class="choice-btn" data-idx="2">Disable the Wi-Fi adapter entirely.</button>
+      <button class="choice-btn" data-idx="3">Delete the synced files from the cloud.</button>
+    </div>
+    <div class="feedback correct" id="fb3_1c">✅ Correct! Cloud storage apps allow you to <strong>pause or suspend synchronization</strong>, which is specifically helpful on metered connections where bandwidth is limited or data costs are higher.</div>
+    <div class="feedback wrong" id="fb3_1w">❌ The best advice is to <strong>pause or suspend synchronization</strong>. This feature exists specifically for metered connections with limited bandwidth or increased monetary costs.</div>
+  </div>
+
+  <!-- Q3-2 -->
+  <div class="card" id="c3_2">
+    <h3>Quest 3 of 4 — Desktop vs. Web App</h3>
+    <div class="scenario-box">📋 <strong>User Call:</strong> An employee using Office 365 in the web browser cannot find an advanced formatting feature they need. What should you suggest?</div>
+    <div class="choices" data-qid="3_2" data-answer="2">
+      <button class="choice-btn" data-idx="0">The feature doesn't exist — web apps have all the same features as desktop apps.</button>
+      <button class="choice-btn" data-idx="1">Install a third-party browser extension to add the feature.</button>
+      <button class="choice-btn" data-idx="2"><strong>Switch to the desktop version</strong> of the application — some features are only available in the desktop version, not the cloud-based web app.</button>
+      <button class="choice-btn" data-idx="3">Upgrade to a more expensive Office 365 subscription.</button>
+    </div>
+    <div class="feedback correct" id="fb3_2c">✅ Correct! Cloud-based collaboration tools often have the option to <strong>switch to the desktop version</strong>. Some features are available only in the desktop application and not the web-based version.</div>
+    <div class="feedback wrong" id="fb3_2w">❌ The solution is to <strong>switch to the desktop version</strong>. Web portal versions of Office 365 may lack some features that are available in the full desktop application.</div>
+  </div>
+
+  <!-- Q3-3 -->
+  <div class="card" id="c3_3">
+    <h3>Quest 4 of 4 — Collaboration Permissions</h3>
+    <p>When installing collaboration tools like Teams, Slack, or Zoom, what hardware permissions typically need to be adjusted?</p>
+    <div class="choices" data-qid="3_3" data-answer="1">
+      <button class="choice-btn" data-idx="0">Access to the system BIOS and boot settings.</button>
+      <button class="choice-btn" data-idx="1">Access to <strong>local files for synchronization</strong>, the <strong>web camera</strong>, and the <strong>microphone</strong> for video/audio calls.</button>
+      <button class="choice-btn" data-idx="2">Administrator-level access to modify system registry keys.</button>
+      <button class="choice-btn" data-idx="3">Direct access to the network firewall configuration.</button>
+    </div>
+    <div class="feedback correct" id="fb3_3c">✅ Correct! Collaboration tools need permissions for <strong>file synchronization</strong>, <strong>webcam access</strong>, and <strong>microphone access</strong> to support their core functionality of video/audio calls and file sharing.</div>
+    <div class="feedback wrong" id="fb3_3w">❌ Collaboration tools typically need permissions to access <strong>local files</strong> (for sync), the <strong>web camera</strong>, and <strong>microphone</strong> for video and audio calls.</div>
+  </div>
+</section>
+
+<!-- ═══════════ MISSION 4 – Identity Sync ═══════════ -->
+<section class="mission" id="mission4">
+  <div class="mission-header">
+    <h2>🔑 Mission 5: Identity Synchronization &amp; Licensing</h2>
+    <p>Demonstrate your understanding of how identity providers and licensing work in cloud/on-premises hybrid environments.</p>
+  </div>
+
+  <!-- Q4-0 -->
+  <div class="card" id="c4_0">
+    <h3>Quest 1 of 4 — Single Sign-On Benefits</h3>
+    <p>An organization uses a cloud-based identity provider synchronized with their on-premises Active Directory. <strong>What is the primary benefit for users?</strong></p>
+    <div class="choices" data-qid="4_0" data-answer="0">
+      <button class="choice-btn" data-idx="0">A <strong>single set of credentials</strong> to access both cloud resources and on-premises resources like their workstation — fewer passwords to remember.</button>
+      <button class="choice-btn" data-idx="1">Users no longer need any passwords at all.</button>
+      <button class="choice-btn" data-idx="2">Each cloud service gets its own unique strong password automatically.</button>
+      <button class="choice-btn" data-idx="3">The identity provider replaces the need for an on-premises Active Directory server.</button>
+    </div>
+    <div class="feedback correct" id="fb4_0c">✅ Correct! Identity synchronization allows a <strong>single set of credentials</strong> for both cloud and on-premises resources. This reduces the number of passwords users must remember and simplifies rights/permissions management.</div>
+    <div class="feedback wrong" id="fb4_0w">❌ The primary benefit is <strong>a single set of credentials</strong> for both cloud and on-premises access. Passwords are still needed — but users only have to remember one set. It also simplifies IT permission management.</div>
+  </div>
+
+  <!-- Q4-1 -->
+  <div class="card" id="c4_1">
+    <h3>Quest 2 of 4 — Microsoft Entra Connect</h3>
+    <div class="scenario-box">📋 <strong>Architecture Review:</strong> The diagram shows On-premises AD connected to Microsoft Entra Connect, which synchronizes with Microsoft Entra ID in the cloud. The connection uses an AD DS Connector Account and a Microsoft Entra Connector Account.</div>
+    <p><strong>What does this architecture accomplish?</strong></p>
+    <div class="choices" data-qid="4_1" data-answer="2">
+      <button class="choice-btn" data-idx="0">It backs up on-premises data to the cloud for disaster recovery.</button>
+      <button class="choice-btn" data-idx="1">It replaces on-premises Active Directory entirely with cloud services.</button>
+      <button class="choice-btn" data-idx="2">It <strong>synchronizes access control policies, permissions, and credentials</strong> between on-premises AD and cloud identity, ensuring a cohesive environment.</button>
+      <button class="choice-btn" data-idx="3">It creates separate admin accounts for cloud and on-premises systems.</button>
+    </div>
+    <div class="feedback correct" id="fb4_1c">✅ Correct! Microsoft Entra Connect <strong>synchronizes permissions, rights, and credentials</strong> between on-premises AD and cloud identity. This ensures the same control policies apply across both environments — a cohesive hybrid setup.</div>
+    <div class="feedback wrong" id="fb4_1w">❌ Entra Connect <strong>synchronizes access policies, permissions, and credentials</strong> between on-premises AD and cloud. It doesn't replace AD — it ensures both environments stay in sync for a cohesive experience.</div>
+  </div>
+
+  <!-- Q4-2 -->
+  <div class="card" id="c4_2">
+    <h3>Quest 3 of 4 — Cross-Cloud Synchronization</h3>
+    <p>Your organization uses both Google Cloud and Microsoft Azure. <strong>What does cross-cloud identity synchronization accomplish?</strong></p>
+    <div class="choices" data-qid="4_2" data-answer="3">
+      <button class="choice-btn" data-idx="0">It merges both cloud providers into a single service.</button>
+      <button class="choice-btn" data-idx="1">It requires users to have three separate sets of credentials.</button>
+      <button class="choice-btn" data-idx="2">It eliminates the need for any administrator accounts.</button>
+      <button class="choice-btn" data-idx="3">It eliminates the need for <strong>two separate sets of credentials</strong> and reduces the administrative burden for managing permissions across providers.</button>
+    </div>
+    <div class="feedback correct" id="fb4_2c">✅ Correct! Cross-cloud synchronization removes the need for <strong>separate credentials per provider</strong>. It reduces management and administrative burden when troubleshooting permission issues across cloud environments.</div>
+    <div class="feedback wrong" id="fb4_2w">❌ Cross-cloud synchronization eliminates needing <strong>two separate sets of credentials</strong> and reduces the administrative burden for permission management and troubleshooting across cloud providers.</div>
+  </div>
+
+  <!-- Q4-3 -->
+  <div class="card" id="c4_3">
+    <h3>Quest 4 of 4 — Cloud License Management</h3>
+    <div class="scenario-box">📋 <strong>Admin Task:</strong> A new employee needs an Office 365 E3 license and a Power BI license assigned. An administrator discovers the wrong license type was assigned to another employee.</div>
+    <p><strong>Where should cloud application licenses be managed and what should be done about the incorrect assignment?</strong></p>
+    <div class="choices" data-qid="4_3" data-answer="1">
+      <button class="choice-btn" data-idx="0">Licenses can only be assigned during initial account creation and cannot be changed.</button>
+      <button class="choice-btn" data-idx="1">Use the <strong>Microsoft Entra admin center</strong> to assign licenses. If the wrong license is assigned, <strong>correct it by changing the license or performing an uninstall and reinstallation</strong> with the correct one.</button>
+      <button class="choice-btn" data-idx="2">Email Microsoft support and wait for them to change the license remotely.</button>
+      <button class="choice-btn" data-idx="3">Delete the employee's account and create a new one with the right license.</button>
+    </div>
+    <div class="feedback correct" id="fb4_3c">✅ Correct! Licenses are managed through the <strong>Microsoft Entra admin center</strong>. If the wrong license is assigned, it should be corrected by <strong>changing the license or uninstalling and reinstalling</strong> with the correct one.</div>
+    <div class="feedback wrong" id="fb4_3w">❌ Cloud licenses are managed via the <strong>Microsoft Entra admin center</strong>. Wrong assignments should be fixed by <strong>changing the license or doing an uninstall/reinstall</strong> with the correct license type.</div>
+  </div>
+</section>
+
+<!-- ═══════════ MISSION 5 – Summary / Debrief ═══════════ -->
+<section class="mission" id="mission5">
+  <div class="summary-panel" id="summaryPanel">
+    <h2>📊 Mission Debrief</h2>
+    <p style="color:var(--text-light)">Complete all missions to see your final report!</p>
+    <div class="final-score" id="finalScore">—</div>
+    <div class="final-rank" id="finalRank"></div>
+    <div class="badge-row" id="badgeRow"></div>
+    <div class="mission-score-detail" id="missionDetail"></div>
+    <button class="btn btn-primary" style="margin-top:18px" onclick="resetAll()">🔄 Restart All Missions</button>
+  </div>
+</section>
+
+<!-- Toast -->
+<div class="toast toast-streak" id="toastStreak"></div>
+<div class="toast toast-rank" id="toastRank"></div>
+<div class="toast toast-badge" id="toastBadge"></div>
+
+<script>
+/* ═══════════ STATE ═══════════ */
+const TOTAL_Q = 20; // 4 per mission × 5 missions
+let score = 0, streak = 0, bestStreak = 0, answered = 0;
+let missionScores = [0,0,0,0,0];
+let missionTotals = [4,4,4,4,4];
+let answeredSet = new Set();
+const rankThresholds = [{name:'Trainee',min:0},{name:'Apprentice',min:6},{name:'Expert',min:13},{name:'Master',min:18}];
+const badges = [
+  {id:'sysreq',icon:'🔧',title:'Hardware Analyst',need:'Mission 1 Perfect'},
+  {id:'distro',icon:'📦',title:'Deployment Pro',need:'Mission 2 Perfect'},
+  {id:'biz',icon:'⚖️',title:'Compliance Officer',need:'Mission 3 Perfect'},
+  {id:'cloud',icon:'☁️',title:'Cloud Architect',need:'Mission 4 Perfect'},
+  {id:'id',icon:'🔑',title:'Identity Master',need:'Mission 5 Perfect'},
+];
+let earnedBadges = new Set();
+
+/* ═══════════ HUD ═══════════ */
+function updateHUD(){
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakDisplay').textContent = streak;
+  document.getElementById('progressDisplay').textContent = answered;
+  const pct = Math.round((answered/TOTAL_Q)*100);
+  document.getElementById('progressBar').style.width = pct+'%';
+  const rank = [...rankThresholds].reverse().find(r=>score>=r.min);
+  document.getElementById('rankDisplay').textContent = rank.name;
+  document.getElementById('totalQ').textContent = TOTAL_Q;
+  // tab completion states
+  for(let m=0;m<5;m++){
+    const tab = document.querySelector(`.mission-tab[data-m="${m}"]`);
+    const mAnswered = [...answeredSet].filter(k=>k.startsWith(m+'_')).length;
+    if(mAnswered>=missionTotals[m]) tab.classList.add('completed-tab');
+  }
+}
+function getRank(){return [...rankThresholds].reverse().find(r=>score>=r.min).name}
+
+/* ═══════════ TOASTS ═══════════ */
+function showToast(id,text,dur=2200){
+  const t=document.getElementById(id);t.textContent=text;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+/* ═══════════ CONFETTI ═══════════ */
+function launchConfetti(count=40){
+  const colors=['#1B5EAF','#1E7A3E','#D4A843','#E67E22','#fff','#8E44AD'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');el.className='confetti-piece';
+    el.style.left=Math.random()*100+'vw';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.borderRadius=Math.random()>.5?'50%':'2px';
+    el.style.width=(6+Math.random()*8)+'px';el.style.height=(6+Math.random()*8)+'px';
+    el.style.animationDuration=(2+Math.random()*1.5)+'s';
+    el.style.animationDelay=(Math.random()*.4)+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(),4000);
+  }
+}
+
+/* ═══════════ STREAK / RANK LOGIC ═══════════ */
+let prevRank = 'Trainee';
+function handleCorrect(missionIdx){
+  score++; streak++; answered++;
+  if(streak>bestStreak) bestStreak=streak;
+  missionScores[missionIdx]++;
+  if(streak===3) showToast('toastStreak','3 in a row! 🔥');
+  else if(streak===5){showToast('toastStreak','5 streak! 🔥🔥 Unstoppable!');launchConfetti(25);}
+  else if(streak===8){showToast('toastStreak','8 streak! 🔥🔥🔥 LEGENDARY!');launchConfetti(50);}
+  else if(streak>=10){showToast('toastStreak',streak+' streak! 💎 GODLIKE!');launchConfetti(60);}
+  const newRank=getRank();
+  if(newRank!==prevRank){showToast('toastRank','⬆️ Rank Up: '+newRank+'!',2800);prevRank=newRank;if(newRank==='Master')launchConfetti(60);}
+  // Check mission badge
+  const mAnswered=[...answeredSet].filter(k=>k.startsWith(missionIdx+'_')).length;
+  if(mAnswered>=missionTotals[missionIdx] && missionScores[missionIdx]>=missionTotals[missionIdx]){
+    const b=badges[missionIdx];
+    if(!earnedBadges.has(b.id)){earnedBadges.add(b.id);showToast('toastBadge','🏅 Badge: '+b.title+'!',2800);launchConfetti(30);}
+  }
+  updateHUD();
+}
+function handleWrong(){
+  streak=0;answered++;updateHUD();
+}
+
+/* ═══════════ MULTIPLE CHOICE ═══════════ */
+document.querySelectorAll('.choices').forEach(container=>{
+  const qid=container.dataset.qid;
+  const correctIdx=parseInt(container.dataset.answer);
+  const mIdx=parseInt(qid.split('_')[0]);
+  container.querySelectorAll('.choice-btn').forEach(btn=>{
+    btn.addEventListener('click',function(){
+      if(answeredSet.has(qid)) return;
+      answeredSet.add(qid);
+      const idx=parseInt(this.dataset.idx);
+      container.querySelectorAll('.choice-btn').forEach(b=>b.classList.add('locked'));
+      if(idx===correctIdx){
+        this.classList.add('selected-correct');
+        document.getElementById('fb'+qid+'c').classList.add('show');
+        document.getElementById('c'+qid).classList.add('correct-card');
+        handleCorrect(mIdx);
+      } else {
+        this.classList.add('selected-wrong');
+        container.querySelector(`[data-idx="${correctIdx}"]`).classList.add('selected-correct');
+        document.getElementById('fb'+qid+'w').classList.add('show');
+        document.getElementById('c'+qid).classList.add('wrong-card');
+        handleWrong();
+      }
+    });
+  });
+});
+
+/* ═══════════ DRAG & DROP ═══════════ */
+let dragData=null;
+document.querySelectorAll('.drag-item').forEach(item=>{
+  item.addEventListener('dragstart',e=>{dragData=item;e.dataTransfer.effectAllowed='move';});
+  item.addEventListener('touchstart',e=>{dragData=item;},{passive:true});
+});
+document.querySelectorAll('.drop-zone').forEach(zone=>{
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag-over');});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('drag-over'));
+  zone.addEventListener('drop',e=>{
+    e.preventDefault();zone.classList.remove('drag-over');
+    if(dragData && !answeredSet.has('1_0')){zone.appendChild(dragData);dragData.classList.add('in-zone');dragData=null;}
+  });
+});
+// Touch fallback
+let touchItem=null;
+document.querySelectorAll('.drag-item').forEach(item=>{
+  item.addEventListener('click',function(){
+    if(answeredSet.has('1_0'))return;
+    if(touchItem===this){touchItem.style.outline='';touchItem=null;return;}
+    if(touchItem)touchItem.style.outline='';
+    touchItem=this;this.style.outline='3px solid var(--gold)';
+  });
+});
+document.querySelectorAll('.drop-zone').forEach(zone=>{
+  zone.addEventListener('click',function(){
+    if(touchItem && !answeredSet.has('1_0')){
+      this.appendChild(touchItem);touchItem.classList.add('in-zone');touchItem.style.outline='';touchItem=null;
+    }
+  });
+});
+
+function checkDragDrop(qid){
+  if(answeredSet.has(qid)) return;
+  const zones=document.querySelectorAll(`#mission1 .drop-zone`);
+  let allPlaced=true, allCorrect=true;
+  const items=document.querySelectorAll(`#bank1_0 .drag-item`);
+  if(items.length>0) allPlaced=false;
+  zones.forEach(zone=>{
+    const zoneId=zone.dataset.zone;
+    zone.querySelectorAll('.drag-item').forEach(item=>{
+      if(item.dataset.target===zoneId){item.classList.add('in-zone');item.classList.remove('wrong-place');}
+      else{item.classList.add('wrong-place');item.classList.remove('in-zone');allCorrect=false;}
+    });
+  });
+  if(!allPlaced){showToast('toastStreak','⚠️ Place all items first!',1800);return;}
+  answeredSet.add(qid);
+  if(allCorrect){
+    document.getElementById('fb'+qid+'c').classList.add('show');
+    document.getElementById('c'+qid).classList.add('correct-card');
+    handleCorrect(1);
+  } else {
+    document.getElementById('fb'+qid+'w').classList.add('show');
+    document.getElementById('c'+qid).classList.add('wrong-card');
+    handleWrong();
+    // Let them see wrong ones but still count as answered
+  }
+  document.getElementById('checkDrag'+qid).disabled=true;
+}
+
+/* ═══════════ MATCHING ═══════════ */
+(function initMatching(){
+  const grid=document.getElementById('matchGrid3_0');
+  if(!grid)return;
+  let selectedLeft=null, matchCount=0;
+  const total=6;
+  grid.querySelectorAll('.match-item').forEach(item=>{
+    item.addEventListener('click',function(){
+      if(this.classList.contains('matched'))return;
+      const side=this.dataset.side;
+      if(side==='left'){
+        if(selectedLeft)selectedLeft.classList.remove('sel');
+        selectedLeft=this;this.classList.add('sel');
+      } else if(side==='right' && selectedLeft){
+        if(selectedLeft.dataset.pair===this.dataset.pair){
+          selectedLeft.classList.remove('sel');
+          selectedLeft.classList.add('matched');
+          this.classList.add('matched');
+          matchCount++;
+          // score each pair individually? We'll count 6 pairs as 1 question
+          if(matchCount>=total && !answeredSet.has('3_0')){
+            answeredSet.add('3_0');
+            document.getElementById('fb3_0c').classList.add('show');
+            document.getElementById('c3_0').classList.add('correct-card');
+            handleCorrect(3);
+          }
+        } else {
+          this.classList.add('mismatch');selectedLeft.classList.add('mismatch');
+          setTimeout(()=>{this.classList.remove('mismatch');selectedLeft.classList.remove('mismatch','sel');selectedLeft=null;},600);
+          return;
+        }
+        selectedLeft=null;
+      }
+    });
+  });
+})();
+
+/* ═══════════ NAVIGATION ═══════════ */
+document.querySelectorAll('.mission-tab').forEach(tab=>{
+  tab.addEventListener('click',function(){
+    const m=parseInt(this.dataset.m);
+    document.querySelectorAll('.mission-tab').forEach(t=>t.classList.remove('active'));
+    this.classList.add('active');
+    document.querySelectorAll('.mission').forEach(s=>s.classList.remove('active'));
+    document.getElementById('mission'+m).classList.add('active');
+    if(m===5) renderSummary();
+  });
+});
+
+/* ═══════════ SUMMARY ═══════════ */
+function renderSummary(){
+  const pct=Math.round((score/TOTAL_Q)*100);
+  document.getElementById('finalScore').textContent=score+'/'+TOTAL_Q+' ('+pct+'%)';
+  const rank=getRank();
+  document.getElementById('finalRank').innerHTML='Final Rank: <strong>'+rank+'</strong> | Best Streak: <strong>'+bestStreak+'</strong>';
+  let bhtml='';
+  badges.forEach((b,i)=>{
+    const earned=earnedBadges.has(b.id);
+    bhtml+=`<div class="badge ${earned?'earned':'locked'}" title="${b.title}${earned?'':' (Not Earned)'}">${b.icon}</div>`;
+  });
+  document.getElementById('badgeRow').innerHTML=bhtml;
+  const mNames=['System Reqs','Distribution','Business Impact','Cloud Tools','Identity Sync'];
+  let detail='';
+  mNames.forEach((n,i)=>{detail+=`<div>${badges[i].icon} ${n}: <strong>${missionScores[i]}/${missionTotals[i]}</strong></div>`;});
+  document.getElementById('missionDetail').innerHTML=detail;
+  if(answered>=TOTAL_Q) launchConfetti(50);
+}
+
+/* ═══════════ RESET ═══════════ */
+function resetAll(){
+  score=0;streak=0;bestStreak=0;answered=0;prevRank='Trainee';
+  missionScores=[0,0,0,0,0];answeredSet.clear();earnedBadges.clear();
+  document.querySelectorAll('.choice-btn').forEach(b=>{b.classList.remove('selected-correct','selected-wrong','locked');});
+  document.querySelectorAll('.feedback').forEach(f=>f.classList.remove('show'));
+  document.querySelectorAll('.card').forEach(c=>{c.classList.remove('correct-card','wrong-card');});
+  document.querySelectorAll('.mission-tab').forEach(t=>t.classList.remove('completed-tab'));
+  document.querySelectorAll('.match-item').forEach(m=>{m.classList.remove('matched','sel','mismatch');});
+  // Reset drag items back to bank
+  const bank=document.getElementById('bank1_0');
+  document.querySelectorAll('#mission1 .drag-item').forEach(d=>{d.classList.remove('in-zone','wrong-place');bank.appendChild(d);});
+  document.getElementById('checkDrag1_0').disabled=false;
+  updateHUD();
+  // Nav to mission 0
+  document.querySelectorAll('.mission-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.mission-tab[data-m="0"]').classList.add('active');
+  document.querySelectorAll('.mission').forEach(s=>s.classList.remove('active'));
+  document.getElementById('mission0').classList.add('active');
+}
+
+updateHUD();
+</script>
+</body>
+</html>
