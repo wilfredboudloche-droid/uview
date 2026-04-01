@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA — The Student's Ultimate Guide to Mastering Google Sheets</title>
+<style>
+/* ======= RESET & BASE ======= */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1B5EAF;--blue-dark:#14478a;--blue-light:#2d7de0;
+  --green:#1E7A3E;--green-light:#27a04f;
+  --gold:#F5A623;--gold-light:#ffd56b;
+  --red:#D9534F;--bg:#f0f4f8;--card:#ffffff;
+  --text:#1a1a2e;--text-light:#555;--radius:12px;
+  --shadow:0 4px 20px rgba(0,0,0,.1);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ======= RIBBON BANNER ======= */
+.ribbon-banner{
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  color:#fff;text-align:center;padding:10px 20px;
+  font-size:.85rem;letter-spacing:2px;text-transform:uppercase;
+  position:relative;overflow:hidden;
+}
+.ribbon-banner::before,.ribbon-banner::after{
+  content:'✦';margin:0 12px;opacity:.6;
+}
+
+/* ======= TOP BAR ======= */
+.top-bar{
+  background:#fff;border-bottom:3px solid var(--blue);
+  padding:12px 24px;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 12px rgba(0,0,0,.08);
+}
+.logo-area{display:flex;align-items:center;gap:12px}
+.logo-area .shield{
+  width:42px;height:42px;background:var(--blue);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:#fff;font-weight:700;
+}
+.logo-area h1{font-size:1.1rem;color:var(--blue);line-height:1.2}
+.logo-area h1 small{font-size:.7rem;color:var(--text-light);font-weight:400;display:block}
+
+.stats-bar{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.stat-pill{
+  background:var(--bg);border-radius:20px;padding:6px 14px;
+  font-size:.8rem;font-weight:600;display:flex;align-items:center;gap:6px;
+}
+.stat-pill.rank{background:linear-gradient(135deg,var(--gold),#e8960a);color:#fff}
+.stat-pill.score{border:2px solid var(--blue);color:var(--blue)}
+.stat-pill.streak{border:2px solid var(--red);color:var(--red)}
+
+.mute-btn{
+  background:none;border:2px solid #ccc;border-radius:50%;width:36px;height:36px;
+  cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  transition:.2s;
+}
+.mute-btn:hover{border-color:var(--blue);background:var(--bg)}
+
+/* ======= PROGRESS BAR ======= */
+.progress-wrap{
+  background:#e0e0e0;height:8px;width:100%;position:relative;
+}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--green),var(--green-light));
+  transition:width .5s ease;width:0;
+}
+
+/* ======= MAIN CONTAINER ======= */
+.container{max-width:960px;margin:0 auto;padding:20px 16px 80px}
+
+/* ======= MISSION NAV ======= */
+.mission-nav{
+  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;justify-content:center;
+}
+.mission-nav button{
+  padding:8px 16px;border-radius:20px;border:2px solid #ddd;
+  background:#fff;font-size:.78rem;font-weight:600;cursor:pointer;
+  transition:.2s;display:flex;align-items:center;gap:6px;
+}
+.mission-nav button:hover{border-color:var(--blue);color:var(--blue)}
+.mission-nav button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.mission-nav button.completed{background:var(--green);color:#fff;border-color:var(--green)}
+.mission-nav button .check{display:none}
+.mission-nav button.completed .check{display:inline}
+
+/* ======= MISSION PANEL ======= */
+.mission{display:none}
+.mission.active{display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.mission-header{
+  background:linear-gradient(135deg,var(--blue),var(--blue-dark));
+  color:#fff;border-radius:var(--radius) var(--radius) 0 0;
+  padding:24px 28px;position:relative;overflow:hidden;
+}
+.mission-header::after{
+  content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;
+  background:rgba(255,255,255,.06);border-radius:50%;
+}
+.mission-header h2{font-size:1.5rem;margin-bottom:4px}
+.mission-header p{opacity:.85;font-size:.9rem}
+.mission-body{
+  background:#fff;border-radius:0 0 var(--radius) var(--radius);
+  padding:28px;box-shadow:var(--shadow);
+}
+
+/* ======= FEEDBACK TOAST ======= */
+.toast{
+  position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);
+  padding:12px 28px;border-radius:30px;color:#fff;font-weight:700;
+  font-size:.95rem;z-index:9999;opacity:0;transition:.3s;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.correct{background:var(--green)}
+.toast.wrong{background:var(--red)}
+.toast.streak{background:linear-gradient(135deg,#ff6b35,#f7c948);font-size:1.1rem}
+.toast.badge{background:linear-gradient(135deg,var(--gold),#e8960a);font-size:1.1rem}
+
+/* ======= MISSION 1: DRAG & DROP ======= */
+.sheets-interface{
+  border:2px solid #c0c0c0;border-radius:6px;overflow:hidden;
+  margin:20px 0;position:relative;background:#fff;
+  user-select:none;
+}
+.sheets-toolbar{
+  background:#f3f3f3;padding:6px 10px;display:flex;align-items:center;
+  gap:8px;border-bottom:1px solid #ddd;font-size:.75rem;color:#333;
+}
+.sheets-toolbar .icon-btn{
+  width:24px;height:24px;background:#e0e0e0;border-radius:4px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:.7rem;
+}
+.sheets-namebox-row{
+  display:flex;border-bottom:1px solid #ddd;background:#f9f9f9;
+}
+.sheets-namebox{
+  width:80px;border-right:1px solid #ddd;padding:4px 6px;
+  font-size:.75rem;font-family:monospace;background:#fff;
+}
+.sheets-formulabar{
+  flex:1;padding:4px 8px;font-size:.75rem;font-family:monospace;
+  display:flex;align-items:center;gap:6px;
+}
+.sheets-formulabar .fx{font-weight:700;color:#666;margin-right:4px}
+.sheets-grid{display:grid;grid-template-columns:36px repeat(6,1fr);font-size:.72rem}
+.sheets-grid .corner{background:#f3f3f3;border-right:1px solid #ddd;border-bottom:1px solid #ddd}
+.sheets-grid .col-hdr{
+  background:#f3f3f3;text-align:center;padding:4px 0;
+  border-right:1px solid #e0e0e0;border-bottom:1px solid #ddd;font-weight:600;color:#555;
+}
+.sheets-grid .row-hdr{
+  background:#f3f3f3;text-align:center;padding:4px 0;
+  border-right:1px solid #ddd;border-bottom:1px solid #e0e0e0;font-weight:600;color:#555;
+}
+.sheets-grid .cell{
+  border-right:1px solid #e8e8e8;border-bottom:1px solid #e8e8e8;
+  padding:4px 6px;min-height:26px;position:relative;
+}
+.sheets-grid .cell.active-cell{
+  outline:2px solid #1a73e8;outline-offset:-1px;background:#e8f0fe;
+}
+
+/* Drop zones */
+.drop-zone{
+  position:absolute;border:2px dashed var(--gold);border-radius:6px;
+  background:rgba(245,166,35,.12);display:flex;align-items:center;justify-content:center;
+  font-size:.65rem;color:var(--gold);font-weight:600;
+  transition:.2s;z-index:10;
+}
+.drop-zone.over{background:rgba(245,166,35,.3);border-color:#e8960a}
+.drop-zone.placed{
+  background:rgba(30,122,62,.15);border:2px solid var(--green);color:var(--green);
+}
+
+/* Drag labels */
+.drag-labels{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;justify-content:center}
+.drag-label{
+  padding:8px 14px;background:var(--blue);color:#fff;border-radius:8px;
+  font-size:.8rem;font-weight:600;cursor:grab;transition:.2s;
+  user-select:none;
+}
+.drag-label:active{cursor:grabbing;transform:scale(1.05)}
+.drag-label.placed{background:#aaa;cursor:default;opacity:.5}
+
+/* ======= MISSION 2: AUTOFILL ======= */
+.autofill-card{
+  border:2px solid #e0e0e0;border-radius:var(--radius);padding:20px;
+  margin-bottom:16px;transition:.3s;
+}
+.autofill-card.correct-card{border-color:var(--green);background:rgba(30,122,62,.04)}
+.autofill-card.wrong-card{border-color:var(--red);background:rgba(217,83,79,.04)}
+.autofill-sequence{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:12px 0;
+}
+.seq-cell{
+  background:#e8f0fe;border:1px solid #b0c4de;border-radius:6px;
+  padding:8px 14px;font-weight:700;font-family:monospace;font-size:1rem;
+}
+.seq-cell.mystery{
+  background:var(--gold-light);border-color:var(--gold);
+  font-size:1.2rem;min-width:40px;text-align:center;
+}
+.autofill-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.autofill-options button{
+  padding:8px 18px;border:2px solid #ddd;border-radius:8px;
+  background:#fff;font-weight:600;cursor:pointer;transition:.2s;font-size:.9rem;
+}
+.autofill-options button:hover{border-color:var(--blue);color:var(--blue)}
+.autofill-options button.chosen-correct{border-color:var(--green);background:rgba(30,122,62,.1);color:var(--green)}
+.autofill-options button.chosen-wrong{border-color:var(--red);background:rgba(217,83,79,.1);color:var(--red)}
+.autofill-options button:disabled{cursor:default;opacity:.7}
+
+/* ======= MISSION 3: FORMAT ======= */
+.format-challenge{
+  border:2px solid #e0e0e0;border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;
+}
+.mini-grid{
+  display:inline-grid;border:1px solid #c0c0c0;margin:12px 0;font-size:.85rem;
+}
+.mini-grid .mg-cell{
+  border:1px solid #ddd;padding:6px 12px;text-align:center;
+  min-width:60px;transition:.3s;cursor:pointer;position:relative;
+}
+.mini-grid .mg-cell:hover{background:#e8f0fe}
+.mini-grid .mg-cell.selected{outline:2px solid #1a73e8;z-index:1}
+.mini-grid .mg-cell.merged{grid-column:span 3;background:#d4edda;font-weight:700}
+.mini-grid .mg-cell.filled{transition:.3s}
+.mini-grid .mg-cell.bolded{font-weight:700}
+.format-toolbar-sim{
+  display:flex;gap:6px;margin:10px 0;flex-wrap:wrap;
+}
+.fmt-btn{
+  padding:6px 12px;border:2px solid #ddd;border-radius:6px;
+  background:#fff;font-size:.8rem;cursor:pointer;font-weight:600;transition:.2s;
+}
+.fmt-btn:hover{border-color:var(--blue);background:#e8f0fe}
+.fmt-btn.active-fmt{border-color:var(--blue);background:var(--blue);color:#fff}
+
+/* ======= MISSION 4: FORMULA ======= */
+.formula-workspace{
+  border:2px solid #e0e0e0;border-radius:var(--radius);padding:20px;margin-bottom:16px;
+}
+.formula-display{
+  background:#f9f9f9;border:2px solid #ddd;border-radius:8px;
+  padding:12px 16px;font-family:monospace;font-size:1.3rem;
+  font-weight:700;min-height:48px;margin:12px 0;
+  display:flex;align-items:center;color:var(--blue);
+}
+.ref-grid{
+  display:inline-grid;grid-template-columns:36px repeat(4,64px);
+  border:1px solid #c0c0c0;margin:10px 0;font-size:.8rem;
+}
+.ref-grid .rg-hdr{
+  background:#f3f3f3;text-align:center;padding:6px;
+  border:1px solid #ddd;font-weight:600;color:#555;
+}
+.ref-grid .rg-cell{
+  border:1px solid #ddd;padding:6px;text-align:center;
+  cursor:pointer;transition:.2s;font-family:monospace;
+}
+.ref-grid .rg-cell:hover{background:#e8f0fe}
+.ref-grid .rg-cell.ref-selected{background:#bbdefb;font-weight:700}
+.op-buttons{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.op-btn{
+  width:42px;height:42px;border:2px solid #ddd;border-radius:8px;
+  background:#fff;font-size:1.2rem;font-weight:700;cursor:pointer;transition:.2s;
+}
+.op-btn:hover{border-color:var(--blue);background:#e8f0fe}
+
+/* ======= MISSION 5: PEMDAS ======= */
+.pemdas-card{
+  border:2px solid #e0e0e0;border-radius:var(--radius);
+  padding:20px;margin-bottom:16px;
+}
+.pemdas-formula{
+  font-family:monospace;font-size:1.4rem;font-weight:700;
+  color:var(--blue);background:#f0f4f8;padding:12px 20px;
+  border-radius:8px;display:inline-block;margin:10px 0;
+}
+.pemdas-options{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.pemdas-options button{
+  padding:10px 22px;border:2px solid #ddd;border-radius:8px;
+  background:#fff;font-weight:700;font-size:1rem;cursor:pointer;transition:.2s;
+}
+.pemdas-options button:hover{border-color:var(--blue)}
+.pemdas-options button.chosen-correct{border-color:var(--green);background:rgba(30,122,62,.1);color:var(--green)}
+.pemdas-options button.chosen-wrong{border-color:var(--red);background:rgba(217,83,79,.1);color:var(--red)}
+
+/* ======= COMPLETION SCREEN ======= */
+.completion-screen{
+  text-align:center;padding:40px 20px;
+}
+.completion-screen .big-rank{
+  font-size:3rem;margin:16px 0;
+}
+.completion-screen .final-score{
+  font-size:2rem;color:var(--blue);font-weight:700;
+}
+.badge-grid{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.badge{
+  width:80px;height:80px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;position:relative;
+}
+.badge.earned{
+  background:linear-gradient(135deg,var(--gold),#e8960a);
+  box-shadow:0 4px 16px rgba(245,166,35,.4);
+  animation:badgePop .5s ease;
+}
+.badge.locked{background:#ddd;filter:grayscale(1);opacity:.4}
+@keyframes badgePop{0%{transform:scale(0)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+.badge-label{font-size:.65rem;font-weight:600;margin-top:4px;text-align:center}
+
+.btn-primary{
+  padding:12px 28px;background:var(--blue);color:#fff;border:none;
+  border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;transition:.2s;
+}
+.btn-primary:hover{background:var(--blue-dark);transform:translateY(-1px)}
+.btn-green{background:var(--green)}
+.btn-green:hover{background:#15632f}
+
+.hint{color:var(--text-light);font-size:.82rem;margin-top:8px;font-style:italic}
+.explanation{
+  margin-top:10px;padding:10px 14px;border-radius:8px;
+  background:#f0f4f8;font-size:.85rem;color:var(--text-light);
+  display:none;
+}
+.explanation.show{display:block;animation:fadeIn .3s}
+
+/* ======= CONFETTI ======= */
+.confetti-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:99999;
+}
+
+/* ======= RESPONSIVE ======= */
+@media(max-width:700px){
+  .top-bar{padding:8px 12px}
+  .logo-area h1{font-size:.9rem}
+  .mission-header{padding:16px}
+  .mission-body{padding:16px}
+  .sheets-grid{font-size:.6rem}
+  .drag-label{font-size:.7rem;padding:6px 10px}
+}
+</style>
+</head>
+<body>
+
+<!-- RIBBON -->
+<div class="ribbon-banner">Virtue, Vigor, Vision</div>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="logo-area">
+    <div class="shield">U</div>
+    <h1>Mastering Google Sheets
+      <small>Tech Manitoba Digital Literacy · Modules 1–5</small>
+    </h1>
+  </div>
+  <div class="stats-bar">
+    <div class="stat-pill rank" id="rankPill">🏅 Trainee</div>
+    <div class="stat-pill score" id="scorePill">⭐ 0 pts</div>
+    <div class="stat-pill streak" id="streakPill">🔥 0 streak</div>
+    <button class="mute-btn" id="muteBtn" title="Toggle sound">🔊</button>
+  </div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CONFETTI CANVAS -->
+<canvas class="confetti-canvas" id="confettiCanvas"></canvas>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- MISSION NAV -->
+  <div class="mission-nav" id="missionNav">
+    <button class="active" onclick="showMission(0)"><span class="check">✓ </span>1 · Interface Explorer</button>
+    <button onclick="showMission(1)"><span class="check">✓ </span>2 · Autofill Apprentice</button>
+    <button onclick="showMission(2)"><span class="check">✓ </span>3 · Format Master</button>
+    <button onclick="showMission(3)"><span class="check">✓ </span>4 · Formula Constructor</button>
+    <button onclick="showMission(4)"><span class="check">✓ </span>5 · PEMDAS Champion</button>
+  </div>
+
+  <!-- =============== MISSION 1 =============== -->
+  <div class="mission active" id="mission0">
+    <div class="mission-header">
+      <h2>🗺️ Mission 1: Interface Explorer</h2>
+      <p>Drag each label to its correct location on the Google Sheets interface.</p>
+    </div>
+    <div class="mission-body">
+      <p class="hint">Drag a label from below and drop it on the highlighted zone it belongs to. Get all 7 correct to complete this mission!</p>
+      <div id="m1Score" style="font-weight:600;margin:8px 0;color:var(--blue)">0 / 7 placed</div>
+
+      <div class="sheets-interface" id="sheetsUI" style="position:relative;min-height:300px;">
+        <!-- Toolbar row -->
+        <div class="sheets-toolbar">
+          <span class="icon-btn">↩</span><span class="icon-btn">↪</span>
+          <span class="icon-btn">🖨</span>
+          <span style="margin-left:8px;color:#888">|</span>
+          <span class="icon-btn"><b>B</b></span>
+          <span class="icon-btn"><i>I</i></span>
+          <span class="icon-btn"><u>U</u></span>
+          <span class="icon-btn">🎨</span>
+        </div>
+        <!-- Name Box + Formula Bar row -->
+        <div class="sheets-namebox-row">
+          <div class="sheets-namebox" id="nameBoxArea">A1</div>
+          <div class="sheets-formulabar"><span class="fx">fx</span> <span id="fbarContent">=SUM(A1:A5)</span></div>
+        </div>
+        <!-- Grid -->
+        <div class="sheets-grid" id="sheetsGrid">
+          <div class="corner"></div>
+          <div class="col-hdr">A</div><div class="col-hdr">B</div><div class="col-hdr">C</div>
+          <div class="col-hdr">D</div><div class="col-hdr">E</div><div class="col-hdr">F</div>
+
+          <div class="row-hdr">1</div>
+          <div class="cell active-cell">42</div><div class="cell">17</div><div class="cell">Hello</div>
+          <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+          <div class="row-hdr">2</div>
+          <div class="cell">8</div><div class="cell">25</div><div class="cell">World</div>
+          <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+          <div class="row-hdr">3</div>
+          <div class="cell">15</div><div class="cell">33</div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+          <div class="row-hdr">4</div>
+          <div class="cell">6</div><div class="cell">12</div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+
+          <div class="row-hdr">5</div>
+          <div class="cell">20</div><div class="cell">50</div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        </div>
+
+        <!-- Drop zones (positioned absolutely) -->
+        <div class="drop-zone" id="dz_formulabar" data-label="Formula Bar" style="top:34px;right:8px;width:160px;height:26px;">Formula Bar?</div>
+        <div class="drop-zone" id="dz_namebox" data-label="Name Box" style="top:34px;left:4px;width:76px;height:26px;">Name Box?</div>
+        <div class="drop-zone" id="dz_colheader" data-label="Column Header" style="top:64px;left:60px;width:90px;height:22px;">Col Header?</div>
+        <div class="drop-zone" id="dz_rowheader" data-label="Row Header" style="top:90px;left:2px;width:34px;height:50px;font-size:.55rem">Row?</div>
+        <div class="drop-zone" id="dz_activecell" data-label="Active Cell" style="top:88px;left:40px;width:70px;height:28px;font-size:.6rem">Active?</div>
+        <div class="drop-zone" id="dz_cellref" data-label="Cell Reference" style="top:120px;left:120px;width:80px;height:28px;font-size:.6rem">Cell Ref?</div>
+        <div class="drop-zone" id="dz_grid" data-label="Grid" style="bottom:8px;right:8px;width:100px;height:40px;">Grid?</div>
+      </div>
+
+      <div class="drag-labels" id="dragLabels">
+        <div class="drag-label" draggable="true" data-label="Formula Bar">Formula Bar</div>
+        <div class="drag-label" draggable="true" data-label="Cell Reference">Cell Reference</div>
+        <div class="drag-label" draggable="true" data-label="Name Box">Name Box</div>
+        <div class="drag-label" draggable="true" data-label="Column Header">Column Header</div>
+        <div class="drag-label" draggable="true" data-label="Row Header">Row Header</div>
+        <div class="drag-label" draggable="true" data-label="Active Cell">Active Cell</div>
+        <div class="drag-label" draggable="true" data-label="Grid">Grid</div>
+      </div>
+
+      <div style="text-align:center;margin-top:20px">
+        <button class="btn-primary btn-green" id="m1Next" style="display:none" onclick="showMission(1)">Proceed to Mission 2 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============== MISSION 2 =============== -->
+  <div class="mission" id="mission1">
+    <div class="mission-header">
+      <h2>✨ Mission 2: Autofill Apprentice</h2>
+      <p>Google Sheets can detect patterns and auto-complete them. Predict what comes next!</p>
+    </div>
+    <div class="mission-body" id="m2Body"></div>
+  </div>
+
+  <!-- =============== MISSION 3 =============== -->
+  <div class="mission" id="mission2">
+    <div class="mission-header">
+      <h2>🎨 Mission 3: Format Master</h2>
+      <p>Apply visual formatting — merge cells, fill colors, and bold text like a pro.</p>
+    </div>
+    <div class="mission-body" id="m3Body"></div>
+  </div>
+
+  <!-- =============== MISSION 4 =============== -->
+  <div class="mission" id="mission3">
+    <div class="mission-header">
+      <h2>🔧 Mission 4: Formula Constructor</h2>
+      <p>Build formulas by clicking cell references and operators. Think like a spreadsheet!</p>
+    </div>
+    <div class="mission-body" id="m4Body"></div>
+  </div>
+
+  <!-- =============== MISSION 5 =============== -->
+  <div class="mission" id="mission4">
+    <div class="mission-header">
+      <h2>🏆 Mission 5: PEMDAS Champion</h2>
+      <p>Master the order of operations: Parentheses, Exponents, Multiply/Divide, Add/Subtract.</p>
+    </div>
+    <div class="mission-body" id="m5Body"></div>
+  </div>
+
+  <!-- =============== COMPLETION =============== -->
+  <div class="mission" id="mission5">
+    <div class="mission-header" style="background:linear-gradient(135deg,var(--green),#15632f)">
+      <h2>🎓 All Missions Complete!</h2>
+      <p>Review your results and claim your certification rank.</p>
+    </div>
+    <div class="mission-body completion-screen" id="completionBody"></div>
+  </div>
+
+</div>
+
+<script>
+/* ================= STATE ================= */
+let score = 0, streak = 0, bestStreak = 0;
+let missionsCompleted = [false,false,false,false,false];
+let muted = false;
+
+/* ================= AUDIO ================= */
+let audioCtx;
+function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)()}
+function playTone(freq,dur,type='sine'){
+  if(muted)return;
+  try{initAudio();const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;g.gain.value=.12;
+  o.connect(g);g.connect(audioCtx.destination);
+  o.start();g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);
+  o.stop(audioCtx.currentTime+dur);}catch(e){}
+}
+function sfxCorrect(){playTone(523,.1);setTimeout(()=>playTone(659,.1),100);setTimeout(()=>playTone(784,.15),200)}
+function sfxWrong(){playTone(200,.3,'sawtooth')}
+function sfxComplete(){playTone(523,.1);setTimeout(()=>playTone(659,.1),120);setTimeout(()=>playTone(784,.1),240);setTimeout(()=>playTone(1047,.25),360)}
+document.getElementById('muteBtn').onclick=()=>{muted=!muted;document.getElementById('muteBtn').textContent=muted?'🔇':'🔊'};
+
+/* ================= UI HELPERS ================= */
+function updateStats(){
+  const ranks=[{min:0,name:'Trainee',emoji:'🏅'},{min:21,name:'Apprentice',emoji:'🥈'},{min:41,name:'Expert',emoji:'🥇'},{min:61,name:'Master',emoji:'👑'}];
+  let rank=ranks[0];for(const r of ranks)if(score>=r.min)rank=r;
+  document.getElementById('rankPill').textContent=`${rank.emoji} ${rank.name}`;
+  document.getElementById('scorePill').textContent=`⭐ ${score} pts`;
+  document.getElementById('streakPill').textContent=`🔥 ${streak} streak`;
+  const done=missionsCompleted.filter(Boolean).length;
+  document.getElementById('progressFill').style.width=`${(done/5)*100}%`;
+}
+function showToast(msg,type,dur=1800){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+function addScore(pts){
+  score+=pts;streak++;if(streak>bestStreak)bestStreak=streak;
+  if(streak>=3&&streak%3===0)showToast(`${streak} in a row! 🔥`,'streak',2200);
+  updateStats();
+}
+function loseStreak(){streak=0;updateStats()}
+
+function showMission(idx){
+  document.querySelectorAll('.mission').forEach((m,i)=>{m.classList.toggle('active',i===idx)});
+  const btns=document.querySelectorAll('.mission-nav button');
+  btns.forEach((b,i)=>{b.classList.toggle('active',i===idx);if(missionsCompleted[i])b.classList.add('completed')});
+}
+function completeMission(idx){
+  missionsCompleted[idx]=true;sfxComplete();fireConfetti();
+  showToast('🎖️ Mission Complete!','badge',2500);
+  updateStats();
+  const btns=document.querySelectorAll('.mission-nav button');
+  btns[idx].classList.add('completed');
+}
+
+/* ================= CONFETTI ================= */
+function fireConfetti(){
+  const c=document.getElementById('confettiCanvas'),ctx=c.getContext('2d');
+  c.width=window.innerWidth;c.height=window.innerHeight;
+  const pieces=[];const colors=['#1B5EAF','#1E7A3E','#F5A623','#D9534F','#ffd56b','#2d7de0'];
+  for(let i=0;i<120;i++){
+    pieces.push({x:c.width/2+(Math.random()-.5)*200,y:c.height/2,
+      vx:(Math.random()-.5)*16,vy:Math.random()*-18-4,
+      size:Math.random()*8+3,color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*360,rv:(Math.random()-.5)*12,life:1});
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    let alive=false;
+    pieces.forEach(p=>{
+      if(p.life<=0)return;alive=true;
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.45;p.rot+=p.rv;p.life-=.008;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.globalAlpha=p.life;ctx.fillStyle=p.color;
+      ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*0.6);
+      ctx.restore();
+    });
+    if(alive&&frame<300){frame++;requestAnimationFrame(draw)}
+    else ctx.clearRect(0,0,c.width,c.height);
+  }
+  draw();
+}
+
+/* ================= MISSION 1: DRAG & DROP ================= */
+(function initM1(){
+  let placed=0;const total=7;
+  const labels=document.querySelectorAll('.drag-label');
+  const zones=document.querySelectorAll('.drop-zone');
+  let draggedLabel=null;
+
+  labels.forEach(l=>{
+    l.addEventListener('dragstart',e=>{
+      draggedLabel=l;e.dataTransfer.setData('text/plain',l.dataset.label);
+      setTimeout(()=>l.style.opacity='.4',0);
+    });
+    l.addEventListener('dragend',()=>{l.style.opacity=l.classList.contains('placed')?'.5':'1'});
+    // Touch support
+    l.addEventListener('touchstart',e=>{draggedLabel=l},{passive:true});
+  });
+
+  zones.forEach(z=>{
+    z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over')});
+    z.addEventListener('dragleave',()=>z.classList.remove('over'));
+    z.addEventListener('drop',e=>{
+      e.preventDefault();z.classList.remove('over');
+      if(!draggedLabel||z.classList.contains('placed'))return;
+      const dropped=draggedLabel.dataset.label;
+      if(dropped===z.dataset.label){
+        z.textContent='✓ '+dropped;z.classList.add('placed');
+        draggedLabel.classList.add('placed');draggedLabel.draggable=false;
+        placed++;addScore(3);sfxCorrect();
+        showToast('✓ Correct!','correct');
+        document.getElementById('m1Score').textContent=`${placed} / ${total} placed`;
+        if(placed===total){
+          completeMission(0);
+          document.getElementById('m1Next').style.display='inline-block';
+        }
+      }else{
+        showToast('✗ Try again — that label belongs elsewhere','wrong');
+        sfxWrong();loseStreak();
+      }
+      draggedLabel=null;
+    });
+    // Touch drop
+    z.addEventListener('touchend',e=>{
+      if(!draggedLabel||z.classList.contains('placed'))return;
+      const rect=z.getBoundingClientRect();
+      const touch=e.changedTouches[0];
+      if(touch.clientX>=rect.left&&touch.clientX<=rect.right&&touch.clientY>=rect.top&&touch.clientY<=rect.bottom){
+        z.dispatchEvent(new Event('drop'));
+      }
+    });
+  });
+
+  // Make touch-drag work
+  document.addEventListener('touchmove',e=>{},{passive:true});
+})();
+
+/* ================= MISSION 2: AUTOFILL ================= */
+(function initM2(){
+  const questions=[
+    {seq:['Mon','Tue','Wed'],answer:'Thu',options:['Fri','Thu','Sun','Sat'],hint:'Days of the week continue in order.'},
+    {seq:['2','4','6'],answer:'8',options:['7','9','8','10'],hint:'Adding 2 each time: 2, 4, 6, 8…'},
+    {seq:['Jan','Feb','Mar'],answer:'Apr',options:['Apr','Jun','May','Dec'],hint:'Months continue sequentially.'},
+    {seq:['10','20','30'],answer:'40',options:['35','50','40','45'],hint:'Adding 10 each time: 10, 20, 30, 40…'},
+    {seq:['A1','A2','A3'],answer:'A4',options:['B4','A4','A5','B1'],hint:'The row number increments: A1, A2, A3, A4.'},
+    {seq:['100','95','90'],answer:'85',options:['80','88','85','75'],hint:'Subtracting 5 each time: 100, 95, 90, 85…'},
+  ];
+  let answered=0;
+  const body=document.getElementById('m2Body');
+  let html='<p class="hint">Select the correct next value in each autofill pattern.</p>';
+  questions.forEach((q,i)=>{
+    html+=`<div class="autofill-card" id="af${i}">
+      <strong>Pattern ${i+1}:</strong>
+      <div class="autofill-sequence">
+        ${q.seq.map(s=>`<div class="seq-cell">${s}</div>`).join('<span style="color:#aaa">→</span>')}
+        <span style="color:#aaa">→</span>
+        <div class="seq-cell mystery" id="afAns${i}">?</div>
+      </div>
+      <div class="autofill-options" id="afOpts${i}">
+        ${q.options.map(o=>`<button onclick="checkAF(${i},'${o}')">${o}</button>`).join('')}
+      </div>
+      <div class="explanation" id="afExp${i}">${q.hint}</div>
+    </div>`;
+  });
+  html+=`<div style="text-align:center;margin-top:20px">
+    <button class="btn-primary btn-green" id="m2Next" style="display:none" onclick="showMission(2)">Proceed to Mission 3 →</button></div>`;
+  body.innerHTML=html;
+
+  window.checkAF=function(i,chosen){
+    const q=questions[i];
+    const btns=document.querySelectorAll(`#afOpts${i} button`);
+    btns.forEach(b=>b.disabled=true);
+    const card=document.getElementById('af'+i);
+    const ans=document.getElementById('afAns'+i);
+    if(chosen===q.answer){
+      btns.forEach(b=>{if(b.textContent===chosen)b.classList.add('chosen-correct')});
+      ans.textContent=q.answer;ans.style.background='#d4edda';ans.style.borderColor='var(--green)';
+      card.classList.add('correct-card');addScore(3);sfxCorrect();showToast('✓ Correct!','correct');
+    }else{
+      btns.forEach(b=>{
+        if(b.textContent===chosen)b.classList.add('chosen-wrong');
+        if(b.textContent===q.answer)b.classList.add('chosen-correct');
+      });
+      ans.textContent=q.answer;card.classList.add('wrong-card');
+      sfxWrong();loseStreak();showToast('✗ Not quite!','wrong');
+    }
+    document.getElementById('afExp'+i).classList.add('show');
+    answered++;
+    if(answered===questions.length){
+      completeMission(1);document.getElementById('m2Next').style.display='inline-block';
+    }
+  };
+})();
+
+/* ================= MISSION 3: FORMAT MASTER ================= */
+(function initM3(){
+  const body=document.getElementById('m3Body');
+  body.innerHTML=`
+    <p class="hint">Complete each formatting challenge by clicking the correct action.</p>
+
+    <div class="format-challenge" id="fc0">
+      <strong>Challenge 1:</strong> Merge cells A1, B1, and C1 into one cell for a title row.
+      <div class="mini-grid" style="grid-template-columns:repeat(3,80px)" id="mg0">
+        <div class="mg-cell" id="mg0a">Report</div>
+        <div class="mg-cell" id="mg0b">Title</div>
+        <div class="mg-cell" id="mg0c">Here</div>
+      </div><br>
+      <div class="format-toolbar-sim">
+        <button class="fmt-btn" onclick="doFormat(0,'merge')">⬛ Merge Cells</button>
+        <button class="fmt-btn" onclick="doFormat(0,'bold')"><b>B</b> Bold</button>
+        <button class="fmt-btn" onclick="doFormat(0,'fill')">🎨 Fill Color</button>
+      </div>
+      <div class="explanation" id="fcExp0">Merge Cells combines multiple cells into one — perfect for title rows spanning several columns.</div>
+    </div>
+
+    <div class="format-challenge" id="fc1">
+      <strong>Challenge 2:</strong> Apply <b>bold</b> formatting to the header row below.
+      <div class="mini-grid" style="grid-template-columns:repeat(3,80px)" id="mg1">
+        <div class="mg-cell" id="mg1a">Name</div>
+        <div class="mg-cell" id="mg1b">Grade</div>
+        <div class="mg-cell" id="mg1c">Score</div>
+      </div><br>
+      <div class="format-toolbar-sim">
+        <button class="fmt-btn" onclick="doFormat(1,'merge')">⬛ Merge Cells</button>
+        <button class="fmt-btn" onclick="doFormat(1,'bold')"><b>B</b> Bold</button>
+        <button class="fmt-btn" onclick="doFormat(1,'fill')">🎨 Fill Color</button>
+      </div>
+      <div class="explanation" id="fcExp1">Bold text makes headers stand out and improves readability of your spreadsheet.</div>
+    </div>
+
+    <div class="format-challenge" id="fc2">
+      <strong>Challenge 3:</strong> Apply a <b>fill color</b> to highlight the cell containing the highest score.
+      <div class="mini-grid" style="grid-template-columns:repeat(3,80px)" id="mg2">
+        <div class="mg-cell" id="mg2a">72</div>
+        <div class="mg-cell" id="mg2b">98</div>
+        <div class="mg-cell" id="mg2c">85</div>
+      </div><br>
+      <div class="format-toolbar-sim">
+        <button class="fmt-btn" onclick="doFormat(2,'merge')">⬛ Merge Cells</button>
+        <button class="fmt-btn" onclick="doFormat(2,'bold')"><b>B</b> Bold</button>
+        <button class="fmt-btn" onclick="doFormat(2,'fill')">🎨 Fill Color</button>
+      </div>
+      <div class="explanation" id="fcExp2">Fill Color highlights important cells. The highest score (98) should stand out with a colored background.</div>
+    </div>
+
+    <div class="format-challenge" id="fc3">
+      <strong>Challenge 4:</strong> Merge cells A1–C1 <em>and</em> apply bold to create a proper report header.
+      <div class="mini-grid" style="grid-template-columns:repeat(3,80px)" id="mg3">
+        <div class="mg-cell" id="mg3a">Q1</div>
+        <div class="mg-cell" id="mg3b">Sales</div>
+        <div class="mg-cell" id="mg3c">Report</div>
+      </div><br>
+      <div class="format-toolbar-sim">
+        <button class="fmt-btn" id="fc3merge" onclick="doFormat(3,'merge')">⬛ Merge Cells</button>
+        <button class="fmt-btn" id="fc3bold" onclick="doFormat(3,'bold')"><b>B</b> Bold</button>
+        <button class="fmt-btn" onclick="doFormat(3,'fill')">🎨 Fill Color</button>
+      </div>
+      <div class="explanation" id="fcExp3">Real reports often need both merge and bold — combining formatting techniques for professional-looking headers.</div>
+    </div>
+
+    <div style="text-align:center;margin-top:20px">
+      <button class="btn-primary btn-green" id="m3Next" style="display:none" onclick="showMission(3)">Proceed to Mission 4 →</button>
+    </div>`;
+
+  const answers=[['merge'],['bold'],['fill'],['merge','bold']];
+  const state=[new Set(),new Set(),new Set(),new Set()];
+  let completed3=[false,false,false,false];
+
+  window.doFormat=function(ci,action){
+    if(completed3[ci])return;
+    state[ci].add(action);
+    const grid=document.getElementById('mg'+ci);
+    const cells=grid.querySelectorAll('.mg-cell');
+
+    if(action==='merge'){
+      cells.forEach((c,j)=>{if(j>0)c.style.display='none'});
+      cells[0].style.gridColumn='span 3';cells[0].style.background='#d4edda';
+      cells[0].textContent=Array.from(cells).map(c=>c.textContent).filter(Boolean).join(' ');
+    }
+    if(action==='bold') cells.forEach(c=>c.style.fontWeight='700');
+    if(action==='fill'){
+      if(ci===2){cells[1].style.background='#fff3cd'}
+      else cells.forEach(c=>c.style.background='#fff3cd');
+    }
+
+    const needed=new Set(answers[ci]);
+    const hasAll=[...needed].every(a=>state[ci].has(a));
+    const hasWrong=[...state[ci]].some(a=>!needed.has(a));
+
+    if(hasAll&&!hasWrong){
+      completed3[ci]=true;addScore(3);sfxCorrect();showToast('✓ Perfect formatting!','correct');
+      document.getElementById('fcExp'+ci).classList.add('show');
+      if(completed3.every(Boolean)){completeMission(2);document.getElementById('m3Next').style.display='inline-block'}
+    }else if(hasWrong){
+      showToast('✗ That format isn\'t needed here','wrong');sfxWrong();loseStreak();
+      document.getElementById('fcExp'+ci).classList.add('show');
+      // Allow continued attempts — mark done if they get it eventually
+    }
+  };
+})();
+
+/* ================= MISSION 4: FORMULA CONSTRUCTOR ================= */
+(function initM4(){
+  const challenges=[
+    {prompt:'Add cells A1 and B1 together.',data:{A1:10,B1:25,A2:7,B2:3},answer:'=A1+B1',result:35},
+    {prompt:'Multiply C2 by D2.',data:{C2:6,D2:8,C1:2,D1:4},answer:'=C2*D2',result:48},
+    {prompt:'Subtract B2 from A2.',data:{A2:50,B2:18,A1:5,B1:9},answer:'=A2-B2',result:32},
+    {prompt:'Divide A1 by B1.',data:{A1:100,B1:4,A2:20,B2:5},answer:'=A1/B1',result:25},
+  ];
+  let ci=0;
+  const body=document.getElementById('m4Body');
+
+  function renderChallenge(){
+    if(ci>=challenges.length){
+      completeMission(3);
+      body.innerHTML=`<div style="text-align:center;padding:30px">
+        <h3 style="color:var(--green)">🎉 All formulas built!</h3>
+        <button class="btn-primary btn-green" onclick="showMission(4)" style="margin-top:16px">Proceed to Mission 5 →</button>
+      </div>`;
+      return;
+    }
+    const ch=challenges[ci];
+    const keys=Object.keys(ch.data);
+    const cols=[...new Set(keys.map(k=>k[0]))].sort();
+    const rows=[...new Set(keys.map(k=>k.slice(1)))].sort();
+
+    body.innerHTML=`
+      <p class="hint">Build the formula by clicking cells and operators. Challenge ${ci+1} of ${challenges.length}.</p>
+      <div class="formula-workspace">
+        <strong>${ch.prompt}</strong>
+        <div class="formula-display" id="fDisp">=</div>
+        <div class="ref-grid" style="grid-template-columns:36px repeat(${cols.length},64px)">
+          <div class="rg-hdr"></div>
+          ${cols.map(c=>`<div class="rg-hdr">${c}</div>`).join('')}
+          ${rows.map(r=>`<div class="rg-hdr">${r}</div>
+            ${cols.map(c=>{const ref=c+r;const val=ch.data[ref]!==undefined?ch.data[ref]:'';
+              return`<div class="rg-cell" onclick="addRef('${ref}')" data-ref="${ref}">${val}</div>`}).join('')}
+          `).join('')}
+        </div>
+        <div class="op-buttons">
+          <button class="op-btn" onclick="addOp('+')">+</button>
+          <button class="op-btn" onclick="addOp('-')">−</button>
+          <button class="op-btn" onclick="addOp('*')">×</button>
+          <button class="op-btn" onclick="addOp('/')">/</button>
+          <button class="op-btn" onclick="clearFormula()" style="font-size:.8rem;width:auto;padding:0 12px">Clear</button>
+          <button class="op-btn" onclick="submitFormula()" style="font-size:.8rem;width:auto;padding:0 14px;background:var(--green);color:#fff;border-color:var(--green)">✓ Submit</button>
+        </div>
+        <div class="explanation" id="fExp"></div>
+      </div>`;
+  }
+
+  let formula='=';
+  window.addRef=function(ref){formula+=ref;document.getElementById('fDisp').textContent=formula};
+  window.addOp=function(op){formula+=op;document.getElementById('fDisp').textContent=formula};
+  window.clearFormula=function(){formula='=';document.getElementById('fDisp').textContent='='};
+  window.submitFormula=function(){
+    const ch=challenges[ci];
+    const clean=f=>f.replace(/\s/g,'').toUpperCase();
+    if(clean(formula)===clean(ch.answer)){
+      addScore(4);sfxCorrect();showToast(`✓ Correct! ${ch.answer} = ${ch.result}`,'correct');
+      document.getElementById('fExp').textContent=`${ch.answer} evaluates to ${ch.result}. Great work!`;
+      document.getElementById('fExp').classList.add('show');
+      ci++;formula='=';setTimeout(renderChallenge,1500);
+    }else{
+      sfxWrong();loseStreak();showToast('✗ Check your formula and try again','wrong');
+    }
+  };
+
+  renderChallenge();
+})();
+
+/* ================= MISSION 5: PEMDAS ================= */
+(function initM5(){
+  const questions=[
+    {formula:'=2+3*4',answer:14,options:[20,14,24,10],explain:'Multiply first: 3×4=12, then add: 2+12=14'},
+    {formula:'=(2+3)*4',answer:20,options:[14,20,24,10],explain:'Parentheses first: (2+3)=5, then multiply: 5×4=20'},
+    {formula:'=10-2*3',answer:4,options:[24,4,6,8],explain:'Multiply first: 2×3=6, then subtract: 10−6=4'},
+    {formula:'=8/4+3*2',answer:8,options:[7,8,10,1],explain:'Divide & multiply first: 8/4=2 and 3×2=6, then add: 2+6=8'},
+    {formula:'=(6+4)/2',answer:5,options:[8,5,7,3],explain:'Parentheses first: (6+4)=10, then divide: 10/2=5'},
+    {formula:'=3+2^2*2',answer:11,options:[11,20,14,7],explain:'Exponent first: 2²=4, then multiply: 4×2=8, then add: 3+8=11'},
+  ];
+  let answered=0;
+  const body=document.getElementById('m5Body');
+  let html='<p class="hint">Calculate each formula using PEMDAS order of operations.</p>';
+  questions.forEach((q,i)=>{
+    html+=`<div class="pemdas-card" id="pm${i}">
+      <strong>Question ${i+1}:</strong> What does this formula evaluate to?
+      <div class="pemdas-formula">${q.formula}</div>
+      <div class="pemdas-options" id="pmOpts${i}">
+        ${q.options.map(o=>`<button onclick="checkPM(${i},${o})">${o}</button>`).join('')}
+      </div>
+      <div class="explanation" id="pmExp${i}">${q.explain}</div>
+    </div>`;
+  });
+  html+=`<div style="text-align:center;margin-top:20px">
+    <button class="btn-primary btn-green" id="m5Next" style="display:none" onclick="showCompletion()">See Final Results 🎓</button></div>`;
+  body.innerHTML=html;
+
+  window.checkPM=function(i,chosen){
+    const q=questions[i];
+    const btns=document.querySelectorAll(`#pmOpts${i} button`);
+    btns.forEach(b=>b.disabled=true);
+    if(chosen===q.answer){
+      btns.forEach(b=>{if(parseInt(b.textContent)===chosen)b.classList.add('chosen-correct')});
+      addScore(3);sfxCorrect();showToast('✓ Correct!','correct');
+    }else{
+      btns.forEach(b=>{
+        if(parseInt(b.textContent)===chosen)b.classList.add('chosen-wrong');
+        if(parseInt(b.textContent)===q.answer)b.classList.add('chosen-correct');
+      });
+      sfxWrong();loseStreak();showToast('✗ Not quite!','wrong');
+    }
+    document.getElementById('pmExp'+i).classList.add('show');
+    answered++;
+    if(answered===questions.length){
+      completeMission(4);document.getElementById('m5Next').style.display='inline-block';
+    }
+  };
+})();
+
+/* ================= COMPLETION SCREEN ================= */
+window.showCompletion=function(){
+  showMission(5);fireConfetti();
+  const ranks=[{min:0,name:'Trainee',emoji:'🏅'},{min:21,name:'Apprentice',emoji:'🥈'},{min:41,name:'Expert',emoji:'🥇'},{min:61,name:'Master',emoji:'👑'}];
+  let rank=ranks[0];for(const r of ranks)if(score>=r.min)rank=r;
+
+  const badges=[
+    {name:'Interface Explorer',emoji:'🗺️',earned:missionsCompleted[0]},
+    {name:'Autofill Apprentice',emoji:'✨',earned:missionsCompleted[1]},
+    {name:'Format Master',emoji:'🎨',earned:missionsCompleted[2]},
+    {name:'Formula Constructor',emoji:'🔧',earned:missionsCompleted[3]},
+    {name:'PEMDAS Champion',emoji:'🏆',earned:missionsCompleted[4]},
+  ];
+
+  document.getElementById('completionBody').innerHTML=`
+    <h3>Certification Summary</h3>
+    <div class="big-rank">${rank.emoji}</div>
+    <div class="final-score">${score} Points — ${rank.name}</div>
+    <p style="margin:8px 0;color:var(--text-light)">Best Streak: ${bestStreak} 🔥 &nbsp;|&nbsp; Missions Completed: ${missionsCompleted.filter(Boolean).length}/5</p>
+    <div class="badge-grid">
+      ${badges.map(b=>`<div><div class="badge ${b.earned?'earned':'locked'}">${b.emoji}</div><div class="badge-label">${b.name}</div></div>`).join('')}
+    </div>
+    <p style="margin-top:20px;color:var(--text-light);font-size:.85rem">
+      Tech Manitoba Digital Literacy — Modules 1–5<br>
+      <strong>Virtue, Vigor, Vision</strong>
+    </p>
+    <button class="btn-primary" style="margin-top:20px" onclick="location.reload()">🔄 Restart All Missions</button>
+  `;
+};
+
+/* ================= INIT ================= */
+updateStats();
+</script>
+</body>
+</html>
