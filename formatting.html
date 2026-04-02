@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conditional Formatting in Google Sheets | University View Academy</title>
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1B5EAF;--blue-light:#e8f0fe;--blue-dark:#14478a;
+  --green:#1E7A3E;--green-light:#e6f4ea;--green-dark:#155a2d;
+  --bg:#ffffff;--bg-alt:#f5f5f5;--bg-card:#ffffff;
+  --text:#333333;--text-light:#666666;--text-lighter:#999999;
+  --border:#dadce0;--border-light:#e8eaed;
+  --red:#d93025;--orange:#f9ab00;--yellow:#fbbc04;
+  --sheets-green:#0f9d58;--sheets-blue:#4285f4;
+  --shadow:0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.08);
+  --shadow-lg:0 4px 16px rgba(0,0,0,.12);
+  --radius:8px;--radius-sm:4px;
+  --transition:0.3s cubic-bezier(.4,0,.2,1);
+}
+html{font-size:15px;scroll-behavior:smooth}
+body{font-family:'Segoe UI',Roboto,Arial,sans-serif;background:var(--bg-alt);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:var(--blue);text-decoration:none}
+button{cursor:pointer;font-family:inherit;border:none;outline:none}
+input,select{font-family:inherit;outline:none}
+
+/* ===== OVERLAYS ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);opacity:0;animation:fadeIn .4s forwards}
+@keyframes fadeIn{to{opacity:1}}
+.overlay-card{background:var(--bg);border-radius:12px;padding:36px 32px;max-width:420px;width:92%;box-shadow:var(--shadow-lg);text-align:center;animation:slideUp .5s cubic-bezier(.34,1.56,.64,1) forwards;transform:translateY(30px);opacity:0}
+@keyframes slideUp{to{transform:translateY(0);opacity:1}}
+.overlay-card img{height:80px;margin-bottom:12px}
+.overlay-card h2{color:var(--blue);font-size:1.35rem;margin-bottom:4px}
+.overlay-card .motto{color:var(--green);font-size:.8rem;letter-spacing:1px;margin-bottom:18px;font-weight:600}
+.overlay-card label{display:block;text-align:left;font-weight:600;font-size:.82rem;color:var(--text);margin-bottom:4px;margin-top:12px}
+.overlay-card input,.overlay-card select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:var(--radius-sm);font-size:.95rem;transition:var(--transition)}
+.overlay-card input:focus,.overlay-card select:focus{border-color:var(--blue)}
+.overlay-card .btn-primary{width:100%;padding:12px;background:var(--blue);color:#fff;border-radius:var(--radius);font-size:1rem;font-weight:600;margin-top:18px;transition:var(--transition)}
+.overlay-card .btn-primary:hover{background:var(--blue-dark);transform:translateY(-1px)}
+.overlay-card .error-msg{color:var(--red);font-size:.82rem;margin-top:6px;min-height:20px}
+.teacher-bypass{margin-top:18px;padding-top:14px;border-top:1px solid var(--border-light);font-size:.78rem;color:var(--text-lighter)}
+.teacher-bypass a{color:var(--text-lighter);transition:var(--transition)}
+.teacher-bypass a:hover{color:var(--blue)}
+
+/* ===== HEADER ===== */
+.app-header{background:var(--bg);border-bottom:3px solid var(--green);padding:12px 24px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.app-header img{height:52px}
+.header-text h1{font-size:1.1rem;color:var(--blue);line-height:1.2}
+.header-text .sub{font-size:.75rem;color:var(--green);font-weight:600;letter-spacing:.5px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.score-badge{background:var(--blue);color:#fff;padding:6px 14px;border-radius:20px;font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:6px}
+.streak-badge{background:var(--green);color:#fff;padding:6px 12px;border-radius:20px;font-size:.82rem;font-weight:600}
+.rank-badge{background:linear-gradient(135deg,var(--blue),var(--green));color:#fff;padding:6px 14px;border-radius:20px;font-size:.82rem;font-weight:600}
+
+/* ===== PROGRESS BAR ===== */
+.progress-container{background:var(--bg);padding:10px 24px;border-bottom:1px solid var(--border-light)}
+.progress-bar-outer{background:var(--border-light);height:8px;border-radius:4px;overflow:hidden}
+.progress-bar-inner{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1);width:0%}
+.progress-labels{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-lighter);margin-top:4px}
+
+/* ===== MAIN CONTAINER ===== */
+.main-container{max-width:1100px;margin:0 auto;padding:20px 16px 60px}
+
+/* ===== MISSION CARDS ===== */
+.mission-panel{background:var(--bg);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;transition:var(--transition)}
+.mission-header{padding:16px 20px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));color:#fff;display:flex;align-items:center;gap:12px;cursor:pointer;user-select:none}
+.mission-header .mission-num{background:rgba(255,255,255,.2);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;flex-shrink:0}
+.mission-header .mission-title{flex:1}
+.mission-header .mission-title h3{font-size:1rem;margin-bottom:2px}
+.mission-header .mission-title p{font-size:.75rem;opacity:.8}
+.mission-header .mission-status{font-size:1.3rem}
+.mission-header.completed{background:linear-gradient(135deg,var(--green),var(--green-dark))}
+.mission-body{padding:0;max-height:0;overflow:hidden;transition:max-height .5s cubic-bezier(.4,0,.2,1),padding .3s}
+.mission-body.open{padding:20px;max-height:4000px}
+
+/* ===== GOOGLE SHEETS SIMULATOR ===== */
+.sheets-sim{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:12px 0;background:var(--bg)}
+.sheets-toolbar{background:#f1f3f4;padding:4px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.sheets-toolbar .tb-btn{padding:4px 8px;border-radius:3px;font-size:.72rem;color:var(--text);background:transparent;transition:var(--transition)}
+.sheets-toolbar .tb-btn:hover{background:#e0e0e0}
+.sheets-toolbar .tb-sep{width:1px;height:20px;background:var(--border);margin:0 4px}
+.sheets-title{font-size:.82rem;font-weight:600;color:var(--sheets-green);margin-right:12px;display:flex;align-items:center;gap:4px}
+.sheets-title svg{width:18px;height:18px}
+.sheets-grid-wrapper{overflow-x:auto}
+.sheets-grid{border-collapse:collapse;width:100%;min-width:500px}
+.sheets-grid th{background:#f8f9fa;border:1px solid var(--border);padding:4px 8px;font-size:.72rem;color:var(--text-light);font-weight:500;text-align:center;position:sticky;top:0;min-width:80px}
+.sheets-grid th:first-child{width:36px;min-width:36px;background:#f8f9fa;position:sticky;left:0;z-index:2}
+.sheets-grid td{border:1px solid var(--border);padding:4px 8px;font-size:.82rem;height:28px;transition:background-color .5s ease,color .3s ease;cursor:cell}
+.sheets-grid td:first-child{background:#f8f9fa;color:var(--text-light);font-size:.72rem;text-align:center;font-weight:500;cursor:default;min-width:36px;width:36px}
+.sheets-grid td.selected{outline:2px solid var(--sheets-blue);outline-offset:-1px;z-index:1;position:relative}
+.sheets-grid tr:hover td:not(:first-child){background-color:rgba(66,133,244,.04)}
+.cell-highlight{animation:cellPulse .6s ease}
+@keyframes cellPulse{0%{transform:scale(1)}50%{transform:scale(1.02);box-shadow:0 0 8px rgba(27,94,175,.3)}100%{transform:scale(1)}}
+
+/* ===== RULE BUILDER PANEL ===== */
+.rule-builder{background:var(--bg-alt);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:12px 0}
+.rule-builder h4{font-size:.9rem;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.rule-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.rule-row label{font-size:.78rem;font-weight:600;min-width:80px;color:var(--text)}
+.rule-row select,.rule-row input[type="text"],.rule-row input[type="number"],.rule-row input[type="color"]{padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.82rem;background:var(--bg)}
+.rule-row select{min-width:140px}
+.rule-row input[type="color"]{width:36px;height:30px;padding:2px;cursor:pointer;border-radius:var(--radius-sm)}
+
+/* ===== DRAG & DROP ===== */
+.drag-container{min-height:60px;padding:8px;background:var(--bg-alt);border:2px dashed var(--border);border-radius:var(--radius);margin:8px 0}
+.drag-item{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:6px;cursor:grab;display:flex;align-items:center;gap:10px;transition:var(--transition);user-select:none}
+.drag-item:active{cursor:grabbing;box-shadow:var(--shadow-lg);transform:scale(1.02)}
+.drag-item.dragging{opacity:.4;border:2px dashed var(--blue)}
+.drag-item .drag-handle{color:var(--text-lighter);font-size:1.1rem;flex-shrink:0}
+.drag-item .drag-priority{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;flex-shrink:0}
+.drag-item .drag-text{flex:1;font-size:.82rem}
+.drag-item .drag-color{width:20px;height:20px;border-radius:3px;border:1px solid var(--border);flex-shrink:0}
+
+/* ===== COLOR SCALE PICKER ===== */
+.color-scale-row{display:flex;gap:12px;align-items:center;margin:10px 0;flex-wrap:wrap}
+.color-point{display:flex;flex-direction:column;align-items:center;gap:4px}
+.color-point label{font-size:.7rem;color:var(--text-light)}
+.color-point input[type="color"]{width:40px;height:32px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:2px;cursor:pointer}
+.gradient-preview{height:24px;border-radius:4px;border:1px solid var(--border);flex:1;min-width:120px}
+
+/* ===== FORMULA BUILDER ===== */
+.formula-builder{background:#1e1e1e;color:#d4d4d4;border-radius:var(--radius);padding:14px;font-family:'Consolas','Courier New',monospace;font-size:.85rem;margin:8px 0;position:relative;overflow:hidden}
+.formula-builder .fb-label{color:#569cd6;font-size:.7rem;margin-bottom:6px;font-family:'Segoe UI',sans-serif}
+.formula-builder input{background:#2d2d30;color:#ce9178;border:1px solid #3e3e42;border-radius:var(--radius-sm);padding:8px 12px;width:100%;font-family:'Consolas','Courier New',monospace;font-size:.85rem}
+.formula-builder input:focus{border-color:var(--sheets-blue)}
+.formula-hint{color:#6a9955;font-size:.75rem;margin-top:6px;font-style:italic}
+.syntax-highlight{padding:8px 12px;background:#2d2d30;border-radius:var(--radius-sm);margin-top:6px;white-space:pre-wrap;word-break:break-all}
+.syn-func{color:#dcdcaa}
+.syn-ref{color:#9cdcfe}
+.syn-str{color:#ce9178}
+.syn-op{color:#d4d4d4}
+.syn-dollar{color:#4ec9b0}
+
+/* ===== BEFORE/AFTER ===== */
+.before-after{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+.before-after .ba-panel{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.before-after .ba-label{padding:6px 12px;font-size:.78rem;font-weight:600;text-align:center}
+.ba-before .ba-label{background:#fce4ec;color:#c62828}
+.ba-after .ba-label{background:#e8f5e9;color:#2e7d32}
+
+/* ===== MISSION INSTRUCTIONS ===== */
+.instruction-box{background:var(--blue-light);border-left:4px solid var(--blue);padding:14px 16px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:14px}
+.instruction-box h4{color:var(--blue);font-size:.88rem;margin-bottom:4px}
+.instruction-box p,.instruction-box li{font-size:.82rem;color:var(--text)}
+.instruction-box ul{padding-left:18px;margin-top:4px}
+.instruction-box li{margin-bottom:2px}
+
+.tip-box{background:var(--green-light);border-left:4px solid var(--green);padding:12px 14px;border-radius:0 var(--radius) var(--radius) 0;margin:10px 0}
+.tip-box p{font-size:.8rem;color:var(--text)}
+
+/* ===== BUTTONS ===== */
+.btn{padding:8px 18px;border-radius:var(--radius);font-size:.85rem;font-weight:600;transition:var(--transition);display:inline-flex;align-items:center;gap:6px}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:var(--blue-dark);transform:translateY(-1px)}
+.btn-green{background:var(--green);color:#fff}.btn-green:hover{background:var(--green-dark);transform:translateY(-1px)}
+.btn-outline{border:2px solid var(--blue);color:var(--blue);background:transparent}.btn-outline:hover{background:var(--blue);color:#fff}
+.btn-sm{padding:6px 12px;font-size:.78rem}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+
+/* ===== FEEDBACK ===== */
+.feedback{padding:12px 16px;border-radius:var(--radius);margin-top:10px;font-size:.85rem;font-weight:600;display:none;animation:fadeIn .3s}
+.feedback.correct{display:block;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7}
+.feedback.incorrect{display:block;background:#fce4ec;color:#c62828;border:1px solid #ef9a9a}
+.feedback.info{display:block;background:var(--blue-light);color:var(--blue);border:1px solid #90caf9}
+
+/* ===== COMPLETION SCREEN ===== */
+.completion-screen{text-align:center;padding:40px 20px;display:none}
+.completion-screen.visible{display:block}
+.completion-screen .trophy{font-size:4rem;animation:bounce 1s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.completion-screen h2{color:var(--blue);font-size:1.6rem;margin:12px 0 6px}
+.completion-screen .final-score{font-size:2.5rem;font-weight:800;color:var(--green);margin:8px 0}
+.completion-screen .final-rank{font-size:1.1rem;color:var(--blue);margin-bottom:20px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin:20px 0}
+.stat-card{background:var(--bg-alt);border-radius:var(--radius);padding:14px;text-align:center}
+.stat-card .stat-val{font-size:1.4rem;font-weight:700;color:var(--blue)}
+.stat-card .stat-lbl{font-size:.72rem;color:var(--text-light)}
+
+/* ===== FOOTER ===== */
+.app-footer{text-align:center;padding:20px;font-size:.75rem;color:var(--text-lighter);border-top:1px solid var(--border-light);margin-top:40px}
+.app-footer a{color:var(--text-lighter);transition:var(--transition)}
+.app-footer a:hover{color:var(--blue)}
+
+/* ===== TEACHER DASHBOARD ===== */
+.dashboard{max-width:1100px;margin:0 auto;padding:20px 16px}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.dash-header h2{color:var(--blue);font-size:1.3rem}
+.dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.dash-stat-card{background:var(--bg);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);text-align:center;border-top:3px solid var(--blue)}
+.dash-stat-card .ds-val{font-size:1.8rem;font-weight:700;color:var(--blue)}
+.dash-stat-card .ds-lbl{font-size:.78rem;color:var(--text-light)}
+.dash-stat-card:nth-child(2){border-top-color:var(--green)}
+.dash-stat-card:nth-child(2) .ds-val{color:var(--green)}
+.dash-stat-card:nth-child(3){border-top-color:var(--orange)}
+.dash-stat-card:nth-child(3) .ds-val{color:#e65100}
+.dash-stat-card:nth-child(4){border-top-color:#7b1fa2}
+.dash-stat-card:nth-child(4) .ds-val{color:#7b1fa2}
+.dash-controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.dash-controls select,.dash-controls input{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.85rem}
+.dash-table-wrap{overflow-x:auto;background:var(--bg);border-radius:var(--radius);box-shadow:var(--shadow)}
+.dash-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.dash-table th{background:var(--blue);color:#fff;padding:10px 12px;text-align:left;cursor:pointer;white-space:nowrap;user-select:none}
+.dash-table th:hover{background:var(--blue-dark)}
+.dash-table td{padding:8px 12px;border-bottom:1px solid var(--border-light)}
+.dash-table tr:hover td{background:var(--blue-light)}
+.no-data{text-align:center;padding:40px;color:var(--text-lighter);font-style:italic}
+
+/* ===== CONFETTI ===== */
+.confetti-piece{position:fixed;width:10px;height:10px;top:-10px;z-index:10000;pointer-events:none;animation:confettiFall 3s linear forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .app-header{padding:10px 14px;gap:10px}
+  .app-header img{height:40px}
+  .header-text h1{font-size:.92rem}
+  .before-after{grid-template-columns:1fr}
+  .main-container{padding:14px 10px 40px}
+  .mission-body.open{padding:14px}
+  .dash-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:480px){
+  .score-badge,.streak-badge{font-size:.78rem;padding:4px 10px}
+  .rank-badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== PROFILE OVERLAY ===== -->
+<div class="overlay" id="profileOverlay">
+<div class="overlay-card">
+  <img src="logo.png" alt="UVA Logo" onerror="this.style.display='none'">
+  <h2>University View Academy</h2>
+  <div class="motto">VIRTUE • VIGOR • VISION</div>
+  <p style="font-size:.88rem;color:var(--text);margin-bottom:4px">Conditional Formatting in Google Sheets</p>
+  <p style="font-size:.75rem;color:var(--text-lighter);margin-bottom:8px">Learn to format like a data pro! 📊</p>
+  <label for="profName">Your Name</label>
+  <input type="text" id="profName" placeholder="First and Last Name" autocomplete="off">
+  <label for="profClass">Class / Period</label>
+  <select id="profClass">
+    <option value="">— Select —</option>
+    <option>Period 1</option><option>Period 2</option><option>Period 3</option>
+    <option>Period 4</option><option>Period 5</option><option>Period 6</option>
+    <option>Period 7</option><option>Period 8</option>
+  </select>
+  <div class="error-msg" id="profError"></div>
+  <button class="btn-primary" onclick="startActivity()">🚀 Start Activity</button>
+  <div class="teacher-bypass">
+    <a href="#" onclick="event.preventDefault();document.getElementById('profileOverlay').style.display='none';showLoginView()">🔐 Teacher / Admin Login</a>
+  </div>
+</div>
+</div>
+
+<!-- ===== TEACHER LOGIN OVERLAY ===== -->
+<div class="overlay" id="loginView" style="display:none">
+<div class="overlay-card">
+  <img src="logo.png" alt="UVA Logo" onerror="this.style.display='none'">
+  <h2>Teacher Dashboard Login</h2>
+  <div class="motto">ADMIN ACCESS</div>
+  <label for="loginUser">Username</label>
+  <input type="text" id="loginUser" placeholder="Username" autocomplete="off">
+  <label for="loginPass">Password</label>
+  <input type="password" id="loginPass" placeholder="Password">
+  <div class="error-msg" id="loginError"></div>
+  <button class="btn-primary" onclick="teacherLogin()">🔓 Login</button>
+  <div class="teacher-bypass" style="margin-top:14px">
+    <a href="#" onclick="event.preventDefault();document.getElementById('loginView').style.display='none';document.getElementById('profileOverlay').style.display='flex'">← Back to Student Login</a>
+  </div>
+</div>
+</div>
+
+<!-- ===== STUDENT ACTIVITY VIEW ===== -->
+<div id="studentView" style="display:none">
+
+<header class="app-header">
+  <img src="logo.png" alt="UVA" onerror="this.style.display='none'">
+  <div class="header-text">
+    <h1>Conditional Formatting in Google Sheets</h1>
+    <div class="sub">UNIVERSITY VIEW ACADEMY</div>
+  </div>
+  <div class="header-right">
+    <div class="streak-badge" id="streakBadge" style="display:none">🔥 <span id="streakCount">0</span></div>
+    <div class="score-badge">⭐ <span id="scoreDisplay">0</span></div>
+    <div class="rank-badge" id="rankBadge">🎯 Trainee</div>
+  </div>
+</header>
+
+<div class="progress-container">
+  <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+  <div class="progress-labels"><span id="progressText">Mission 0 of 6</span><span id="progressPct">0%</span></div>
+</div>
+
+<main class="main-container" id="missionsContainer">
+
+<!-- ========== MISSION 1: Text-Based ========== -->
+<div class="mission-panel" id="missionPanel1">
+<div class="mission-header" id="missionHeader1" onclick="toggleMission(1)">
+  <div class="mission-num">1</div>
+  <div class="mission-title">
+    <h3>Text-Based Conditional Formatting</h3>
+    <p>Highlight cells based on text content</p>
+  </div>
+  <div class="mission-status" id="missionStatus1">🔒</div>
+</div>
+<div class="mission-body" id="missionBody1">
+  <div class="instruction-box">
+    <h4>📋 Mission Briefing</h4>
+    <p>A teacher has a student status spreadsheet. Apply conditional formatting to highlight cells based on their text values:</p>
+    <ul>
+      <li><strong>"Passed"</strong> → Green background</li>
+      <li><strong>"Failed"</strong> → Red background</li>
+      <li><strong>"Incomplete"</strong> → Yellow background</li>
+    </ul>
+  </div>
+
+  <div class="sheets-sim">
+    <div class="sheets-toolbar">
+      <div class="sheets-title">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#0f9d58" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="#0f9d58" stroke-width="1.5"/><line x1="3" y1="15" x2="21" y2="15" stroke="#0f9d58" stroke-width="1.5"/><line x1="9" y1="3" x2="9" y2="21" stroke="#0f9d58" stroke-width="1.5"/><line x1="15" y1="3" x2="15" y2="21" stroke="#0f9d58" stroke-width="1.5"/></svg>
+        Student Status
+      </div>
+      <button class="tb-btn">Format</button>
+      <div class="tb-sep"></div>
+      <button class="tb-btn" style="font-weight:700">B</button>
+      <button class="tb-btn" style="font-style:italic">I</button>
+    </div>
+    <div class="sheets-grid-wrapper">
+      <table class="sheets-grid" id="grid1">
+        <thead><tr><th></th><th>A</th><th>B</th><th>C</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>Student</b></td><td><b>Subject</b></td><td><b>Status</b></td></tr>
+          <tr><td>2</td><td>Alice</td><td>Math</td><td id="m1c2">Passed</td></tr>
+          <tr><td>3</td><td>Bob</td><td>Science</td><td id="m1c3">Failed</td></tr>
+          <tr><td>4</td><td>Carol</td><td>English</td><td id="m1c4">Incomplete</td></tr>
+          <tr><td>5</td><td>Dan</td><td>Math</td><td id="m1c5">Passed</td></tr>
+          <tr><td>6</td><td>Eve</td><td>History</td><td id="m1c6">Failed</td></tr>
+          <tr><td>7</td><td>Frank</td><td>Science</td><td id="m1c7">Passed</td></tr>
+          <tr><td>8</td><td>Grace</td><td>English</td><td id="m1c8">Incomplete</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rule-builder">
+    <h4>⚙️ Configure Rules</h4>
+    <p style="font-size:.78rem;color:var(--text-light);margin-bottom:10px">Set the correct formatting color for each text value in the Status column:</p>
+    <div class="rule-row">
+      <label>Text "Passed":</label>
+      <select id="m1_passed">
+        <option value="">Choose color...</option>
+        <option value="green">🟢 Green</option>
+        <option value="red">🔴 Red</option>
+        <option value="yellow">🟡 Yellow</option>
+      </select>
+    </div>
+    <div class="rule-row">
+      <label>Text "Failed":</label>
+      <select id="m1_failed">
+        <option value="">Choose color...</option>
+        <option value="green">🟢 Green</option>
+        <option value="red">🔴 Red</option>
+        <option value="yellow">🟡 Yellow</option>
+      </select>
+    </div>
+    <div class="rule-row">
+      <label>Text "Incomplete":</label>
+      <select id="m1_incomplete">
+        <option value="">Choose color...</option>
+        <option value="green">🟢 Green</option>
+        <option value="red">🔴 Red</option>
+        <option value="yellow">🟡 Yellow</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn btn-blue" onclick="applyM1Preview()">👁️ Preview Formatting</button>
+  <button class="btn btn-green" onclick="checkMission1()" style="margin-left:8px">✅ Submit Answer</button>
+  <div class="feedback" id="feedback1"></div>
+</div>
+</div>
+
+<!-- ========== MISSION 2: Date-Based ========== -->
+<div class="mission-panel" id="missionPanel2">
+<div class="mission-header" id="missionHeader2" onclick="toggleMission(2)">
+  <div class="mission-num">2</div>
+  <div class="mission-title">
+    <h3>Date-Based Conditional Formatting</h3>
+    <p>Highlight overdue and upcoming deadlines</p>
+  </div>
+  <div class="mission-status" id="missionStatus2">🔒</div>
+</div>
+<div class="mission-body" id="missionBody2">
+  <div class="instruction-box">
+    <h4>📋 Mission Briefing</h4>
+    <p>Format a project deadline sheet: highlight <strong>past due</strong> dates in red and <strong>due within 7 days</strong> in orange. Select the correct rule type for each condition.</p>
+  </div>
+
+  <div class="sheets-sim">
+    <div class="sheets-toolbar">
+      <div class="sheets-title">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#0f9d58" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="#0f9d58" stroke-width="1.5"/><line x1="3" y1="15" x2="21" y2="15" stroke="#0f9d58" stroke-width="1.5"/><line x1="9" y1="3" x2="9" y2="21" stroke="#0f9d58" stroke-width="1.5"/><line x1="15" y1="3" x2="15" y2="21" stroke="#0f9d58" stroke-width="1.5"/></svg>
+        Project Deadlines
+      </div>
+    </div>
+    <div class="sheets-grid-wrapper">
+      <table class="sheets-grid" id="grid2">
+        <thead><tr><th></th><th>A</th><th>B</th><th>C</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>Project</b></td><td><b>Due Date</b></td><td><b>Owner</b></td></tr>
+          <tr><td>2</td><td>Website Redesign</td><td id="m2d2" class="date-cell">03/15/2026</td><td>Alice</td></tr>
+          <tr><td>3</td><td>Budget Report</td><td id="m2d3" class="date-cell">04/05/2026</td><td>Bob</td></tr>
+          <tr><td>4</td><td>Marketing Plan</td><td id="m2d4" class="date-cell">03/28/2026</td><td>Carol</td></tr>
+          <tr><td>5</td><td>App Update</td><td id="m2d5" class="date-cell">04/01/2026</td><td>Dan</td></tr>
+          <tr><td>6</td><td>Training Module</td><td id="m2d6" class="date-cell">04/08/2026</td><td>Eve</td></tr>
+          <tr><td>7</td><td>Q2 Goals</td><td id="m2d7" class="date-cell">04/15/2026</td><td>Frank</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tip-box">
+    <p>💡 <strong>Today's date is April 2, 2026.</strong> Past due = before today. Due soon = within 7 days from today (Apr 2-9).</p>
+  </div>
+
+  <div class="rule-builder">
+    <h4>⚙️ Configure Date Rules</h4>
+    <div class="rule-row">
+      <label>Past Due → </label>
+      <select id="m2_pastdue">
+        <option value="">Choose condition...</option>
+        <option value="before">Date is before today</option>
+        <option value="after">Date is after today</option>
+        <option value="exact">Date is exact today</option>
+      </select>
+      <span style="font-size:.82rem">Color:</span>
+      <select id="m2_pastdue_color">
+        <option value="">Choose...</option>
+        <option value="red">🔴 Red</option>
+        <option value="orange">🟠 Orange</option>
+        <option value="green">🟢 Green</option>
+      </select>
+    </div>
+    <div class="rule-row">
+      <label>Due Soon → </label>
+      <select id="m2_duesoon">
+        <option value="">Choose condition...</option>
+        <option value="within7">Date is in the next 7 days</option>
+        <option value="before">Date is before today</option>
+        <option value="after30">Date is in the next 30 days</option>
+      </select>
+      <span style="font-size:.82rem">Color:</span>
+      <select id="m2_duesoon_color">
+        <option value="">Choose...</option>
+        <option value="red">🔴 Red</option>
+        <option value="orange">🟠 Orange</option>
+        <option value="green">🟢 Green</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn btn-blue" onclick="applyM2Preview()">👁️ Preview</button>
+  <button class="btn btn-green" onclick="checkMission2()" style="margin-left:8px">✅ Submit</button>
+  <div class="feedback" id="feedback2"></div>
+</div>
+</div>
+
+<!-- ========== MISSION 3: Restrictive Rule First ========== -->
+<div class="mission-panel" id="missionPanel3">
+<div class="mission-header" id="missionHeader3" onclick="toggleMission(3)">
+  <div class="mission-num">3</div>
+  <div class="mission-title">
+    <h3>Restrictive Rule First Principle</h3>
+    <p>Master rule ordering with drag-and-drop</p>
+  </div>
+  <div class="mission-status" id="missionStatus3">🔒</div>
+</div>
+<div class="mission-body" id="missionBody3">
+  <div class="instruction-box">
+    <h4>📋 Mission Briefing</h4>
+    <p>In Google Sheets, conditional formatting rules are applied <strong>top-to-bottom</strong>. The first matching rule wins! You must order the rules from <strong>most restrictive (specific) to least restrictive (general)</strong>.</p>
+    <ul>
+      <li><strong>Score = 100</strong> → Gold (most restrictive)</li>
+      <li><strong>Score ≥ 90</strong> → Green</li>
+      <li><strong>Score ≥ 70</strong> → Yellow</li>
+      <li><strong>Score < 70</strong> → Red (least restrictive)</li>
+    </ul>
+    <p style="margin-top:6px"><strong>Drag and drop the rules below into the correct order (most restrictive first)!</strong></p>
+  </div>
+
+  <div class="before-after">
+    <div class="ba-panel ba-before">
+      <div class="ba-label">❌ Wrong Order (General First)</div>
+      <div class="sheets-grid-wrapper">
+        <table class="sheets-grid" style="min-width:auto">
+          <thead><tr><th></th><th>Student</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Alice</td><td style="background:#fff9c4">100</td></tr>
+            <tr><td>2</td><td>Bob</td><td style="background:#fff9c4">95</td></tr>
+            <tr><td>3</td><td>Carol</td><td style="background:#fff9c4">82</td></tr>
+            <tr><td>4</td><td>Dan</td><td style="background:#ffcdd2">55</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="ba-panel ba-after">
+      <div class="ba-label">✅ Right Order (Restrictive First)</div>
+      <div class="sheets-grid-wrapper">
+        <table class="sheets-grid" style="min-width:auto">
+          <thead><tr><th></th><th>Student</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Alice</td><td style="background:#fff176;color:#f57f17;font-weight:700">100</td></tr>
+            <tr><td>2</td><td>Bob</td><td style="background:#c8e6c9">95</td></tr>
+            <tr><td>3</td><td>Carol</td><td style="background:#fff9c4">82</td></tr>
+            <tr><td>4</td><td>Dan</td><td style="background:#ffcdd2">55</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <h4 style="margin:14px 0 8px;font-size:.9rem;color:var(--blue)">🔀 Drag Rules Into Correct Order (Most Restrictive First → Bottom is Least)</h4>
+  <div class="drag-container" id="dragContainer3">
+    <div class="drag-item" draggable="true" data-rule="gte70">
+      <span class="drag-handle">⠿</span>
+      <span class="drag-priority" style="background:var(--yellow)">?</span>
+      <span class="drag-text">Score ≥ 70 → Yellow background</span>
+      <span class="drag-color" style="background:#fff9c4"></span>
+    </div>
+    <div class="drag-item" draggable="true" data-rule="eq100">
+      <span class="drag-handle">⠿</span>
+      <span class="drag-priority" style="background:var(--orange)">?</span>
+      <span class="drag-text">Score = 100 → Gold background</span>
+      <span class="drag-color" style="background:#fff176"></span>
+    </div>
+    <div class="drag-item" draggable="true" data-rule="lt70">
+      <span class="drag-handle">⠿</span>
+      <span class="drag-priority" style="background:var(--red)">?</span>
+      <span class="drag-text">Score &lt; 70 → Red background</span>
+      <span class="drag-color" style="background:#ffcdd2"></span>
+    </div>
+    <div class="drag-item" draggable="true" data-rule="gte90">
+      <span class="drag-handle">⠿</span>
+      <span class="drag-priority" style="background:var(--green)">?</span>
+      <span class="drag-text">Score ≥ 90 → Green background</span>
+      <span class="drag-color" style="background:#c8e6c9"></span>
+    </div>
+  </div>
+
+  <div id="m3preview" style="margin-top:12px">
+    <h4 style="font-size:.85rem;color:var(--text-light);margin-bottom:6px">Live Preview with Current Order:</h4>
+    <div class="sheets-sim">
+      <div class="sheets-grid-wrapper">
+        <table class="sheets-grid" id="grid3preview" style="min-width:auto">
+          <thead><tr><th></th><th>Student</th><th>Score</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Alice</td><td id="m3p1">100</td></tr>
+            <tr><td>2</td><td>Bob</td><td id="m3p2">95</td></tr>
+            <tr><td>3</td><td>Carol</td><td id="m3p3">82</td></tr>
+            <tr><td>4</td><td>Dan</td><td id="m3p4">55</td></tr>
+            <tr><td>5</td><td>Eve</td><td id="m3p5">100</td></tr>
+            <tr><td>6</td><td>Frank</td><td id="m3p6">68</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-green" onclick="checkMission3()" style="margin-top:12px">✅ Submit Order</button>
+  <div class="feedback" id="feedback3"></div>
+</div>
+</div>
+
+<!-- ========== MISSION 4: 3-Point Color Scales ========== -->
+<div class="mission-panel" id="missionPanel4">
+<div class="mission-header" id="missionHeader4" onclick="toggleMission(4)">
+  <div class="mission-num">4</div>
+  <div class="mission-title">
+    <h3>3-Point Color Scales</h3>
+    <p>Create gradient visualizations for data trends</p>
+  </div>
+  <div class="mission-status" id="missionStatus4">🔒</div>
+</div>
+<div class="mission-body" id="missionBody4">
+  <div class="instruction-box">
+    <h4>📋 Mission Briefing</h4>
+    <p>A 3-point color scale uses three colors to represent <strong>minimum, midpoint, and maximum</strong> values. Configure the correct color scale for student test scores (0-100):</p>
+    <ul>
+      <li><strong>Minimum (0)</strong> → Red (low scores)</li>
+      <li><strong>Midpoint (50)</strong> → Yellow (average)</li>
+      <li><strong>Maximum (100)</strong> → Green (high scores)</li>
+    </ul>
+  </div>
+
+  <div class="color-scale-row">
+    <div class="color-point">
+      <label>Min Color</label>
+      <select id="m4_min">
+        <option value="">Choose...</option>
+        <option value="red">🔴 Red</option>
+        <option value="yellow">🟡 Yellow</option>
+        <option value="green">🟢 Green</option>
+        <option value="blue">🔵 Blue</option>
+      </select>
+    </div>
+    <div style="font-size:1.2rem;color:var(--text-lighter)">→</div>
+    <div class="color-point">
+      <label>Mid Color</label>
+      <select id="m4_mid">
+        <option value="">Choose...</option>
+        <option value="red">🔴 Red</option>
+        <option value="yellow">🟡 Yellow</option>
+        <option value="green">🟢 Green</option>
+        <option value="blue">🔵 Blue</option>
+      </select>
+    </div>
+    <div style="font-size:1.2rem;color:var(--text-lighter)">→</div>
+    <div class="color-point">
+      <label>Max Color</label>
+      <select id="m4_max">
+        <option value="">Choose...</option>
+        <option value="red">🔴 Red</option>
+        <option value="yellow">🟡 Yellow</option>
+        <option value="green">🟢 Green</option>
+        <option value="blue">🔵 Blue</option>
+      </select>
+    </div>
+    <div class="gradient-preview" id="m4gradient" style="background:linear-gradient(90deg,#eee,#ddd,#ccc)"></div>
+  </div>
+
+  <div class="sheets-sim">
+    <div class="sheets-toolbar">
+      <div class="sheets-title">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#0f9d58" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="#0f9d58" stroke-width="1.5"/><line x1="9" y1="3" x2="9" y2="21" stroke="#0f9d58" stroke-width="1.5"/></svg>
+        Test Scores
+      </div>
+    </div>
+    <div class="sheets-grid-wrapper">
+      <table class="sheets-grid" id="grid4">
+        <thead><tr><th></th><th>A</th><th>B</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>Student</b></td><td><b>Score</b></td></tr>
+          <tr><td>2</td><td>Alice</td><td id="m4s2" data-val="95">95</td></tr>
+          <tr><td>3</td><td>Bob</td><td id="m4s3" data-val="72">72</td></tr>
+          <tr><td>4</td><td>Carol</td><td id="m4s4" data-val="45">45</td></tr>
+          <tr><td>5</td><td>Dan</td><td id="m4s5" data-val="88">88</td></tr>
+          <tr><td>6</td><td>Eve</td><td id="m4s6" data-val="30">30</td></tr>
+          <tr><td>7</td><td>Frank</td><td id="m4s7" data-val="60">60</td></tr>
+          <tr><td>8</td><td>Grace</td><td id="m4s8" data-val="100">100</td></tr>
+          <tr><td>9</td><td>Hank</td><td id="m4s9" data-val="15">15</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <button class="btn btn-blue" onclick="applyM4Preview()">👁️ Apply Color Scale</button>
+  <button class="btn btn-green" onclick="checkMission4()" style="margin-left:8px">✅ Submit</button>
+  <div class="feedback" id="feedback4"></div>
+</div>
+</div>
+
+<!-- ========== MISSION 5: Heatmaps ========== -->
+<div class="mission-panel" id="missionPanel5">
+<div class="mission-header" id="missionHeader5" onclick="toggleMission(5)">
+  <div class="mission-num">5</div>
+  <div class="mission-title">
+    <h3>Heatmaps for Data Visualization</h3>
+    <p>Build heatmaps to spot patterns in data</p>
+  </div>
+  <div class="mission-status" id="missionStatus5">🔒</div>
+</div>
+<div class="mission-body" id="missionBody5">
+  <div class="instruction-box">
+    <h4>📋 Mission Briefing</h4>
+    <p>A heatmap uses color intensity to show data density. You have website traffic data across days and hours. Answer questions about interpreting the heatmap and choose the correct formatting approach.</p>
+  </div>
+
+  <div class="sheets-sim">
+    <div class="sheets-toolbar">
+      <div class="sheets-title">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#0f9d58" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="#0f9d58" stroke-width="1.5"/><line x1="9" y1="3" x2="9" y2="21" stroke="#0f9d58" stroke-width="1.5"/></svg>
+        Website Traffic Heatmap
+      </div>
+      <button class="btn btn-sm btn-outline" onclick="toggleHeatmap5()" id="heatToggle5">🎨 Apply Heatmap</button>
+    </div>
+    <div class="sheets-grid-wrapper">
+      <table class="sheets-grid" id="grid5">
+        <thead><tr><th></th><th>Morning</th><th>Afternoon</th><th>Evening</th><th>Night</th></tr></thead>
+        <tbody>
+          <tr><td>Mon</td><td id="h5_0" data-val="120">120</td><td id="h5_1" data-val="340">340</td><td id="h5_2" data-val="280">280</td><td id="h5_3" data-val="90">90</td></tr>
+          <tr><td>Tue</td><td id="h5_4" data-val="150">150</td><td id="h5_5" data-val="380">380</td><td id="h5_6" data-val="310">310</td><td id="h5_7" data-val="75">75</td></tr>
+          <tr><td>Wed</td><td id="h5_8" data-val="130">130</td><td id="h5_9" data-val="290">290</td><td id="h5_10" data-val="250">250</td><td id="h5_11" data-val="80">80</td></tr>
+          <tr><td>Thu</td><td id="h5_12" data-val="160">160</td><td id="h5_13" data-val="410">410</td><td id="h5_14" data-val="350">350</td><td id="h5_15" data-val="100">100</td></tr>
+          <tr><td>Fri</td><td id="h5_16" data-val="200">200</td><td id="h5_17" data-val="450">450</td><td id="h5_18" data-val="400">400</td><td id="h5_19" data-val="180">180</td></tr>
+          <tr><td>Sat</td><td id="h5_20" data-val="300">300</td><td id="h5_21" data-val="280">280</td><td id="h5_22" data-val="350">350</td><td id="h5_23" data-val="220">220</td></tr>
+          <tr><td>Sun</td><td id="h5_24" data-val="250">250</td><td id="h5_25" data-val="200">200</td><td id="h5_26" data-val="270">270</td><td id="h5_27" data-val="150">150</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="rule-builder">
+    <h4>🔍 Heatmap Analysis</h4>
+    <div class="rule-row">
+      <label style="min-width:200px">Q1: When is peak traffic?</label>
+      <select id="m5_q1">
+        <option value="">Select...</option>
+        <option value="fri_afternoon">Friday Afternoon</option>
+        <option value="sat_morning">Saturday Morning</option>
+        <option value="thu_evening">Thursday Evening</option>
+        <option value="mon_night">Monday Night</option>
+      </select>
+    </div>
+    <div class="rule-row">
+      <label style="min-width:200px">Q2: Lowest traffic time?</label>
+      <select id="m5_q2">
+        <option value="">Select...</option>
+        <option value="tue_night">Tuesday Night</option>
+        <option value="wed_morning">Wednesday Morning</option>
+        <option value="sun_afternoon">Sunday Afternoon</option>
+        <option value="mon_morning">Monday Morning</option>
+      </select>
+    </div>
+    <div class="rule-row">
+      <label style="min-width:200px">Q3: Best heatmap type?</label>
+      <select id="m5_q3">
+        <option value="">Select...</option>
+        <option value="colorscale">Color scale (White → Green)</option>
+        <option value="text">Text contains</option>
+        <option value="date">Date is before</option>
+        <option value="single">Single color</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn btn-green" onclick="checkMission5()">✅ Submit Answers</button>
+  <div class="feedback" id="feedback5"></div>
+</div>
+</div>
+
+<!-- ========== MISSION 6: Custom Formula ========== -->
+<div class="mission-panel" id="missionPanel6">
+<div class="mission-header" id="missionHeader6" onclick="toggleMission(6)">
+  <div class="mission-num">6</div>
+  <div class="mission-title">
+    <h3>Custom Formula Row Highlighting</h3>
+    <p>Use formulas with absolute references ($) for row-based rules</p>
+  </div>
+  <div class="mission-status" id="missionStatus6">🔒</div>
+</div>
+<div class="mission-body" id="missionBody6">
+  <div class="instruction-box">
+    <h4>📋 Mission Briefing</h4>
+    <p>To highlight an <strong>entire row</strong> based on one cell's value, you need a custom formula with the <strong>$ (dollar sign)</strong> for absolute column reference. For example, to highlight rows where column C = "Urgent":</p>
+    <p style="font-family:monospace;background:#2d2d30;color:#ce9178;padding:6px 10px;border-radius:4px;margin:8px 0;font-size:.85rem">=$C1="Urgent"</p>
+    <p>The <strong>$C</strong> locks the column to C, but the row number (1) changes for each row.</p>
+  </div>
+
+  <div class="sheets-sim">
+    <div class="sheets-toolbar">
+      <div class="sheets-title">
+        <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#0f9d58" stroke-width="2"/><line x1="3" y1="9" x2="21" y2="9" stroke="#0f9d58" stroke-width="1.5"/><line x1="9" y1="3" x2="9" y2="21" stroke="#0f9d58" stroke-width="1.5"/><line x1="15" y1="3" x2="15" y2="21" stroke="#0f9d58" stroke-width="1.5"/></svg>
+        Task Priority Sheet
+      </div>
+    </div>
+    <div class="sheets-grid-wrapper">
+      <table class="sheets-grid" id="grid6">
+        <thead><tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><b>Task</b></td><td><b>Assignee</b></td><td><b>Priority</b></td><td><b>Due</b></td></tr>
+          <tr id="m6r2"><td>2</td><td>Fix login bug</td><td>Alice</td><td>Urgent</td><td>Apr 3</td></tr>
+          <tr id="m6r3"><td>3</td><td>Update docs</td><td>Bob</td><td>Low</td><td>Apr 10</td></tr>
+          <tr id="m6r4"><td>4</td><td>Deploy v2.0</td><td>Carol</td><td>Urgent</td><td>Apr 4</td></tr>
+          <tr id="m6r5"><td>5</td><td>Design review</td><td>Dan</td><td>Medium</td><td>Apr 7</td></tr>
+          <tr id="m6r6"><td>6</td><td>Data migration</td><td>Eve</td><td>Urgent</td><td>Apr 5</td></tr>
+          <tr id="m6r7"><td>7</td><td>Write tests</td><td>Frank</td><td>Medium</td><td>Apr 12</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="formula-builder">
+    <div class="fb-label">CUSTOM FORMULA BUILDER</div>
+    <p style="color:#9cdcfe;font-size:.78rem;margin-bottom:6px">Write the formula to highlight entire rows where Priority (column C) = "Urgent"</p>
+    <div style="display:flex;align-items:center;gap:4px">
+      <span style="color:#569cd6;font-weight:700">=</span>
+      <input type="text" id="m6_formula" placeholder='$C1="Urgent"' oninput="updateFormulaSyntax()">
+    </div>
+    <div class="syntax-highlight" id="m6_syntax"></div>
+    <div class="formula-hint">💡 Hint: Use $ before column letter to lock it. Row number should be 1 (the first data row in your range).</div>
+  </div>
+
+  <div class="rule-builder">
+    <h4>📝 Quick Check</h4>
+    <div class="rule-row">
+      <label style="min-width:220px">Why use $C1 instead of C1?</label>
+      <select id="m6_q1">
+        <option value="">Select answer...</option>
+        <option value="lock_col">$ locks the column so each row checks its own column C</option>
+        <option value="lock_row">$ locks the row number</option>
+        <option value="no_diff">There is no difference</option>
+        <option value="faster">It makes the formula faster</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="btn btn-blue" onclick="applyM6Preview()">👁️ Preview Row Highlighting</button>
+  <button class="btn btn-green" onclick="checkMission6()" style="margin-left:8px">✅ Submit</button>
+  <div class="feedback" id="feedback6"></div>
+</div>
+</div>
+
+<!-- ===== COMPLETION SCREEN ===== -->
+<div class="completion-screen" id="completionScreen">
+  <div class="trophy">🏆</div>
+  <h2>Mission Complete!</h2>
+  <p style="color:var(--text-light)">You've mastered Conditional Formatting in Google Sheets!</p>
+  <div class="final-score" id="finalScore">0</div>
+  <div class="final-rank" id="finalRank">Rank: Trainee</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="fsMissions">0/6</div><div class="stat-lbl">Missions Done</div></div>
+    <div class="stat-card"><div class="stat-val" id="fsStreak">0</div><div class="stat-lbl">Best Streak</div></div>
+    <div class="stat-card"><div class="stat-val" id="fsTime">0:00</div><div class="stat-lbl">Time</div></div>
+    <div class="stat-card"><div class="stat-val" id="fsAttempts">0</div><div class="stat-lbl">Total Attempts</div></div>
+  </div>
+  <button class="btn btn-blue" onclick="restartActivity()" style="margin-top:18px">🔄 Restart</button>
+</div>
+
+</main>
+
+<footer class="app-footer">
+  <p>University View Academy — Virtue • Vigor • Vision</p>
+  <p style="margin-top:4px"><a href="#" onclick="event.preventDefault();document.getElementById('studentView').style.display='none';showLoginView()">🔐 Admin Login</a></p>
+</footer>
+
+</div><!-- /studentView -->
+
+<!-- ===== TEACHER DASHBOARD VIEW ===== -->
+<div id="dashboardView" style="display:none">
+<header class="app-header">
+  <img src="logo.png" alt="UVA" onerror="this.style.display='none'">
+  <div class="header-text">
+    <h1>Teacher Analytics Dashboard</h1>
+    <div class="sub">CONDITIONAL FORMATTING ACTIVITY</div>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-outline btn-sm" onclick="showStudentViewFromDash()">← Student View</button>
+    <button class="btn btn-sm" style="background:var(--red);color:#fff" onclick="logoutTeacher()">Logout</button>
+  </div>
+</header>
+
+<div class="dashboard">
+  <div class="dash-header">
+    <h2>📊 Student Performance Data</h2>
+    <button class="btn btn-green btn-sm" onclick="refreshDashboard()">🔄 Refresh</button>
+  </div>
+
+  <div class="dash-stats">
+    <div class="dash-stat-card"><div class="ds-val" id="dsTotalStudents">0</div><div class="ds-lbl">Total Students</div></div>
+    <div class="dash-stat-card"><div class="ds-val" id="dsAvgScore">0</div><div class="ds-lbl">Avg Score</div></div>
+    <div class="dash-stat-card"><div class="ds-val" id="dsTopRank">—</div><div class="ds-lbl">Most Common Rank</div></div>
+    <div class="dash-stat-card"><div class="ds-val" id="dsCompletion">0%</div><div class="ds-lbl">Completion Rate</div></div>
+  </div>
+
+  <div class="dash-controls">
+    <select id="dashFilter" onchange="refreshDashboard()">
+      <option value="all">All Classes / Periods</option>
+      <option value="Period 1">Period 1</option><option value="Period 2">Period 2</option>
+      <option value="Period 3">Period 3</option><option value="Period 4">Period 4</option>
+      <option value="Period 5">Period 5</option><option value="Period 6">Period 6</option>
+      <option value="Period 7">Period 7</option><option value="Period 8">Period 8</option>
+    </select>
+    <button class="btn btn-blue btn-sm" onclick="exportCSV()">📥 Export CSV</button>
+    <button class="btn btn-sm" style="background:var(--red);color:#fff" onclick="clearAllData()">🗑️ Clear All Data</button>
+  </div>
+
+  <div class="dash-table-wrap">
+    <table class="dash-table" id="dashTable">
+      <thead>
+        <tr>
+          <th onclick="sortDash('name')">Student ↕</th>
+          <th onclick="sortDash('class')">Class ↕</th>
+          <th onclick="sortDash('score')">Score ↕</th>
+          <th onclick="sortDash('rank')">Rank ↕</th>
+          <th onclick="sortDash('missions')">Missions ↕</th>
+          <th onclick="sortDash('time')">Time ↕</th>
+          <th onclick="sortDash('attempts')">Attempts ↕</th>
+          <th onclick="sortDash('date')">Date ↕</th>
+        </tr>
+      </thead>
+      <tbody id="dashBody"></tbody>
+    </table>
+    <div class="no-data" id="dashNoData">No student data yet. Data appears after students complete the activity.</div>
+  </div>
+</div>
+</div><!-- /dashboardView -->
+
+<!-- ===== CONFETTI CANVAS ===== -->
+<canvas id="confettiCanvas" style="position:fixed;inset:0;z-index:10001;pointer-events:none;display:none"></canvas>
+
+<script>
+/* ======================================================================
+   STATE & CONSTANTS
+   ====================================================================== */
+const STORAGE_KEY = 'uva_conditional_formatting_completions';
+const TOTAL_MISSIONS = 6;
+const POINTS_PER_MISSION = 100;
+const STREAK_BONUS = 25;
+
+let state = {
+  name: '', classPeriod: '', score: 0, streak: 0, bestStreak: 0,
+  completedMissions: new Set(), currentMission: 1, attempts: {},
+  startTime: null, heatmapOn: false
+};
+
+/* ======================================================================
+   PROFILE & AUTH
+   ====================================================================== */
+function startActivity() {
+  const name = document.getElementById('profName').value.trim();
+  const cls = document.getElementById('profClass').value;
+  if (!name) { document.getElementById('profError').textContent = 'Please enter your name.'; return; }
+  if (!cls) { document.getElementById('profError').textContent = 'Please select a class/period.'; return; }
+  state.name = name; state.classPeriod = cls; state.startTime = Date.now();
+  document.getElementById('profileOverlay').style.display = 'none';
+  document.getElementById('studentView').style.display = 'block';
+  unlockMission(1);
+}
+
+function showLoginView() {
+  document.getElementById('loginView').style.display = 'flex';
+}
+
+function teacherLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (u === 'CoachWill' && p === 'Password#1') {
+    document.getElementById('loginView').style.display = 'none';
+    document.getElementById('studentView').style.display = 'none';
+    document.getElementById('profileOverlay').style.display = 'none';
+    document.getElementById('dashboardView').style.display = 'block';
+    refreshDashboard();
+  } else {
+    document.getElementById('loginError').textContent = 'Invalid credentials. Try again.';
+  }
+}
+
+function logoutTeacher() {
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('profileOverlay').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+function showStudentViewFromDash() {
+  document.getElementById('dashboardView').style.display = 'none';
+  if (state.name) {
+    document.getElementById('studentView').style.display = 'block';
+  } else {
+    document.getElementById('profileOverlay').style.display = 'flex';
+  }
+}
+
+/* ======================================================================
+   MISSION MANAGEMENT
+   ====================================================================== */
+function unlockMission(n) {
+  if (n > TOTAL_MISSIONS) return;
+  const hdr = document.getElementById('missionHeader' + n);
+  const status = document.getElementById('missionStatus' + n);
+  if (!state.completedMissions.has(n)) status.textContent = '🔓';
+  // Auto-open current mission
+  toggleMission(n, true);
+}
+
+function toggleMission(n, forceOpen) {
+  const body = document.getElementById('missionBody' + n);
+  if (forceOpen || !body.classList.contains('open')) {
+    // Close others
+    for (let i = 1; i <= TOTAL_MISSIONS; i++) {
+      document.getElementById('missionBody' + i).classList.remove('open');
+    }
+    body.classList.add('open');
+  } else {
+    body.classList.remove('open');
+  }
+}
+
+function completeMission(n) {
+  if (state.completedMissions.has(n)) return;
+  state.completedMissions.add(n);
+  state.score += POINTS_PER_MISSION;
+  state.streak++;
+  if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+  if (state.streak > 1) state.score += STREAK_BONUS;
+
+  // UI updates
+  const hdr = document.getElementById('missionHeader' + n);
+  hdr.classList.add('completed');
+  document.getElementById('missionStatus' + n).textContent = '✅';
+  updateScoreboard();
+  updateProgress();
+
+  // Confetti burst
+  launchConfetti();
+
+  // Next mission or complete
+  if (state.completedMissions.size >= TOTAL_MISSIONS) {
+    setTimeout(showCompletion, 1200);
+  } else {
+    setTimeout(() => unlockMission(n + 1), 800);
+  }
+}
+
+function failAttempt(n) {
+  state.streak = 0;
+  state.attempts[n] = (state.attempts[n] || 0) + 1;
+  updateScoreboard();
+}
+
+function updateScoreboard() {
+  document.getElementById('scoreDisplay').textContent = state.score;
+  document.getElementById('streakCount').textContent = state.streak;
+  document.getElementById('streakBadge').style.display = state.streak > 0 ? '' : 'none';
+  document.getElementById('rankBadge').textContent = '🎯 ' + getRank(state.score);
+}
+
+function updateProgress() {
+  const done = state.completedMissions.size;
+  const pct = Math.round((done / TOTAL_MISSIONS) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Mission ${done} of ${TOTAL_MISSIONS}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function getRank(score) {
+  if (score >= 500) return 'Master';
+  if (score >= 350) return 'Expert';
+  if (score >= 200) return 'Apprentice';
+  return 'Trainee';
+}
+
+/* ======================================================================
+   MISSION 1: TEXT-BASED
+   ====================================================================== */
+const m1ColorMap = { green: '#c8e6c9', red: '#ffcdd2', yellow: '#fff9c4' };
+const m1TextColorMap = { green: '#2e7d32', red: '#c62828', yellow: '#f57f17' };
+
+function applyM1Preview() {
+  const passed = document.getElementById('m1_passed').value;
+  const failed = document.getElementById('m1_failed').value;
+  const incomplete = document.getElementById('m1_incomplete').value;
+  const cells = { 'Passed': passed, 'Failed': failed, 'Incomplete': incomplete };
+  for (let i = 2; i <= 8; i++) {
+    const cell = document.getElementById('m1c' + i);
+    if (!cell) continue;
+    const text = cell.textContent;
+    const color = cells[text];
+    if (color && m1ColorMap[color]) {
+      cell.style.backgroundColor = m1ColorMap[color];
+      cell.style.color = m1TextColorMap[color];
+      cell.style.fontWeight = '600';
+      cell.classList.add('cell-highlight');
+      setTimeout(() => cell.classList.remove('cell-highlight'), 600);
+    } else {
+      cell.style.backgroundColor = '';
+      cell.style.color = '';
+      cell.style.fontWeight = '';
+    }
+  }
+}
+
+function checkMission1() {
+  const p = document.getElementById('m1_passed').value;
+  const f = document.getElementById('m1_failed').value;
+  const inc = document.getElementById('m1_incomplete').value;
+  const fb = document.getElementById('feedback1');
+  if (p === 'green' && f === 'red' && inc === 'yellow') {
+    applyM1Preview();
+    fb.className = 'feedback correct';
+    fb.textContent = '🎉 Perfect! Passed → Green, Failed → Red, Incomplete → Yellow. Text-based formatting is one of the most common types!';
+    completeMission(1);
+  } else {
+    fb.className = 'feedback incorrect';
+    fb.textContent = '❌ Not quite. Think about what each status means: Passed is positive (green), Failed is negative (red), Incomplete needs attention (yellow).';
+    failAttempt(1);
+  }
+}
+
+/* ======================================================================
+   MISSION 2: DATE-BASED
+   ====================================================================== */
+function applyM2Preview() {
+  const today = new Date(2026, 3, 2); // Apr 2, 2026
+  const sevenOut = new Date(2026, 3, 9);
+  const dates = {
+    m2d2: new Date(2026, 2, 15), m2d3: new Date(2026, 3, 5),
+    m2d4: new Date(2026, 2, 28), m2d5: new Date(2026, 3, 1),
+    m2d6: new Date(2026, 3, 8), m2d7: new Date(2026, 3, 15)
+  };
+  const pdColor = document.getElementById('m2_pastdue_color').value;
+  const dsColor = document.getElementById('m2_duesoon_color').value;
+  const colorMap = { red: '#ffcdd2', orange: '#ffe0b2', green: '#c8e6c9' };
+  const textMap = { red: '#c62828', orange: '#e65100', green: '#2e7d32' };
+
+  Object.entries(dates).forEach(([id, d]) => {
+    const cell = document.getElementById(id);
+    cell.style.backgroundColor = '';
+    cell.style.color = '';
+    cell.style.fontWeight = '';
+    if (d < today && pdColor && colorMap[pdColor]) {
+      cell.style.backgroundColor = colorMap[pdColor];
+      cell.style.color = textMap[pdColor];
+      cell.style.fontWeight = '600';
+    } else if (d >= today && d <= sevenOut && dsColor && colorMap[dsColor]) {
+      cell.style.backgroundColor = colorMap[dsColor];
+      cell.style.color = textMap[dsColor];
+      cell.style.fontWeight = '600';
+    }
+    cell.classList.add('cell-highlight');
+    setTimeout(() => cell.classList.remove('cell-highlight'), 600);
+  });
+}
+
+function checkMission2() {
+  const pd = document.getElementById('m2_pastdue').value;
+  const pdc = document.getElementById('m2_pastdue_color').value;
+  const ds = document.getElementById('m2_duesoon').value;
+  const dsc = document.getElementById('m2_duesoon_color').value;
+  const fb = document.getElementById('feedback2');
+  if (pd === 'before' && pdc === 'red' && ds === 'within7' && dsc === 'orange') {
+    applyM2Preview();
+    fb.className = 'feedback correct';
+    fb.textContent = '🎉 Excellent! "Date is before today" catches overdue items (red), and "in the next 7 days" catches upcoming deadlines (orange)!';
+    completeMission(2);
+  } else {
+    fb.className = 'feedback incorrect';
+    let hint = '❌ Check your selections. ';
+    if (pd !== 'before') hint += 'Past due = dates BEFORE today. ';
+    if (pdc !== 'red') hint += 'Past due should be red (danger). ';
+    if (ds !== 'within7') hint += 'Due soon = in the NEXT 7 days. ';
+    if (dsc !== 'orange') hint += 'Due soon should be orange (warning). ';
+    fb.textContent = hint;
+    failAttempt(2);
+  }
+}
+
+/* ======================================================================
+   MISSION 3: DRAG & DROP RULE ORDERING
+   ====================================================================== */
+(function initDragDrop() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('dragContainer3');
+    if (!container) return;
+    let dragItem = null;
+
+    container.addEventListener('dragstart', e => {
+      dragItem = e.target.closest('.drag-item');
+      if (dragItem) {
+        dragItem.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      }
+    });
+
+    container.addEventListener('dragend', e => {
+      if (dragItem) dragItem.classList.remove('dragging');
+      dragItem = null;
+      updateM3Numbers();
+      updateM3Preview();
+    });
+
+    container.addEventListener('dragover', e => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(container, e.clientY);
+      const dragging = container.querySelector('.dragging');
+      if (!dragging) return;
+      if (afterElement == null) {
+        container.appendChild(dragging);
+      } else {
+        container.insertBefore(dragging, afterElement);
+      }
+    });
+
+    // Touch support
+    let touchItem = null, touchClone = null, touchStartY = 0;
+    container.addEventListener('touchstart', e => {
+      touchItem = e.target.closest('.drag-item');
+      if (touchItem) {
+        touchStartY = e.touches[0].clientY;
+        touchItem.style.opacity = '0.5';
+      }
+    }, { passive: true });
+    container.addEventListener('touchmove', e => {
+      if (!touchItem) return;
+      e.preventDefault();
+      const y = e.touches[0].clientY;
+      const afterElement = getDragAfterElement(container, y);
+      if (afterElement == null) {
+        container.appendChild(touchItem);
+      } else {
+        container.insertBefore(touchItem, afterElement);
+      }
+    }, { passive: false });
+    container.addEventListener('touchend', e => {
+      if (touchItem) {
+        touchItem.style.opacity = '1';
+        touchItem = null;
+        updateM3Numbers();
+        updateM3Preview();
+      }
+    });
+  });
+})();
+
+function getDragAfterElement(container, y) {
+  const items = [...container.querySelectorAll('.drag-item:not(.dragging)')];
+  return items.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height / 2;
+    if (offset < 0 && offset > closest.offset) {
+      return { offset, element: child };
+    }
+    return closest;
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function updateM3Numbers() {
+  const items = document.querySelectorAll('#dragContainer3 .drag-item');
+  items.forEach((item, i) => {
+    item.querySelector('.drag-priority').textContent = i + 1;
+  });
+}
+
+function updateM3Preview() {
+  const items = [...document.querySelectorAll('#dragContainer3 .drag-item')];
+  const rules = items.map(item => item.getAttribute('data-rule'));
+  const scores = [
+    { id: 'm3p1', val: 100 }, { id: 'm3p2', val: 95 }, { id: 'm3p3', val: 82 },
+    { id: 'm3p4', val: 55 }, { id: 'm3p5', val: 100 }, { id: 'm3p6', val: 68 }
+  ];
+  const ruleColors = {
+    eq100: { bg: '#fff176', color: '#f57f17', match: v => v === 100 },
+    gte90: { bg: '#c8e6c9', color: '#2e7d32', match: v => v >= 90 },
+    gte70: { bg: '#fff9c4', color: '#f57f17', match: v => v >= 70 },
+    lt70: { bg: '#ffcdd2', color: '#c62828', match: v => v < 70 }
+  };
+  scores.forEach(s => {
+    const cell = document.getElementById(s.id);
+    cell.style.backgroundColor = '';
+    cell.style.color = '';
+    cell.style.fontWeight = '';
+    // Apply first matching rule
+    for (const ruleKey of rules) {
+      const rule = ruleColors[ruleKey];
+      if (rule && rule.match(s.val)) {
+        cell.style.backgroundColor = rule.bg;
+        cell.style.color = rule.color;
+        cell.style.fontWeight = '600';
+        cell.classList.add('cell-highlight');
+        setTimeout(() => cell.classList.remove('cell-highlight'), 600);
+        break;
+      }
+    }
+  });
+}
+
+function checkMission3() {
+  const items = [...document.querySelectorAll('#dragContainer3 .drag-item')];
+  const order = items.map(item => item.getAttribute('data-rule'));
+  const correct = ['eq100', 'gte90', 'gte70', 'lt70'];
+  const fb = document.getElementById('feedback3');
+  if (JSON.stringify(order) === JSON.stringify(correct)) {
+    updateM3Preview();
+    fb.className = 'feedback correct';
+    fb.textContent = '🎉 Perfect order! Most restrictive (= 100) first, then progressively broader rules. This is the Restrictive Rule First principle!';
+    completeMission(3);
+  } else {
+    fb.className = 'feedback incorrect';
+    fb.textContent = '❌ Not the right order. Remember: most specific rule first (Score = 100), then Score ≥ 90, then Score ≥ 70, and finally the broadest rule (Score < 70) last.';
+    failAttempt(3);
+    updateM3Preview();
+  }
+}
+
+/* ======================================================================
+   MISSION 4: 3-POINT COLOR SCALES
+   ====================================================================== */
+const scaleColorMap = {
+  red: [239, 83, 80], yellow: [255, 235, 59], green: [76, 175, 80], blue: [66, 165, 245]
+};
+
+function interpolateColor(c1, c2, t) {
+  return c1.map((v, i) => Math.round(v + (c2[i] - v) * t));
+}
+
+function applyM4Preview() {
+  const minC = document.getElementById('m4_min').value;
+  const midC = document.getElementById('m4_mid').value;
+  const maxC = document.getElementById('m4_max').value;
+  if (!minC || !midC || !maxC) return;
+
+  const cMin = scaleColorMap[minC], cMid = scaleColorMap[midC], cMax = scaleColorMap[maxC];
+  // Update gradient preview
+  document.getElementById('m4gradient').style.background =
+    `linear-gradient(90deg, rgb(${cMin}), rgb(${cMid}), rgb(${cMax}))`;
+
+  for (let i = 2; i <= 9; i++) {
+    const cell = document.getElementById('m4s' + i);
+    const val = parseInt(cell.getAttribute('data-val'));
+    const t = val / 100; // 0-1
+    let color;
+    if (t <= 0.5) {
+      color = interpolateColor(cMin, cMid, t * 2);
+    } else {
+      color = interpolateColor(cMid, cMax, (t - 0.5) * 2);
+    }
+    cell.style.backgroundColor = `rgb(${color})`;
+    // Dark text for light backgrounds, light for dark
+    const luminance = (0.299 * color[0] + 0.587 * color[1] + 0.114 * color[2]);
+    cell.style.color = luminance > 140 ? '#333' : '#fff';
+    cell.style.fontWeight = '600';
+    cell.classList.add('cell-highlight');
+    setTimeout(() => cell.classList.remove('cell-highlight'), 600);
+  }
+}
+
+// Live gradient preview on change
+['m4_min', 'm4_mid', 'm4_max'].forEach(id => {
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', () => {
+      const minC = document.getElementById('m4_min').value;
+      const midC = document.getElementById('m4_mid').value;
+      const maxC = document.getElementById('m4_max').value;
+      if (minC && midC && maxC) {
+        const cMin = scaleColorMap[minC], cMid = scaleColorMap[midC], cMax = scaleColorMap[maxC];
+        document.getElementById('m4gradient').style.background =
+          `linear-gradient(90deg, rgb(${cMin}), rgb(${cMid}), rgb(${cMax}))`;
+      }
+    });
+  });
+});
+
+function checkMission4() {
+  const minC = document.getElementById('m4_min').value;
+  const midC = document.getElementById('m4_mid').value;
+  const maxC = document.getElementById('m4_max').value;
+  const fb = document.getElementById('feedback4');
+  if (minC === 'red' && midC === 'yellow' && maxC === 'green') {
+    applyM4Preview();
+    fb.className = 'feedback correct';
+    fb.textContent = '🎉 Beautiful! Red (low) → Yellow (mid) → Green (high) is the classic traffic-light color scale. Notice how the gradient smoothly transitions!';
+    completeMission(4);
+  } else {
+    fb.className = 'feedback incorrect';
+    fb.textContent = '❌ Think traffic light: Low scores = Red (danger), Middle = Yellow (caution), High scores = Green (good).';
+    failAttempt(4);
+  }
+}
+
+/* ======================================================================
+   MISSION 5: HEATMAPS
+   ====================================================================== */
+let heatmapOn = false;
+function toggleHeatmap5() {
+  heatmapOn = !heatmapOn;
+  const btn = document.getElementById('heatToggle5');
+  btn.textContent = heatmapOn ? '🚫 Remove Heatmap' : '🎨 Apply Heatmap';
+  const allCells = [];
+  for (let i = 0; i < 28; i++) {
+    const cell = document.getElementById('h5_' + i);
+    if (cell) allCells.push(cell);
+  }
+  if (!heatmapOn) {
+    allCells.forEach(c => { c.style.backgroundColor = ''; c.style.color = ''; });
+    return;
+  }
+  const vals = allCells.map(c => parseInt(c.getAttribute('data-val')));
+  const min = Math.min(...vals), max = Math.max(...vals);
+  allCells.forEach((cell, idx) => {
+    const val = vals[idx];
+    const t = (val - min) / (max - min); // 0 to 1
+    // White to dark green
+    const r = Math.round(255 - t * 200);
+    const g = Math.round(255 - t * 80);
+    const b = Math.round(255 - t * 200);
+    setTimeout(() => {
+      cell.style.backgroundColor = `rgb(${r},${g},${b})`;
+      cell.style.color = t > 0.6 ? '#fff' : '#333';
+      cell.style.fontWeight = '600';
+      cell.classList.add('cell-highlight');
+      setTimeout(() => cell.classList.remove('cell-highlight'), 600);
+    }, idx * 40);
+  });
+}
+
+function checkMission5() {
+  const q1 = document.getElementById('m5_q1').value;
+  const q2 = document.getElementById('m5_q2').value;
+  const q3 = document.getElementById('m5_q3').value;
+  const fb = document.getElementById('feedback5');
+  if (q1 === 'fri_afternoon' && q2 === 'tue_night' && q3 === 'colorscale') {
+    if (!heatmapOn) toggleHeatmap5();
+    fb.className = 'feedback correct';
+    fb.textContent = '🎉 Spot on! Friday Afternoon has the highest traffic (450), Tuesday Night the lowest (75), and color scales are the perfect format type for heatmaps!';
+    completeMission(5);
+  } else {
+    fb.className = 'feedback incorrect';
+    let hint = '❌ ';
+    if (q1 !== 'fri_afternoon') hint += 'Look for the highest number in the grid (450). ';
+    if (q2 !== 'tue_night') hint += 'Look for the lowest number (75). ';
+    if (q3 !== 'colorscale') hint += 'Heatmaps use COLOR SCALES to show intensity. ';
+    fb.textContent = hint;
+    failAttempt(5);
+  }
+}
+
+/* ======================================================================
+   MISSION 6: CUSTOM FORMULA
+   ====================================================================== */
+function updateFormulaSyntax() {
+  const input = document.getElementById('m6_formula').value;
+  const syntaxEl = document.getElementById('m6_syntax');
+  if (!input) { syntaxEl.innerHTML = '<span style="color:#666">Type your formula above...</span>'; return; }
+  // Syntax highlight
+  let html = input
+    .replace(/(\$)([A-Za-z]+)/g, '<span class="syn-dollar">$1</span><span class="syn-ref">$2</span>')
+    .replace(/(\d+)/g, '<span class="syn-ref">$1</span>')
+    .replace(/(=|<|>|&lt;|&gt;)/g, '<span class="syn-op">$1</span>')
+    .replace(/(".*?")/g, '<span class="syn-str">$1</span>');
+  syntaxEl.innerHTML = '=' + html;
+}
+
+function applyM6Preview() {
+  const formula = document.getElementById('m6_formula').value.trim().replace(/^=/, '');
+  // Simple check: does it reference $C and "Urgent"
+  const urgentRows = [2, 4, 6];
+  const normalRows = [3, 5, 7];
+  urgentRows.forEach(r => {
+    const row = document.getElementById('m6r' + r);
+    if (row) {
+      [...row.children].forEach((td, i) => {
+        if (i > 0) {
+          td.style.backgroundColor = '#fff3e0';
+          td.style.transition = 'background-color 0.5s ease';
+          td.classList.add('cell-highlight');
+          setTimeout(() => td.classList.remove('cell-highlight'), 600);
+        }
+      });
+    }
+  });
+  normalRows.forEach(r => {
+    const row = document.getElementById('m6r' + r);
+    if (row) {
+      [...row.children].forEach((td, i) => {
+        if (i > 0) { td.style.backgroundColor = ''; }
+      });
+    }
+  });
+}
+
+function checkMission6() {
+  const formula = document.getElementById('m6_formula').value.trim().replace(/^=/, '').replace(/\s/g, '');
+  const q1 = document.getElementById('m6_q1').value;
+  const fb = document.getElementById('feedback6');
+
+  // Accept various correct forms
+  const validFormulas = [
+    '$c1="urgent"', '$c1="Urgent"', '$C1="Urgent"', '$C1="urgent"',
+    '$c1="Urgent"', '$C1="Urgent"'
+  ];
+  const formulaLower = formula.toLowerCase().replace(/\u201c|\u201d/g, '"');
+  const isFormulaCorrect = validFormulas.some(f => formulaLower === f.toLowerCase());
+
+  if (isFormulaCorrect && q1 === 'lock_col') {
+    applyM6Preview();
+    fb.className = 'feedback correct';
+    fb.textContent = '🎉 Brilliant! =$C1="Urgent" locks column C with $ so each row checks its own C value. The row number adjusts automatically. This highlights entire rows!';
+    completeMission(6);
+  } else {
+    fb.className = 'feedback incorrect';
+    let hint = '❌ ';
+    if (!isFormulaCorrect) hint += 'The formula should be $C1="Urgent" (dollar sign before C, row 1). ';
+    if (q1 !== 'lock_col') hint += 'The $ locks the COLUMN reference so it always checks column C. ';
+    fb.textContent = hint;
+    failAttempt(6);
+  }
+}
+
+/* ======================================================================
+   COMPLETION & SAVE
+   ====================================================================== */
+function showCompletion() {
+  document.getElementById('completionScreen').classList.add('visible');
+  document.getElementById('missionsContainer').querySelectorAll('.mission-panel').forEach(p => p.style.display = 'none');
+  const elapsed = Math.round((Date.now() - state.startTime) / 1000);
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const totalAttempts = Object.values(state.attempts).reduce((a, b) => a + b, 0) + TOTAL_MISSIONS;
+
+  document.getElementById('finalScore').textContent = state.score + ' pts';
+  document.getElementById('finalRank').textContent = 'Rank: ' + getRank(state.score);
+  document.getElementById('fsMissions').textContent = state.completedMissions.size + '/' + TOTAL_MISSIONS;
+  document.getElementById('fsStreak').textContent = state.bestStreak;
+  document.getElementById('fsTime').textContent = mins + ':' + String(secs).padStart(2, '0');
+  document.getElementById('fsAttempts').textContent = totalAttempts;
+
+  launchConfetti();
+  setTimeout(launchConfetti, 600);
+
+  // Save to localStorage
+  saveCompletion(elapsed, totalAttempts);
+}
+
+function saveCompletion(elapsed, totalAttempts) {
+  const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  data.push({
+    name: state.name,
+    class: state.classPeriod,
+    score: state.score,
+    rank: getRank(state.score),
+    missions: state.completedMissions.size,
+    time: elapsed,
+    attempts: totalAttempts,
+    date: new Date().toISOString()
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function restartActivity() {
+  state = { name: '', classPeriod: '', score: 0, streak: 0, bestStreak: 0, completedMissions: new Set(), currentMission: 1, attempts: {}, startTime: null, heatmapOn: false };
+  document.getElementById('studentView').style.display = 'none';
+  document.getElementById('completionScreen').classList.remove('visible');
+  document.getElementById('missionsContainer').querySelectorAll('.mission-panel').forEach(p => p.style.display = '');
+  // Reset all missions
+  for (let i = 1; i <= TOTAL_MISSIONS; i++) {
+    document.getElementById('missionHeader' + i).classList.remove('completed');
+    document.getElementById('missionStatus' + i).textContent = '🔒';
+    document.getElementById('missionBody' + i).classList.remove('open');
+    const fb = document.getElementById('feedback' + i);
+    if (fb) { fb.className = 'feedback'; fb.textContent = ''; }
+  }
+  // Reset grids
+  ['m1c2','m1c3','m1c4','m1c5','m1c6','m1c7','m1c8'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.backgroundColor = ''; el.style.color = ''; el.style.fontWeight = ''; }
+  });
+  ['m2d2','m2d3','m2d4','m2d5','m2d6','m2d7'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.style.backgroundColor = ''; el.style.color = ''; el.style.fontWeight = ''; }
+  });
+  for (let i = 0; i < 28; i++) {
+    const el = document.getElementById('h5_' + i);
+    if (el) { el.style.backgroundColor = ''; el.style.color = ''; }
+  }
+  heatmapOn = false;
+  document.getElementById('heatToggle5').textContent = '🎨 Apply Heatmap';
+  updateScoreboard();
+  updateProgress();
+  document.getElementById('profileOverlay').style.display = 'flex';
+}
+
+/* ======================================================================
+   CONFETTI
+   ====================================================================== */
+function launchConfetti() {
+  const colors = ['#1B5EAF', '#1E7A3E', '#f9ab00', '#d93025', '#4285f4', '#34a853'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 5) + 'px';
+    piece.style.height = (Math.random() * 8 + 5) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+/* ======================================================================
+   TEACHER DASHBOARD
+   ====================================================================== */
+let dashSortKey = 'date', dashSortAsc = false;
+
+function refreshDashboard() {
+  const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const filter = document.getElementById('dashFilter').value;
+  const filtered = filter === 'all' ? data : data.filter(d => d.class === filter);
+
+  // Stats
+  document.getElementById('dsTotalStudents').textContent = filtered.length;
+  if (filtered.length > 0) {
+    const avg = Math.round(filtered.reduce((a, d) => a + d.score, 0) / filtered.length);
+    document.getElementById('dsAvgScore').textContent = avg;
+    const ranks = {};
+    filtered.forEach(d => { ranks[d.rank] = (ranks[d.rank] || 0) + 1; });
+    const topRank = Object.entries(ranks).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById('dsTopRank').textContent = topRank ? topRank[0] : '—';
+    const completed = filtered.filter(d => d.missions >= TOTAL_MISSIONS).length;
+    document.getElementById('dsCompletion').textContent = Math.round(completed / filtered.length * 100) + '%';
+  } else {
+    document.getElementById('dsAvgScore').textContent = '0';
+    document.getElementById('dsTopRank').textContent = '—';
+    document.getElementById('dsCompletion').textContent = '0%';
+  }
+
+  // Sort
+  filtered.sort((a, b) => {
+    let va = a[dashSortKey], vb = b[dashSortKey];
+    if (typeof va === 'string') va = va.toLowerCase();
+    if (typeof vb === 'string') vb = vb.toLowerCase();
+    if (va < vb) return dashSortAsc ? -1 : 1;
+    if (va > vb) return dashSortAsc ? 1 : -1;
+    return 0;
+  });
+
+  // Table
+  const tbody = document.getElementById('dashBody');
+  const noData = document.getElementById('dashNoData');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '';
+    noData.style.display = '';
+    return;
+  }
+  noData.style.display = 'none';
+  tbody.innerHTML = filtered.map(d => {
+    const mins = Math.floor(d.time / 60);
+    const secs = d.time % 60;
+    const dateStr = new Date(d.date).toLocaleDateString();
+    return `<tr>
+      <td>${escHTML(d.name)}</td><td>${escHTML(d.class)}</td>
+      <td><strong>${d.score}</strong></td><td>${d.rank}</td>
+      <td>${d.missions}/${TOTAL_MISSIONS}</td>
+      <td>${mins}:${String(secs).padStart(2,'0')}</td>
+      <td>${d.attempts}</td><td>${dateStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+function sortDash(key) {
+  if (dashSortKey === key) dashSortAsc = !dashSortAsc;
+  else { dashSortKey = key; dashSortAsc = true; }
+  refreshDashboard();
+}
+
+function exportCSV() {
+  const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  const filter = document.getElementById('dashFilter').value;
+  const filtered = filter === 'all' ? data : data.filter(d => d.class === filter);
+  if (filtered.length === 0) { alert('No data to export.'); return; }
+  let csv = 'Name,Class,Score,Rank,Missions,Time(s),Attempts,Date\n';
+  filtered.forEach(d => {
+    csv += `"${d.name}","${d.class}",${d.score},"${d.rank}",${d.missions},${d.time},${d.attempts},"${new Date(d.date).toLocaleDateString()}"\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'uva_conditional_formatting_data.csv';
+  a.click();
+}
+
+function clearAllData() {
+  if (confirm('Are you sure you want to delete ALL student data? This cannot be undone.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    refreshDashboard();
+  }
+}
+
+function escHTML(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* ======================================================================
+   INIT
+   ====================================================================== */
+document.addEventListener('DOMContentLoaded', () => {
+  updateM3Numbers();
+  updateFormulaSyntax();
+});
+</script>
+</body>
+</html>
