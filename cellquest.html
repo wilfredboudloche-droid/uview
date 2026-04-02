@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Sheets Formula Quest — UVA Learning Activity</title>
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1B5EAF;--blue-light:#2874C8;--blue-dark:#134A8A;
+  --green:#1E7A3E;--green-light:#28A050;--green-dark:#15602F;
+  --gold:#D4A843;--bg:#F3F6FB;--card:#FFFFFF;
+  --text:#1E293B;--muted:#64748B;--danger:#DC2626;--success:#16A34A;
+  --radius:12px;--shadow:0 4px 24px rgba(27,94,175,.12);
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ===== HEADER ===== */
+.site-header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));color:#fff;text-align:center;padding:1.5rem 1rem .8rem;position:relative;overflow:hidden}
+.site-header h1{font-size:1.75rem;font-weight:800;letter-spacing:.5px}
+.site-header .subtitle{font-size:.95rem;opacity:.85;margin-top:.2rem}
+.ribbon{display:inline-block;background:var(--green);color:#fff;font-style:italic;font-weight:600;font-size:.82rem;padding:.35rem 1.8rem;margin-top:.6rem;border-radius:2px;letter-spacing:1.5px;box-shadow:0 2px 8px rgba(0,0,0,.18);position:relative}
+.ribbon::before,.ribbon::after{content:'';position:absolute;top:0;border:14px solid var(--green-dark);height:100%}
+.ribbon::before{left:-20px;border-left:10px solid transparent}
+.ribbon::after{right:-20px;border-right:10px solid transparent}
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrap{background:#e2e8f0;border-radius:20px;height:14px;margin:1rem auto;max-width:600px;overflow:hidden;position:relative}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green-light));border-radius:20px;transition:width .6s ease;width:0}
+.progress-label{text-align:center;font-size:.8rem;color:var(--muted);margin-top:.15rem}
+
+/* ===== SCORE / RANK BAR ===== */
+.stats-bar{display:flex;justify-content:center;gap:1.2rem;flex-wrap:wrap;padding:.6rem 1rem;font-size:.85rem;font-weight:600}
+.stats-bar .stat{background:var(--card);padding:.45rem 1rem;border-radius:20px;box-shadow:0 1px 6px rgba(0,0,0,.08);display:flex;align-items:center;gap:.4rem}
+.stat .icon{font-size:1.1rem}
+.streak-fire{color:#EF4444;animation:pulse .6s infinite alternate}
+@keyframes pulse{to{transform:scale(1.25)}}
+
+/* ===== RANK BADGES ===== */
+.rank-display{text-align:center;margin:.3rem 0 .5rem}
+.rank-pill{display:inline-block;padding:.3rem 1rem;border-radius:20px;font-weight:700;font-size:.85rem;color:#fff;transition:all .4s}
+.rank-trainee{background:#94A3B8}
+.rank-apprentice{background:var(--blue)}
+.rank-expert{background:var(--green)}
+.rank-master{background:linear-gradient(135deg,var(--gold),#B8860B);box-shadow:0 0 12px rgba(212,168,67,.5)}
+
+/* ===== MISSION CONTAINER ===== */
+.mission-container{max-width:820px;margin:1rem auto 3rem;padding:0 1rem}
+.mission-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:2rem;display:none;animation:fadeIn .5s ease}
+.mission-card.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+.mission-badge{display:inline-flex;align-items:center;gap:.4rem;background:var(--blue);color:#fff;font-size:.75rem;font-weight:700;padding:.3rem .9rem;border-radius:20px;margin-bottom:.6rem;text-transform:uppercase;letter-spacing:1px}
+.mission-card h2{font-size:1.35rem;color:var(--blue-dark);margin-bottom:.3rem}
+.mission-card .mission-desc{color:var(--muted);margin-bottom:1.2rem;line-height:1.5}
+
+/* ===== SPREADSHEET GRID ===== */
+.sheet-grid{border-collapse:collapse;margin:1rem auto;font-size:.88rem;min-width:320px}
+.sheet-grid th,.sheet-grid td{border:1px solid #CBD5E1;padding:.45rem .7rem;text-align:center;min-width:60px}
+.sheet-grid th{background:var(--blue);color:#fff;font-weight:600;font-size:.78rem}
+.sheet-grid .row-header{background:#E2E8F0;font-weight:700;color:var(--blue-dark);min-width:36px}
+.sheet-grid td.highlight{background:#DBEAFE;border-color:var(--blue)}
+.sheet-grid td.highlight-green{background:#DCFCE7;border-color:var(--green)}
+
+/* ===== FORM ELEMENTS ===== */
+.formula-input{font-family:'Courier New',monospace;font-size:1rem;padding:.55rem .9rem;border:2px solid #CBD5E1;border-radius:8px;width:100%;max-width:400px;transition:border-color .3s}
+.formula-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,94,175,.15)}
+.formula-input.correct{border-color:var(--success);background:#F0FFF4}
+.formula-input.wrong{border-color:var(--danger);background:#FFF5F5}
+
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.4rem;border:none;border-radius:8px;font-size:.92rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:var(--blue-light);transform:translateY(-1px)}
+.btn-success{background:var(--green);color:#fff}
+.btn-success:hover{background:var(--green-light);transform:translateY(-1px)}
+.btn-outline{background:transparent;border:2px solid var(--blue);color:var(--blue)}
+.btn-outline:hover{background:var(--blue);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-group{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+
+/* ===== FEEDBACK ===== */
+.feedback{margin-top:.8rem;padding:.7rem 1rem;border-radius:8px;font-weight:600;display:none;animation:fadeIn .3s}
+.feedback.show{display:block}
+.feedback.correct{background:#DCFCE7;color:#166534;border-left:4px solid var(--success)}
+.feedback.incorrect{background:#FEE2E2;color:#991B1B;border-left:4px solid var(--danger)}
+.feedback .explain{font-weight:400;font-size:.88rem;margin-top:.3rem;line-height:1.4}
+
+/* ===== DRAG & DROP ===== */
+.drag-zone{display:flex;flex-wrap:wrap;gap:.6rem;margin:1rem 0}
+.drag-item{padding:.5rem 1rem;background:var(--blue);color:#fff;border-radius:8px;cursor:grab;font-weight:600;font-size:.85rem;user-select:none;transition:transform .15s}
+.drag-item:active{cursor:grabbing;transform:scale(1.06)}
+.drag-item.placed{opacity:.4;cursor:default}
+.drop-target{min-height:42px;min-width:100px;border:2px dashed #94A3B8;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;padding:.4rem .8rem;margin:.3rem;font-size:.85rem;color:var(--muted);transition:all .2s;vertical-align:middle}
+.drop-target.over{border-color:var(--blue);background:#DBEAFE}
+.drop-target.filled{border-style:solid;border-color:var(--green);background:#DCFCE7;color:var(--text);font-weight:600}
+.drop-target.wrong-fill{border-color:var(--danger);background:#FEE2E2}
+
+/* ===== MULTI-CHOICE ===== */
+.choices{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0}
+.choice-btn{text-align:left;padding:.65rem 1rem;border:2px solid #E2E8F0;border-radius:8px;background:#fff;cursor:pointer;font-size:.9rem;transition:all .2s}
+.choice-btn:hover{border-color:var(--blue);background:#F0F7FF}
+.choice-btn.selected{border-color:var(--blue);background:#DBEAFE;font-weight:600}
+.choice-btn.correct-choice{border-color:var(--success);background:#DCFCE7}
+.choice-btn.wrong-choice{border-color:var(--danger);background:#FEE2E2}
+
+/* ===== QUESTION BLOCK ===== */
+.question-block{background:#F8FAFC;border-radius:10px;padding:1.2rem;margin:1rem 0;border-left:4px solid var(--blue)}
+.question-block .q-label{font-weight:700;color:var(--blue);font-size:.82rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
+.question-block .q-text{font-size:1rem;line-height:1.5;margin-bottom:.8rem}
+.question-block code{background:#E2E8F0;padding:.15rem .5rem;border-radius:4px;font-size:.92rem;font-family:'Courier New',monospace;color:var(--blue-dark)}
+
+/* ===== COMPLETION SCREEN ===== */
+.completion-screen{text-align:center;padding:2rem}
+.completion-screen .trophy{font-size:4rem;margin-bottom:.5rem}
+.completion-screen h2{font-size:1.8rem;color:var(--blue-dark)}
+.completion-screen .final-score{font-size:2.5rem;font-weight:800;color:var(--green);margin:.5rem 0}
+.completion-screen .final-rank{font-size:1.1rem;margin-bottom:1.5rem}
+.badge-collection{display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin:1.5rem 0}
+.badge{width:70px;height:70px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.6rem;box-shadow:0 3px 12px rgba(0,0,0,.12);transition:transform .2s}
+.badge:hover{transform:scale(1.1)}
+.badge.earned{background:linear-gradient(135deg,var(--gold),#F0C040)}
+.badge.locked{background:#E2E8F0;opacity:.4;filter:grayscale(1)}
+.badge .badge-label{font-size:.5rem;font-weight:700;margin-top:2px}
+
+/* ===== CONFETTI CANVAS ===== */
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:640px){
+  .site-header h1{font-size:1.3rem}
+  .mission-card{padding:1.2rem}
+  .sheet-grid{font-size:.78rem}
+  .sheet-grid th,.sheet-grid td{padding:.3rem .4rem;min-width:44px}
+  .stats-bar{gap:.5rem}
+  .drag-zone{gap:.4rem}
+}
+</style>
+</head>
+<body>
+
+<!-- CONFETTI -->
+<canvas id="confetti-canvas"></canvas>
+
+<!-- HEADER -->
+<header class="site-header">
+  <h1>📊 Google Sheets Formula Quest</h1>
+  <p class="subtitle">UVA Interactive Learning Activity</p>
+  <div class="ribbon">Virtue &nbsp;·&nbsp; Vigor &nbsp;·&nbsp; Vision</div>
+</header>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat"><span class="icon">⭐</span> Score: <span id="score">0</span></div>
+  <div class="stat"><span class="icon streak-fire" id="streak-icon" style="display:none">🔥</span><span id="streak-label">Streak: <span id="streak">0</span></span></div>
+  <div class="stat"><span class="icon">📋</span> Mission: <span id="mission-num">1</span>/6</div>
+</div>
+<div class="rank-display"><span class="rank-pill rank-trainee" id="rank-pill">🎓 Trainee</span></div>
+<div class="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
+<p class="progress-label" id="progress-label">0% Complete</p>
+
+<!-- MISSIONS -->
+<div class="mission-container">
+
+<!-- ============ MISSION 1: Spreadsheet Anatomy (Drag & Drop) ============ -->
+<div class="mission-card active" id="mission-1">
+  <span class="mission-badge">🗺️ Mission 1 of 6</span>
+  <h2>Spreadsheet Anatomy Explorer</h2>
+  <p class="mission-desc">Every spreadsheet expert must know the parts of a spreadsheet! Drag each label to its correct description below.</p>
+
+  <table class="sheet-grid" style="margin-bottom:1rem">
+    <tr><th></th><th>A</th><th>B</th><th>C</th></tr>
+    <tr><td class="row-header">1</td><td class="highlight">Name</td><td>Age</td><td>Score</td></tr>
+    <tr><td class="row-header">2</td><td>Ali</td><td>16</td><td>92</td></tr>
+    <tr><td class="row-header">3</td><td>Bri</td><td>17</td><td>88</td></tr>
+    <tr><td class="row-header">4</td><td>Cal</td><td>15</td><td>95</td></tr>
+  </table>
+
+  <p style="font-weight:600;margin-bottom:.4rem">Drag each term to its matching description:</p>
+  <div class="drag-zone" id="drag-source-1">
+    <div class="drag-item" draggable="true" data-term="column">Column</div>
+    <div class="drag-item" draggable="true" data-term="row">Row</div>
+    <div class="drag-item" draggable="true" data-term="cell">Cell</div>
+    <div class="drag-item" draggable="true" data-term="range">Range</div>
+  </div>
+
+  <div style="margin:1rem 0">
+    <p style="margin:.5rem 0">A vertical group of cells labeled with letters (A, B, C…): <span class="drop-target" data-answer="column">drop here</span></p>
+    <p style="margin:.5rem 0">A horizontal group of cells labeled with numbers (1, 2, 3…): <span class="drop-target" data-answer="row">drop here</span></p>
+    <p style="margin:.5rem 0">A single box where a column and row intersect, like <code>B2</code>: <span class="drop-target" data-answer="cell">drop here</span></p>
+    <p style="margin:.5rem 0">A group of cells, written like <code>A1:C4</code>: <span class="drop-target" data-answer="range">drop here</span></p>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="checkMission1()">✅ Check Answers</button>
+  </div>
+  <div class="feedback" id="fb-1"></div>
+  <div class="btn-group"><button class="btn btn-success" id="next-1" style="display:none" onclick="goMission(2)">Next Mission →</button></div>
+</div>
+
+<!-- ============ MISSION 2: Basic Formulas ============ -->
+<div class="mission-card" id="mission-2">
+  <span class="mission-badge">🧮 Mission 2 of 6</span>
+  <h2>Formula Builder</h2>
+  <p class="mission-desc">In Google Sheets, formulas always start with <code>=</code> and use cell references. Write the correct formula for each task.</p>
+
+  <table class="sheet-grid">
+    <tr><th></th><th>A</th><th>B</th><th>C</th></tr>
+    <tr><td class="row-header">1</td><td>Item</td><td>Price</td><td>Qty</td></tr>
+    <tr><td class="row-header">2</td><td>Pencil</td><td class="highlight">1.50</td><td class="highlight">10</td></tr>
+    <tr><td class="row-header">3</td><td>Notebook</td><td class="highlight">4.00</td><td class="highlight">3</td></tr>
+  </table>
+
+  <!-- Q1 -->
+  <div class="question-block">
+    <div class="q-label">Task 2a</div>
+    <p class="q-text">Write a formula in <code>D2</code> to calculate the total cost of Pencils (Price × Quantity).</p>
+    <input class="formula-input" id="m2q1" placeholder="e.g. =B2*C2" autocomplete="off" spellcheck="false">
+    <div class="feedback" id="fb-2a"></div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="question-block">
+    <div class="q-label">Task 2b</div>
+    <p class="q-text">Write a formula to add the Pencil price (<code>B2</code>) and the Notebook price (<code>B3</code>).</p>
+    <input class="formula-input" id="m2q2" placeholder="e.g. =B2+B3" autocomplete="off" spellcheck="false">
+    <div class="feedback" id="fb-2b"></div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="question-block">
+    <div class="q-label">Task 2c</div>
+    <p class="q-text">Write a formula to find the difference between the Notebook quantity (<code>C3</code>) and the Pencil quantity (<code>C2</code>).</p>
+    <input class="formula-input" id="m2q3" placeholder="e.g. =C3-C2" autocomplete="off" spellcheck="false">
+    <div class="feedback" id="fb-2c"></div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="checkMission2()">✅ Check Answers</button>
+  </div>
+  <div class="feedback" id="fb-2"></div>
+  <div class="btn-group"><button class="btn btn-success" id="next-2" style="display:none" onclick="goMission(3)">Next Mission →</button></div>
+</div>
+
+<!-- ============ MISSION 3: Cell Reference Types ============ -->
+<div class="mission-card" id="mission-3">
+  <span class="mission-badge">🔗 Mission 3 of 6</span>
+  <h2>Reference Decoder</h2>
+  <p class="mission-desc">Cell references can be <strong>relative</strong> (A1), <strong>absolute</strong> ($A$1), or <strong>mixed</strong> ($A1 or A$1). Identify each type!</p>
+
+  <div class="question-block">
+    <div class="q-label">Question 3a</div>
+    <p class="q-text">What type of reference is <code>B5</code>?</p>
+    <div class="choices" id="m3q1-choices">
+      <button class="choice-btn" data-val="relative" onclick="selectChoice(this)">Relative</button>
+      <button class="choice-btn" data-val="absolute" onclick="selectChoice(this)">Absolute</button>
+      <button class="choice-btn" data-val="mixed" onclick="selectChoice(this)">Mixed</button>
+    </div>
+    <div class="feedback" id="fb-3a"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="q-label">Question 3b</div>
+    <p class="q-text">What type of reference is <code>$D$2</code>?</p>
+    <div class="choices" id="m3q2-choices">
+      <button class="choice-btn" data-val="relative" onclick="selectChoice(this)">Relative</button>
+      <button class="choice-btn" data-val="absolute" onclick="selectChoice(this)">Absolute</button>
+      <button class="choice-btn" data-val="mixed" onclick="selectChoice(this)">Mixed</button>
+    </div>
+    <div class="feedback" id="fb-3b"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="q-label">Question 3c</div>
+    <p class="q-text">What type of reference is <code>$A3</code>?</p>
+    <div class="choices" id="m3q3-choices">
+      <button class="choice-btn" data-val="relative" onclick="selectChoice(this)">Relative</button>
+      <button class="choice-btn" data-val="absolute" onclick="selectChoice(this)">Absolute</button>
+      <button class="choice-btn" data-val="mixed" onclick="selectChoice(this)">Mixed</button>
+    </div>
+    <div class="feedback" id="fb-3c"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="q-label">Question 3d</div>
+    <p class="q-text">You want to copy a formula down a column but always reference the tax rate in cell <code>E1</code>. Which reference should you use for <code>E1</code>?</p>
+    <div class="choices" id="m3q4-choices">
+      <button class="choice-btn" data-val="E1" onclick="selectChoice(this)"><code>E1</code> (relative)</button>
+      <button class="choice-btn" data-val="$E$1" onclick="selectChoice(this)"><code>$E$1</code> (absolute)</button>
+      <button class="choice-btn" data-val="E$1" onclick="selectChoice(this)"><code>E$1</code> (mixed)</button>
+    </div>
+    <div class="feedback" id="fb-3d"></div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="checkMission3()">✅ Check Answers</button>
+  </div>
+  <div class="feedback" id="fb-3"></div>
+  <div class="btn-group"><button class="btn btn-success" id="next-3" style="display:none" onclick="goMission(4)">Next Mission →</button></div>
+</div>
+
+<!-- ============ MISSION 4: SUM Function ============ -->
+<div class="mission-card" id="mission-4">
+  <span class="mission-badge">➕ Mission 4 of 6</span>
+  <h2>SUM Specialist</h2>
+  <p class="mission-desc">The <code>=SUM()</code> function adds up values in a range. Master it here!</p>
+
+  <table class="sheet-grid">
+    <tr><th></th><th>A</th><th>B</th></tr>
+    <tr><td class="row-header">1</td><td>Student</td><td>Points</td></tr>
+    <tr><td class="row-header">2</td><td>Dara</td><td class="highlight">85</td></tr>
+    <tr><td class="row-header">3</td><td>Eli</td><td class="highlight">92</td></tr>
+    <tr><td class="row-header">4</td><td>Faye</td><td class="highlight">78</td></tr>
+    <tr><td class="row-header">5</td><td>Gabe</td><td class="highlight">95</td></tr>
+    <tr><td class="row-header">6</td><td><strong>Total</strong></td><td class="highlight-green">?</td></tr>
+  </table>
+
+  <div class="question-block">
+    <div class="q-label">Task 4a</div>
+    <p class="q-text">Write a <code>SUM</code> formula for cell <code>B6</code> to total all student points (B2 through B5).</p>
+    <input class="formula-input" id="m4q1" placeholder="=SUM(...)" autocomplete="off" spellcheck="false">
+    <div class="feedback" id="fb-4a"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="q-label">Task 4b</div>
+    <p class="q-text">What value will that formula return? (Type the number)</p>
+    <input class="formula-input" id="m4q2" placeholder="e.g. 350" autocomplete="off" spellcheck="false" style="max-width:160px">
+    <div class="feedback" id="fb-4b"></div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="checkMission4()">✅ Check Answers</button>
+  </div>
+  <div class="feedback" id="fb-4"></div>
+  <div class="btn-group"><button class="btn btn-success" id="next-4" style="display:none" onclick="goMission(5)">Next Mission →</button></div>
+</div>
+
+<!-- ============ MISSION 5: IF Function ============ -->
+<div class="mission-card" id="mission-5">
+  <span class="mission-badge">🔀 Mission 5 of 6</span>
+  <h2>IF Function Challenge</h2>
+  <p class="mission-desc">The <code>=IF(condition, value_if_true, value_if_false)</code> function makes decisions. Let's practice!</p>
+
+  <table class="sheet-grid">
+    <tr><th></th><th>A</th><th>B</th><th>C</th></tr>
+    <tr><td class="row-header">1</td><td>Student</td><td>Score</td><td>Result</td></tr>
+    <tr><td class="row-header">2</td><td>Hana</td><td class="highlight">85</td><td class="highlight-green">?</td></tr>
+    <tr><td class="row-header">3</td><td>Ivan</td><td class="highlight">62</td><td class="highlight-green">?</td></tr>
+  </table>
+
+  <div class="question-block">
+    <div class="q-label">Task 5a</div>
+    <p class="q-text">Write an <code>IF</code> formula for cell <code>C2</code>: If the score in <code>B2</code> is greater than or equal to 70, display <code>"Pass"</code>, otherwise display <code>"Fail"</code>.</p>
+    <input class="formula-input" id="m5q1" placeholder='=IF(B2>=70,"Pass","Fail")' autocomplete="off" spellcheck="false">
+    <div class="feedback" id="fb-5a"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="q-label">Task 5b</div>
+    <p class="q-text">Based on your formula, what would cell <code>C3</code> display for Ivan (score = 62)?</p>
+    <div class="choices" id="m5q2-choices">
+      <button class="choice-btn" data-val="Pass" onclick="selectChoice(this)">Pass</button>
+      <button class="choice-btn" data-val="Fail" onclick="selectChoice(this)">Fail</button>
+      <button class="choice-btn" data-val="62" onclick="selectChoice(this)">62</button>
+      <button class="choice-btn" data-val="Error" onclick="selectChoice(this)">Error</button>
+    </div>
+    <div class="feedback" id="fb-5b"></div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="checkMission5()">✅ Check Answers</button>
+  </div>
+  <div class="feedback" id="fb-5"></div>
+  <div class="btn-group"><button class="btn btn-success" id="next-5" style="display:none" onclick="goMission(6)">Next Mission →</button></div>
+</div>
+
+<!-- ============ MISSION 6: XLOOKUP ============ -->
+<div class="mission-card" id="mission-6">
+  <span class="mission-badge">🔍 Mission 6 of 6</span>
+  <h2>XLOOKUP Master Quest</h2>
+  <p class="mission-desc"><code>=XLOOKUP(search_key, lookup_range, result_range)</code> finds a value by searching one column and returning from another. This is your final mission!</p>
+
+  <table class="sheet-grid">
+    <tr><th></th><th>A</th><th>B</th><th style="min-width:30px"></th><th>D</th><th>E</th></tr>
+    <tr><td class="row-header">1</td><td>Product</td><td>Price</td><td></td><td>Lookup</td><td>Result</td></tr>
+    <tr><td class="row-header">2</td><td class="highlight">Apple</td><td class="highlight">1.20</td><td></td><td class="highlight">Banana</td><td class="highlight-green">?</td></tr>
+    <tr><td class="row-header">3</td><td class="highlight">Banana</td><td class="highlight">0.75</td><td></td><td></td><td></td></tr>
+    <tr><td class="row-header">4</td><td class="highlight">Cherry</td><td class="highlight">3.00</td><td></td><td></td><td></td></tr>
+    <tr><td class="row-header">5</td><td class="highlight">Dragonfruit</td><td class="highlight">5.50</td><td></td><td></td><td></td></tr>
+  </table>
+
+  <div class="question-block">
+    <div class="q-label">Task 6a</div>
+    <p class="q-text">Write an <code>XLOOKUP</code> formula for cell <code>E2</code> that looks up the value in <code>D2</code> ("Banana") within the Product column (<code>A2:A5</code>) and returns the corresponding Price from <code>B2:B5</code>.</p>
+    <input class="formula-input" id="m6q1" placeholder="=XLOOKUP(D2,A2:A5,B2:B5)" autocomplete="off" spellcheck="false">
+    <div class="feedback" id="fb-6a"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="q-label">Task 6b</div>
+    <p class="q-text">What value will the formula return?</p>
+    <div class="choices" id="m6q2-choices">
+      <button class="choice-btn" data-val="1.20" onclick="selectChoice(this)">1.20</button>
+      <button class="choice-btn" data-val="0.75" onclick="selectChoice(this)">0.75</button>
+      <button class="choice-btn" data-val="3.00" onclick="selectChoice(this)">3.00</button>
+      <button class="choice-btn" data-val="Banana" onclick="selectChoice(this)">Banana</button>
+    </div>
+    <div class="feedback" id="fb-6b"></div>
+  </div>
+
+  <div class="question-block">
+    <div class="q-label">Task 6c</div>
+    <p class="q-text">In the XLOOKUP syntax <code>=XLOOKUP(search_key, lookup_range, result_range)</code>, what does <strong>lookup_range</strong> represent?</p>
+    <div class="choices" id="m6q3-choices">
+      <button class="choice-btn" data-val="search" onclick="selectChoice(this)">The value you're searching for</button>
+      <button class="choice-btn" data-val="lookup" onclick="selectChoice(this)">The column/range to search through</button>
+      <button class="choice-btn" data-val="result" onclick="selectChoice(this)">The column/range containing the answer</button>
+    </div>
+    <div class="feedback" id="fb-6c"></div>
+  </div>
+
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="checkMission6()">✅ Check Answers</button>
+  </div>
+  <div class="feedback" id="fb-6"></div>
+  <div class="btn-group"><button class="btn btn-success" id="next-6" style="display:none" onclick="finishQuest()">🏆 Complete Quest</button></div>
+</div>
+
+<!-- ============ COMPLETION ============ -->
+<div class="mission-card" id="completion-screen">
+  <div class="completion-screen">
+    <div class="trophy">🏆</div>
+    <h2>Quest Complete!</h2>
+    <p style="color:var(--muted);margin-top:.3rem">You've conquered all 6 missions!</p>
+    <div class="final-score" id="final-score">0</div>
+    <p>points earned</p>
+    <div class="final-rank" id="final-rank"></div>
+    <h4 style="margin-top:1.5rem;color:var(--blue)">🎖️ Badges Earned</h4>
+    <div class="badge-collection" id="badge-collection"></div>
+    <div class="btn-group" style="justify-content:center;margin-top:1.5rem">
+      <button class="btn btn-primary" onclick="restartQuest()">🔄 Restart Quest</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /mission-container -->
+
+<script>
+/* ============================
+   STATE
+   ============================ */
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let currentMission = 1;
+const totalMissions = 6;
+const missionCompleted = [false,false,false,false,false,false]; // index 0-5
+const missionScores = [0,0,0,0,0,0];
+
+const ranks = [
+  {name:'Trainee', min:0, cls:'rank-trainee', emoji:'🎓'},
+  {name:'Apprentice', min:21, cls:'rank-apprentice', emoji:'📘'},
+  {name:'Expert', min:41, cls:'rank-expert', emoji:'🏅'},
+  {name:'Master', min:61, cls:'rank-master', emoji:'👑'}
+];
+
+/* ============================
+   UI HELPERS
+   ============================ */
+function $(id){return document.getElementById(id)}
+function updateUI(){
+  $('score').textContent = score;
+  $('streak').textContent = streak;
+  $('mission-num').textContent = currentMission > totalMissions ? totalMissions : currentMission;
+  const streakIcon = $('streak-icon');
+  streakIcon.style.display = streak >= 2 ? 'inline' : 'none';
+  // rank
+  let rank = ranks[0];
+  for(const r of ranks) if(score >= r.min) rank = r;
+  const pill = $('rank-pill');
+  pill.className = 'rank-pill ' + rank.cls;
+  pill.textContent = rank.emoji + ' ' + rank.name;
+  // progress
+  const done = missionCompleted.filter(Boolean).length;
+  const pct = Math.round((done/totalMissions)*100);
+  $('progress-fill').style.width = pct+'%';
+  $('progress-label').textContent = pct+'% Complete';
+  // save
+  try{localStorage.setItem('sheets_quest',JSON.stringify({score,streak,bestStreak,currentMission,missionCompleted,missionScores}))}catch(e){}
+}
+
+function showFeedback(id, correct, msg){
+  const el = $(id);
+  el.className = 'feedback show ' + (correct ? 'correct' : 'incorrect');
+  el.innerHTML = (correct ? '✅ ' : '❌ ') + msg;
+}
+
+function addScore(pts){
+  score += pts;
+  streak++;
+  if(streak > bestStreak) bestStreak = streak;
+  updateUI();
+}
+function breakStreak(){
+  streak = 0;
+  updateUI();
+}
+
+function goMission(n){
+  document.querySelectorAll('.mission-card').forEach(c=>c.classList.remove('active'));
+  $('mission-'+n).classList.add('active');
+  currentMission = n;
+  updateUI();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ============================
+   CONFETTI
+   ============================ */
+const confettiCanvas = $('confetti-canvas');
+const ctx = confettiCanvas.getContext('2d');
+let confettiPieces = [];
+let confettiRunning = false;
+function resizeCanvas(){confettiCanvas.width=window.innerWidth;confettiCanvas.height=window.innerHeight}
+window.addEventListener('resize',resizeCanvas);resizeCanvas();
+
+function launchConfetti(){
+  confettiPieces = [];
+  const colors = ['#1B5EAF','#1E7A3E','#D4A843','#EF4444','#8B5CF6','#EC4899','#F97316'];
+  for(let i=0;i<150;i++){
+    confettiPieces.push({
+      x:Math.random()*confettiCanvas.width,
+      y:Math.random()*-confettiCanvas.height,
+      w:Math.random()*10+5, h:Math.random()*6+3,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      speed:Math.random()*4+2,
+      angle:Math.random()*Math.PI*2,
+      spin:Math.random()*.2-.1,
+      drift:Math.random()*2-1
+    });
+  }
+  if(!confettiRunning){confettiRunning=true;animateConfetti()}
+  setTimeout(()=>{confettiRunning=false},4000);
+}
+function animateConfetti(){
+  if(!confettiRunning)return;
+  ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  confettiPieces.forEach(p=>{
+    p.y+=p.speed; p.x+=p.drift; p.angle+=p.spin;
+    ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.angle);
+    ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    ctx.restore();
+  });
+  requestAnimationFrame(animateConfetti);
+}
+
+/* ============================
+   DRAG & DROP (Mission 1)
+   ============================ */
+let dragData = null;
+document.querySelectorAll('.drag-item').forEach(item=>{
+  item.addEventListener('dragstart',e=>{
+    dragData = item.dataset.term;
+    item.style.opacity='.5';
+    e.dataTransfer.effectAllowed='move';
+  });
+  item.addEventListener('dragend',()=>{item.style.opacity='1'});
+});
+document.querySelectorAll('.drop-target').forEach(target=>{
+  target.addEventListener('dragover',e=>{e.preventDefault();target.classList.add('over')});
+  target.addEventListener('dragleave',()=>target.classList.remove('over'));
+  target.addEventListener('drop',e=>{
+    e.preventDefault();
+    target.classList.remove('over');
+    if(dragData){
+      // Remove from previous placement
+      document.querySelectorAll('.drop-target').forEach(t=>{
+        if(t.dataset.placed === dragData){
+          t.textContent='drop here'; t.classList.remove('filled','wrong-fill'); delete t.dataset.placed;
+        }
+      });
+      // un-dim all drag items with this term, then dim the right one
+      document.querySelectorAll(`.drag-item[data-term="${dragData}"]`).forEach(d=>d.classList.remove('placed'));
+      target.textContent = dragData.charAt(0).toUpperCase()+dragData.slice(1);
+      target.dataset.placed = dragData;
+      target.classList.add('filled');
+      document.querySelector(`.drag-item[data-term="${dragData}"]`).classList.add('placed');
+      dragData=null;
+    }
+  });
+  // Touch support
+  target.addEventListener('click',()=>{
+    // On tap, place the first unplaced drag item (mobile fallback)
+  });
+});
+
+// Mobile tap-to-place fallback
+let mobileDragSelected = null;
+document.querySelectorAll('.drag-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    if(item.classList.contains('placed'))return;
+    document.querySelectorAll('.drag-item').forEach(d=>d.style.outline='');
+    item.style.outline='3px solid var(--gold)';
+    mobileDragSelected = item.dataset.term;
+  });
+});
+document.querySelectorAll('.drop-target').forEach(target=>{
+  target.addEventListener('click',()=>{
+    if(!mobileDragSelected)return;
+    // Clear previous
+    document.querySelectorAll('.drop-target').forEach(t=>{
+      if(t.dataset.placed===mobileDragSelected){t.textContent='drop here';t.classList.remove('filled','wrong-fill');delete t.dataset.placed}
+    });
+    document.querySelectorAll(`.drag-item[data-term="${mobileDragSelected}"]`).forEach(d=>d.classList.remove('placed'));
+    target.textContent=mobileDragSelected.charAt(0).toUpperCase()+mobileDragSelected.slice(1);
+    target.dataset.placed=mobileDragSelected;
+    target.classList.add('filled');
+    document.querySelector(`.drag-item[data-term="${mobileDragSelected}"]`).classList.add('placed');
+    document.querySelectorAll('.drag-item').forEach(d=>d.style.outline='');
+    mobileDragSelected=null;
+  });
+});
+
+function selectChoice(btn){
+  btn.parentElement.querySelectorAll('.choice-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+/* ============================
+   MISSION CHECKERS
+   ============================ */
+
+// Mission 1: Drag & Drop anatomy
+function checkMission1(){
+  let correct = 0;
+  const targets = $('mission-1').querySelectorAll('.drop-target');
+  targets.forEach(t=>{
+    t.classList.remove('wrong-fill');
+    if(t.dataset.placed === t.dataset.answer){correct++; t.classList.add('filled')}
+    else{t.classList.add('wrong-fill');t.classList.remove('filled')}
+  });
+  const total = targets.length;
+  if(correct === total){
+    const pts = 10;
+    if(!missionCompleted[0]){addScore(pts);missionScores[0]=pts;missionCompleted[0]=true}
+    showFeedback('fb-1',true,'Perfect! You identified all spreadsheet parts! +'+pts+' points');
+    $('next-1').style.display='inline-flex';
+    launchConfetti();
+  } else {
+    breakStreak();
+    showFeedback('fb-1',false,correct+'/'+total+' correct. Check the highlighted errors and try again!');
+  }
+  updateUI();
+}
+
+// Mission 2: Basic Formulas
+function checkMission2(){
+  const normalize = s => s.replace(/\s/g,'').toUpperCase();
+  const answers = [
+    {id:'m2q1', fb:'fb-2a', accept:['=B2*C2','=C2*B2'], explain:'Multiplying Price × Qty: =B2*C2'},
+    {id:'m2q2', fb:'fb-2b', accept:['=B2+B3','=B3+B2'], explain:'Adding two prices: =B2+B3'},
+    {id:'m2q3', fb:'fb-2c', accept:['=C3-C2'], explain:'Subtracting: =C3-C2 (Notebook Qty minus Pencil Qty)'}
+  ];
+  let allCorrect = true;
+  let pointsThisMission = 0;
+  answers.forEach(a=>{
+    const val = normalize($(a.id).value);
+    const ok = a.accept.map(normalize).includes(val);
+    $(a.id).className='formula-input '+(ok?'correct':'wrong');
+    showFeedback(a.fb, ok, ok ? 'Correct! '+a.explain : 'Not quite. Expected: <code>'+a.accept[0]+'</code><div class="explain">'+a.explain+'</div>');
+    if(ok){pointsThisMission+=5;addScore(0)} else {allCorrect=false;breakStreak()}
+  });
+  if(allCorrect){
+    if(!missionCompleted[1]){score+=15;missionScores[1]=15;missionCompleted[1]=true;streak++}
+    showFeedback('fb-2',true,'All formulas correct! Great work! 🎉');
+    $('next-2').style.display='inline-flex';
+    launchConfetti();
+  } else {
+    showFeedback('fb-2',false,'Some answers need fixing. Review and try again!');
+  }
+  updateUI();
+}
+
+// Mission 3: Reference Types
+function checkMission3(){
+  const answers = [
+    {container:'m3q1-choices', correct:'relative', fb:'fb-3a', explain:'B5 has no $ signs — both column and row adjust when copied. That\'s a relative reference.'},
+    {container:'m3q2-choices', correct:'absolute', fb:'fb-3b', explain:'$D$2 locks both the column (D) and row (2) — it\'s fully absolute.'},
+    {container:'m3q3-choices', correct:'mixed', fb:'fb-3c', explain:'$A3 locks the column (A) but the row (3) is free — that\'s a mixed reference.'},
+    {container:'m3q4-choices', correct:'$E$1', fb:'fb-3d', explain:'To always reference E1 when copying, use $E$1 (absolute) so it doesn\'t shift.'}
+  ];
+  let allCorrect = true;
+  answers.forEach(a=>{
+    const sel = document.querySelector('#'+a.container+' .choice-btn.selected');
+    const val = sel ? sel.dataset.val : '';
+    const ok = val === a.correct;
+    // style choices
+    document.querySelectorAll('#'+a.container+' .choice-btn').forEach(b=>{
+      b.classList.remove('correct-choice','wrong-choice');
+      if(b.dataset.val===a.correct) b.classList.add('correct-choice');
+      else if(b.classList.contains('selected')&&!ok) b.classList.add('wrong-choice');
+    });
+    showFeedback(a.fb, ok, ok ? 'Correct! '+a.explain : 'Not quite. '+a.explain);
+    if(!ok){allCorrect=false;breakStreak()} else {addScore(0)}
+  });
+  if(allCorrect){
+    const pts=12;
+    if(!missionCompleted[2]){score+=pts;missionScores[2]=pts;missionCompleted[2]=true;streak++}
+    showFeedback('fb-3',true,'Reference master! All correct! 🔗 +'+pts+' points');
+    $('next-3').style.display='inline-flex';
+    launchConfetti();
+  } else {
+    showFeedback('fb-3',false,'Review the highlighted answers and try again.');
+  }
+  updateUI();
+}
+
+// Mission 4: SUM
+function checkMission4(){
+  const normalize = s=>s.replace(/\s/g,'').toUpperCase();
+  const q1 = normalize($('m4q1').value);
+  const q2 = $('m4q2').value.trim();
+  const ok1 = q1==='=SUM(B2:B5)';
+  const ok2 = q2==='350';
+  $('m4q1').className='formula-input '+(ok1?'correct':'wrong');
+  $('m4q2').className='formula-input '+(ok2?'correct':'wrong');
+  showFeedback('fb-4a',ok1, ok1?'Correct! =SUM(B2:B5) adds B2 through B5.':'Expected: <code>=SUM(B2:B5)</code><div class="explain">SUM takes a range of cells separated by a colon.</div>');
+  showFeedback('fb-4b',ok2, ok2?'Correct! 85+92+78+95 = 350':'The answer is 350 (85+92+78+95).');
+  if(ok1&&ok2){
+    const pts=12;
+    if(!missionCompleted[3]){score+=pts;missionScores[3]=pts;missionCompleted[3]=true;streak++}
+    showFeedback('fb-4',true,'SUM mastered! 🎉 +'+pts+' points');
+    $('next-4').style.display='inline-flex';
+    launchConfetti();
+  } else {
+    breakStreak();
+    showFeedback('fb-4',false,'Check your answers and try again.');
+  }
+  updateUI();
+}
+
+// Mission 5: IF
+function checkMission5(){
+  const normalize = s=>s.replace(/\s/g,'').toUpperCase().replace(/\u201C|\u201D/g,'"').replace(/'/g,'"');
+  const val = normalize($('m5q1').value);
+  // Accept common correct variations
+  const acceptable = [
+    '=IF(B2>=70,"PASS","FAIL")',
+    '=IF(B2>=70,"Pass","Fail")',
+  ].map(normalize);
+  const ok1 = acceptable.includes(val);
+  $('m5q1').className='formula-input '+(ok1?'correct':'wrong');
+  showFeedback('fb-5a',ok1, ok1?'Correct IF formula! Great logic!':'Expected: <code>=IF(B2&gt;=70,"Pass","Fail")</code><div class="explain">Check condition, then value_if_true, then value_if_false — all separated by commas.</div>');
+
+  const sel = document.querySelector('#m5q2-choices .choice-btn.selected');
+  const q2val = sel ? sel.dataset.val : '';
+  const ok2 = q2val === 'Fail';
+  document.querySelectorAll('#m5q2-choices .choice-btn').forEach(b=>{
+    b.classList.remove('correct-choice','wrong-choice');
+    if(b.dataset.val==='Fail') b.classList.add('correct-choice');
+    else if(b.classList.contains('selected')&&!ok2) b.classList.add('wrong-choice');
+  });
+  showFeedback('fb-5b',ok2, ok2?'Correct! 62 is less than 70, so the result is "Fail".':'Since 62 < 70, the condition is FALSE, so the formula returns "Fail".');
+
+  if(ok1&&ok2){
+    const pts=12;
+    if(!missionCompleted[4]){score+=pts;missionScores[4]=pts;missionCompleted[4]=true;streak++}
+    showFeedback('fb-5',true,'IF function conquered! 🔀 +'+pts+' points');
+    $('next-5').style.display='inline-flex';
+    launchConfetti();
+  } else {
+    breakStreak();
+    showFeedback('fb-5',false,'Review and try again!');
+  }
+  updateUI();
+}
+
+// Mission 6: XLOOKUP
+function checkMission6(){
+  const normalize = s=>s.replace(/\s/g,'').toUpperCase();
+  const val = normalize($('m6q1').value);
+  const acceptable = ['=XLOOKUP(D2,A2:A5,B2:B5)'];
+  const ok1 = acceptable.map(normalize).includes(val);
+  $('m6q1').className='formula-input '+(ok1?'correct':'wrong');
+  showFeedback('fb-6a',ok1, ok1?'Perfect XLOOKUP formula!':'Expected: <code>=XLOOKUP(D2,A2:A5,B2:B5)</code><div class="explain">search_key = D2, lookup_range = A2:A5, result_range = B2:B5</div>');
+
+  const sel2 = document.querySelector('#m6q2-choices .choice-btn.selected');
+  const q2val = sel2 ? sel2.dataset.val : '';
+  const ok2 = q2val === '0.75';
+  document.querySelectorAll('#m6q2-choices .choice-btn').forEach(b=>{
+    b.classList.remove('correct-choice','wrong-choice');
+    if(b.dataset.val==='0.75') b.classList.add('correct-choice');
+    else if(b.classList.contains('selected')&&!ok2) b.classList.add('wrong-choice');
+  });
+  showFeedback('fb-6b',ok2, ok2?'Correct! Banana\'s price is 0.75.':'Banana is in row 3, so the corresponding price is 0.75.');
+
+  const sel3 = document.querySelector('#m6q3-choices .choice-btn.selected');
+  const q3val = sel3 ? sel3.dataset.val : '';
+  const ok3 = q3val === 'lookup';
+  document.querySelectorAll('#m6q3-choices .choice-btn').forEach(b=>{
+    b.classList.remove('correct-choice','wrong-choice');
+    if(b.dataset.val==='lookup') b.classList.add('correct-choice');
+    else if(b.classList.contains('selected')&&!ok3) b.classList.add('wrong-choice');
+  });
+  showFeedback('fb-6c',ok3, ok3?'Correct! The lookup_range is where XLOOKUP searches for the key.':'The lookup_range is the column/range that gets searched for the search_key.');
+
+  if(ok1&&ok2&&ok3){
+    const pts=15;
+    if(!missionCompleted[5]){score+=pts;missionScores[5]=pts;missionCompleted[5]=true;streak++}
+    showFeedback('fb-6',true,'XLOOKUP mastered — you\'re a true Sheets warrior! 🔍 +'+pts+' points');
+    $('next-6').style.display='inline-flex';
+    launchConfetti();
+  } else {
+    breakStreak();
+    showFeedback('fb-6',false,'Keep going — review and try again!');
+  }
+  updateUI();
+}
+
+/* ============================
+   COMPLETION
+   ============================ */
+function finishQuest(){
+  document.querySelectorAll('.mission-card').forEach(c=>c.classList.remove('active'));
+  $('completion-screen').classList.add('active');
+  $('final-score').textContent = score;
+  let rank = ranks[0];
+  for(const r of ranks) if(score >= r.min) rank = r;
+  $('final-rank').innerHTML = '<span class="rank-pill '+rank.cls+'" style="font-size:1.1rem;padding:.5rem 1.5rem">'+rank.emoji+' '+rank.name+'</span>';
+  // Badges
+  const badgeNames = ['🗺️ Anatomy','🧮 Formulas','🔗 References','➕ SUM','🔀 IF','🔍 XLOOKUP'];
+  let html = '';
+  for(let i=0;i<6;i++){
+    const earned = missionCompleted[i];
+    html += '<div class="badge '+(earned?'earned':'locked')+'" title="'+(earned?'Earned!':'Locked')+'">'+
+      '<span>'+badgeNames[i].split(' ')[0]+'</span><span class="badge-label">'+badgeNames[i].split(' ')[1]+'</span></div>';
+  }
+  $('badge-collection').innerHTML = html;
+  currentMission = 7;
+  updateUI();
+  launchConfetti();
+  setTimeout(launchConfetti, 1500);
+}
+
+function restartQuest(){
+  score=0;streak=0;bestStreak=0;currentMission=1;
+  for(let i=0;i<6;i++){missionCompleted[i]=false;missionScores[i]=0}
+  // Reset inputs
+  document.querySelectorAll('.formula-input').forEach(i=>{i.value='';i.className='formula-input'});
+  document.querySelectorAll('.choice-btn').forEach(b=>{b.classList.remove('selected','correct-choice','wrong-choice')});
+  document.querySelectorAll('.feedback').forEach(f=>{f.className='feedback';f.innerHTML=''});
+  document.querySelectorAll('.drop-target').forEach(t=>{t.textContent='drop here';t.classList.remove('filled','wrong-fill');delete t.dataset.placed});
+  document.querySelectorAll('.drag-item').forEach(d=>{d.classList.remove('placed');d.style.outline=''});
+  for(let i=1;i<=6;i++) $('next-'+i).style.display='none';
+  document.querySelectorAll('.mission-card').forEach(c=>c.classList.remove('active'));
+  $('mission-1').classList.add('active');
+  updateUI();
+  window.scrollTo({top:0,behavior:'smooth'});
+  try{localStorage.removeItem('sheets_quest')}catch(e){}
+}
+
+/* ============================
+   INIT
+   ============================ */
+(function init(){
+  // Try load saved state
+  try{
+    const saved = JSON.parse(localStorage.getItem('sheets_quest'));
+    if(saved && saved.score !== undefined){
+      score=saved.score; streak=saved.streak||0; bestStreak=saved.bestStreak||0;
+      currentMission=saved.currentMission||1;
+      for(let i=0;i<6;i++){
+        missionCompleted[i]=saved.missionCompleted?.[i]||false;
+        missionScores[i]=saved.missionScores?.[i]||0;
+      }
+      if(currentMission > 1 && currentMission <= totalMissions){
+        document.querySelectorAll('.mission-card').forEach(c=>c.classList.remove('active'));
+        $('mission-'+currentMission).classList.add('active');
+        // show next buttons for completed missions
+        for(let i=0;i<6;i++) if(missionCompleted[i]) $('next-'+(i+1)).style.display='inline-flex';
+      }
+    }
+  }catch(e){}
+  updateUI();
+})();
+</script>
+</body>
+</html>
