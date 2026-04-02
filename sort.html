@@ -1,0 +1,1644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorting &amp; Filtering in Google Sheets – University View Academy</title>
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1a1a;--bg-card:#2d2d2d;--bg-elevated:#3a3a3a;
+  --text:#e0e0e0;--text-heading:#ffffff;--text-muted:#999;
+  --border:#404040;--input-bg:#2d2d2d;--input-border:#505050;
+  --uva-blue:#4A8FD8;--uva-blue-light:#5DA3E8;--uva-blue-dark:#2E6DB5;
+  --uva-green:#3FA85F;--uva-green-light:#52C474;--uva-green-dark:#2D7A43;
+  --gold:#F4B400;--gold-light:#FFD54F;
+  --danger:#EF5350;--success:#4CAF50;
+  --radius:12px;--shadow:0 4px 20px rgba(0,0,0,.3);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;
+}
+
+/* ===== HEADER ===== */
+.header{
+  background:linear-gradient(135deg,#0d2137,#1a3a5c,var(--uva-blue-dark));
+  color:#fff;padding:18px 28px;display:flex;align-items:center;gap:18px;
+  box-shadow:0 4px 16px rgba(0,0,0,.4);position:sticky;top:0;z-index:100;
+  border-bottom:2px solid var(--uva-green);
+}
+.header img{height:56px;width:auto;border-radius:10px;border:2px solid rgba(255,255,255,.2)}
+.header-text h1{font-size:1.3rem;font-weight:700;letter-spacing:.5px;color:var(--text-heading)}
+.header-text p{font-size:.82rem;opacity:.75;color:var(--text)}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.streak-badge{
+  background:linear-gradient(135deg,var(--gold),#FF8F00);
+  color:#1a1a1a;padding:5px 14px;border-radius:20px;font-weight:700;font-size:.85rem;
+  display:flex;align-items:center;gap:5px;box-shadow:0 2px 8px rgba(244,180,0,.3);
+}
+.rank-badge{
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);
+  padding:5px 14px;border-radius:20px;font-weight:600;font-size:.82rem;color:#fff;
+}
+
+/* ===== PROGRESS BAR ===== */
+.progress-container{
+  background:var(--bg-card);padding:14px 28px;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);
+}
+.progress-bar-wrap{flex:1;height:12px;background:var(--bg-elevated);border-radius:6px;overflow:hidden}
+.progress-bar-fill{
+  height:100%;width:0%;border-radius:6px;
+  background:linear-gradient(90deg,var(--uva-green),var(--uva-green-light));
+  transition:width .6s ease;
+}
+.progress-label{font-weight:600;font-size:.85rem;color:var(--uva-blue);min-width:85px;text-align:right}
+
+/* ===== MAIN ===== */
+.main{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+
+/* ===== SCREENS ===== */
+.screen{display:none;animation:fadeIn .4s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== WELCOME CARD ===== */
+.welcome-card{
+  background:var(--bg-card);border-radius:var(--radius);padding:48px 36px;
+  text-align:center;box-shadow:var(--shadow);border:1px solid var(--border);
+}
+.welcome-card img{height:90px;margin-bottom:18px}
+.welcome-card h2{font-size:1.9rem;color:var(--text-heading);margin-bottom:6px}
+.welcome-card .motto{color:var(--uva-green);font-weight:600;font-size:1rem;margin-bottom:22px}
+.welcome-card p{max-width:580px;margin:0 auto 8px;color:var(--text-muted);font-size:.95rem}
+
+.objectives{
+  background:rgba(63,168,95,.08);border-radius:10px;padding:18px 24px;margin:24px auto;
+  max-width:540px;text-align:left;border-left:4px solid var(--uva-green);
+}
+.objectives h4{color:var(--uva-green);margin-bottom:8px;font-size:.95rem}
+.objectives li{margin-bottom:5px;font-size:.88rem;color:var(--text)}
+
+/* ===== BUTTONS ===== */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 34px;border:none;border-radius:28px;font-size:1rem;font-weight:700;
+  cursor:pointer;transition:all .25s;text-decoration:none;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--uva-blue),var(--uva-blue-light));
+  color:#fff;box-shadow:0 4px 15px rgba(74,143,216,.3);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(74,143,216,.4)}
+.btn-green{
+  background:linear-gradient(135deg,var(--uva-green),var(--uva-green-light));
+  color:#fff;box-shadow:0 4px 15px rgba(63,168,95,.3);
+}
+.btn-green:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(63,168,95,.4)}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold),#FF8F00);
+  color:#1a1a1a;box-shadow:0 4px 15px rgba(244,180,0,.3);
+}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
+
+/* ===== MISSION CARD ===== */
+.mission-header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.mission-number{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--uva-blue),var(--uva-blue-light));
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:1.2rem;flex-shrink:0;
+}
+.mission-title{font-size:1.3rem;color:var(--text-heading);font-weight:700}
+.mission-subtitle{font-size:.85rem;color:var(--text-muted)}
+
+.instruction-box{
+  background:rgba(74,143,216,.1);border-radius:10px;padding:16px 20px;margin-bottom:18px;
+  border-left:4px solid var(--uva-blue);
+}
+.instruction-box p{font-size:.92rem;color:var(--text)}
+.instruction-box code,.code{
+  background:rgba(74,143,216,.15);color:var(--uva-blue-light);
+  padding:2px 7px;border-radius:4px;font-family:'Consolas','Courier New',monospace;
+  font-weight:600;font-size:.88rem;
+}
+
+/* ===== TIP BOX ===== */
+.tip-box{
+  background:rgba(244,180,0,.08);border-radius:10px;padding:13px 18px;margin:14px 0;
+  border-left:4px solid var(--gold);display:flex;gap:10px;align-items:flex-start;
+}
+.tip-box .tip-icon{font-size:1.2rem;flex-shrink:0}
+.tip-box p{font-size:.85rem;color:var(--gold-light)}
+
+/* ===== SIMULATED SPREADSHEET ===== */
+.sheet-wrap{
+  border:2px solid var(--border);border-radius:8px;overflow:hidden;margin:16px 0;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
+}
+.sheet-toolbar{
+  background:var(--bg-elevated);padding:6px 12px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--border);font-size:.76rem;color:var(--text-muted);
+}
+.sheet-toolbar .fx{
+  background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;
+  padding:3px 10px;flex:1;font-family:'Consolas',monospace;font-size:.8rem;color:var(--text);
+}
+.sheet-toolbar .cell-ref{
+  background:var(--input-bg);border:1px solid var(--input-border);border-radius:3px;
+  padding:3px 8px;min-width:48px;text-align:center;font-weight:600;color:var(--text);
+}
+table.sheet{
+  width:100%;border-collapse:collapse;font-size:.82rem;
+  font-family:'Consolas','Courier New',monospace;
+}
+table.sheet th{
+  background:var(--bg-elevated);border:1px solid var(--border);padding:5px 10px;
+  font-weight:600;color:var(--text-muted);text-align:center;min-width:75px;
+}
+table.sheet th.row-head{min-width:34px;width:34px;background:#333}
+table.sheet td{
+  border:1px solid #555;padding:5px 10px;text-align:right;
+  background:var(--bg-card);color:var(--text);position:relative;
+}
+table.sheet td.label{text-align:left;font-family:'Segoe UI',sans-serif;font-weight:500}
+table.sheet td.highlight{background:rgba(63,168,95,.15);border:2px solid var(--uva-green)}
+table.sheet td.editable{background:rgba(244,180,0,.1);border:2px dashed var(--gold);cursor:pointer}
+table.sheet td.correct-cell{background:rgba(76,175,80,.15);border:2px solid var(--success)}
+table.sheet td.error-cell{background:rgba(239,83,80,.12);border:2px solid var(--danger)}
+table.sheet td.frozen{background:rgba(74,143,216,.12);border-bottom:3px solid var(--uva-blue)}
+table.sheet th.frozen{background:rgba(74,143,216,.2);border-bottom:3px solid var(--uva-blue)}
+
+/* ===== ANSWER AREA ===== */
+.answer-area{
+  background:var(--bg-elevated);border-radius:10px;padding:18px;margin:16px 0;
+  border:1px solid var(--border);
+}
+.answer-area label{font-weight:600;color:var(--uva-blue);display:block;margin-bottom:7px;font-size:.92rem}
+.answer-input{
+  width:100%;max-width:420px;padding:11px 15px;border:2px solid var(--input-border);
+  border-radius:8px;font-family:'Consolas',monospace;font-size:.95rem;
+  background:var(--input-bg);color:var(--text);transition:border-color .3s;
+}
+.answer-input:focus{outline:none;border-color:var(--uva-blue)}
+.answer-input.correct{border-color:var(--success);background:rgba(76,175,80,.1)}
+.answer-input.wrong{border-color:var(--danger);background:rgba(239,83,80,.08)}
+
+/* ===== FEEDBACK ===== */
+.feedback{
+  padding:14px 18px;border-radius:10px;margin:14px 0;
+  font-weight:600;font-size:.92rem;display:none;animation:fadeIn .3s;
+}
+.feedback.show{display:flex;align-items:flex-start;gap:10px}
+.feedback.success{background:rgba(76,175,80,.12);color:var(--success);border:1px solid rgba(76,175,80,.3)}
+.feedback.error{background:rgba(239,83,80,.1);color:var(--danger);border:1px solid rgba(239,83,80,.3)}
+.feedback .fb-icon{font-size:1.2rem;flex-shrink:0}
+.feedback .fb-text p{margin-bottom:3px}
+.feedback .fb-text p:last-child{font-weight:400;font-size:.85rem}
+
+/* ===== MULTIPLE CHOICE ===== */
+.choices{display:flex;flex-direction:column;gap:9px;margin:12px 0}
+.choice-btn{
+  background:var(--bg-card);border:2px solid var(--border);border-radius:10px;
+  padding:13px 18px;text-align:left;cursor:pointer;font-size:.92rem;color:var(--text);
+  transition:all .2s;display:flex;align-items:center;gap:12px;
+}
+.choice-btn:hover{border-color:var(--uva-blue);background:rgba(74,143,216,.08)}
+.choice-btn.selected{border-color:var(--uva-blue);background:rgba(74,143,216,.12)}
+.choice-btn.correct-choice{border-color:var(--success);background:rgba(76,175,80,.12)}
+.choice-btn.wrong-choice{border-color:var(--danger);background:rgba(239,83,80,.1)}
+.choice-btn[disabled]{pointer-events:none;opacity:.7}
+.choice-letter{
+  width:30px;height:30px;border-radius:50%;background:var(--uva-blue);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;
+  flex-shrink:0;
+}
+
+/* ===== DRAG & DROP ORDERING ===== */
+.step-order-area{margin:16px 0}
+.step-bank{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;min-height:44px}
+.step-item{
+  background:var(--uva-blue);color:#fff;padding:9px 16px;border-radius:8px;
+  cursor:grab;font-size:.85rem;font-weight:600;user-select:none;transition:transform .15s;
+}
+.step-item:active{cursor:grabbing;transform:scale(1.04)}
+.step-item.placed{opacity:.4;cursor:default}
+.drop-zone{
+  display:flex;flex-direction:column;gap:8px;margin:10px 0;min-height:44px;
+}
+.drop-slot{
+  min-height:42px;border:2px dashed #555;border-radius:8px;
+  display:flex;align-items:center;padding:8px 14px;gap:10px;
+  font-size:.85rem;color:var(--text-muted);transition:all .2s;
+}
+.drop-slot .slot-num{
+  width:26px;height:26px;border-radius:50%;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  font-size:.78rem;color:var(--text-muted);flex-shrink:0;
+}
+.drop-slot.filled{border-style:solid;border-color:var(--uva-green);background:rgba(63,168,95,.08)}
+.drop-slot.filled .slot-content{color:var(--text);font-weight:600}
+.drop-slot.correct-slot{border-color:var(--success);background:rgba(76,175,80,.12)}
+.drop-slot.wrong-slot{border-color:var(--danger);background:rgba(239,83,80,.08)}
+
+/* ===== CONFETTI ===== */
+.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999}
+.confetti-piece{position:absolute;top:-20px;width:10px;height:10px;animation:confettiFall 3s ease-out forwards}
+@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* ===== RANK UP MODAL ===== */
+.modal-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.7);z-index:200;display:none;
+  align-items:center;justify-content:center;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--bg-card);border-radius:16px;padding:38px;text-align:center;
+  max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.4);
+  animation:modalPop .4s ease;border:1px solid var(--border);
+}
+@keyframes modalPop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{color:var(--text-heading);font-size:1.4rem;margin:10px 0 6px}
+.modal p{color:var(--text-muted);margin-bottom:18px}
+.rank-icon{font-size:3rem}
+
+/* ===== CERTIFICATE ===== */
+.certificate{
+  background:linear-gradient(135deg,#2a2518,#332e1f,#2a2518);
+  border:4px double var(--gold);border-radius:16px;padding:46px 36px;
+  text-align:center;max-width:680px;margin:28px auto;position:relative;
+  box-shadow:0 8px 30px rgba(244,180,0,.15);
+}
+.certificate::before,.certificate::after{
+  content:'';position:absolute;width:50px;height:50px;border:3px solid var(--gold);opacity:.3;
+}
+.certificate::before{top:14px;left:14px;border-right:none;border-bottom:none}
+.certificate::after{bottom:14px;right:14px;border-left:none;border-top:none}
+.certificate img{height:75px;margin-bottom:10px}
+.certificate h2{color:var(--gold);font-size:1.7rem;margin-bottom:4px}
+.certificate .cert-sub{color:var(--uva-green);font-weight:600;font-size:1.05rem;margin-bottom:18px}
+.certificate .cert-line{width:55%;margin:0 auto;border-top:2px solid var(--gold);margin-bottom:14px}
+.certificate .cert-name{font-size:1.4rem;font-style:italic;color:var(--gold-light);margin-bottom:6px}
+.certificate .cert-detail{color:var(--text-muted);font-size:.85rem;margin-bottom:4px}
+.cert-stars{color:var(--gold);font-size:1.4rem;letter-spacing:4px;margin:10px 0}
+.final-stats{display:flex;justify-content:center;gap:28px;margin:22px 0;flex-wrap:wrap}
+.stat-box{text-align:center}
+.stat-box .stat-num{font-size:1.8rem;font-weight:800;color:var(--uva-blue)}
+.stat-box .stat-label{font-size:.78rem;color:var(--text-muted)}
+
+/* ===== ADMIN FOOTER ===== */
+.admin-footer{text-align:center;padding:14px;margin-top:36px}
+.admin-footer a{color:#666;font-size:.7rem;text-decoration:none;transition:color .2s;opacity:.5}
+.admin-footer a:hover{color:var(--uva-blue);opacity:1}
+
+/* ===== PROFILE OVERLAY ===== */
+.profile-overlay{
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(10,20,35,0.95);
+  display:flex;align-items:center;justify-content:center;
+  z-index:10000;transition:opacity .4s ease;
+}
+.profile-overlay .profile-form{
+  background:var(--bg-card);border-radius:16px;padding:44px 36px;
+  box-shadow:0 20px 60px rgba(0,0,0,.5);max-width:420px;width:90%;
+  text-align:center;border:1px solid var(--border);
+}
+.profile-overlay .profile-form h2{color:var(--text-heading);font-size:1.4rem;margin-bottom:6px}
+.profile-overlay .profile-form .motto{color:var(--uva-green);font-weight:600;margin-bottom:20px;font-size:.9rem}
+.profile-field{text-align:left;margin-bottom:16px}
+.profile-field label{display:block;font-weight:600;color:var(--uva-blue);margin-bottom:5px;font-size:.9rem}
+.profile-field .optional{font-size:.75rem;color:var(--text-muted);font-weight:400}
+.profile-field input{
+  width:100%;padding:11px 15px;border:2px solid var(--input-border);border-radius:8px;
+  font-size:.95rem;background:var(--input-bg);color:var(--text);
+  transition:border-color .3s;box-sizing:border-box;
+}
+.profile-field input:focus{outline:none;border-color:var(--uva-blue)}
+.profile-submit{
+  background:linear-gradient(135deg,var(--uva-green),var(--uva-green-light));
+  color:#fff;border:none;padding:13px 34px;border-radius:28px;
+  font-size:1.05rem;font-weight:700;cursor:pointer;
+  transition:transform .2s,box-shadow .2s;margin-top:8px;
+}
+.profile-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.profile-submit:disabled{opacity:.5;cursor:not-allowed}
+.profile-error{color:var(--danger);font-size:.82rem;margin-top:8px;min-height:1.2em}
+.teacher-bypass{
+  margin-top:18px;padding-top:14px;border-top:1px solid var(--border);text-align:center;
+}
+.teacher-bypass a{color:#666;font-size:.78rem;text-decoration:none;transition:color .2s}
+.teacher-bypass a:hover{color:var(--uva-blue)}
+
+/* ===== VIEW CONTAINERS ===== */
+.view-container{display:none}
+.view-container.active{display:block}
+
+/* ===== TEACHER LOGIN VIEW ===== */
+.teacher-login{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);
+}
+.login-card{
+  background:var(--bg-card);border-radius:16px;padding:44px 36px;
+  box-shadow:var(--shadow);max-width:420px;width:90%;text-align:center;
+  border:1px solid var(--border);
+}
+.login-card h2{color:var(--text-heading);font-size:1.4rem;margin-bottom:6px}
+.login-card .login-sub{color:var(--text-muted);font-size:.85rem;margin-bottom:22px}
+.login-field{text-align:left;margin-bottom:16px}
+.login-field label{display:block;font-weight:600;color:var(--uva-blue);margin-bottom:5px;font-size:.9rem}
+.login-field input{
+  width:100%;padding:11px 15px;border:2px solid var(--input-border);border-radius:8px;
+  font-size:.95rem;background:var(--input-bg);color:var(--text);
+  transition:border-color .3s;box-sizing:border-box;
+}
+.login-field input:focus{outline:none;border-color:var(--uva-blue)}
+.login-btn{
+  background:linear-gradient(135deg,var(--uva-blue),var(--uva-blue-dark));
+  color:#fff;border:none;padding:13px 38px;border-radius:28px;
+  font-size:1rem;font-weight:700;cursor:pointer;width:100%;
+  transition:transform .2s,box-shadow .2s;margin-bottom:10px;
+}
+.login-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.login-error{color:var(--danger);font-size:.82rem;margin-top:6px;min-height:1.2em}
+.back-btn{background:none;border:none;color:var(--text-muted);font-size:.85rem;cursor:pointer;text-decoration:underline;padding:8px}
+.back-btn:hover{color:var(--uva-blue)}
+
+/* ===== TEACHER DASHBOARD ===== */
+.teacher-dashboard{max-width:1100px;margin:0 auto;padding:28px 22px 60px}
+.dashboard-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;flex-wrap:wrap;gap:12px;
+}
+.dashboard-header h1{color:var(--text-heading);font-size:1.5rem;margin:0}
+.dash-actions{display:flex;gap:10px;flex-wrap:wrap}
+.btn-sm{padding:8px 16px;font-size:.82rem;border-radius:20px}
+.btn-outline{
+  background:transparent;border:2px solid var(--uva-blue);color:var(--uva-blue);
+  padding:8px 16px;border-radius:20px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;
+}
+.btn-outline:hover{background:var(--uva-blue);color:#fff}
+.btn-danger-outline{
+  background:transparent;border:2px solid var(--danger);color:var(--danger);
+  padding:8px 16px;border-radius:20px;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s;
+}
+.btn-danger-outline:hover{background:var(--danger);color:#fff}
+.export-btn{
+  background:linear-gradient(135deg,var(--uva-green),var(--uva-green-light));
+  color:#fff;border:none;padding:8px 18px;border-radius:20px;
+  font-size:.82rem;font-weight:600;cursor:pointer;transition:transform .2s;
+}
+.export-btn:hover{transform:translateY(-2px)}
+
+/* Summary Cards */
+.summary-cards{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+  gap:14px;margin-bottom:24px;
+}
+.summary-card{
+  background:var(--bg-card);border-radius:var(--radius);padding:18px;
+  box-shadow:var(--shadow);text-align:center;border:1px solid var(--border);
+}
+.summary-card .sc-num{font-size:1.8rem;font-weight:800;color:var(--uva-blue)}
+.summary-card .sc-label{font-size:.78rem;color:var(--text-muted);margin-top:4px}
+.summary-card.green .sc-num{color:var(--uva-green)}
+.summary-card.gold .sc-num{color:var(--gold)}
+
+/* Filter row */
+.dash-filter{margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.dash-filter label{font-weight:600;color:var(--text);font-size:.88rem}
+.dash-filter select{
+  padding:8px 14px;border:2px solid var(--input-border);border-radius:8px;
+  font-size:.88rem;background:var(--input-bg);color:var(--text);
+}
+
+/* Student Table */
+.student-table-wrap{
+  background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow);
+  overflow-x:auto;border:1px solid var(--border);
+}
+.student-table{width:100%;border-collapse:collapse;font-size:.85rem}
+.student-table th{
+  background:linear-gradient(135deg,#1a3a5c,var(--uva-blue-dark));
+  color:#fff;padding:11px 13px;text-align:left;font-weight:600;
+  position:sticky;top:0;white-space:nowrap;cursor:pointer;
+}
+.student-table th:hover{background:var(--uva-blue)}
+.student-table td{padding:9px 13px;border-bottom:1px solid var(--border);color:var(--text)}
+.student-table tr:hover td{background:rgba(74,143,216,.06)}
+.mission-pass{color:var(--success);font-weight:700}
+.mission-fail{color:var(--danger);font-weight:600}
+.no-data{text-align:center;padding:50px 20px;color:var(--text-muted)}
+.no-data h3{color:var(--uva-blue);margin-bottom:6px}
+
+/* ===== SCENARIO BOX ===== */
+.scenario-box{
+  background:rgba(63,168,95,.06);border-radius:10px;padding:16px 20px;margin:14px 0;
+  border-left:4px solid var(--uva-green);
+}
+.scenario-box p{font-size:.9rem;color:var(--text)}
+.scenario-box strong{color:var(--uva-green)}
+
+/* ===== FORMULA BUILDER ===== */
+.formula-builder{
+  background:var(--bg-elevated);border-radius:10px;padding:18px;margin:14px 0;
+  border:1px solid var(--border);
+}
+.formula-builder label{font-weight:600;color:var(--uva-blue);display:block;margin-bottom:8px;font-size:.9rem}
+.formula-display{
+  background:#1e1e1e;border:2px solid var(--input-border);border-radius:8px;
+  padding:14px 18px;font-family:'Consolas',monospace;font-size:1rem;
+  color:var(--uva-green-light);margin:10px 0;min-height:44px;word-break:break-all;
+}
+.formula-hint{font-size:.8rem;color:var(--text-muted);margin-top:6px;font-style:italic}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){
+  .header{padding:12px 14px;gap:10px}
+  .header img{height:40px}
+  .header-text h1{font-size:1rem}
+  .header-right{gap:8px}
+  .streak-badge,.rank-badge{font-size:.72rem;padding:4px 10px}
+  .main{padding:14px 10px 36px}
+  .welcome-card{padding:28px 18px}
+  .welcome-card h2{font-size:1.4rem}
+  .mission-title{font-size:1.05rem}
+  table.sheet{font-size:.72rem}
+  table.sheet th,table.sheet td{padding:3px 5px}
+  .certificate{padding:26px 18px}
+  .final-stats{gap:14px}
+  .summary-cards{grid-template-columns:repeat(2,1fr)}
+  .dashboard-header{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== PROFILE OVERLAY ==================== -->
+<div class="profile-overlay" id="profileOverlay">
+  <div class="profile-form">
+    <img src="logo.png" alt="UVA Logo" onerror="this.style.display='none'">
+    <h2>📊 Sorting &amp; Filtering</h2>
+    <div class="motto">Virtue • Vigor • Vision</div>
+    <div class="profile-field">
+      <label>Your Full Name <span style="color:var(--danger)">*</span></label>
+      <input type="text" id="studentName" placeholder="e.g. Jane Doe" maxlength="60">
+    </div>
+    <div class="profile-field">
+      <label>Class / Period <span class="optional">(optional)</span></label>
+      <input type="text" id="studentClass" placeholder="e.g. Period 3" maxlength="40">
+    </div>
+    <div class="profile-error" id="profileError"></div>
+    <button class="profile-submit" id="profileSubmitBtn" onclick="submitProfile()">🚀 Begin Activity</button>
+    <div class="teacher-bypass">
+      <a href="#" onclick="event.preventDefault();document.getElementById('profileOverlay').style.display='none';showLoginView();">🔐 Teacher / Admin Login</a>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== STUDENT ACTIVITY VIEW ==================== -->
+<div class="view-container active" id="studentView">
+
+<header class="header">
+  <img src="logo.png" alt="UVA" onerror="this.style.display='none'">
+  <div class="header-text">
+    <h1>Sorting &amp; Filtering in Google Sheets</h1>
+    <p>University View Academy</p>
+  </div>
+  <div class="header-right">
+    <div class="streak-badge" id="streakBadge" style="display:none">
+      <span>🔥</span><span id="streakCount">0</span>
+    </div>
+    <div class="rank-badge" id="rankBadge">🌱 Trainee</div>
+  </div>
+</header>
+
+<div class="progress-container">
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel">0 / 6</div>
+</div>
+
+<div class="main">
+
+<!-- ===== SCREEN 0: WELCOME ===== -->
+<div class="screen active" id="screen0">
+  <div class="welcome-card">
+    <img src="logo.png" alt="UVA Logo" onerror="this.style.display='none'">
+    <h2>Sorting &amp; Filtering Data</h2>
+    <div class="motto">Virtue • Vigor • Vision</div>
+    <p>Master the essential skills for organizing, analyzing, and extracting insights from your spreadsheet data in Google Sheets.</p>
+    <p style="font-size:.88rem;color:var(--text-muted)">⏱️ Estimated time: 10–15 minutes &nbsp;|&nbsp; 6 Missions</p>
+
+    <div class="objectives">
+      <h4>🎯 Learning Objectives</h4>
+      <ol>
+        <li>Apply data hygiene rules to protect dataset integrity</li>
+        <li>Freeze panes and use navigation shortcuts for large datasets</li>
+        <li>Perform multi-column sorts while keeping row relationships intact</li>
+        <li>Create non-destructive filter views for collaborative analysis</li>
+        <li>Use the <code>SORT</code> function to create dynamic sorted copies</li>
+        <li>Use the <code>FILTER</code> function for advanced criteria-based filtering</li>
+      </ol>
+    </div>
+
+    <button class="btn btn-green" onclick="startActivity()" style="margin-top:18px">🚀 Launch Mission 1</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 1: MISSION 1 – Data Hygiene ===== -->
+<div class="screen" id="screen1">
+  <div class="mission-header">
+    <div class="mission-number">1</div>
+    <div><div class="mission-title">Data Hygiene Basics</div>
+    <div class="mission-subtitle">Protect your dataset before sorting or filtering</div></div>
+  </div>
+
+  <div class="instruction-box">
+    <p>Before sorting or filtering, your data must be <strong>"clean."</strong> Dirty data causes sorts to miss rows, filters to return wrong results, and formulas to break. Let's learn the golden rules.</p>
+  </div>
+
+  <div class="tip-box">
+    <span class="tip-icon">💡</span>
+    <p><strong>Golden Rules:</strong> (1) No blank rows or columns inside your data range. (2) Every column needs a unique header in Row 1. (3) One piece of data per cell — don't combine City + State. (4) Consistent formatting — don't mix "CA" and "California."</p>
+  </div>
+
+  <div class="scenario-box">
+    <p><strong>Scenario:</strong> You manage a student roster. A colleague hands you a spreadsheet, but you spot problems. Which issue below would <strong>NOT</strong> break a sort or filter?</p>
+  </div>
+
+  <div class="choices" id="m1Choices">
+    <button class="choice-btn" onclick="checkMission1('A')" data-val="A">
+      <span class="choice-letter">A</span>
+      <span>A blank row in the middle of the data (row 15 is completely empty)</span>
+    </button>
+    <button class="choice-btn" onclick="checkMission1('B')" data-val="B">
+      <span class="choice-letter">B</span>
+      <span>Two columns both labeled "Name"</span>
+    </button>
+    <button class="choice-btn" onclick="checkMission1('C')" data-val="C">
+      <span class="choice-letter">C</span>
+      <span>Column D has some cells formatted as currency and others as plain numbers</span>
+    </button>
+    <button class="choice-btn" onclick="checkMission1('D')" data-val="D">
+      <span class="choice-letter">D</span>
+      <span>The header row uses bold text and a background color</span>
+    </button>
+  </div>
+
+  <div class="feedback" id="m1Feedback"></div>
+
+  <div style="text-align:right;margin-top:14px">
+    <button class="btn btn-primary" id="m1Next" style="display:none" onclick="goToScreen(2)">Mission 2 →</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 2: MISSION 2 – Freeze Panes & Navigation ===== -->
+<div class="screen" id="screen2">
+  <div class="mission-header">
+    <div class="mission-number">2</div>
+    <div><div class="mission-title">Freeze Panes &amp; Navigation</div>
+    <div class="mission-subtitle">Keep headers visible while scrolling large datasets</div></div>
+  </div>
+
+  <div class="instruction-box">
+    <p>When your dataset has hundreds of rows, scrolling down makes headers disappear. <strong>Freezing</strong> panes keeps rows or columns locked in place so you always know which column you're reading.</p>
+  </div>
+
+  <div class="sheet-wrap">
+    <div class="sheet-toolbar">
+      <span class="cell-ref">A1</span>
+      <span style="color:var(--text-muted)">fx</span>
+      <span class="fx">Student Name</span>
+    </div>
+    <table class="sheet" id="m2Sheet">
+      <tr>
+        <th class="row-head"></th>
+        <th class="frozen">A</th><th class="frozen">B</th><th class="frozen">C</th><th class="frozen">D</th>
+      </tr>
+      <tr>
+        <th class="row-head frozen">1</th>
+        <td class="label frozen">Student Name</td><td class="frozen">Grade</td><td class="frozen">GPA</td><td class="frozen">Absences</td>
+      </tr>
+      <tr><th class="row-head">2</th><td class="label">Maria Santos</td><td>10</td><td>3.8</td><td>2</td></tr>
+      <tr><th class="row-head">3</th><td class="label">James Wilson</td><td>11</td><td>3.2</td><td>5</td></tr>
+      <tr><th class="row-head">4</th><td class="label">Aisha Patel</td><td>10</td><td>3.9</td><td>1</td></tr>
+      <tr><th class="row-head">5</th><td class="label">Carlos Reyes</td><td>12</td><td>2.7</td><td>8</td></tr>
+    </table>
+  </div>
+
+  <div class="tip-box">
+    <span class="tip-icon">💡</span>
+    <p><strong>To freeze Row 1:</strong> Click on Row 2, then go to <code>View → Freeze → 1 row</code>. A thick gray line appears below the frozen row.</p>
+  </div>
+
+  <p style="margin:14px 0;font-size:.92rem;">Now answer these two questions:</p>
+
+  <div class="answer-area">
+    <label>Q1: What menu path freezes the top row?</label>
+    <div class="choices" id="m2Q1Choices">
+      <button class="choice-btn" onclick="checkM2Q1('A')" data-val="A">
+        <span class="choice-letter">A</span><span>Format → Freeze → 1 row</span>
+      </button>
+      <button class="choice-btn" onclick="checkM2Q1('B')" data-val="B">
+        <span class="choice-letter">B</span><span>View → Freeze → 1 row</span>
+      </button>
+      <button class="choice-btn" onclick="checkM2Q1('C')" data-val="C">
+        <span class="choice-letter">C</span><span>Data → Freeze → 1 row</span>
+      </button>
+    </div>
+    <div class="feedback" id="m2Q1Feedback"></div>
+  </div>
+
+  <div class="answer-area" id="m2Q2Area" style="display:none">
+    <label>Q2: Which keyboard shortcut jumps to the last row of data in a column?</label>
+    <div class="choices" id="m2Q2Choices">
+      <button class="choice-btn" onclick="checkM2Q2('A')" data-val="A">
+        <span class="choice-letter">A</span><span><code>Ctrl + End</code></span>
+      </button>
+      <button class="choice-btn" onclick="checkM2Q2('B')" data-val="B">
+        <span class="choice-letter">B</span><span><code>Ctrl + ↓</code> (Cmd + ↓ on Mac)</span>
+      </button>
+      <button class="choice-btn" onclick="checkM2Q2('C')" data-val="C">
+        <span class="choice-letter">C</span><span><code>Alt + ↓</code></span>
+      </button>
+    </div>
+    <div class="feedback" id="m2Q2Feedback"></div>
+  </div>
+
+  <div style="text-align:right;margin-top:14px">
+    <button class="btn btn-primary" id="m2Next" style="display:none" onclick="goToScreen(3)">Mission 3 →</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 3: MISSION 3 – Multi-Column Sorting ===== -->
+<div class="screen" id="screen3">
+  <div class="mission-header">
+    <div class="mission-number">3</div>
+    <div><div class="mission-title">Multi-Column Sorting</div>
+    <div class="mission-subtitle">Sort by multiple criteria while keeping rows intact</div></div>
+  </div>
+
+  <div class="instruction-box">
+    <p>Google Sheets can sort by multiple columns at once. Go to <code>Data → Sort range → Advanced range sorting options</code>. Add columns in priority order. <strong>Critical:</strong> Always check "Data has header row" so headers don't get sorted into your data!</p>
+  </div>
+
+  <div class="scenario-box">
+    <p><strong>Task:</strong> You need to sort students by <strong>Grade (A→Z)</strong> first, then within each grade by <strong>GPA (Z→A, highest first)</strong>. Put the sorting steps in the correct order.</p>
+  </div>
+
+  <div class="step-order-area">
+    <p style="font-size:.88rem;color:var(--text-muted);margin-bottom:8px">Drag steps into the correct order:</p>
+    <div class="step-bank" id="m3Bank">
+      <div class="step-item" draggable="true" data-step="2" id="m3s2">Add "Grade" column, A→Z</div>
+      <div class="step-item" draggable="true" data-step="4" id="m3s4">Click "Sort"</div>
+      <div class="step-item" draggable="true" data-step="1" id="m3s1">Select entire data range (including headers)</div>
+      <div class="step-item" draggable="true" data-step="3" id="m3s3">Add another sort column: "GPA", Z→A</div>
+      <div class="step-item" draggable="true" data-step="0" id="m3s0">Check "Data has header row"</div>
+    </div>
+    <div class="drop-zone" id="m3DropZone">
+      <div class="drop-slot" data-order="0"><span class="slot-num">1</span><span class="slot-content">Drop step here</span></div>
+      <div class="drop-slot" data-order="1"><span class="slot-num">2</span><span class="slot-content">Drop step here</span></div>
+      <div class="drop-slot" data-order="2"><span class="slot-num">3</span><span class="slot-content">Drop step here</span></div>
+      <div class="drop-slot" data-order="3"><span class="slot-num">4</span><span class="slot-content">Drop step here</span></div>
+      <div class="drop-slot" data-order="4"><span class="slot-num">5</span><span class="slot-content">Drop step here</span></div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:10px">
+    <button class="btn btn-green" id="m3CheckBtn" onclick="checkMission3()">✔ Check Order</button>
+  </div>
+
+  <div class="feedback" id="m3Feedback"></div>
+
+  <div class="tip-box">
+    <span class="tip-icon">⚠️</span>
+    <p><strong>Warning:</strong> If you sort only one column without selecting the full range, other columns stay put and your rows become mismatched! Always select the entire data range.</p>
+  </div>
+
+  <div style="text-align:right;margin-top:14px">
+    <button class="btn btn-primary" id="m3Next" style="display:none" onclick="goToScreen(4)">Mission 4 →</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 4: MISSION 4 – Filter Views ===== -->
+<div class="screen" id="screen4">
+  <div class="mission-header">
+    <div class="mission-number">4</div>
+    <div><div class="mission-title">Filter Views</div>
+    <div class="mission-subtitle">Non-destructive filtering for collaborative spreadsheets</div></div>
+  </div>
+
+  <div class="instruction-box">
+    <p>A <strong>Filter View</strong> (via <code>Data → Filter views → Create new filter view</code>) is <em>personal and non-destructive</em>. Other collaborators don't see your filter — they keep their own view. This is different from the basic <code>Data → Create a filter</code> toggle, which affects everyone.</p>
+  </div>
+
+  <div class="scenario-box">
+    <p><strong>Scenario:</strong> You and two colleagues share a roster of 500 students. You need to see only <strong>Grade 10</strong> students, your colleague needs <strong>Grade 11</strong>, and another needs all grades. Which approach avoids disrupting each other?</p>
+  </div>
+
+  <div class="choices" id="m4Choices">
+    <button class="choice-btn" onclick="checkMission4('A')" data-val="A">
+      <span class="choice-letter">A</span>
+      <span>Each person uses <code>Data → Create a filter</code> and filters their grade</span>
+    </button>
+    <button class="choice-btn" onclick="checkMission4('B')" data-val="B">
+      <span class="choice-letter">B</span>
+      <span>Each person creates their own <strong>Filter View</strong> via <code>Data → Filter views → Create new filter view</code></span>
+    </button>
+    <button class="choice-btn" onclick="checkMission4('C')" data-val="C">
+      <span class="choice-letter">C</span>
+      <span>Make three separate copies of the spreadsheet, one for each person</span>
+    </button>
+    <button class="choice-btn" onclick="checkMission4('D')" data-val="D">
+      <span class="choice-letter">D</span>
+      <span>Use <code>Ctrl + F</code> to search for each grade level</span>
+    </button>
+  </div>
+
+  <div class="feedback" id="m4Feedback"></div>
+
+  <div class="tip-box">
+    <span class="tip-icon">💡</span>
+    <p><strong>Pro tip:</strong> You can <em>name</em> your Filter Views (e.g., "Grade 10 Only") and switch between them from the <code>Data → Filter views</code> menu. They persist even after you close the sheet!</p>
+  </div>
+
+  <div style="text-align:right;margin-top:14px">
+    <button class="btn btn-primary" id="m4Next" style="display:none" onclick="goToScreen(5)">Mission 5 →</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 5: MISSION 5 – SORT Function ===== -->
+<div class="screen" id="screen5">
+  <div class="mission-header">
+    <div class="mission-number">5</div>
+    <div><div class="mission-title">The SORT Function</div>
+    <div class="mission-subtitle">Create a dynamic sorted copy of your data</div></div>
+  </div>
+
+  <div class="instruction-box">
+    <p>The <code>SORT</code> function creates a <strong>live, sorted copy</strong> of your data in another location — without changing the original. Syntax:</p>
+    <p style="margin-top:8px"><code>=SORT(range, sort_column, is_ascending)</code></p>
+    <p style="margin-top:6px;font-size:.85rem">• <code>range</code> = the data to sort (e.g., <code>A2:D20</code>)<br>
+    • <code>sort_column</code> = which column number to sort by (1 = first col, 2 = second, etc.)<br>
+    • <code>is_ascending</code> = <code>TRUE</code> for A→Z / low→high, <code>FALSE</code> for Z→A / high→low</p>
+  </div>
+
+  <div class="sheet-wrap">
+    <div class="sheet-toolbar">
+      <span class="cell-ref">F2</span>
+      <span style="color:var(--text-muted)">fx</span>
+      <span class="fx" id="m5FormulaBar">=SORT(...)</span>
+    </div>
+    <table class="sheet">
+      <tr><th class="row-head"></th><th>A</th><th>B</th><th>C</th><th>D</th><th style="border-left:3px solid var(--gold)">F</th></tr>
+      <tr><th class="row-head">1</th><td class="label">Name</td><td>Grade</td><td>GPA</td><td>Absences</td><td style="border-left:3px solid var(--gold);color:var(--gold)" class="label">↓ Sorted Output</td></tr>
+      <tr><th class="row-head">2</th><td class="label">Maria Santos</td><td>10</td><td>3.8</td><td>2</td><td style="border-left:3px solid var(--gold)" class="label editable">?</td></tr>
+      <tr><th class="row-head">3</th><td class="label">James Wilson</td><td>11</td><td>3.2</td><td>5</td><td style="border-left:3px solid var(--gold)"></td></tr>
+      <tr><th class="row-head">4</th><td class="label">Aisha Patel</td><td>10</td><td>3.9</td><td>1</td><td style="border-left:3px solid var(--gold)"></td></tr>
+      <tr><th class="row-head">5</th><td class="label">Carlos Reyes</td><td>12</td><td>2.7</td><td>8</td><td style="border-left:3px solid var(--gold)"></td></tr>
+    </table>
+  </div>
+
+  <div class="formula-builder">
+    <label>📝 Write the SORT formula in cell F2 to sort students by GPA from <strong>highest to lowest</strong>:</label>
+    <p style="font-size:.84rem;color:var(--text-muted);margin-bottom:8px">Data is in A2:D5. GPA is in column 3.</p>
+    <input type="text" class="answer-input" id="m5Answer" placeholder="=SORT(..." autocomplete="off" spellcheck="false">
+    <div class="formula-hint">Hint: =SORT(range, sort_column, is_ascending)</div>
+  </div>
+
+  <div style="text-align:center;margin-top:8px">
+    <button class="btn btn-green" onclick="checkMission5()">✔ Check Formula</button>
+  </div>
+
+  <div class="feedback" id="m5Feedback"></div>
+
+  <div style="text-align:right;margin-top:14px">
+    <button class="btn btn-primary" id="m5Next" style="display:none" onclick="goToScreen(6)">Mission 6 →</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 6: MISSION 6 – FILTER Function ===== -->
+<div class="screen" id="screen6">
+  <div class="mission-header">
+    <div class="mission-number">6</div>
+    <div><div class="mission-title">The FILTER Function</div>
+    <div class="mission-subtitle">Extract rows that match specific criteria</div></div>
+  </div>
+
+  <div class="instruction-box">
+    <p>The <code>FILTER</code> function returns only the rows that meet your condition. Syntax:</p>
+    <p style="margin-top:8px"><code>=FILTER(range, condition1, [condition2, ...])</code></p>
+    <p style="margin-top:6px;font-size:.85rem">• <code>range</code> = the data to return (e.g., <code>A2:D20</code>)<br>
+    • <code>condition1</code> = a boolean array like <code>B2:B20=10</code> (Grade equals 10)<br>
+    • You can chain multiple conditions with commas (AND logic)</p>
+  </div>
+
+  <div class="sheet-wrap">
+    <div class="sheet-toolbar">
+      <span class="cell-ref">F2</span>
+      <span style="color:var(--text-muted)">fx</span>
+      <span class="fx" id="m6FormulaBar">=FILTER(...)</span>
+    </div>
+    <table class="sheet">
+      <tr><th class="row-head"></th><th>A</th><th>B</th><th>C</th><th>D</th><th style="border-left:3px solid var(--gold)">F</th></tr>
+      <tr><th class="row-head">1</th><td class="label">Name</td><td>Grade</td><td>GPA</td><td>Absences</td><td style="border-left:3px solid var(--gold);color:var(--gold)" class="label">↓ Filtered Output</td></tr>
+      <tr><th class="row-head">2</th><td class="label">Maria Santos</td><td>10</td><td>3.8</td><td>2</td><td style="border-left:3px solid var(--gold)" class="label editable">?</td></tr>
+      <tr><th class="row-head">3</th><td class="label">James Wilson</td><td>11</td><td>3.2</td><td>5</td><td style="border-left:3px solid var(--gold)"></td></tr>
+      <tr><th class="row-head">4</th><td class="label">Aisha Patel</td><td>10</td><td>3.9</td><td>1</td><td style="border-left:3px solid var(--gold)"></td></tr>
+      <tr><th class="row-head">5</th><td class="label">Carlos Reyes</td><td>12</td><td>2.7</td><td>8</td><td style="border-left:3px solid var(--gold)"></td></tr>
+    </table>
+  </div>
+
+  <div class="formula-builder">
+    <label>📝 Write a FILTER formula in F2 to show only <strong>Grade 10</strong> students:</label>
+    <p style="font-size:.84rem;color:var(--text-muted);margin-bottom:8px">Data in A2:D5. Grade is column B.</p>
+    <input type="text" class="answer-input" id="m6Answer" placeholder="=FILTER(..." autocomplete="off" spellcheck="false">
+    <div class="formula-hint">Hint: =FILTER(range, condition) — condition checks B2:B5</div>
+  </div>
+
+  <div style="text-align:center;margin-top:8px">
+    <button class="btn btn-green" onclick="checkMission6()">✔ Check Formula</button>
+  </div>
+
+  <div class="feedback" id="m6Feedback"></div>
+
+  <div style="text-align:right;margin-top:14px">
+    <button class="btn btn-gold" id="m6Next" style="display:none" onclick="goToScreen(7)">🏆 See Results</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 7: CERTIFICATE ===== -->
+<div class="screen" id="screen7">
+  <div class="certificate">
+    <img src="logo.png" alt="UVA" onerror="this.style.display='none'">
+    <h2>🏆 Mission Complete!</h2>
+    <div class="cert-sub">Sorting &amp; Filtering in Google Sheets</div>
+    <div class="cert-line"></div>
+    <div class="cert-name" id="certName"></div>
+    <div class="cert-detail" id="certClass"></div>
+    <div class="cert-detail">University View Academy</div>
+    <div class="cert-detail" id="certDate"></div>
+    <div class="cert-stars" id="certStars"></div>
+    <div class="final-stats">
+      <div class="stat-box"><div class="stat-num" id="finalScore">0</div><div class="stat-label">Score</div></div>
+      <div class="stat-box"><div class="stat-num" id="finalRank">—</div><div class="stat-label">Rank</div></div>
+      <div class="stat-box"><div class="stat-num" id="finalStreak">0</div><div class="stat-label">Best Streak</div></div>
+      <div class="stat-box"><div class="stat-num" id="finalTime">—</div><div class="stat-label">Time</div></div>
+    </div>
+    <div class="motto" style="color:var(--uva-green);margin-top:14px">Virtue • Vigor • Vision</div>
+  </div>
+</div>
+
+</div><!-- end .main -->
+
+<div class="admin-footer">
+  <a href="#" onclick="event.preventDefault();showLoginView();">🔐 Admin</a>
+</div>
+
+</div><!-- end studentView -->
+
+<!-- ==================== LOGIN VIEW ==================== -->
+<div class="view-container" id="loginView">
+  <div class="teacher-login">
+    <div class="login-card">
+      <h2>🔐 Teacher Login</h2>
+      <div class="login-sub">Access the analytics dashboard</div>
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="loginUser" placeholder="Enter username" autocomplete="off">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="loginPass" placeholder="Enter password">
+      </div>
+      <div class="login-error" id="loginError"></div>
+      <button class="login-btn" onclick="attemptLogin()">Sign In</button>
+      <button class="back-btn" onclick="showStudentView()">← Back to Activity</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DASHBOARD VIEW ==================== -->
+<div class="view-container" id="dashboardView">
+  <div class="teacher-dashboard">
+    <div class="dashboard-header">
+      <h1>📊 Teacher Analytics Dashboard</h1>
+      <div class="dash-actions">
+        <button class="export-btn" onclick="exportCSV()">📥 Export CSV</button>
+        <button class="btn-danger-outline btn-sm" onclick="clearAllData()">🗑️ Clear All Data</button>
+        <button class="btn-outline btn-sm" onclick="showStudentView()">← Back to Activity</button>
+      </div>
+    </div>
+
+    <div class="summary-cards" id="summaryCards">
+      <div class="summary-card"><div class="sc-num" id="statTotal">0</div><div class="sc-label">Total Students</div></div>
+      <div class="summary-card green"><div class="sc-num" id="statAvg">0</div><div class="sc-label">Avg Score</div></div>
+      <div class="summary-card gold"><div class="sc-num" id="statRank">—</div><div class="sc-label">Most Common Rank</div></div>
+      <div class="summary-card"><div class="sc-num" id="statCompletion">0%</div><div class="sc-label">Completion Rate</div></div>
+    </div>
+
+    <div class="dash-filter">
+      <label>Filter by Class:</label>
+      <select id="dashClassFilter" onchange="renderDashboard()">
+        <option value="all">All Classes</option>
+      </select>
+    </div>
+
+    <div class="student-table-wrap">
+      <table class="student-table" id="studentTable">
+        <thead>
+          <tr>
+            <th onclick="sortDashTable('name')">Student ↕</th>
+            <th onclick="sortDashTable('class')">Class ↕</th>
+            <th onclick="sortDashTable('score')">Score ↕</th>
+            <th onclick="sortDashTable('rank')">Rank ↕</th>
+            <th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th><th>M6</th>
+            <th onclick="sortDashTable('time')">Time ↕</th>
+          </tr>
+        </thead>
+        <tbody id="studentTableBody"></tbody>
+      </table>
+      <div class="no-data" id="noDataMsg" style="display:none">
+        <h3>No student data yet</h3>
+        <p>Completed activities will appear here.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RANK UP MODAL ===== -->
+<div class="modal-overlay" id="rankModal">
+  <div class="modal">
+    <div class="rank-icon" id="rankModalIcon">⭐</div>
+    <h3 id="rankModalTitle">Rank Up!</h3>
+    <p id="rankModalText"></p>
+    <button class="btn btn-primary" onclick="closeRankModal()">Continue</button>
+  </div>
+</div>
+
+<!-- ===== CONFETTI CONTAINER ===== -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+/* ===============================================
+   STATE
+   =============================================== */
+const STORAGE_KEY = 'uva_sorting_filtering_completions';
+const TOTAL_MISSIONS = 6;
+const RANKS = [
+  {name:'Trainee', emoji:'🌱', minScore:0},
+  {name:'Apprentice', emoji:'📘', minScore:200},
+  {name:'Expert', emoji:'⭐', minScore:400},
+  {name:'Master', emoji:'🏆', minScore:550}
+];
+
+let state = {
+  studentName:'',
+  studentClass:'',
+  currentScreen:0,
+  score:0,
+  streak:0,
+  bestStreak:0,
+  missionsCompleted:0,
+  missionResults:[false,false,false,false,false,false],
+  missionAttempts:[0,0,0,0,0,0],
+  startTime:null,
+  endTime:null,
+  rank:'Trainee',
+  rankEmoji:'🌱'
+};
+
+/* ===============================================
+   PROFILE
+   =============================================== */
+function submitProfile(){
+  const name = document.getElementById('studentName').value.trim();
+  const cls = document.getElementById('studentClass').value.trim();
+  if(!name){
+    document.getElementById('profileError').textContent='Please enter your name.';
+    return;
+  }
+  state.studentName = name;
+  state.studentClass = cls;
+  document.getElementById('profileOverlay').style.display='none';
+}
+
+/* ===============================================
+   VIEW SWITCHING
+   =============================================== */
+function showView(id){
+  document.querySelectorAll('.view-container').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function showStudentView(){
+  showView('studentView');
+  const overlay = document.getElementById('profileOverlay');
+  if(!state.studentName && overlay) overlay.style.display='flex';
+}
+function showLoginView(){showView('loginView')}
+function showDashboardView(){
+  showView('dashboardView');
+  renderDashboard();
+}
+
+/* ===============================================
+   LOGIN
+   =============================================== */
+function attemptLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if(u==='CoachWill' && p==='Password#1'){
+    document.getElementById('loginError').textContent='';
+    showDashboardView();
+  } else {
+    document.getElementById('loginError').textContent='Invalid credentials. Please try again.';
+  }
+}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){
+    const lv = document.getElementById('loginView');
+    if(lv.classList.contains('active')) attemptLogin();
+  }
+});
+
+/* ===============================================
+   NAVIGATION
+   =============================================== */
+function startActivity(){
+  state.startTime = Date.now();
+  goToScreen(1);
+}
+function goToScreen(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen'+n).classList.add('active');
+  state.currentScreen = n;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ===============================================
+   PROGRESS & GAMIFICATION
+   =============================================== */
+function updateProgress(){
+  const pct = (state.missionsCompleted / TOTAL_MISSIONS)*100;
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressLabel').textContent = state.missionsCompleted+' / '+TOTAL_MISSIONS;
+}
+function addScore(pts){
+  state.score += pts;
+  state.streak++;
+  if(state.streak > state.bestStreak) state.bestStreak = state.streak;
+  updateStreakDisplay();
+  checkRankUp();
+}
+function breakStreak(){
+  state.streak = 0;
+  updateStreakDisplay();
+}
+function updateStreakDisplay(){
+  const badge = document.getElementById('streakBadge');
+  if(state.streak >= 2){
+    badge.style.display='flex';
+    document.getElementById('streakCount').textContent = state.streak;
+  } else {
+    badge.style.display='none';
+  }
+}
+function checkRankUp(){
+  let newRank = RANKS[0];
+  for(let r of RANKS){
+    if(state.score >= r.minScore) newRank = r;
+  }
+  if(newRank.name !== state.rank){
+    state.rank = newRank.name;
+    state.rankEmoji = newRank.emoji;
+    document.getElementById('rankBadge').textContent = newRank.emoji+' '+newRank.name;
+    showRankModal(newRank);
+  }
+}
+function showRankModal(r){
+  document.getElementById('rankModalIcon').textContent = r.emoji;
+  document.getElementById('rankModalTitle').textContent = 'Rank Up: '+r.name+'!';
+  document.getElementById('rankModalText').textContent = 'You reached '+state.score+' points!';
+  document.getElementById('rankModal').classList.add('show');
+  fireConfetti();
+}
+function closeRankModal(){document.getElementById('rankModal').classList.remove('show')}
+
+function completeMission(idx){
+  if(!state.missionResults[idx]){
+    state.missionResults[idx] = true;
+    state.missionsCompleted++;
+    updateProgress();
+  }
+}
+
+/* ===============================================
+   CONFETTI
+   =============================================== */
+function fireConfetti(){
+  const c = document.getElementById('confettiContainer');
+  c.innerHTML='';
+  const colors = ['#4A8FD8','#3FA85F','#F4B400','#EF5350','#AB47BC','#FF7043','#26C6DA'];
+  for(let i=0;i<80;i++){
+    const p = document.createElement('div');
+    p.className='confetti-piece';
+    p.style.left = Math.random()*100+'%';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDelay = Math.random()*2+'s';
+    p.style.animationDuration = (2+Math.random()*2)+'s';
+    const size = 6+Math.random()*8;
+    p.style.width = size+'px';
+    p.style.height = size+'px';
+    p.style.borderRadius = Math.random()>.5?'50%':'2px';
+    c.appendChild(p);
+  }
+  setTimeout(()=>{c.innerHTML='';},4000);
+}
+
+/* ===============================================
+   FEEDBACK HELPER
+   =============================================== */
+function showFeedback(elId, success, title, detail){
+  const fb = document.getElementById(elId);
+  fb.className = 'feedback show '+(success?'success':'error');
+  fb.innerHTML = '<span class="fb-icon">'+(success?'✅':'❌')+'</span><div class="fb-text"><p>'+title+'</p>'+(detail?'<p>'+detail+'</p>':'')+'</div>';
+}
+
+/* ===============================================
+   MISSION 1: Data Hygiene
+   =============================================== */
+function checkMission1(ans){
+  state.missionAttempts[0]++;
+  const btns = document.querySelectorAll('#m1Choices .choice-btn');
+  btns.forEach(b=>{b.disabled=true; b.style.pointerEvents='none';});
+  btns.forEach(b=>{
+    const v = b.getAttribute('data-val');
+    if(v==='D') b.classList.add('correct-choice');
+    else if(v===ans) b.classList.add('wrong-choice');
+  });
+  if(ans==='D'){
+    showFeedback('m1Feedback',true,'Correct! Formatting headers with bold/color is purely cosmetic.',
+      'It doesn\'t affect sorts or filters at all. Blank rows, duplicate headers, and inconsistent data types DO cause problems.');
+    addScore(100);
+    completeMission(0);
+  } else {
+    showFeedback('m1Feedback',false,'Not quite!',
+      'Styling headers (bold, color) is cosmetic only — it never breaks sorting or filtering. The other options all cause real data issues.');
+    breakStreak();
+    addScore(25);
+    completeMission(0);
+  }
+  document.getElementById('m1Next').style.display='inline-flex';
+}
+
+/* ===============================================
+   MISSION 2: Freeze Panes
+   =============================================== */
+let m2Q1Done = false;
+function checkM2Q1(ans){
+  state.missionAttempts[1]++;
+  const btns = document.querySelectorAll('#m2Q1Choices .choice-btn');
+  btns.forEach(b=>{b.disabled=true; b.style.pointerEvents='none';});
+  btns.forEach(b=>{
+    const v = b.getAttribute('data-val');
+    if(v==='B') b.classList.add('correct-choice');
+    else if(v===ans) b.classList.add('wrong-choice');
+  });
+  if(ans==='B'){
+    showFeedback('m2Q1Feedback',true,'Correct!','View → Freeze → 1 row is the right path in Google Sheets.');
+    addScore(50);
+  } else {
+    showFeedback('m2Q1Feedback',false,'Not quite.','The Freeze option lives under the <strong>View</strong> menu, not Format or Data.');
+    breakStreak();
+  }
+  m2Q1Done = true;
+  document.getElementById('m2Q2Area').style.display='block';
+}
+function checkM2Q2(ans){
+  state.missionAttempts[1]++;
+  const btns = document.querySelectorAll('#m2Q2Choices .choice-btn');
+  btns.forEach(b=>{b.disabled=true; b.style.pointerEvents='none';});
+  btns.forEach(b=>{
+    const v = b.getAttribute('data-val');
+    if(v==='B') b.classList.add('correct-choice');
+    else if(v===ans) b.classList.add('wrong-choice');
+  });
+  if(ans==='B'){
+    showFeedback('m2Q2Feedback',true,'Correct!','Ctrl + ↓ (or Cmd + ↓ on Mac) jumps to the last non-empty cell in the column.');
+    addScore(50);
+  } else {
+    showFeedback('m2Q2Feedback',false,'Not quite.','<code>Ctrl + ↓</code> (Cmd + ↓ on Mac) jumps to the last contiguous data cell in that column.');
+    breakStreak();
+  }
+  completeMission(1);
+  document.getElementById('m2Next').style.display='inline-flex';
+}
+
+/* ===============================================
+   MISSION 3: Multi-Column Sorting (Drag & Drop)
+   =============================================== */
+let m3Placements = {};
+let m3DraggedId = null;
+
+// Correct order: Select range(1) → Check header(0) → Add Grade A→Z(2) → Add GPA Z→A(3) → Sort(4)
+const M3_CORRECT = ['1','0','2','3','4'];
+
+function initM3DragDrop(){
+  const items = document.querySelectorAll('#m3Bank .step-item');
+  const slots = document.querySelectorAll('#m3DropZone .drop-slot');
+
+  items.forEach(item=>{
+    item.addEventListener('dragstart',e=>{
+      m3DraggedId = item.id;
+      e.dataTransfer.effectAllowed='move';
+    });
+    item.addEventListener('click',()=>{
+      if(item.classList.contains('placed')) return;
+      // Find first empty slot
+      for(let s of slots){
+        if(!s.dataset.filled){
+          placeInSlot(s, item);
+          break;
+        }
+      }
+    });
+  });
+
+  slots.forEach(slot=>{
+    slot.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';});
+    slot.addEventListener('drop',e=>{
+      e.preventDefault();
+      if(!m3DraggedId || slot.dataset.filled) return;
+      const item = document.getElementById(m3DraggedId);
+      placeInSlot(slot, item);
+      m3DraggedId = null;
+    });
+    slot.addEventListener('click',()=>{
+      if(slot.dataset.filled){
+        // Remove from slot
+        const itemId = slot.dataset.filled;
+        const item = document.getElementById(itemId);
+        item.classList.remove('placed');
+        slot.dataset.filled = '';
+        slot.classList.remove('filled');
+        slot.querySelector('.slot-content').textContent = 'Drop step here';
+        delete m3Placements[slot.dataset.order];
+      }
+    });
+  });
+}
+
+function placeInSlot(slot, item){
+  slot.dataset.filled = item.id;
+  slot.classList.add('filled');
+  slot.querySelector('.slot-content').textContent = item.textContent;
+  item.classList.add('placed');
+  m3Placements[slot.dataset.order] = item.dataset.step;
+}
+
+function checkMission3(){
+  state.missionAttempts[2]++;
+  const slots = document.querySelectorAll('#m3DropZone .drop-slot');
+  let allFilled = true;
+  slots.forEach(s=>{ if(!s.dataset.filled) allFilled = false; });
+  if(!allFilled){
+    showFeedback('m3Feedback',false,'Incomplete!','Please place all 5 steps into the slots before checking.');
+    return;
+  }
+
+  let correct = true;
+  slots.forEach((s,i)=>{
+    const placed = m3Placements[String(i)];
+    if(placed !== M3_CORRECT[i]){
+      correct = false;
+      s.classList.add('wrong-slot');
+      s.classList.remove('correct-slot');
+    } else {
+      s.classList.add('correct-slot');
+      s.classList.remove('wrong-slot');
+    }
+  });
+
+  if(correct){
+    showFeedback('m3Feedback',true,'Perfect order!',
+      'Select range → Check header row → Add primary sort → Add secondary sort → Click Sort. This protects row relationships.');
+    addScore(100);
+    completeMission(2);
+    document.getElementById('m3Next').style.display='inline-flex';
+    document.getElementById('m3CheckBtn').disabled = true;
+  } else {
+    showFeedback('m3Feedback',false,'Not quite right.',
+      'Remember: first select data, then check "Data has header row," then add sort columns in priority order, then click Sort. Try clicking slots to remove and rearrange.');
+    breakStreak();
+  }
+}
+
+/* ===============================================
+   MISSION 4: Filter Views
+   =============================================== */
+function checkMission4(ans){
+  state.missionAttempts[3]++;
+  const btns = document.querySelectorAll('#m4Choices .choice-btn');
+  btns.forEach(b=>{b.disabled=true;b.style.pointerEvents='none';});
+  btns.forEach(b=>{
+    const v = b.getAttribute('data-val');
+    if(v==='B') b.classList.add('correct-choice');
+    else if(v===ans) b.classList.add('wrong-choice');
+  });
+  if(ans==='B'){
+    showFeedback('m4Feedback',true,'Correct!',
+      'Filter Views are personal and non-destructive. Each collaborator sees their own filtered view without affecting others.');
+    addScore(100);
+  } else {
+    showFeedback('m4Feedback',false,'Not the best approach.',
+      'The "Create a filter" option affects ALL viewers. Filter Views (Data → Filter views) give each person their own private filter.');
+    breakStreak();
+    addScore(25);
+  }
+  completeMission(3);
+  document.getElementById('m4Next').style.display='inline-flex';
+}
+
+/* ===============================================
+   MISSION 5: SORT Function
+   =============================================== */
+function checkMission5(){
+  state.missionAttempts[4]++;
+  const raw = document.getElementById('m5Answer').value.trim();
+  const input = document.getElementById('m5Answer');
+  // Normalize: remove spaces, uppercase
+  const norm = raw.replace(/\s+/g,'').toUpperCase();
+
+  // Accept: =SORT(A2:D5,3,FALSE) or =SORT(A2:D5,3,0)
+  const patterns = [
+    '=SORT(A2:D5,3,FALSE)',
+    '=SORT(A2:D5,3,0)',
+    '=SORT(A2:D5,3,FALSE)',
+  ];
+  const normPatterns = patterns.map(p=>p.replace(/\s+/g,'').toUpperCase());
+
+  if(normPatterns.includes(norm)){
+    input.classList.remove('wrong');
+    input.classList.add('correct');
+    document.getElementById('m5FormulaBar').textContent = raw;
+    showFeedback('m5Feedback',true,'Excellent!',
+      '<code>=SORT(A2:D5, 3, FALSE)</code> sorts the data by column 3 (GPA) in descending order (highest first).');
+    addScore(100);
+    completeMission(4);
+    document.getElementById('m5Next').style.display='inline-flex';
+  } else {
+    input.classList.remove('correct');
+    input.classList.add('wrong');
+    breakStreak();
+    // Give specific hints
+    let hint = 'Check your syntax: =SORT(range, sort_column, is_ascending). ';
+    if(!norm.startsWith('=SORT(')) hint += 'Make sure to start with =SORT(. ';
+    else if(!norm.includes('A2:D5')) hint += 'The range should be A2:D5. ';
+    else if(!norm.includes(',3,')) hint += 'GPA is in column C which is column 3. ';
+    else hint += 'For highest-to-lowest, use FALSE (not TRUE). ';
+    showFeedback('m5Feedback',false,'Not quite.',hint);
+  }
+}
+
+/* ===============================================
+   MISSION 6: FILTER Function
+   =============================================== */
+function checkMission6(){
+  state.missionAttempts[5]++;
+  const raw = document.getElementById('m6Answer').value.trim();
+  const input = document.getElementById('m6Answer');
+  const norm = raw.replace(/\s+/g,'').toUpperCase();
+
+  // Accept: =FILTER(A2:D5,B2:B5=10)
+  const patterns = [
+    '=FILTER(A2:D5,B2:B5=10)',
+    '=FILTER(A2:D5,B2:B5="10")',
+  ];
+  const normPatterns = patterns.map(p=>p.replace(/\s+/g,'').toUpperCase());
+
+  if(normPatterns.includes(norm)){
+    input.classList.remove('wrong');
+    input.classList.add('correct');
+    document.getElementById('m6FormulaBar').textContent = raw;
+    showFeedback('m6Feedback',true,'Outstanding!',
+      '<code>=FILTER(A2:D5, B2:B5=10)</code> returns all rows where Grade equals 10. This dynamically updates as data changes!');
+    addScore(100);
+    completeMission(5);
+    document.getElementById('m6Next').style.display='inline-flex';
+    // Complete the activity
+    finishActivity();
+  } else {
+    input.classList.remove('correct');
+    input.classList.add('wrong');
+    breakStreak();
+    let hint = 'Check your syntax: =FILTER(range, condition). ';
+    if(!norm.startsWith('=FILTER(')) hint += 'Start with =FILTER(. ';
+    else if(!norm.includes('A2:D5')) hint += 'The data range should be A2:D5. ';
+    else if(!norm.includes('B2:B5')) hint += 'The condition should check B2:B5 (Grade column). ';
+    else hint += 'The condition should be B2:B5=10 to match Grade 10. ';
+    showFeedback('m6Feedback',false,'Not quite.',hint);
+  }
+}
+
+/* ===============================================
+   FINISH ACTIVITY
+   =============================================== */
+function finishActivity(){
+  state.endTime = Date.now();
+  const elapsed = Math.round((state.endTime - state.startTime)/1000);
+  const mins = Math.floor(elapsed/60);
+  const secs = elapsed%60;
+  const timeStr = mins+'m '+secs+'s';
+
+  // Certificate
+  document.getElementById('certName').textContent = state.studentName;
+  document.getElementById('certClass').textContent = state.studentClass||'';
+  document.getElementById('certDate').textContent = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  
+  // Stars based on score
+  const maxScore = 600;
+  const pct = state.score / maxScore;
+  let stars = '⭐';
+  if(pct>=.9) stars='⭐⭐⭐⭐⭐';
+  else if(pct>=.75) stars='⭐⭐⭐⭐';
+  else if(pct>=.6) stars='⭐⭐⭐';
+  else if(pct>=.4) stars='⭐⭐';
+  document.getElementById('certStars').textContent = stars;
+
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('finalRank').textContent = state.rankEmoji+' '+state.rank;
+  document.getElementById('finalStreak').textContent = state.bestStreak;
+  document.getElementById('finalTime').textContent = timeStr;
+
+  // Save to localStorage
+  saveCompletion(timeStr, elapsed);
+
+  // Confetti!
+  setTimeout(()=>fireConfetti(), 500);
+}
+
+/* ===============================================
+   LOCALSTORAGE
+   =============================================== */
+function getCompletions(){
+  try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}
+  catch(e){return[];}
+}
+function saveCompletion(timeStr, timeSeconds){
+  const data = getCompletions();
+  data.push({
+    name: state.studentName,
+    class: state.studentClass||'N/A',
+    score: state.score,
+    rank: state.rank,
+    rankEmoji: state.rankEmoji,
+    streak: state.bestStreak,
+    missions: [...state.missionResults],
+    attempts: [...state.missionAttempts],
+    time: timeStr,
+    timeSeconds: timeSeconds,
+    date: new Date().toISOString(),
+    missionsCompleted: state.missionsCompleted
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+/* ===============================================
+   DASHBOARD
+   =============================================== */
+let dashSortCol = 'score';
+let dashSortAsc = false;
+
+function renderDashboard(){
+  const data = getCompletions();
+  const filterClass = document.getElementById('dashClassFilter').value;
+
+  // Build class options
+  const classes = [...new Set(data.map(d=>d.class))].sort();
+  const sel = document.getElementById('dashClassFilter');
+  const currentVal = sel.value;
+  sel.innerHTML = '<option value="all">All Classes</option>';
+  classes.forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+  sel.value = currentVal;
+
+  const filtered = filterClass==='all'?data:data.filter(d=>d.class===filterClass);
+
+  // Summary
+  document.getElementById('statTotal').textContent = filtered.length;
+  if(filtered.length){
+    const avg = Math.round(filtered.reduce((s,d)=>s+d.score,0)/filtered.length);
+    document.getElementById('statAvg').textContent = avg;
+    // Most common rank
+    const rankCounts={};
+    filtered.forEach(d=>{rankCounts[d.rank]=(rankCounts[d.rank]||0)+1;});
+    const topRank = Object.entries(rankCounts).sort((a,b)=>b[1]-a[1])[0];
+    document.getElementById('statRank').textContent = topRank?topRank[0]:'—';
+    // Completion rate
+    const completed = filtered.filter(d=>d.missionsCompleted===TOTAL_MISSIONS).length;
+    document.getElementById('statCompletion').textContent = Math.round(completed/filtered.length*100)+'%';
+  } else {
+    document.getElementById('statAvg').textContent = '0';
+    document.getElementById('statRank').textContent = '—';
+    document.getElementById('statCompletion').textContent = '0%';
+  }
+
+  // Table
+  const tbody = document.getElementById('studentTableBody');
+  const noData = document.getElementById('noDataMsg');
+  if(!filtered.length){
+    tbody.innerHTML='';
+    noData.style.display='block';
+    return;
+  }
+  noData.style.display='none';
+
+  // Sort
+  const sorted = [...filtered].sort((a,b)=>{
+    let av,bv;
+    switch(dashSortCol){
+      case 'name':av=a.name.toLowerCase();bv=b.name.toLowerCase();break;
+      case 'class':av=a.class.toLowerCase();bv=b.class.toLowerCase();break;
+      case 'score':av=a.score;bv=b.score;break;
+      case 'rank':av=RANKS.findIndex(r=>r.name===a.rank);bv=RANKS.findIndex(r=>r.name===b.rank);break;
+      case 'time':av=a.timeSeconds||0;bv=b.timeSeconds||0;break;
+      default:av=a.score;bv=b.score;
+    }
+    if(av<bv) return dashSortAsc?-1:1;
+    if(av>bv) return dashSortAsc?1:-1;
+    return 0;
+  });
+
+  tbody.innerHTML = sorted.map(d=>{
+    const ms = d.missions||[];
+    const mCells = [0,1,2,3,4,5].map(i=>
+      '<td class="'+(ms[i]?'mission-pass':'mission-fail')+'">'+(ms[i]?'✓':'✗')+'</td>'
+    ).join('');
+    return '<tr><td>'+d.name+'</td><td>'+d.class+'</td><td><strong>'+d.score+'</strong></td><td>'+
+      (d.rankEmoji||'')+' '+d.rank+'</td>'+mCells+'<td>'+d.time+'</td></tr>';
+  }).join('');
+}
+
+function sortDashTable(col){
+  if(dashSortCol===col) dashSortAsc=!dashSortAsc;
+  else{dashSortCol=col;dashSortAsc=col==='name'||col==='class';}
+  renderDashboard();
+}
+
+function exportCSV(){
+  const data = getCompletions();
+  if(!data.length){alert('No data to export.');return;}
+  const headers = ['Name','Class','Score','Rank','M1','M2','M3','M4','M5','M6','Time','Date'];
+  const rows = data.map(d=>{
+    const ms=d.missions||[];
+    return [d.name,d.class,d.score,d.rank,
+      ms[0]?'Pass':'Fail',ms[1]?'Pass':'Fail',ms[2]?'Pass':'Fail',
+      ms[3]?'Pass':'Fail',ms[4]?'Pass':'Fail',ms[5]?'Pass':'Fail',
+      d.time,new Date(d.date).toLocaleDateString()
+    ].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',');
+  });
+  const csv = [headers.join(','),...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url;a.download='sorting_filtering_results.csv';a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearAllData(){
+  if(confirm('Are you sure? This will permanently delete ALL student completion data.')){
+    localStorage.removeItem(STORAGE_KEY);
+    renderDashboard();
+  }
+}
+
+/* ===============================================
+   INIT
+   =============================================== */
+document.addEventListener('DOMContentLoaded',function(){
+  initM3DragDrop();
+  // Enter key on profile
+  document.getElementById('studentName').addEventListener('keydown',function(e){
+    if(e.key==='Enter') submitProfile();
+  });
+  document.getElementById('studentClass').addEventListener('keydown',function(e){
+    if(e.key==='Enter') submitProfile();
+  });
+  // Enter keys on formula inputs
+  document.getElementById('m5Answer').addEventListener('keydown',function(e){
+    if(e.key==='Enter') checkMission5();
+  });
+  document.getElementById('m6Answer').addEventListener('keydown',function(e){
+    if(e.key==='Enter') checkMission6();
+  });
+});
+</script>
+</body>
+</html>
