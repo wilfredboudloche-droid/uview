@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Windows Networking – UVA Mission Control</title>
+<style>
+  :root {
+    --blue:#1B5EAF; --blue-dark:#134a8a; --blue-light:#d6e6f7;
+    --green:#1E7A3E; --green-dark:#155c2e; --green-light:#d4edda;
+    --gold:#F5A623; --red:#c0392b; --white:#fff; --gray:#f4f6fa;
+    --text:#1a1a2e; --border:#cdd8ea;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--gray);color:var(--text);min-height:100vh;}
+
+  /* ── HEADER ── */
+  #header{background:linear-gradient(135deg,var(--blue-dark),var(--blue));color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;box-shadow:0 3px 10px rgba(0,0,0,.25);}
+  #header .logo-block{display:flex;align-items:center;gap:12px;}
+  #header .shield{width:46px;height:46px;flex-shrink:0;}
+  #header h1{font-size:1.15rem;font-weight:700;line-height:1.2;}
+  #header h1 span{display:block;font-size:.75rem;font-weight:400;opacity:.85;}
+  .motto-ribbon{background:var(--green);color:#fff;font-size:.72rem;font-weight:700;letter-spacing:.12em;padding:4px 14px;border-radius:20px;text-transform:uppercase;}
+
+  /* ── HUD ── */
+  #hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;}
+  .hud-box{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:5px 12px;text-align:center;min-width:70px;}
+  .hud-box .val{font-size:1.3rem;font-weight:800;}
+  .hud-box .lbl{font-size:.6rem;opacity:.8;text-transform:uppercase;letter-spacing:.06em;}
+  #rank-badge{background:var(--gold);color:#333;border-radius:8px;padding:5px 12px;font-weight:800;font-size:.85rem;text-align:center;}
+  #rank-badge .lbl{font-size:.6rem;display:block;opacity:.7;text-transform:uppercase;}
+
+  /* ── PROGRESS BAR ── */
+  #prog-wrap{background:rgba(255,255,255,.2);height:6px;border-radius:3px;margin-top:6px;}
+  #prog-bar{height:6px;border-radius:3px;background:var(--gold);transition:width .5s;}
+
+  /* ── STREAK TOAST ── */
+  #streak-toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) scale(0);background:var(--gold);color:#333;font-weight:800;font-size:1.1rem;padding:10px 28px;border-radius:30px;box-shadow:0 4px 18px rgba(0,0,0,.25);z-index:9999;transition:transform .3s,opacity .3s;opacity:0;pointer-events:none;}
+  #streak-toast.show{transform:translateX(-50%) scale(1);opacity:1;}
+
+  /* ── MAIN LAYOUT ── */
+  #app{max-width:860px;margin:0 auto;padding:18px 14px 40px;}
+
+  /* ── MISSION CARD ── */
+  .mission-card{background:#fff;border-radius:14px;box-shadow:0 2px 12px rgba(0,0,0,.1);padding:24px;margin-bottom:18px;border-top:5px solid var(--blue);}
+  .mission-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .mission-num{background:var(--blue);color:#fff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.95rem;flex-shrink:0;}
+  .mission-title{font-size:1.05rem;font-weight:700;color:var(--blue-dark);}
+  .mission-sub{font-size:.78rem;color:#666;margin-top:2px;}
+  .mission-body{font-size:.92rem;line-height:1.6;color:#333;}
+
+  /* ── SCENARIO TEXT ── */
+  .scenario-box{background:var(--blue-light);border-left:4px solid var(--blue);border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:.88rem;line-height:1.55;}
+  .scenario-box strong{color:var(--blue-dark);}
+
+  /* ── CHOICES ── */
+  .choices{display:flex;flex-direction:column;gap:9px;margin-top:10px;}
+  .choice-btn{background:#f8faff;border:2px solid var(--border);border-radius:9px;padding:11px 16px;text-align:left;cursor:pointer;font-size:.88rem;transition:all .2s;display:flex;align-items:flex-start;gap:10px;}
+  .choice-btn:hover{border-color:var(--blue);background:var(--blue-light);}
+  .choice-btn .choice-key{background:var(--blue);color:#fff;border-radius:5px;padding:1px 7px;font-weight:700;font-size:.8rem;flex-shrink:0;margin-top:1px;}
+  .choice-btn.correct{border-color:var(--green);background:var(--green-light);}
+  .choice-btn.wrong{border-color:var(--red);background:#fdecea;}
+  .choice-btn:disabled{cursor:default;}
+
+  /* ── FEEDBACK ── */
+  .feedback{border-radius:8px;padding:11px 14px;margin-top:12px;font-size:.87rem;line-height:1.5;display:none;}
+  .feedback.correct{background:var(--green-light);border:1px solid var(--green);color:var(--green-dark);}
+  .feedback.wrong{background:#fdecea;border:1px solid var(--red);color:#7b1a1a;}
+  .feedback .fb-icon{font-size:1.1rem;margin-right:6px;}
+
+  /* ── DRAG & DROP ── */
+  .dnd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px;}
+  @media(max-width:560px){.dnd-grid{grid-template-columns:1fr;}}
+  .dnd-col h4{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#666;margin-bottom:8px;}
+  .drag-item{background:var(--blue-light);border:2px solid var(--blue);border-radius:8px;padding:9px 13px;margin-bottom:7px;cursor:grab;font-size:.84rem;font-weight:600;color:var(--blue-dark);user-select:none;transition:opacity .2s,transform .2s;}
+  .drag-item:active{cursor:grabbing;transform:scale(1.03);}
+  .drag-item.dragging{opacity:.4;}
+  .drop-zone{min-height:44px;border:2px dashed var(--border);border-radius:8px;padding:7px;margin-bottom:7px;transition:background .2s;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .drop-zone.over{background:var(--blue-light);border-color:var(--blue);}
+  .drop-zone .zone-label{font-size:.78rem;color:#999;font-style:italic;}
+  .drop-zone .drag-item{margin-bottom:0;}
+  .dnd-targets .target-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .dnd-targets .target-label{font-size:.85rem;font-weight:600;min-width:130px;color:var(--text);}
+  .dnd-check-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:10px;transition:background .2s;}
+  .dnd-check-btn:hover{background:var(--blue-dark);}
+
+  /* ── LABELING ── */
+  .label-wrap{position:relative;margin:10px auto;max-width:520px;}
+  .label-wrap svg{width:100%;height:auto;display:block;}
+  .label-inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+  @media(max-width:480px){.label-inputs{grid-template-columns:1fr;}}
+  .label-input-row{display:flex;align-items:center;gap:8px;}
+  .label-dot{width:22px;height:22px;border-radius:50%;background:var(--blue);color:#fff;font-size:.75rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .label-input-row select{flex:1;border:2px solid var(--border);border-radius:6px;padding:6px 8px;font-size:.82rem;}
+  .label-input-row select.correct{border-color:var(--green);background:var(--green-light);}
+  .label-input-row select.wrong{border-color:var(--red);background:#fdecea;}
+
+  /* ── NEXT BTN ── */
+  .next-btn{background:var(--green);color:#fff;border:none;border-radius:9px;padding:11px 28px;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:14px;display:none;transition:background .2s;}
+  .next-btn:hover{background:var(--green-dark);}
+
+  /* ── SCREENS ── */
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  /* ── INTRO ── */
+  #intro-screen{text-align:center;padding:30px 10px;}
+  #intro-screen h2{font-size:1.6rem;color:var(--blue-dark);margin-bottom:8px;}
+  #intro-screen p{color:#555;font-size:.92rem;max-width:560px;margin:0 auto 18px;}
+  .intro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;max-width:600px;margin:0 auto 24px;}
+  .intro-card{background:#fff;border-radius:10px;padding:14px;border:2px solid var(--border);text-align:center;}
+  .intro-card .ic{font-size:1.8rem;margin-bottom:6px;}
+  .intro-card p{font-size:.78rem;color:#555;}
+  .start-btn{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px 40px;font-size:1.05rem;font-weight:800;cursor:pointer;transition:background .2s;box-shadow:0 4px 14px rgba(27,94,175,.35);}
+  .start-btn:hover{background:var(--blue-dark);}
+
+  /* ── RESULTS ── */
+  #results-screen{text-align:center;padding:20px 10px;}
+  #results-screen h2{font-size:1.5rem;color:var(--blue-dark);margin-bottom:6px;}
+  .result-badge{font-size:4rem;margin:14px 0;}
+  .result-rank{font-size:1.3rem;font-weight:800;color:var(--gold);margin-bottom:8px;}
+  .result-score{font-size:1.1rem;color:#555;margin-bottom:18px;}
+  .result-breakdown{background:#fff;border-radius:10px;padding:16px;max-width:420px;margin:0 auto 20px;text-align:left;}
+  .result-breakdown h4{font-size:.85rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+  .rb-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.85rem;}
+  .rb-row:last-child{border-bottom:none;}
+  .rb-row .rb-icon{font-size:1rem;}
+  .retry-btn{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:12px 32px;font-size:.95rem;font-weight:700;cursor:pointer;margin:6px;transition:background .2s;}
+  .retry-btn:hover{background:var(--blue-dark);}
+
+  /* ── CONFETTI ── */
+  #confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998;}
+
+  /* ── FIREWALL SIM ── */
+  .fw-table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:8px;}
+  .fw-table th{background:var(--blue);color:#fff;padding:7px 10px;text-align:left;}
+  .fw-table td{padding:7px 10px;border-bottom:1px solid var(--border);}
+  .fw-table tr:nth-child(even) td{background:#f8faff;}
+  .fw-rule-form{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:flex-end;}
+  .fw-rule-form label{font-size:.78rem;font-weight:600;color:#555;display:flex;flex-direction:column;gap:3px;}
+  .fw-rule-form select,.fw-rule-form input{border:2px solid var(--border);border-radius:6px;padding:6px 8px;font-size:.82rem;}
+  .fw-add-btn{background:var(--green);color:#fff;border:none;border-radius:7px;padding:8px 16px;font-weight:700;font-size:.82rem;cursor:pointer;}
+  .fw-add-btn:hover{background:var(--green-dark);}
+  .tag{display:inline-block;border-radius:4px;padding:2px 7px;font-size:.72rem;font-weight:700;}
+  .tag-allow{background:#d4edda;color:var(--green-dark);}
+  .tag-block{background:#fdecea;color:var(--red);}
+  .tag-in{background:#d6e6f7;color:var(--blue-dark);}
+  .tag-out{background:#fff3cd;color:#856404;}
+
+  /* ── IP QUIZ ── */
+  .ip-display{font-family:'Courier New',monospace;font-size:1.1rem;background:#1a1a2e;color:#7ec8e3;padding:12px 18px;border-radius:8px;margin-bottom:12px;letter-spacing:.05em;}
+
+  /* ── STEP SIM ── */
+  .step-sim{margin-top:10px;}
+  .step-path{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .step-crumb{background:var(--blue-light);border:1px solid var(--blue);border-radius:5px;padding:4px 10px;font-size:.78rem;font-weight:600;color:var(--blue-dark);}
+  .step-crumb.active{background:var(--blue);color:#fff;}
+  .step-arrow{color:#aaa;font-size:.8rem;}
+  .sim-window{background:#fff;border:2px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+  .sim-titlebar{background:#e8eaf0;padding:7px 12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+  .sim-titlebar .dot{width:11px;height:11px;border-radius:50%;}
+  .sim-titlebar span{font-size:.8rem;color:#555;font-weight:600;}
+  .sim-body{padding:14px;}
+  .sim-option{background:#f8faff;border:2px solid var(--border);border-radius:7px;padding:9px 13px;margin-bottom:8px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;gap:10px;transition:all .2s;}
+  .sim-option:hover{border-color:var(--blue);background:var(--blue-light);}
+  .sim-option .sim-icon{font-size:1.2rem;}
+  .sim-option.selected{border-color:var(--blue);background:var(--blue-light);}
+  .sim-option.correct-sel{border-color:var(--green);background:var(--green-light);}
+  .sim-option.wrong-sel{border-color:var(--red);background:#fdecea;}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="streak-toast">🔥 Streak!</div>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="logo-block">
+    <svg class="shield" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M23 2L4 10v14c0 11 8.5 20.5 19 22 10.5-1.5 19-11 19-22V10L23 2z" fill="#fff" fill-opacity=".15" stroke="#fff" stroke-width="2"/>
+      <text x="23" y="30" text-anchor="middle" font-size="16" font-weight="900" fill="#fff" font-family="Arial">UVA</text>
+    </svg>
+    <div>
+      <h1>Mission Control: Windows Networking
+        <span>University View Academy · CompTIA A+ Core 2 – Domain 1.7</span>
+      </h1>
+      <div style="margin-top:5px;"><span class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</span></div>
+    </div>
+  </div>
+  <div id="hud">
+    <div class="hud-box"><div class="val" id="hud-score">0</div><div class="lbl">Score</div></div>
+    <div class="hud-box"><div class="val" id="hud-streak">0</div><div class="lbl">Streak 🔥</div></div>
+    <div class="hud-box"><div class="val" id="hud-mission">0/8</div><div class="lbl">Missions</div></div>
+    <div id="rank-badge"><span class="lbl">Rank</span><span id="hud-rank">Trainee</span></div>
+  </div>
+  <div style="width:100%;"><div id="prog-wrap"><div id="prog-bar" style="width:0%"></div></div></div>
+</div>
+
+<div id="app">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen" class="screen active">
+    <div class="mission-card" style="text-align:center;padding:30px 20px;">
+      <div style="font-size:3rem;margin-bottom:10px;">🌐</div>
+      <h2 style="color:var(--blue-dark);font-size:1.5rem;margin-bottom:8px;">Windows Networking Mission Briefing</h2>
+      <p style="color:#555;font-size:.92rem;max-width:560px;margin:0 auto 20px;">
+        Welcome, UVA Cadet! Your mission: master Windows networking configuration across <strong>8 missions</strong>. 
+        Earn points, build streaks, and rise through the ranks to become a <strong>Network Master</strong>!
+      </p>
+      <div class="intro-grid">
+        <div class="intro-card"><div class="ic">🔌</div><p>Wired & Wireless Config</p></div>
+        <div class="intro-card"><div class="ic">🔢</div><p>IPv4 & IPv6 Addressing</p></div>
+        <div class="intro-card"><div class="ic">🛡️</div><p>Windows Defender Firewall</p></div>
+        <div class="intro-card"><div class="ic">🔒</div><p>VPN & Proxy Setup</p></div>
+      </div>
+      <div style="margin-bottom:18px;font-size:.85rem;color:#666;">
+        <strong>Rank Progression:</strong> Trainee → Apprentice → Expert → Master
+      </div>
+      <button class="start-btn" onclick="startGame()">🚀 Launch Missions</button>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="game-screen" class="screen">
+    <div id="mission-container"></div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen" class="screen">
+    <div class="mission-card">
+      <div class="result-badge" id="result-emoji">🏆</div>
+      <h2>Mission Complete!</h2>
+      <div class="result-rank" id="result-rank-text"></div>
+      <div class="result-score" id="result-score-text"></div>
+      <div class="result-breakdown" id="result-breakdown"></div>
+      <button class="retry-btn" onclick="retryGame()">🔄 Retry Missions</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let score=0, streak=0, maxStreak=0, missionIdx=0, missionResults=[];
+const RANKS=[
+  {name:'Trainee',min:0,emoji:'🎖️'},
+  {name:'Apprentice',min:3,emoji:'⭐'},
+  {name:'Expert',min:6,emoji:'🌟'},
+  {name:'Master',min:8,emoji:'🏆'}
+];
+
+function getRank(s){
+  let r=RANKS[0];
+  for(let rk of RANKS) if(s>=rk.min) r=rk;
+  return r;
+}
+function updateHUD(){
+  document.getElementById('hud-score').textContent=score;
+  document.getElementById('hud-streak').textContent=streak;
+  document.getElementById('hud-mission').textContent=missionIdx+'/8';
+  const rk=getRank(score);
+  document.getElementById('hud-rank').textContent=rk.emoji+' '+rk.name;
+  document.getElementById('prog-bar').style.width=(missionIdx/8*100)+'%';
+}
+
+// ═══════════════════════════════════════════════════════
+//  MISSIONS DATA
+// ═══════════════════════════════════════════════════════
+const missions=[
+
+  // M1 – Scenario: Connect to Wi-Fi
+  {
+    type:'scenario',
+    num:1,
+    title:'Mission 1 – Connect to the Academy Wi-Fi',
+    sub:'Objective: Navigate Windows Settings to connect a wireless network',
+    scenario:'A new student laptop needs to connect to the UVA-Secure wireless network. You are the IT technician. Which sequence of steps in Windows 11 is correct?',
+    choices:[
+      {key:'A',text:'Control Panel → Network and Sharing Center → Set up a new connection → Wireless',correct:false},
+      {key:'B',text:'Settings → Network & Internet → Wi-Fi → Show available networks → Select UVA-Secure → Connect',correct:true},
+      {key:'C',text:'Device Manager → Network Adapters → Right-click → Connect to Wi-Fi',correct:false},
+      {key:'D',text:'Run → ncpa.cpl → Wi-Fi → Properties → Connect',correct:false}
+    ],
+    feedback:{
+      correct:'✅ Correct! In Windows 11, <strong>Settings → Network & Internet → Wi-Fi</strong> is the primary path. The system tray Wi-Fi icon is a shortcut to the same panel.',
+      wrong:'❌ Not quite. Device Manager manages drivers, not connections. The correct path is <strong>Settings → Network & Internet → Wi-Fi → Show available networks</strong>.'
+    }
+  },
+
+  // M2 – Drag & Drop: IP Addressing
+  {
+    type:'dragdrop',
+    num:2,
+    title:'Mission 2 – IP Address Classification',
+    sub:'Objective: Distinguish static vs. dynamic and IPv4 vs. IPv6',
+    instructions:'Drag each address or concept to the correct category.',
+    items:[
+      {id:'d1',text:'192.168.1.100 (set manually)'},
+      {id:'d2',text:'Assigned by DHCP server'},
+      {id:'d3',text:'fe80::1a2b:3c4d:5e6f (link-local)'},
+      {id:'d4',text:'Requires manual subnet mask entry'},
+      {id:'d5',text:'128-bit hexadecimal address'},
+      {id:'d6',text:'Lease obtained automatically'},
+    ],
+    targets:[
+      {id:'t-static',label:'Static IPv4',correct:['d1','d4']},
+      {id:'t-dynamic',label:'Dynamic (DHCP)',correct:['d2','d6']},
+      {id:'t-ipv6',label:'IPv6',correct:['d3','d5']},
+    ]
+  },
+
+  // M3 – Scenario: Static IP config
+  {
+    type:'scenario',
+    num:3,
+    title:'Mission 3 – Configure a Static IP Address',
+    sub:'Objective: Set a static IPv4 address in Windows adapter settings',
+    scenario:'The UVA server room printer must always have the same IP address (10.0.1.50). Where in Windows do you configure a static IPv4 address for a network adapter?',
+    choices:[
+      {key:'A',text:'Settings → System → About → Advanced System Settings',correct:false},
+      {key:'B',text:'ncpa.cpl → Right-click adapter → Properties → Internet Protocol Version 4 (TCP/IPv4) → Properties → Use the following IP address',correct:true},
+      {key:'C',text:'Settings → Network & Internet → Status → Change adapter options → Disable',correct:false},
+      {key:'D',text:'Command Prompt → ipconfig /renew',correct:false}
+    ],
+    feedback:{
+      correct:'✅ Correct! <strong>ncpa.cpl</strong> opens Network Connections. Right-click the adapter → Properties → TCP/IPv4 → "Use the following IP address" lets you enter a static IP, subnet mask, and default gateway.',
+      wrong:'❌ Not quite. <code>ipconfig /renew</code> requests a DHCP lease. The correct path is <strong>ncpa.cpl → adapter Properties → TCP/IPv4 → Use the following IP address</strong>.'
+    }
+  },
+
+  // M4 – Labeling: IPv4 Address Components
+  {
+    type:'label',
+    num:4,
+    title:'Mission 4 – Anatomy of an IPv4 Configuration',
+    sub:'Objective: Identify each field in a Windows TCP/IPv4 Properties dialog',
+    instructions:'Match each numbered field in the Windows TCP/IPv4 dialog to its correct label.',
+    svgFields:[
+      {id:'lf1',x:60,y:55,label:'IP Address field'},
+      {id:'lf2',x:60,y:105,label:'Subnet Mask field'},
+      {id:'lf3',x:60,y:155,label:'Default Gateway field'},
+      {id:'lf4',x:60,y:205,label:'Preferred DNS Server'},
+      {id:'lf5',x:60,y:255,label:'Alternate DNS Server'},
+    ],
+    options:['IP Address field','Subnet Mask field','Default Gateway field','Preferred DNS Server','Alternate DNS Server','DHCP Lease Time','MAC Address','WINS Server'],
+    answers:['IP Address field','Subnet Mask field','Default Gateway field','Preferred DNS Server','Alternate DNS Server']
+  },
+
+  // M5 – Step Sim: Firewall Rule
+  {
+    type:'stepsim',
+    num:5,
+    title:'Mission 5 – Create a Firewall Inbound Rule',
+    sub:'Objective: Use Windows Defender Firewall with Advanced Security',
+    steps:[
+      {
+        crumb:'Windows Defender Firewall',
+        prompt:'You need to block inbound traffic on port 23 (Telnet) for security. What is the FIRST step in Windows Defender Firewall with Advanced Security?',
+        options:[
+          {icon:'📥',text:'Click "Inbound Rules" in the left panel',correct:true},
+          {icon:'📤',text:'Click "Outbound Rules" in the left panel',correct:false},
+          {icon:'⚙️',text:'Click "Windows Defender Firewall Properties"',correct:false},
+        ],
+        feedback:{correct:'✅ Correct! Inbound Rules control traffic coming INTO the computer. Since we\'re blocking incoming Telnet, we start with Inbound Rules.',wrong:'❌ Outbound Rules control traffic leaving the computer. To block incoming Telnet, choose <strong>Inbound Rules</strong>.'}
+      },
+      {
+        crumb:'New Rule Wizard',
+        prompt:'In the New Inbound Rule Wizard, which Rule Type should you select to block a specific port?',
+        options:[
+          {icon:'📱',text:'Program – applies rule to a specific application',correct:false},
+          {icon:'🔌',text:'Port – applies rule to a TCP or UDP port number',correct:true},
+          {icon:'📋',text:'Predefined – uses a Windows built-in rule set',correct:false},
+        ],
+        feedback:{correct:'✅ Correct! Selecting <strong>Port</strong> lets you specify TCP/UDP and enter port 23 to target Telnet specifically.',wrong:'❌ "Program" targets an .exe file. To block port 23 specifically, choose <strong>Port</strong> as the rule type.'}
+      },
+      {
+        crumb:'Action',
+        prompt:'After specifying TCP port 23, what Action should you choose?',
+        options:[
+          {icon:'✅',text:'Allow the connection',correct:false},
+          {icon:'🔒',text:'Block the connection',correct:true},
+          {icon:'🛡️',text:'Allow the connection if it is secure (IPsec)',correct:false},
+        ],
+        feedback:{correct:'✅ Correct! <strong>Block the connection</strong> will drop all inbound TCP port 23 traffic, preventing Telnet access.',wrong:'❌ We want to BLOCK Telnet, not allow it. Choose <strong>Block the connection</strong>.'}
+      }
+    ]
+  },
+
+  // M6 – Scenario: Network Location Profiles
+  {
+    type:'scenario',
+    num:6,
+    title:'Mission 6 – Network Location Profiles',
+    sub:'Objective: Apply correct network profile for security context',
+    scenario:'A UVA student connects their laptop to a coffee shop\'s public Wi-Fi. Windows asks them to choose a network profile. Which profile should they select, and why?',
+    choices:[
+      {key:'A',text:'Domain – because it enables Group Policy and domain authentication',correct:false},
+      {key:'B',text:'Private – because it allows file and printer sharing with trusted devices',correct:false},
+      {key:'C',text:'Public – because it restricts network discovery and file sharing, protecting the device on untrusted networks',correct:true},
+      {key:'D',text:'Guest – because it creates an isolated guest network segment',correct:false}
+    ],
+    feedback:{
+      correct:'✅ Correct! <strong>Public</strong> profile disables network discovery and file/printer sharing, minimizing attack surface on untrusted networks like coffee shops. <strong>Private</strong> is for trusted home/office networks. <strong>Domain</strong> is managed by IT via Group Policy.',
+      wrong:'❌ "Guest" is not a Windows network location profile. The three profiles are <strong>Domain, Private, and Public</strong>. Public is correct for untrusted networks.'
+    }
+  },
+
+  // M7 – Scenario: VPN Setup
+  {
+    type:'scenario',
+    num:7,
+    title:'Mission 7 – Configure a VPN Connection',
+    sub:'Objective: Set up a VPN connection in Windows Settings',
+    scenario:'A UVA remote worker needs to connect to the school\'s VPN to access internal resources. Which Windows path and settings are correct for adding a new VPN connection?',
+    choices:[
+      {key:'A',text:'Settings → Network & Internet → VPN → Add a VPN connection → Enter server address, VPN type (e.g., L2TP/IPsec), and credentials',correct:true},
+      {key:'B',text:'Control Panel → Internet Options → Connections → LAN Settings → Use a proxy server',correct:false},
+      {key:'C',text:'Settings → Privacy & Security → Windows Security → Firewall → VPN',correct:false},
+      {key:'D',text:'Device Manager → Network Adapters → Add Legacy Hardware → VPN Adapter',correct:false}
+    ],
+    feedback:{
+      correct:'✅ Correct! <strong>Settings → Network & Internet → VPN → Add a VPN connection</strong> is the Windows 10/11 path. You specify the VPN provider, server address, VPN type (IKEv2, L2TP/IPsec, PPTP, SSTP), and login credentials.',
+      wrong:'❌ LAN Settings in Internet Options configures a proxy, not a VPN. The correct path is <strong>Settings → Network & Internet → VPN → Add a VPN connection</strong>.'
+    }
+  },
+
+  // M8 – Scenario: Proxy Server
+  {
+    type:'scenario',
+    num:8,
+    title:'Mission 8 – Configure a Proxy Server',
+    sub:'Objective: Set up a manual proxy in Windows for web traffic',
+    scenario:'UVA\'s IT department requires all student laptops to route web traffic through the school proxy at proxy.uva.edu:8080. Which Windows setting configures this?',
+    choices:[
+      {key:'A',text:'Settings → Network & Internet → Proxy → Manual proxy setup → Enter proxy.uva.edu and port 8080',correct:true},
+      {key:'B',text:'Settings → Network & Internet → VPN → Add a VPN connection → Proxy tab',correct:false},
+      {key:'C',text:'Windows Defender Firewall → Outbound Rules → New Rule → Proxy',correct:false},
+      {key:'D',text:'ncpa.cpl → Adapter Properties → TCP/IPv4 → Proxy Server',correct:false}
+    ],
+    feedback:{
+      correct:'✅ Correct! <strong>Settings → Network & Internet → Proxy</strong> provides both automatic (PAC script) and manual proxy configuration. You toggle "Use a proxy server," enter the address and port, and optionally add bypass exceptions.',
+      wrong:'❌ TCP/IPv4 Properties has no proxy option. The correct path is <strong>Settings → Network & Internet → Proxy → Manual proxy setup</strong>.'
+    }
+  }
+];
+
+// ═══════════════════════════════════════════════════════
+//  GAME FLOW
+// ═══════════════════════════════════════════════════════
+function startGame(){
+  score=0;streak=0;maxStreak=0;missionIdx=0;missionResults=[];
+  updateHUD();
+  showScreen('game-screen');
+  renderMission();
+}
+function retryGame(){startGame();}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderMission(){
+  if(missionIdx>=missions.length){showResults();return;}
+  const m=missions[missionIdx];
+  const c=document.getElementById('mission-container');
+  c.innerHTML='';
+  if(m.type==='scenario') c.innerHTML=buildScenario(m);
+  else if(m.type==='dragdrop') c.innerHTML=buildDragDrop(m);
+  else if(m.type==='label') c.innerHTML=buildLabel(m);
+  else if(m.type==='stepsim') c.innerHTML=buildStepSim(m,0);
+  attachEvents(m);
+}
+
+// ── SCENARIO ──
+function buildScenario(m){
+  return `<div class="mission-card">
+    <div class="mission-header">
+      <div class="mission-num">${m.num}</div>
+      <div><div class="mission-title">${m.title}</div><div class="mission-sub">${m.sub}</div></div>
+    </div>
+    <div class="scenario-box"><strong>📋 Scenario:</strong> ${m.scenario}</div>
+    <div class="choices">
+      ${m.choices.map(c=>`<button class="choice-btn" data-correct="${c.correct}" onclick="answerScenario(this,'${m.type}')">
+        <span class="choice-key">${c.key}</span><span>${c.text}</span>
+      </button>`).join('')}
+    </div>
+    <div class="feedback" id="fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextMission()">Next Mission →</button>
+  </div>`;
+}
+
+function answerScenario(btn,type){
+  const card=btn.closest('.mission-card');
+  card.querySelectorAll('.choice-btn').forEach(b=>{b.disabled=true;});
+  const correct=btn.dataset.correct==='true';
+  const m=missions[missionIdx];
+  btn.classList.add(correct?'correct':'wrong');
+  if(!correct){
+    card.querySelectorAll('.choice-btn').forEach(b=>{if(b.dataset.correct==='true')b.classList.add('correct');});
+  }
+  const fb=card.querySelector('#fb');
+  fb.className='feedback '+(correct?'correct':'wrong');
+  fb.innerHTML=(correct?m.feedback.correct:m.feedback.wrong);
+  fb.style.display='block';
+  handleScore(correct,m.num);
+  card.querySelector('#next-btn').style.display='inline-block';
+}
+
+// ── DRAG & DROP ──
+function buildDragDrop(m){
+  const shuffled=[...m.items].sort(()=>Math.random()-.5);
+  return `<div class="mission-card">
+    <div class="mission-header">
+      <div class="mission-num">${m.num}</div>
+      <div><div class="mission-title">${m.title}</div><div class="mission-sub">${m.sub}</div></div>
+    </div>
+    <p class="mission-body" style="margin-bottom:10px;">${m.instructions}</p>
+    <div class="dnd-grid">
+      <div>
+        <h4>🃏 Items to Sort</h4>
+        <div id="dnd-source">
+          ${shuffled.map(it=>`<div class="drag-item" draggable="true" id="${it.id}" data-id="${it.id}">${it.text}</div>`).join('')}
+        </div>
+      </div>
+      <div class="dnd-targets">
+        <h4>📂 Categories</h4>
+        ${m.targets.map(t=>`
+          <div class="target-row">
+            <div class="target-label">${t.label}</div>
+            <div class="drop-zone" id="${t.id}" data-target="${t.id}"><span class="zone-label">Drop here</span></div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="feedback" id="fb"></div>
+    <button class="dnd-check-btn" onclick="checkDragDrop()">✅ Check Answers</button>
+    <button class="next-btn" id="next-btn" onclick="nextMission()">Next Mission →</button>
+  </div>`;
+}
+
+function attachDragDrop(){
+  document.querySelectorAll('.drag-item').forEach(item=>{
+    item.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',item.id);item.classList.add('dragging');});
+    item.addEventListener('dragend',()=>item.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.drop-zone').forEach(zone=>{
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('over');});
+    zone.addEventListener('dragleave',()=>zone.classList.remove('over'));
+    zone.addEventListener('drop',e=>{
+      e.preventDefault();zone.classList.remove('over');
+      const id=e.dataTransfer.getData('text/plain');
+      const el=document.getElementById(id);
+      if(el){
+        const placeholder=zone.querySelector('.zone-label');
+        if(placeholder)placeholder.remove();
+        zone.appendChild(el);
+      }
+    });
+  });
+  // also allow dropping back to source
+  const src=document.getElementById('dnd-source');
+  if(src){
+    src.addEventListener('dragover',e=>{e.preventDefault();});
+    src.addEventListener('drop',e=>{
+      e.preventDefault();
+      const id=e.dataTransfer.getData('text/plain');
+      const el=document.getElementById(id);
+      if(el) src.appendChild(el);
+    });
+  }
+}
+
+function checkDragDrop(){
+  const m=missions[missionIdx];
+  let allCorrect=true;
+  m.targets.forEach(t=>{
+    const zone=document.getElementById(t.id);
+    const placed=[...zone.querySelectorAll('.drag-item')].map(el=>el.dataset.id);
+    const correct=t.correct.every(id=>placed.includes(id))&&placed.every(id=>t.correct.includes(id));
+    if(!correct) allCorrect=false;
+  });
+  const fb=document.getElementById('fb');
+  if(allCorrect){
+    fb.className='feedback correct';
+    fb.innerHTML='✅ <strong>Perfect sort!</strong> Static IPv4 requires manual entry of IP + subnet mask. DHCP dynamically assigns addresses. IPv6 uses 128-bit hex notation (e.g., fe80:: link-local addresses).';
+  } else {
+    fb.className='feedback wrong';
+    fb.innerHTML='❌ <strong>Some items are misplaced.</strong> Remember: Static = manually configured IPv4. DHCP = automatically assigned. IPv6 = 128-bit hex addresses like fe80::.';
+  }
+  fb.style.display='block';
+  document.querySelector('.dnd-check-btn').disabled=true;
+  handleScore(allCorrect,m.num);
+  document.getElementById('next-btn').style.display='inline-block';
+}
+
+// ── LABEL ──
+function buildLabel(m){
+  const svgH=300;
+  const svgContent=`<svg viewBox="0 0 400 ${svgH}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="10" y="10" width="380" height="${svgH-20}" rx="8" fill="#f0f4ff" stroke="#1B5EAF" stroke-width="2"/>
+    <text x="200" y="35" text-anchor="middle" font-size="13" font-weight="700" fill="#1B5EAF" font-family="Segoe UI,Arial">Internet Protocol Version 4 (TCP/IPv4) Properties</text>
+    <rect x="30" y="45" width="340" height="230" rx="5" fill="white" stroke="#cdd8ea" stroke-width="1.5"/>
+    ${m.svgFields.map((f,i)=>`
+      <circle cx="50" cy="${f.y}" r="10" fill="#1B5EAF"/>
+      <text x="50" y="${f.y+4}" text-anchor="middle" font-size="10" font-weight="800" fill="white" font-family="Arial">${i+1}</text>
+      <rect x="70" y="${f.y-12}" width="270" height="22" rx="3" fill="#e8eaf0" stroke="#cdd8ea" stroke-width="1"/>
+      <text x="80" y="${f.y+3}" font-size="10" fill="#888" font-family="Segoe UI,Arial">___________________________</text>
+    `).join('')}
+  </svg>`;
+  return `<div class="mission-card">
+    <div class="mission-header">
+      <div class="mission-num">${m.num}</div>
+      <div><div class="mission-title">${m.title}</div><div class="mission-sub">${m.sub}</div></div>
+    </div>
+    <p class="mission-body" style="margin-bottom:10px;">${m.instructions}</p>
+    <div class="label-wrap">${svgContent}</div>
+    <div class="label-inputs">
+      ${m.svgFields.map((f,i)=>`
+        <div class="label-input-row">
+          <div class="label-dot">${i+1}</div>
+          <select id="label-${i}" data-answer="${m.answers[i]}">
+            <option value="">-- Select --</option>
+            ${m.options.map(o=>`<option value="${o}">${o}</option>`).join('')}
+          </select>
+        </div>`).join('')}
+    </div>
+    <div class="feedback" id="fb"></div>
+    <button class="dnd-check-btn" onclick="checkLabel()">✅ Check Labels</button>
+    <button class="next-btn" id="next-btn" onclick="nextMission()">Next Mission →</button>
+  </div>`;
+}
+
+function checkLabel(){
+  const m=missions[missionIdx];
+  let correct=0;
+  m.answers.forEach((ans,i)=>{
+    const sel=document.getElementById('label-'+i);
+    sel.disabled=true;
+    if(sel.value===ans){sel.classList.add('correct');correct++;}
+    else{sel.classList.add('wrong');}
+  });
+  const allCorrect=correct===m.answers.length;
+  const fb=document.getElementById('fb');
+  fb.className='feedback '+(allCorrect?'correct':'wrong');
+  fb.innerHTML=allCorrect
+    ?'✅ <strong>All fields correctly identified!</strong> The TCP/IPv4 dialog fields in order: IP Address → Subnet Mask → Default Gateway → Preferred DNS → Alternate DNS.'
+    :`❌ <strong>${correct}/${m.answers.length} correct.</strong> Review: IP Address (e.g. 192.168.1.10), Subnet Mask (e.g. 255.255.255.0), Default Gateway (router IP), then DNS servers.`;
+  fb.style.display='block';
+  document.querySelector('.dnd-check-btn').disabled=true;
+  handleScore(allCorrect,m.num);
+  document.getElementById('next-btn').style.display='inline-block';
+}
+
+// ── STEP SIM ──
+let simStep=0;
+function buildStepSim(m,step){
+  const s=m.steps[step];
+  const crumbs=m.steps.map((st,i)=>`<span class="step-crumb${i===step?' active':''}">${i+1}. ${st.crumb}</span>${i<m.steps.length-1?'<span class="step-arrow">›</span>':''}`).join('');
+  return `<div class="mission-card">
+    <div class="mission-header">
+      <div class="mission-num">${m.num}</div>
+      <div><div class="mission-title">${m.title}</div><div class="mission-sub">${m.sub}</div></div>
+    </div>
+    <div class="step-path">${crumbs}</div>
+    <div class="sim-window">
+      <div class="sim-titlebar">
+        <div class="dot" style="background:#e74c3c"></div>
+        <div class="dot" style="background:#f39c12"></div>
+        <div class="dot" style="background:#2ecc71"></div>
+        <span>Windows Defender Firewall with Advanced Security</span>
+      </div>
+      <div class="sim-body">
+        <p style="font-size:.88rem;font-weight:600;margin-bottom:10px;color:var(--blue-dark);">🎯 ${s.prompt}</p>
+        ${s.options.map((o,i)=>`<div class="sim-option" id="sopt-${i}" onclick="answerSimStep(${i})" data-correct="${o.correct}">
+          <span class="sim-icon">${o.icon}</span><span>${o.text}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="feedback" id="fb"></div>
+    <button class="next-btn" id="next-btn" onclick="nextSimStep()">
+      ${step<m.steps.length-1?'Next Step →':'Complete Mission →'}
+    </button>
+  </div>`;
+}
+
+function answerSimStep(idx){
+  const m=missions[missionIdx];
+  const s=m.steps[simStep];
+  document.querySelectorAll('.sim-option').forEach(o=>o.onclick=null);
+  const chosen=document.getElementById('sopt-'+idx);
+  const correct=chosen.dataset.correct==='true';
+  chosen.classList.add(correct?'correct-sel':'wrong-sel');
+  if(!correct){
+    document.querySelectorAll('.sim-option').forEach(o=>{if(o.dataset.correct==='true')o.classList.add('correct-sel');});
+  }
+  const fb=document.getElementById('fb');
+  fb.className='feedback '+(correct?'correct':'wrong');
+  fb.innerHTML=correct?s.feedback.correct:s.feedback.wrong;
+  fb.style.display='block';
+  // only score on first step of sim
+  if(simStep===0) handleScore(correct,m.num);
+  document.getElementById('next-btn').style.display='inline-block';
+}
+
+function nextSimStep(){
+  const m=missions[missionIdx];
+  simStep++;
+  if(simStep>=m.steps.length){nextMission();return;}
+  document.getElementById('mission-container').innerHTML=buildStepSim(m,simStep);
+  attachEvents(m);
+}
+
+// ── ATTACH EVENTS ──
+function attachEvents(m){
+  if(m.type==='dragdrop') attachDragDrop();
+}
+
+// ── SCORING ──
+function handleScore(correct,mNum){
+  missionResults.push({num:mNum,correct});
+  if(correct){
+    score++;streak++;
+    if(streak>maxStreak) maxStreak=streak;
+    if(streak>=3) showStreakToast(streak);
+    if(score===3||score===6||score===8) showRankUp();
+  } else {
+    streak=0;
+  }
+  updateHUD();
+}
+
+function showStreakToast(n){
+  const t=document.getElementById('streak-toast');
+  t.textContent=`🔥 ${n} in a row! Keep going!`;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function showRankUp(){
+  const rk=getRank(score);
+  const t=document.getElementById('streak-toast');
+  t.textContent=`${rk.emoji} Rank Up: ${rk.name}!`;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── NEXT MISSION ──
+function nextMission(){
+  missionIdx++;
+  simStep=0;
+  updateHUD();
+  if(missionIdx>=missions.length){showResults();}
+  else{renderMission();}
+}
+
+// ── RESULTS ──
+function showResults(){
+  showScreen('results-screen');
+  const rk=getRank(score);
+  document.getElementById('result-emoji').textContent=rk.emoji;
+  document.getElementById('result-rank-text').textContent=rk.name+' – '+rk.emoji;
+  document.getElementById('result-score-text').textContent=`You scored ${score} out of 8 missions correctly!`;
+  const bd=document.getElementById('result-breakdown');
+  bd.innerHTML=`<h4>Mission Breakdown</h4>`+
+    missionResults.map(r=>`<div class="rb-row"><span>Mission ${r.num}</span><span class="rb-icon">${r.correct?'✅':'❌'}</span></div>`).join('');
+  if(score>=6) launchConfetti();
+  updateHUD();
+}
+
+// ── CONFETTI ──
+function launchConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const pieces=[];
+  const colors=['#1B5EAF','#1E7A3E','#F5A623','#e74c3c','#9b59b6','#fff'];
+  for(let i=0;i<160;i++){
+    pieces.push({
+      x:Math.random()*canvas.width,y:Math.random()*canvas.height-canvas.height,
+      w:8+Math.random()*8,h:4+Math.random()*4,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*360,rotV:(Math.random()-0.5)*6,
+      vx:(Math.random()-0.5)*3,vy:2+Math.random()*4
+    });
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);ctx.restore();
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;
+    });
+    frame++;
+    if(frame<200) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+
+// ── INIT ──
+updateHUD();
+</script>
+</body>
+</html>
