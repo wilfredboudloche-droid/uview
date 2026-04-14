@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Visualization Missions | UVA Computer Tech Literacy</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #134080;
+    --uva-blue-light: #2a7fd4;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #27a352;
+    --gold: #F5C518;
+    --gold-dark: #d4a800;
+    --white: #ffffff;
+    --light-bg: #f0f4fb;
+    --card-bg: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #3a3a5c;
+    --text-light: #6b7280;
+    --success: #16a34a;
+    --error: #dc2626;
+    --border: #d1d5db;
+    --shadow: 0 4px 20px rgba(27,94,175,0.12);
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--light-bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: linear-gradient(135deg, var(--uva-blue-dark) 0%, var(--uva-blue) 60%, var(--uva-blue-light) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 18px 24px 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .uva-crest {
+    width: 56px; height: 56px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  }
+  .uva-crest svg { width: 36px; height: 36px; }
+  .header-text h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.3px; }
+  .header-text p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+
+  /* Motto ribbon */
+  .motto-ribbon {
+    background: var(--uva-green);
+    text-align: center;
+    padding: 6px 24px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: white;
+  }
+
+  /* ── HUD BAR ── */
+  .hud-bar {
+    background: white;
+    border-bottom: 2px solid var(--uva-blue);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .hud-rank {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .rank-badge {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .rank-label { font-size: 0.75rem; color: var(--text-light); }
+  .hud-score {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .score-item { text-align: center; }
+  .score-num { font-size: 1.3rem; font-weight: 800; color: var(--uva-blue); line-height: 1; }
+  .score-lbl { font-size: 0.65rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+  .streak-badge {
+    background: var(--gold);
+    color: #7a5000;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    display: none;
+    animation: pulse 0.6s ease;
+  }
+  .streak-badge.show { display: inline-block; }
+  @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.2)} 100%{transform:scale(1)} }
+
+  /* Progress bar */
+  .progress-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 24px 0;
+  }
+  .progress-track {
+    background: #e5e7eb;
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--uva-green), var(--uva-blue));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 0.7rem; color: var(--text-light);
+    margin-top: 4px;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main { max-width: 900px; margin: 0 auto; padding: 20px 24px 60px; }
+
+  /* ── SCREEN SYSTEM ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO SCREEN ── */
+  .intro-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border-top: 5px solid var(--uva-blue);
+  }
+  .intro-icon { font-size: 4rem; margin-bottom: 16px; }
+  .intro-card h2 { font-size: 1.8rem; color: var(--uva-blue); margin-bottom: 8px; }
+  .intro-card .subtitle { color: var(--text-mid); font-size: 1rem; margin-bottom: 24px; }
+  .mission-list {
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 20px 24px;
+    text-align: left;
+    margin-bottom: 28px;
+  }
+  .mission-list h3 { color: var(--uva-green); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .mission-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  .mission-item:last-child { border-bottom: none; }
+  .mission-num {
+    background: var(--uva-blue);
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(27,94,175,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,94,175,0.45); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ── MISSION CARD ── */
+  .mission-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .mission-header {
+    background: linear-gradient(135deg, var(--uva-blue-dark), var(--uva-blue));
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mission-tag {
+    background: rgba(255,255,255,0.2);
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .mission-title { font-size: 1.05rem; font-weight: 700; }
+  .mission-body { padding: 24px; }
+  .mission-question {
+    font-size: 1rem;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+  .mission-question strong { color: var(--uva-blue); }
+
+  /* ── DRAG & DROP ── */
+  .dnd-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  @media(max-width:600px){ .dnd-container { grid-template-columns: 1fr; } }
+  .dnd-col-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; }
+  .drag-item {
+    background: linear-gradient(135deg, #e8f0fe, #dbeafe);
+    border: 2px solid var(--uva-blue);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: grab;
+    transition: transform 0.15s, box-shadow 0.15s;
+    user-select: none;
+    color: var(--uva-blue-dark);
+  }
+  .drag-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(27,94,175,0.2); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drag-item.placed { opacity: 0.4; pointer-events: none; }
+
+  .drop-zones { display: flex; flex-direction: column; gap: 8px; }
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-height: 46px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .drop-zone.drag-over { border-color: var(--uva-blue); background: #e8f0fe; }
+  .drop-zone.correct { border-color: var(--success); background: #dcfce7; color: var(--success); font-weight: 600; }
+  .drop-zone.incorrect { border-color: var(--error); background: #fee2e2; color: var(--error); font-weight: 600; }
+  .drop-zone-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 4px;
+  }
+
+  /* ── MULTIPLE CHOICE ── */
+  .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+  .choice-btn {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: left;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-dark);
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--uva-blue); background: #e8f0fe; }
+  .choice-btn.selected { border-color: var(--uva-blue); background: #dbeafe; }
+  .choice-btn.correct { border-color: var(--success); background: #dcfce7; color: var(--success); font-weight: 600; }
+  .choice-btn.incorrect { border-color: var(--error); background: #fee2e2; color: var(--error); }
+  .choice-btn:disabled { cursor: default; }
+  .choice-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--light-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem;
+    flex-shrink: 0;
+    color: var(--uva-blue);
+  }
+  .choice-btn.correct .choice-letter { background: var(--success); color: white; }
+  .choice-btn.incorrect .choice-letter { background: var(--error); color: white; }
+
+  /* ── SCENARIO / BRANCHING ── */
+  .scenario-box {
+    background: var(--light-bg);
+    border-left: 4px solid var(--uva-blue);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+  .scenario-box .scenario-title { font-weight: 700; color: var(--uva-blue); margin-bottom: 6px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* ── STEP SIMULATION ── */
+  .steps-container { margin-bottom: 20px; }
+  .step-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .step-row:hover { background: var(--light-bg); }
+  .step-row.correct-step { background: #dcfce7; }
+  .step-row.wrong-step { background: #fee2e2; }
+  .step-circle {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem;
+    flex-shrink: 0;
+    color: var(--text-light);
+    transition: all 0.3s;
+  }
+  .step-row.correct-step .step-circle { background: var(--success); color: white; }
+  .step-row.wrong-step .step-circle { background: var(--error); color: white; }
+  .step-text { font-size: 0.9rem; line-height: 1.5; }
+  .step-text strong { color: var(--uva-blue); }
+
+  /* ── FEEDBACK BOX ── */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback-box.show { display: block; animation: slideIn 0.3s ease; }
+  .feedback-box.correct { background: #dcfce7; border: 1px solid #86efac; color: #14532d; }
+  .feedback-box.incorrect { background: #fee2e2; border: 1px solid #fca5a5; color: #7f1d1d; }
+  .feedback-box .fb-title { font-weight: 700; margin-bottom: 4px; font-size: 0.95rem; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── SUBMIT / NEXT BUTTONS ── */
+  .action-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .btn-submit {
+    background: var(--uva-green);
+    color: white;
+    border: none;
+    padding: 11px 28px;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { background: var(--uva-green-light); transform: translateY(-1px); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-next {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    border: none;
+    padding: 11px 28px;
+    border-radius: 25px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+  .btn-next.show { display: inline-block; }
+  .btn-next:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,94,175,0.3); }
+
+  /* ── UI MOCKUP ── */
+  .ui-mockup {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    font-size: 0.82rem;
+  }
+  .ui-titlebar {
+    background: #e2e8f0;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ui-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .ui-dot.red { background: #ef4444; }
+  .ui-dot.yellow { background: #f59e0b; }
+  .ui-dot.green { background: #22c55e; }
+  .ui-titlebar span { margin-left: 8px; color: var(--text-light); font-size: 0.75rem; }
+  .ui-toolbar {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 6px 12px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .ui-tab {
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: var(--text-mid);
+    transition: background 0.15s;
+  }
+  .ui-tab:hover { background: var(--light-bg); }
+  .ui-tab.active { background: var(--uva-blue); color: white; }
+  .ui-content { padding: 16px; }
+  .ui-menu-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--text-dark);
+    transition: background 0.15s;
+    margin-bottom: 2px;
+  }
+  .ui-menu-item:hover { background: var(--light-bg); }
+  .ui-menu-item.highlighted { background: #dbeafe; border: 1px solid var(--uva-blue); color: var(--uva-blue); font-weight: 600; }
+  .ui-menu-item.wrong-pick { background: #fee2e2; border: 1px solid var(--error); color: var(--error); }
+
+  /* ── CHART TYPE CARDS ── */
+  .chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .chart-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: white;
+  }
+  .chart-card:hover { border-color: var(--uva-blue); background: #e8f0fe; }
+  .chart-card.selected { border-color: var(--uva-blue); background: #dbeafe; }
+  .chart-card.correct { border-color: var(--success); background: #dcfce7; }
+  .chart-card.incorrect { border-color: var(--error); background: #fee2e2; }
+  .chart-icon { font-size: 2rem; margin-bottom: 6px; }
+  .chart-name { font-size: 0.8rem; font-weight: 600; color: var(--text-dark); }
+
+  /* ── RESULTS SCREEN ── */
+  .results-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 40px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border-top: 5px solid var(--uva-green);
+  }
+  .results-badge {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 20px rgba(245,197,24,0.4);
+    animation: badgePop 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  @keyframes badgePop { from{transform:scale(0)} to{transform:scale(1)} }
+  .results-rank { font-size: 1.5rem; font-weight: 800; color: var(--uva-blue); margin-bottom: 6px; }
+  .results-score { font-size: 3rem; font-weight: 900; color: var(--uva-green); line-height: 1; margin-bottom: 4px; }
+  .results-sub { color: var(--text-light); font-size: 0.9rem; margin-bottom: 24px; }
+  .results-breakdown {
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-check { color: var(--success); font-weight: 700; }
+  .breakdown-x { color: var(--error); font-weight: 700; }
+  .motto-final {
+    font-style: italic;
+    color: var(--uva-blue);
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+  }
+
+  /* ── CONFETTI ── */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: var(--uva-blue-dark);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    z-index: 1000;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    max-width: 260px;
+  }
+  .toast.show { transform: translateX(0); }
+  .toast.streak { background: linear-gradient(135deg, var(--gold-dark), #b8860b); color: #3d2800; }
+  .toast.rank-up { background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light)); }
+
+  /* ── ORDERING ACTIVITY ── */
+  .order-list { list-style: none; margin-bottom: 20px; }
+  .order-item {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.88rem;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .order-item:hover { border-color: var(--uva-blue); background: #e8f0fe; }
+  .order-item.dragging { opacity: 0.4; }
+  .order-item.drag-over-top { border-top: 3px solid var(--uva-blue); }
+  .order-item.drag-over-bottom { border-bottom: 3px solid var(--uva-blue); }
+  .order-handle { color: var(--text-light); font-size: 1.1rem; cursor: grab; }
+  .order-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--light-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 700;
+    color: var(--text-mid);
+    flex-shrink: 0;
+  }
+  .order-item.correct-order { border-color: var(--success); background: #dcfce7; }
+  .order-item.wrong-order { border-color: var(--error); background: #fee2e2; }
+
+  /* ── LABEL DIAGRAM ── */
+  .diagram-wrap {
+    position: relative;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .diagram-svg { width: 100%; max-width: 500px; display: block; margin: 0 auto; }
+  .label-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .label-chip {
+    background: #dbeafe;
+    border: 2px solid var(--uva-blue);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--uva-blue-dark);
+    transition: all 0.2s;
+  }
+  .label-chip:hover { background: var(--uva-blue); color: white; }
+  .label-chip.used { opacity: 0.4; pointer-events: none; }
+  .label-target {
+    display: inline-block;
+    min-width: 120px;
+    border-bottom: 2px dashed var(--uva-blue);
+    padding: 2px 8px;
+    cursor: pointer;
+    color: var(--text-light);
+    font-style: italic;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+  }
+  .label-target.filled { color: var(--uva-blue-dark); font-style: normal; font-weight: 600; border-bottom-style: solid; }
+  .label-target.correct { color: var(--success); border-color: var(--success); }
+  .label-target.incorrect { color: var(--error); border-color: var(--error); }
+
+  /* Responsive */
+  @media(max-width:600px){
+    .header-inner { padding: 14px 16px 8px; }
+    .main { padding: 16px 14px 50px; }
+    .intro-card, .results-card { padding: 24px 18px; }
+    .mission-body { padding: 16px; }
+    .hud-bar { padding: 8px 14px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="uva-crest">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="16" fill="#1B5EAF"/>
+        <text x="18" y="14" text-anchor="middle" fill="white" font-size="7" font-weight="bold" font-family="serif">UVA</text>
+        <rect x="8" y="16" width="20" height="2" fill="#F5C518"/>
+        <text x="18" y="26" text-anchor="middle" fill="white" font-size="5.5" font-family="serif">Academy</text>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>📊 Data Visualization Missions</h1>
+      <p>Computer Tech Literacy · Google Sheets Mastery · Data Literacy Standards</p>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+</header>
+
+<!-- HUD BAR -->
+<div class="hud-bar">
+  <div class="hud-rank">
+    <div class="rank-badge" id="rank-badge">🎓 Trainee</div>
+    <div class="rank-label" id="rank-label">Keep going!</div>
+  </div>
+  <div class="hud-score">
+    <div class="score-item">
+      <div class="score-num" id="hud-score">0</div>
+      <div class="score-lbl">Points</div>
+    </div>
+    <div class="score-item">
+      <div class="score-num" id="hud-mission">0/5</div>
+      <div class="score-lbl">Missions</div>
+    </div>
+    <div class="streak-badge" id="streak-badge">🔥 Streak!</div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="progress-label">
+    <span id="progress-text">Mission 0 of 5</span>
+    <span id="progress-pct">0%</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ══ INTRO SCREEN ══ -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-card">
+      <div class="intro-icon">📊</div>
+      <h2>Welcome, UVA Data Analyst!</h2>
+      <p class="subtitle">Your mission: Master professional data visualization in Google Sheets.<br>Complete all 5 missions to earn your <strong>Data Visualization Master</strong> badge.</p>
+      <div class="mission-list">
+        <h3>🗺️ Mission Briefing</h3>
+        <div class="mission-item"><div class="mission-num">1</div><span><strong>Chart Type Intel</strong> — Match data types to the right chart</span></div>
+        <div class="mission-item"><div class="mission-num">2</div><span><strong>Google Sheets Navigation</strong> — Find the correct chart insertion workflow</span></div>
+        <div class="mission-item"><div class="mission-num">3</div><span><strong>Data Hygiene Protocol</strong> — Identify and fix data errors before charting</span></div>
+        <div class="mission-item"><div class="mission-num">4</div><span><strong>Axis Customization</strong> — Order the steps to format chart axes</span></div>
+        <div class="mission-item"><div class="mission-num">5</div><span><strong>Chart Scenario Debrief</strong> — Choose the right chart for real-world scenarios</span></div>
+      </div>
+      <button class="btn-primary" onclick="startMissions()">🚀 Begin Missions</button>
+    </div>
+  </div>
+
+  <!-- ══ MISSION 1: Drag & Drop Chart Matching ══ -->
+  <div class="screen" id="screen-1">
+    <div class="mission-card">
+      <div class="mission-header">
+        <span class="mission-tag">MISSION 1 OF 5</span>
+        <span class="mission-title">📌 Chart Type Intel — Match the Data to the Chart</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-question">
+          A UVA analyst has four datasets. <strong>Drag each dataset description</strong> to the correct chart type on the right. Matching the right visualization to the right data is the foundation of professional charting.
+        </p>
+
+        <div class="dnd-container">
+          <!-- LEFT: Drag items -->
+          <div>
+            <div class="dnd-col-label">📋 Datasets</div>
+            <div class="drag-items" id="drag-source">
+              <div class="drag-item" draggable="true" data-id="a" id="drag-a">📅 Monthly sales totals for Jan–Dec (categories)</div>
+              <div class="drag-item" draggable="true" data-id="b" id="drag-b">📏 Student test scores: 45, 67, 72, 88, 91… (continuous)</div>
+              <div class="drag-item" draggable="true" data-id="c" id="drag-c">🥧 Budget split: Salaries 60%, Tech 25%, Other 15%</div>
+              <div class="drag-item" draggable="true" data-id="d" id="drag-d">📈 Temperature vs. ice cream sales (two numeric variables)</div>
+            </div>
+          </div>
+          <!-- RIGHT: Drop zones -->
+          <div>
+            <div class="dnd-col-label">📊 Chart Types</div>
+            <div class="drop-zones">
+              <div>
+                <div class="drop-zone-label">Bar / Column Chart</div>
+                <div class="drop-zone" data-answer="a" id="drop-bar" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'drop-bar')">Drop here…</div>
+              </div>
+              <div>
+                <div class="drop-zone-label">Histogram</div>
+                <div class="drop-zone" data-answer="b" id="drop-hist" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'drop-hist')">Drop here…</div>
+              </div>
+              <div>
+                <div class="drop-zone-label">Pie / Donut Chart</div>
+                <div class="drop-zone" data-answer="c" id="drop-pie" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'drop-pie')">Drop here…</div>
+              </div>
+              <div>
+                <div class="drop-zone-label">Scatter Plot</div>
+                <div class="drop-zone" data-answer="d" id="drop-scatter" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="drop(event, 'drop-scatter')">Drop here…</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback-box" id="fb-1"></div>
+        <div class="action-row">
+          <button class="btn-submit" id="submit-1" onclick="checkMission1()" disabled>✅ Submit Matches</button>
+          <button class="btn-next show" id="next-1" onclick="goToMission(2)" style="display:none">Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MISSION 2: Google Sheets UI Simulation ══ -->
+  <div class="screen" id="screen-2">
+    <div class="mission-card">
+      <div class="mission-header">
+        <span class="mission-tag">MISSION 2 OF 5</span>
+        <span class="mission-title">🖥️ Google Sheets Navigation — Insert a Chart</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-question">
+          You've selected your data range in Google Sheets. <strong>Click the correct menu option</strong> to insert a chart. Navigate the simulated Google Sheets interface below — accuracy matters!
+        </p>
+
+        <div class="ui-mockup">
+          <div class="ui-titlebar">
+            <div class="ui-dot red"></div>
+            <div class="ui-dot yellow"></div>
+            <div class="ui-dot green"></div>
+            <span>📊 UVA_Sales_Data.xlsx — Google Sheets</span>
+          </div>
+          <div class="ui-toolbar" id="sheets-toolbar">
+            <div class="ui-tab" onclick="openMenu('file')">File</div>
+            <div class="ui-tab" onclick="openMenu('edit')">Edit</div>
+            <div class="ui-tab" onclick="openMenu('view')">View</div>
+            <div class="ui-tab" id="tab-insert" onclick="openMenu('insert')">Insert</div>
+            <div class="ui-tab" onclick="openMenu('format')">Format</div>
+            <div class="ui-tab" onclick="openMenu('tools')">Tools</div>
+            <div class="ui-tab" onclick="openMenu('extensions')">Extensions</div>
+            <div class="ui-tab" onclick="openMenu('help')">Help</div>
+          </div>
+          <div class="ui-content" id="sheets-menu-content">
+            <div style="color:var(--text-light);font-size:0.82rem;text-align:center;padding:20px 0;">
+              📌 Click a menu tab above to open it
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback-box" id="fb-2"></div>
+        <div class="action-row">
+          <button class="btn-next" id="next-2" onclick="goToMission(3)" style="display:none">Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MISSION 3: Data Hygiene — Multiple Choice ══ -->
+  <div class="screen" id="screen-3">
+    <div class="mission-card">
+      <div class="mission-header">
+        <span class="mission-tag">MISSION 3 OF 5</span>
+        <span class="mission-title">🧹 Data Hygiene Protocol — Fix Before You Chart</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-question">
+          A student tried to create a chart in Google Sheets but got an error. Look at the data table below and identify <strong>which data hygiene problem</strong> is causing the chart to fail.
+        </p>
+
+        <div class="ui-mockup" style="margin-bottom:16px;">
+          <div class="ui-titlebar">
+            <div class="ui-dot red"></div><div class="ui-dot yellow"></div><div class="ui-dot green"></div>
+            <span>Spreadsheet Preview</span>
+          </div>
+          <div class="ui-content">
+            <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+              <thead>
+                <tr style="background:#e2e8f0;">
+                  <th style="padding:6px 10px;text-align:left;border:1px solid #cbd5e1;">Month</th>
+                  <th style="padding:6px 10px;text-align:left;border:1px solid #cbd5e1;">Revenue</th>
+                  <th style="padding:6px 10px;text-align:left;border:1px solid #cbd5e1;">Units Sold</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td style="padding:6px 10px;border:1px solid #cbd5e1;">January</td><td style="padding:6px 10px;border:1px solid #cbd5e1;">$12,400</td><td style="padding:6px 10px;border:1px solid #cbd5e1;">340</td></tr>
+                <tr><td style="padding:6px 10px;border:1px solid #cbd5e1;">February</td><td style="padding:6px 10px;border:1px solid #cbd5e1;">$9,800</td><td style="padding:6px 10px;border:1px solid #cbd5e1;">280</td></tr>
+                <tr style="background:#fef9c3;"><td style="padding:6px 10px;border:1px solid #cbd5e1;">March</td><td style="padding:6px 10px;border:1px solid #cbd5e1;color:#dc2626;font-weight:700;">N/A</td><td style="padding:6px 10px;border:1px solid #cbd5e1;">310</td></tr>
+                <tr><td style="padding:6px 10px;border:1px solid #cbd5e1;">April</td><td style="padding:6px 10px;border:1px solid #cbd5e1;">$11,200</td><td style="padding:6px 10px;border:1px solid #cbd5e1;">295</td></tr>
+                <tr style="background:#fef9c3;"><td style="padding:6px 10px;border:1px solid #cbd5e1;">May</td><td style="padding:6px 10px;border:1px solid #cbd5e1;color:#dc2626;font-weight:700;">Revenue</td><td style="padding:6px 10px;border:1px solid #cbd5e1;">320</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="choices" id="choices-3">
+          <button class="choice-btn" onclick="checkChoice(3, this, false, 'The chart range is too small — you need at least 10 rows of data for Google Sheets to generate a chart.')">
+            <div class="choice-letter">A</div>
+            The chart range is too small — you need at least 10 rows of data.
+          </button>
+          <button class="choice-btn" onclick="checkChoice(3, this, true, '✅ Correct! The Revenue column contains mixed data types: numeric values, a text label (\"Revenue\" repeated as a data value), and \"N/A\" text. Google Sheets cannot plot non-numeric values in a numeric axis. Fix: replace \"N/A\" with a blank cell or 0, and remove the duplicate header text.')">
+            <div class="choice-letter">B</div>
+            Mixed data types in the Revenue column — text values like "N/A" and "Revenue" mixed with numbers prevent charting.
+          </button>
+          <button class="choice-btn" onclick="checkChoice(3, this, false, 'Dollar signs ($) in Google Sheets are fine — if the cell is formatted as Currency, Sheets reads the underlying number. This is not the primary issue here.')">
+            <div class="choice-letter">C</div>
+            The dollar signs ($) in the Revenue column are causing a formatting conflict.
+          </button>
+          <button class="choice-btn" onclick="checkChoice(3, this, false, 'Column headers are required and present here. Missing headers would cause a different issue, but that is not what we see in this data.')">
+            <div class="choice-letter">D</div>
+            The spreadsheet is missing column headers, so Sheets cannot identify the data series.
+          </button>
+        </div>
+
+        <div class="feedback-box" id="fb-3"></div>
+        <div class="action-row">
+          <button class="btn-next" id="next-3" onclick="goToMission(4)" style="display:none">Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MISSION 4: Step Ordering — Axis Customization ══ -->
+  <div class="screen" id="screen-4">
+    <div class="mission-card">
+      <div class="mission-header">
+        <span class="mission-tag">MISSION 4 OF 5</span>
+        <span class="mission-title">⚙️ Axis Customization — Order the Steps</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-question">
+          You need to customize the vertical (Y) axis of your chart in Google Sheets to start at 5,000 instead of 0. <strong>Drag the steps</strong> into the correct order to complete this workflow.
+        </p>
+
+        <ul class="order-list" id="order-list-4">
+          <li class="order-item" draggable="true" data-order="3" id="oi-3">
+            <span class="order-handle">⠿</span>
+            <span class="order-num" id="on-3">?</span>
+            <span>In the Chart Editor panel, click the <strong>"Customize"</strong> tab</span>
+          </li>
+          <li class="order-item" draggable="true" data-order="5" id="oi-5">
+            <span class="order-handle">⠿</span>
+            <span class="order-num" id="on-5">?</span>
+            <span>Set the <strong>"Min"</strong> value to <strong>5000</strong> in the axis range fields</span>
+          </li>
+          <li class="order-item" draggable="true" data-order="1" id="oi-1">
+            <span class="order-handle">⠿</span>
+            <span class="order-num" id="on-1">?</span>
+            <span>Click on the chart to select it (a blue border appears)</span>
+          </li>
+          <li class="order-item" draggable="true" data-order="4" id="oi-4">
+            <span class="order-handle">⠿</span>
+            <span class="order-num" id="on-4">?</span>
+            <span>Scroll down and click <strong>"Vertical axis"</strong> to expand that section</span>
+          </li>
+          <li class="order-item" draggable="true" data-order="2" id="oi-2">
+            <span class="order-handle">⠿</span>
+            <span class="order-num" id="on-2">?</span>
+            <span>Click the <strong>three-dot menu (⋮)</strong> in the top-right of the chart → select <strong>"Edit chart"</strong></span>
+          </li>
+        </ul>
+
+        <div class="feedback-box" id="fb-4"></div>
+        <div class="action-row">
+          <button class="btn-submit" id="submit-4" onclick="checkMission4()">✅ Check Order</button>
+          <button class="btn-next" id="next-4" onclick="goToMission(5)" style="display:none">Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MISSION 5: Scenario — Choose the Right Chart ══ -->
+  <div class="screen" id="screen-5">
+    <div class="mission-card">
+      <div class="mission-header">
+        <span class="mission-tag">MISSION 5 OF 5</span>
+        <span class="mission-title">🎯 Chart Scenario Debrief — Real-World Decisions</span>
+      </div>
+      <div class="mission-body">
+        <p class="mission-question">
+          Three UVA departments need charts. For each scenario, <strong>select the best chart type</strong>. Apply everything you've learned!
+        </p>
+
+        <!-- Sub-question 5a -->
+        <div class="scenario-box">
+          <div class="scenario-title">📌 Scenario A — UVA Athletics</div>
+          The Athletics department wants to show how the <strong>distribution of student sprint times</strong> (in seconds) clusters across the team. The data is a list of 80 continuous numeric measurements.
+        </div>
+        <div class="chart-grid" id="cg-5a">
+          <div class="chart-card" onclick="pickChart('5a', this, false, 'A bar chart compares categories, not distributions of continuous data. For 80 sprint times, you need a histogram to show frequency distribution.')">
+            <div class="chart-icon">📊</div>
+            <div class="chart-name">Bar Chart</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5a', this, true, '✅ Histogram! Sprint times are continuous numeric data. A histogram groups values into bins and shows frequency — perfect for seeing how times cluster.')">
+            <div class="chart-icon">📶</div>
+            <div class="chart-name">Histogram</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5a', this, false, 'A pie chart shows part-to-whole proportions. It cannot display the distribution of 80 individual measurements.')">
+            <div class="chart-icon">🥧</div>
+            <div class="chart-name">Pie Chart</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5a', this, false, 'A line chart shows trends over time. Sprint times are not time-series data — they are a distribution.')">
+            <div class="chart-icon">📈</div>
+            <div class="chart-name">Line Chart</div>
+          </div>
+        </div>
+        <div class="feedback-box" id="fb-5a"></div>
+
+        <!-- Sub-question 5b -->
+        <div class="scenario-box" style="margin-top:20px;">
+          <div class="scenario-title">📌 Scenario B — UVA Finance Office</div>
+          The Finance Office wants to show <strong>how the annual budget is divided</strong> among 5 departments (Personnel, Technology, Facilities, Programs, Admin). Each department gets a percentage of the whole.
+        </div>
+        <div class="chart-grid" id="cg-5b">
+          <div class="chart-card" onclick="pickChart('5b', this, false, 'A scatter plot shows correlation between two numeric variables. Budget percentages are categorical proportions, not two-variable correlations.')">
+            <div class="chart-icon">🔵</div>
+            <div class="chart-name">Scatter Plot</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5b', this, false, 'A histogram shows frequency distribution of continuous data. Budget percentages are discrete categories, not a continuous distribution.')">
+            <div class="chart-icon">📶</div>
+            <div class="chart-name">Histogram</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5b', this, true, '✅ Pie/Donut Chart! When showing how parts make up a whole (percentages that sum to 100%), a pie or donut chart is the professional standard.')">
+            <div class="chart-icon">🥧</div>
+            <div class="chart-name">Pie / Donut Chart</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5b', this, false, 'A bar chart could work for comparison, but when the explicit goal is showing part-to-whole proportions that sum to 100%, a pie/donut chart is the clearest choice.')">
+            <div class="chart-icon">📊</div>
+            <div class="chart-name">Bar Chart</div>
+          </div>
+        </div>
+        <div class="feedback-box" id="fb-5b"></div>
+
+        <!-- Sub-question 5c -->
+        <div class="scenario-box" style="margin-top:20px;">
+          <div class="scenario-title">📌 Scenario C — UVA Research Team</div>
+          The Research Team wants to explore whether <strong>study hours correlate with GPA</strong> across 120 students. Both variables are numeric.
+        </div>
+        <div class="chart-grid" id="cg-5c">
+          <div class="chart-card" onclick="pickChart('5c', this, false, 'A line chart shows trends over time or ordered categories. Correlation between two numeric variables requires a scatter plot.')">
+            <div class="chart-icon">📈</div>
+            <div class="chart-name">Line Chart</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5c', this, true, '✅ Scatter Plot! When exploring correlation or relationship between two numeric variables (study hours vs. GPA), a scatter plot is the correct choice. Each dot represents one student.')">
+            <div class="chart-icon">🔵</div>
+            <div class="chart-name">Scatter Plot</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5c', this, false, 'A bar chart compares discrete categories. Study hours and GPA are both continuous numeric variables — a scatter plot is needed.')">
+            <div class="chart-icon">📊</div>
+            <div class="chart-name">Bar Chart</div>
+          </div>
+          <div class="chart-card" onclick="pickChart('5c', this, false, 'A pie chart shows part-to-whole proportions. It cannot show the relationship between two numeric variables.')">
+            <div class="chart-icon">🥧</div>
+            <div class="chart-name">Pie Chart</div>
+          </div>
+        </div>
+        <div class="feedback-box" id="fb-5c"></div>
+
+        <div class="action-row" style="margin-top:20px;">
+          <button class="btn-next" id="next-5" onclick="showResults()" style="display:none">🏆 See Final Results →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RESULTS SCREEN ══ -->
+  <div class="screen" id="screen-results">
+    <div class="results-card">
+      <div class="results-badge" id="results-badge">🏆</div>
+      <div class="results-rank" id="results-rank">Data Visualization Master</div>
+      <div class="results-score" id="results-score">0</div>
+      <div class="results-sub" id="results-sub">points earned</div>
+
+      <div class="results-breakdown">
+        <div class="breakdown-row"><span>Mission 1 — Chart Type Intel</span><span id="br-1">—</span></div>
+        <div class="breakdown-row"><span>Mission 2 — Google Sheets Navigation</span><span id="br-2">—</span></div>
+        <div class="breakdown-row"><span>Mission 3 — Data Hygiene Protocol</span><span id="br-3">—</span></div>
+        <div class="breakdown-row"><span>Mission 4 — Axis Customization</span><span id="br-4">—</span></div>
+        <div class="breakdown-row"><span>Mission 5 — Chart Scenario Debrief</span><span id="br-5">—</span></div>
+      </div>
+
+      <div class="motto-final">✦ Virtue · Vigor · Vision — University View Academy ✦</div>
+      <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:20px;">
+        You've completed the <strong>Professional's Guide to Data Visualization</strong> activity.<br>
+        Data Literacy & Software Proficiency Standards — Computer Tech Literacy
+      </p>
+      <button class="btn-primary" onclick="restartActivity()">🔄 Restart Missions</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ══════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════
+const state = {
+  score: 0,
+  streak: 0,
+  maxStreak: 0,
+  currentMission: 0,
+  missionResults: {},
+  m1Drops: {},
+  m1Correct: false,
+  m2Done: false,
+  m3Done: false,
+  m4Done: false,
+  m5a: false, m5b: false, m5c: false,
+  draggedId: null
+};
+
+const RANKS = [
+  { min: 0,   label: '🎓 Trainee',    note: 'Keep going!' },
+  { min: 100, label: '⚡ Apprentice',  note: 'Nice work!' },
+  { min: 200, label: '🔬 Expert',      note: 'Impressive!' },
+  { min: 300, label: '🏆 Master',      note: 'Outstanding!' }
+];
+
+// ══════════════════════════════════════════════
+//  UTILS
+// ══════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateHUD() {
+  document.getElementById('hud-score').textContent = state.score;
+  document.getElementById('hud-mission').textContent = state.currentMission + '/5';
+
+  const pct = Math.round((state.currentMission / 5) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = 'Mission ' + state.currentMission + ' of 5';
+  document.getElementById('progress-pct').textContent = pct + '%';
+
+  // Rank
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (state.score >= r.min) rank = r; }
+  document.getElementById('rank-badge').textContent = rank.label;
+  document.getElementById('rank-label').textContent = rank.note;
+
+  // Streak
+  const sb = document.getElementById('streak-badge');
+  if (state.streak >= 2) {
+    sb.textContent = '🔥 ' + state.streak + ' in a row!';
+    sb.classList.add('show');
+  } else {
+    sb.classList.remove('show');
+  }
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function showFeedback(id, correct, msg) {
+  const fb = document.getElementById('fb-' + id);
+  fb.className = 'feedback-box show ' + (correct ? 'correct' : 'incorrect');
+  fb.innerHTML = '<div class="fb-title">' + (correct ? '✅ Correct!' : '❌ Not quite.') + '</div>' + msg;
+}
+
+function addScore(pts) {
+  state.score += pts;
+  updateHUD();
+}
+
+function recordStreak(correct) {
+  if (correct) {
+    state.streak++;
+    if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+    if (state.streak === 3) showToast('🔥 3 in a row! You\'re on fire!', 'streak');
+    if (state.streak === 5) showToast('⚡ 5-streak! Legendary!', 'streak');
+  } else {
+    state.streak = 0;
+  }
+  updateHUD();
+}
+
+function checkRankUp(prevScore) {
+  const prevRank = RANKS.filter(r => prevScore >= r.min).pop();
+  const newRank = RANKS.filter(r => state.score >= r.min).pop();
+  if (newRank !== prevRank) {
+    showToast('🎉 Rank Up! You are now ' + newRank.label, 'rank-up');
+    setTimeout(() => launchConfetti(40), 300);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  CONFETTI
+// ══════════════════════════════════════════════
+function launchConfetti(count = 80) {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#1B5EAF','#1E7A3E','#F5C518','#ffffff','#2a7fd4','#27a352'];
+  const pieces = Array.from({length: count}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10,
+    r: Math.random() * 6 + 4,
+    d: Math.random() * count,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    tilt: Math.random() * 10 - 10,
+    tiltAngle: 0,
+    tiltAngleInc: Math.random() * 0.07 + 0.05,
+    vy: Math.random() * 3 + 2,
+    vx: Math.random() * 2 - 1
+  }));
+
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.beginPath();
+      ctx.fillStyle = p.color;
+      ctx.ellipse(p.x, p.y, p.r, p.r * 0.4, p.tilt, 0, Math.PI * 2);
+      ctx.fill();
+      p.y += p.vy;
+      p.x += p.vx;
+      p.tiltAngle += p.tiltAngleInc;
+      p.tilt = Math.sin(p.tiltAngle) * 12;
+    });
+    frame++;
+    if (frame < 120) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+
+// ══════════════════════════════════════════════
+//  START
+// ══════════════════════════════════════════════
+function startMissions() {
+  state.currentMission = 1;
+  updateHUD();
+  showScreen(1);
+  initDragDrop();
+}
+
+function goToMission(n) {
+  state.currentMission = n;
+  updateHUD();
+  showScreen(n);
+  if (n === 4) initOrderDrag();
+}
+
+// ══════════════════════════════════════════════
+//  MISSION 1 — DRAG & DROP
+// ══════════════════════════════════════════════
+function initDragDrop() {
+  document.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      state.draggedId = item.dataset.id;
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+  });
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function drop(e, zoneId) {
+  e.preventDefault();
+  const zone = document.getElementById(zoneId);
+  zone.classList.remove('drag-over');
+  if (!state.draggedId) return;
+
+  // Remove from previous zone if re-dropping
+  Object.keys(state.m1Drops).forEach(k => {
+    if (state.m1Drops[k] === state.draggedId) delete state.m1Drops[k];
+  });
+
+  state.m1Drops[zoneId] = state.draggedId;
+  const dragEl = document.getElementById('drag-' + state.draggedId);
+  zone.textContent = dragEl.textContent;
+  zone.style.color = 'var(--text-dark)';
+  zone.style.fontStyle = 'normal';
+
+  // Check if all 4 zones filled
+  if (Object.keys(state.m1Drops).length === 4) {
+    document.getElementById('submit-1').disabled = false;
+  }
+}
+
+function checkMission1() {
+  const correct = {
+    'drop-bar': 'a',
+    'drop-hist': 'b',
+    'drop-pie': 'c',
+    'drop-scatter': 'd'
+  };
+  let allCorrect = true;
+  Object.keys(correct).forEach(zoneId => {
+    const zone = document.getElementById(zoneId);
+    if (state.m1Drops[zoneId] === correct[zoneId]) {
+      zone.classList.add('correct');
+    } else {
+      zone.classList.add('incorrect');
+      allCorrect = false;
+    }
+  });
+
+  const prevScore = state.score;
+  if (allCorrect) {
+    addScore(80);
+    recordStreak(true);
+    state.missionResults[1] = true;
+    showFeedback('1', true, 'All 4 matches correct! Bar charts = categorical comparisons. Histograms = continuous numeric distributions. Pie charts = part-to-whole. Scatter plots = two-variable correlation.');
+    launchConfetti(60);
+    checkRankUp(prevScore);
+  } else {
+    addScore(20);
+    recordStreak(false);
+    state.missionResults[1] = false;
+    showFeedback('1', false, 'Some matches were off. Key rule: <strong>Bar charts</strong> use categorical labels on the X-axis. <strong>Histograms</strong> use numeric ranges (bins). <strong>Pie charts</strong> show proportions of a whole. <strong>Scatter plots</strong> need two numeric axes.');
+  }
+
+  document.getElementById('submit-1').disabled = true;
+  document.getElementById('next-1').style.display = 'inline-block';
+}
+
+// ══════════════════════════════════════════════
+//  MISSION 2 — GOOGLE SHEETS UI
+// ══════════════════════════════════════════════
+const sheetsMenus = {
+  file: ['New', 'Open', 'Import', 'Make a copy', 'Share', 'Download', 'Print'],
+  edit: ['Undo', 'Redo', 'Cut', 'Copy', 'Paste', 'Find and replace'],
+  view: ['Freeze', 'Gridlines', 'Formula bar', 'Show all formulas', 'Zoom'],
+  insert: ['Rows above', 'Rows below', 'Columns left', 'Columns right', '— Chart —', 'Image', 'Drawing', 'Function', 'Link', 'Comment', 'Note'],
+  format: ['Bold', 'Italic', 'Strikethrough', 'Font size', 'Merge cells', 'Number format', 'Conditional formatting'],
+  tools: ['Spelling', 'Autocomplete', 'Notification rules', 'Macros', 'Script editor'],
+  extensions: ['Add-ons', 'Apps Script', 'Explore'],
+  help: ['Search menus', 'Sheets Help', 'Keyboard shortcuts', 'Report a problem']
+};
+
+let m2Clicks = 0;
+let m2InsertOpened = false;
+
+function openMenu(menu) {
+  const content = document.getElementById('sheets-menu-content');
+  const tabs = document.querySelectorAll('.ui-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-insert') && document.querySelectorAll('.ui-tab').forEach(t => {
+    if (t.textContent.toLowerCase() === menu) t.classList.add('active');
+  });
+
+  if (state.m2Done) return;
+
+  if (menu === 'insert') {
+    m2InsertOpened = true;
+    content.innerHTML = sheetsMenus.insert.map(item => {
+      if (item === '— Chart —') {
+        return `<div class="ui-menu-item" id="menu-chart" onclick="clickChartOption()" style="font-weight:700;color:var(--uva-blue);">
+          📊 Chart…
+        </div>`;
+      }
+      return `<div class="ui-menu-item" onclick="wrongMenuClick('${item}')">${item}</div>`;
+    }).join('');
+  } else {
+    m2InsertOpened = false;
+    const items = sheetsMenus[menu] || [];
+    content.innerHTML = items.map(item =>
+      `<div class="ui-menu-item" onclick="wrongMenuClick('${item}')">${item}</div>`
+    ).join('');
+    if (menu !== 'insert') {
+      showFeedback('2', false, `"${menu.charAt(0).toUpperCase()+menu.slice(1)}" is not where charts live. In Google Sheets, charts are inserted via <strong>Insert → Chart</strong>. Try the Insert menu!`);
+    }
+  }
+}
+
+function wrongMenuClick(item) {
+  if (state.m2Done) return;
+  showFeedback('2', false, `"${item}" is not the chart option. In Google Sheets, go to <strong>Insert → Chart</strong> to insert a chart into your spreadsheet.`);
+}
+
+function clickChartOption() {
+  if (state.m2Done) return;
+  state.m2Done = true;
+  const el = document.getElementById('menu-chart');
+  if (el) el.classList.add('highlighted');
+
+  const prevScore = state.score;
+  addScore(80);
+  recordStreak(true);
+  state.missionResults[2] = true;
+  showFeedback('2', true, 'Perfect navigation! In Google Sheets: <strong>Insert → Chart</strong> opens the Chart Editor panel on the right side. This is the correct professional workflow — never use a third-party add-on for basic charts.');
+  launchConfetti(50);
+  checkRankUp(prevScore);
+  document.getElementById('next-2').style.display = 'inline-block';
+}
+
+// ══════════════════════════════════════════════
+//  MISSION 3 — MULTIPLE CHOICE
+// ══════════════════════════════════════════════
+function checkChoice(mission, btn, correct, explanation) {
+  if (state.m3Done) return;
+  state.m3Done = true;
+
+  document.querySelectorAll('#choices-3 .choice-btn').forEach(b => b.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'incorrect');
+
+  const prevScore = state.score;
+  if (correct) {
+    addScore(80);
+    recordStreak(true);
+    state.missionResults[3] = true;
+    showFeedback('3', true, explanation);
+    launchConfetti(50);
+    checkRankUp(prevScore);
+  } else {
+    addScore(10);
+    recordStreak(false);
+    state.missionResults[3] = false;
+    showFeedback('3', false, explanation + '<br><br><strong>Correct answer:</strong> Mixed data types in the Revenue column — text values like "N/A" and "Revenue" mixed with numbers prevent charting.');
+    // Highlight correct
+    document.querySelectorAll('#choices-3 .choice-btn')[1].classList.add('correct');
+  }
+  document.getElementById('next-3').style.display = 'inline-block';
+}
+
+// ══════════════════════════════════════════════
+//  MISSION 4 — STEP ORDERING
+// ══════════════════════════════════════════════
+let dragSrcEl = null;
+
+function initOrderDrag() {
+  const list = document.getElementById('order-list-4');
+  const items = list.querySelectorAll('.order-item');
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragSrcEl = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      list.querySelectorAll('.order-item').forEach(i => {
+        i.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (item === dragSrcEl) return;
+      const rect = item.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+      if (e.clientY < mid) item.classList.add('drag-over-top');
+      else item.classList.add('drag-over-bottom');
+    });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      if (item === dragSrcEl) return;
+      const rect = item.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) list.insertBefore(dragSrcEl, item);
+      else list.insertBefore(dragSrcEl, item.nextSibling);
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+      updateOrderNumbers();
+    });
+  });
+  updateOrderNumbers();
+}
+
+function updateOrderNumbers() {
+  const items = document.querySelectorAll('#order-list-4 .order-item');
+  items.forEach((item, i) => {
+    const numEl = item.querySelector('.order-num');
+    if (numEl) numEl.textContent = i + 1;
+  });
+}
+
+function checkMission4() {
+  if (state.m4Done) return;
+  state.m4Done = true;
+
+  const items = document.querySelectorAll('#order-list-4 .order-item');
+  const correctOrder = [1, 2, 3, 4, 5];
+  let allCorrect = true;
+
+  items.forEach((item, i) => {
+    const expected = correctOrder[i];
+    const actual = parseInt(item.dataset.order);
+    if (actual === expected) {
+      item.classList.add('correct-order');
+      item.querySelector('.order-num').style.background = 'var(--success)';
+      item.querySelector('.order-num').style.color = 'white';
+    } else {
+      item.classList.add('wrong-order');
+      item.querySelector('.order-num').style.background = 'var(--error)';
+      item.querySelector('.order-num').style.color = 'white';
+      allCorrect = false;
+    }
+  });
+
+  const prevScore = state.score;
+  if (allCorrect) {
+    addScore(80);
+    recordStreak(true);
+    state.missionResults[4] = true;
+    showFeedback('4', true, 'Perfect order! The correct workflow: (1) Click chart → (2) Open ⋮ menu → Edit chart → (3) Customize tab → (4) Vertical axis section → (5) Set Min value. This is the exact Google Sheets Chart Editor workflow.');
+    launchConfetti(60);
+    checkRankUp(prevScore);
+  } else {
+    addScore(20);
+    recordStreak(false);
+    state.missionResults[4] = false;
+    showFeedback('4', false, 'Not quite. Correct order: <strong>1)</strong> Click chart to select it → <strong>2)</strong> Click ⋮ → "Edit chart" → <strong>3)</strong> Click "Customize" tab → <strong>4)</strong> Expand "Vertical axis" → <strong>5)</strong> Set Min to 5000.');
+  }
+
+  document.getElementById('submit-4').disabled = true;
+  document.getElementById('next-4').style.display = 'inline-block';
+}
+
+// ══════════════════════════════════════════════
+//  MISSION 5 — SCENARIO CHART PICKING
+// ══════════════════════════════════════════════
+const m5State = { a: false, b: false, c: false };
+
+function pickChart(sub, card, correct, explanation) {
+  if (m5State[sub]) return;
+  m5State[sub] = true;
+
+  const grid = document.getElementById('cg-5' + sub);
+  grid.querySelectorAll('.chart-card').forEach(c => {
+    c.style.pointerEvents = 'none';
+    c.style.opacity = '0.6';
+  });
+  card.style.opacity = '1';
+  card.classList.add(correct ? 'correct' : 'incorrect');
+
+  const prevScore = state.score;
+  if (correct) {
+    addScore(40);
+    recordStreak(true);
+    state['m5' + sub] = true;
+    showFeedback('5' + sub, true, explanation);
+    checkRankUp(prevScore);
+  } else {
+    addScore(5);
+    recordStreak(false);
+    state['m5' + sub] = false;
+    showFeedback('5' + sub, false, explanation);
+    // Highlight correct
+    grid.querySelectorAll('.chart-card').forEach(c => {
+      if (c.getAttribute('onclick') && c.getAttribute('onclick').includes('true')) {
+        c.classList.add('correct');
+        c.style.opacity = '1';
+      }
+    });
+  }
+
+  if (m5State.a && m5State.b && m5State.c) {
+    const allRight = state.m5a && state.m5b && state.m5c;
+    state.missionResults[5] = allRight;
+    if (allRight) launchConfetti(80);
+    document.getElementById('next-5').style.display = 'inline-block';
+  }
+}
+
+// ══════════════════════════════════════════════
+//  RESULTS
+// ══════════════════════════════════════════════
+function showResults() {
+  state.currentMission = 5;
+  updateHUD();
+  showScreen('results');
+  launchConfetti(100);
+
+  document.getElementById('results-score').textContent = state.score;
+
+  const rank = RANKS.filter(r => state.score >= r.min).pop();
+  document.getElementById('results-rank').textContent = rank.label;
+
+  const pct = Math.round((state.score / 400) * 100);
+  document.getElementById('results-sub').textContent = `${pct}% accuracy · ${state.maxStreak} best streak`;
+
+  const badge = document.getElementById('results-badge');
+  if (state.score >= 300) badge.textContent = '🏆';
+  else if (state.score >= 200) badge.textContent = '🥇';
+  else if (state.score >= 100) badge.textContent = '🥈';
+  else badge.textContent = '🎓';
+
+  [1,2,3,4,5].forEach(n => {
+    const el = document.getElementById('br-' + n);
+    if (state.missionResults[n] === true) {
+      el.innerHTML = '<span class="breakdown-check">✅ Passed</span>';
+    } else if (state.missionResults[n] === false) {
+      el.innerHTML = '<span class="breakdown-x">❌ Review needed</span>';
+    } else {
+      el.textContent = '— Skipped';
+    }
+  });
+}
+
+function restartActivity() {
+  Object.assign(state, {
+    score: 0, streak: 0, maxStreak: 0, currentMission: 0,
+    missionResults: {}, m1Drops: {}, m1Correct: false,
+    m2Done: false, m3Done: false, m4Done: false,
+    m5a: false, m5b: false, m5c: false, draggedId: null
+  });
+  m5State.a = false; m5State.b = false; m5State.c = false;
+  m2InsertOpened = false;
+  updateHUD();
+  location.reload();
+}
+
+// Init
+updateHUD();
+</script>
+</body>
+</html>
