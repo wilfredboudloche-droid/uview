@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supporting Windows – UVA Computer Architecture</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-light: #f4f6fb;
+    --gray: #e0e6ef;
+    --text: #1a2340;
+    --shadow: 0 4px 18px rgba(27,94,175,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gray-light);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue) 60%, #2176d2 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .uva-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .uva-shield {
+    width: 52px; height: 60px;
+  }
+  .uva-name { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+  .uva-sub { font-size: 0.78rem; opacity: 0.85; }
+  .rank-badge {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 12px;
+    padding: 8px 18px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .rank-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-value { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+  .score-display {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 12px;
+    padding: 8px 18px;
+    text-align: center;
+  }
+  .score-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .score-value { font-size: 1.4rem; font-weight: 800; }
+
+  /* MOTTO RIBBON */
+  .motto-ribbon {
+    background: var(--green);
+    text-align: center;
+    padding: 7px 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: white;
+  }
+
+  /* TITLE AREA */
+  .header-title {
+    padding: 14px 28px 20px;
+    text-align: center;
+  }
+  .header-title h1 { font-size: 1.6rem; font-weight: 800; }
+  .header-title p { font-size: 0.9rem; opacity: 0.85; margin-top: 4px; }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    background: rgba(0,0,0,0.2);
+    height: 8px;
+    width: 100%;
+  }
+  .progress-bar-fill {
+    height: 8px;
+    background: linear-gradient(90deg, var(--gold), #ffdd57);
+    transition: width 0.5s ease;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* STREAK */
+  .streak-bar {
+    background: var(--blue-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 6px 20px;
+    font-size: 0.85rem;
+    color: white;
+  }
+  .streak-fire { font-size: 1.1rem; }
+  .streak-count { font-weight: 800; color: var(--gold); }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: 2px solid var(--gray);
+    transition: border-color 0.3s;
+  }
+  .mission-header {
+    background: linear-gradient(90deg, var(--blue) 0%, #2176d2 100%);
+    color: white;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mission-icon { font-size: 1.5rem; }
+  .mission-title { font-size: 1.05rem; font-weight: 700; }
+  .mission-subtitle { font-size: 0.78rem; opacity: 0.85; }
+  .mission-num {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .mission-body { padding: 22px; }
+  .scenario-text {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .scenario-text strong { color: var(--blue-dark); }
+
+  /* CHOICES */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 13px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.93rem;
+    font-family: inherit;
+    color: var(--text);
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    transform: translateX(3px);
+  }
+  .choice-btn.correct {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: var(--green);
+    font-weight: 700;
+  }
+  .choice-btn.wrong {
+    border-color: var(--red);
+    background: var(--red-light);
+    color: var(--red);
+  }
+  .choice-btn:disabled { cursor: default; }
+  .choice-letter {
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .choice-btn.correct .choice-letter { background: var(--green); }
+  .choice-btn.wrong .choice-letter { background: var(--red); }
+
+  /* FEEDBACK */
+  .feedback-box {
+    margin-top: 14px;
+    border-radius: 10px;
+    padding: 13px 16px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback-box.correct {
+    background: var(--green-light);
+    border: 2px solid var(--green);
+    color: #145a2e;
+    display: block;
+  }
+  .feedback-box.wrong {
+    background: var(--red-light);
+    border: 2px solid var(--red);
+    color: #7b1a1a;
+    display: block;
+  }
+  .feedback-icon { font-size: 1.2rem; margin-right: 6px; }
+
+  /* NEXT BTN */
+  .next-btn {
+    margin-top: 16px;
+    background: linear-gradient(90deg, var(--blue) 0%, #2176d2 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(27,94,175,0.3); }
+  .next-btn.visible { display: inline-block; }
+
+  /* DRAG AND DROP */
+  .drag-area {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .drag-col { flex: 1; min-width: 200px; }
+  .drag-col-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--blue);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--blue-light);
+  }
+  .drag-item {
+    background: var(--blue-light);
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    padding: 9px 13px;
+    margin-bottom: 8px;
+    cursor: grab;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--blue-dark);
+    user-select: none;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .drag-item:hover { transform: scale(1.02); box-shadow: 0 3px 10px rgba(27,94,175,0.2); }
+  .drag-item.dragging { opacity: 0.4; }
+  .drop-zone {
+    background: var(--gray-light);
+    border: 2px dashed var(--gray);
+    border-radius: 8px;
+    padding: 10px 13px;
+    margin-bottom: 8px;
+    min-height: 46px;
+    font-size: 0.85rem;
+    color: #888;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .drop-zone.drag-over {
+    border-color: var(--blue);
+    background: var(--blue-light);
+  }
+  .drop-zone.filled {
+    background: var(--blue-light);
+    border-color: var(--blue);
+    color: var(--blue-dark);
+    font-weight: 600;
+  }
+  .drop-zone.correct-drop {
+    background: var(--green-light);
+    border-color: var(--green);
+    color: var(--green);
+    font-weight: 700;
+  }
+  .drop-zone.wrong-drop {
+    background: var(--red-light);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .drop-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 4px;
+  }
+  .check-btn {
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 24px;
+    font-size: 0.93rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 14px;
+    font-family: inherit;
+    transition: transform 0.15s;
+  }
+  .check-btn:hover { transform: translateY(-2px); }
+
+  /* SIMULATION */
+  .sim-terminal {
+    background: #1a1a2e;
+    border-radius: 10px;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.88rem;
+    color: #00ff88;
+    min-height: 120px;
+    margin-bottom: 14px;
+    overflow-y: auto;
+    max-height: 200px;
+  }
+  .sim-terminal .prompt { color: #7ec8e3; }
+  .sim-terminal .output { color: #c8f7c5; margin-left: 10px; }
+  .sim-terminal .error { color: #ff6b6b; margin-left: 10px; }
+  .sim-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .sim-btn {
+    background: #1a1a2e;
+    color: #00ff88;
+    border: 1px solid #00ff88;
+    border-radius: 6px;
+    padding: 7px 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sim-btn:hover:not(:disabled) { background: #00ff88; color: #1a1a2e; font-weight: 700; }
+  .sim-btn:disabled { opacity: 0.4; cursor: default; }
+
+  /* COMPLETION SCREEN */
+  .completion-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .completion-screen.visible { display: block; }
+  .completion-badge {
+    font-size: 5rem;
+    margin-bottom: 16px;
+    animation: bounce 0.6s ease infinite alternate;
+  }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+  .completion-title { font-size: 2rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+  .completion-rank { font-size: 1.2rem; color: var(--green); font-weight: 700; margin-bottom: 16px; }
+  .completion-score {
+    background: linear-gradient(135deg, var(--blue), #2176d2);
+    color: white;
+    border-radius: 16px;
+    padding: 20px 40px;
+    display: inline-block;
+    margin-bottom: 20px;
+  }
+  .completion-score .big { font-size: 3rem; font-weight: 900; }
+  .completion-score .small { font-size: 0.9rem; opacity: 0.85; }
+  .objectives-list {
+    background: var(--green-light);
+    border: 2px solid var(--green);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: left;
+    margin: 16px auto;
+    max-width: 500px;
+  }
+  .objectives-list h3 { color: var(--green); font-size: 0.9rem; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .objectives-list li { font-size: 0.88rem; margin-bottom: 6px; list-style: none; padding-left: 20px; position: relative; }
+  .objectives-list li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  .restart-btn {
+    background: linear-gradient(90deg, var(--blue), #2176d2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 36px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .restart-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(27,94,175,0.35); }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confetti-fall linear forwards;
+    border-radius: 2px;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* STREAK POPUP */
+  .streak-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--gold), #ffdd57);
+    color: #1a2340;
+    border-radius: 20px;
+    padding: 20px 40px;
+    font-size: 1.5rem;
+    font-weight: 900;
+    z-index: 10000;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+  .streak-popup.show { transform: translate(-50%, -50%) scale(1); }
+
+  /* MISSION COMPLETE FLASH */
+  .mission-card.answered-correct { border-color: var(--green); }
+  .mission-card.answered-wrong { border-color: var(--red); }
+
+  /* INTRO SCREEN */
+  .intro-screen {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 32px 28px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .intro-screen h2 { font-size: 1.4rem; color: var(--blue); margin-bottom: 12px; }
+  .intro-screen p { font-size: 0.93rem; line-height: 1.7; color: #444; margin-bottom: 16px; }
+  .intro-objectives {
+    background: var(--blue-light);
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .intro-objectives h3 { color: var(--blue); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .intro-objectives li { font-size: 0.87rem; margin-bottom: 6px; list-style: none; padding-left: 20px; position: relative; }
+  .intro-objectives li::before { content: '🎯'; position: absolute; left: 0; font-size: 0.75rem; }
+  .start-btn {
+    background: linear-gradient(90deg, var(--blue), #2176d2);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 40px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .start-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(27,94,175,0.35); }
+
+  .hidden { display: none !important; }
+
+  /* RANK ICONS */
+  .rank-icon { font-size: 1.4rem; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 16px;
+    font-size: 0.78rem;
+    color: #888;
+    border-top: 1px solid var(--gray);
+    margin-top: 20px;
+  }
+
+  @media (max-width: 600px) {
+    .header-top { padding: 14px 14px 8px; }
+    .main { padding: 14px 10px 30px; }
+    .mission-body { padding: 16px; }
+    .drag-area { flex-direction: column; }
+    .completion-score .big { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiContainer"></div>
+<!-- STREAK POPUP -->
+<div class="streak-popup" id="streakPopup"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="uva-logo">
+      <svg class="uva-shield" viewBox="0 0 52 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M26 2L4 12V32C4 44 14 54 26 58C38 54 48 44 48 32V12L26 2Z" fill="white" fill-opacity="0.15" stroke="white" stroke-width="2"/>
+        <path d="M26 8L10 16V32C10 41 17 49 26 52C35 49 42 41 42 32V16L26 8Z" fill="white" fill-opacity="0.1"/>
+        <text x="26" y="36" text-anchor="middle" fill="white" font-size="16" font-weight="900" font-family="Arial">UVA</text>
+      </svg>
+      <div>
+        <div class="uva-name">University View Academy</div>
+        <div class="uva-sub">Computer Architecture · A+ Certification</div>
+      </div>
+    </div>
+    <div class="rank-badge">
+      <div class="rank-label">Current Rank</div>
+      <div class="rank-value" id="rankDisplay">🎖️ Trainee</div>
+    </div>
+    <div class="score-display">
+      <div class="score-label">Mission Score</div>
+      <div class="score-value" id="scoreDisplay">0</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+  <div class="header-title">
+    <h1>⚙️ Supporting Windows</h1>
+    <p>Troubleshooting & Remote Management · A+ Core 1 & Core 2 (Domains 1.4, 1.5, 3.1, 4.9)</p>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+  </div>
+  <div class="streak-bar">
+    <span class="streak-fire">🔥</span>
+    <span>Streak:</span>
+    <span class="streak-count" id="streakDisplay">0</span>
+    <span>correct in a row</span>
+    <span style="margin-left:16px; opacity:0.7;">|</span>
+    <span style="margin-left:16px;">Mission <span id="missionNum">0</span> of 8</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div class="intro-screen" id="introScreen">
+    <h2>🛡️ Welcome, UVA Cadet!</h2>
+    <p>You've been assigned to the <strong>Windows Support Operations Center</strong>. Real-world IT problems are coming in — and it's your job to diagnose, fix, and secure systems using professional tools. Complete all 8 missions to earn your rank!</p>
+    <div class="intro-objectives">
+      <h3>Mission Objectives</h3>
+      <ul>
+        <li>Use command-line tools to diagnose network & IP issues</li>
+        <li>Configure and secure Remote Desktop & SSH access</li>
+        <li>Analyze system health with Task Manager, Event Viewer & Performance Monitor</li>
+        <li>Perform system recovery using System Restore & WinRE</li>
+      </ul>
+    </div>
+    <p style="font-size:0.85rem; color:#666;">⏱️ Estimated time: 10–15 minutes  |  🏆 8 Missions  |  💯 100 points possible</p>
+    <br>
+    <button class="start-btn" onclick="startActivity()">🚀 Begin Missions</button>
+  </div>
+
+  <!-- MISSIONS CONTAINER -->
+  <div id="missionsContainer" class="hidden"></div>
+
+  <!-- COMPLETION SCREEN -->
+  <div class="completion-screen" id="completionScreen">
+    <div class="completion-badge" id="completionBadge">🏆</div>
+    <div class="completion-title">Mission Complete!</div>
+    <div class="completion-rank" id="completionRank"></div>
+    <div class="completion-score">
+      <div class="big" id="finalScore">0</div>
+      <div class="small">out of 100 points</div>
+    </div>
+    <div class="objectives-list">
+      <h3>✅ Skills Demonstrated</h3>
+      <ul>
+        <li>Command-line network diagnostics (ipconfig, ping, tracert, netstat)</li>
+        <li>Remote Desktop Protocol (RDP) configuration & security</li>
+        <li>SSH setup and key-based authentication</li>
+        <li>Task Manager, Event Viewer & Performance Monitor analysis</li>
+        <li>System Restore & Windows Recovery Environment (WinRE)</li>
+      </ul>
+    </div>
+    <p style="font-size:0.85rem; color:#666; margin-bottom:20px;">A+ Core 1 & Core 2 – Domains 1.4, 1.5, 3.1, 4.9</p>
+    <button class="restart-btn" onclick="restartActivity()">🔄 Retry Missions</button>
+  </div>
+
+</div>
+
+<div class="footer">University View Academy · Computer Architecture · Supporting Windows · A+ Exam Prep</div>
+
+<script>
+// ===================== DATA =====================
+const missions = [
+  // MISSION 1 – Scenario (Network Diagnostics)
+  {
+    type: 'scenario',
+    icon: '🌐',
+    title: 'Network Diagnostics HQ',
+    subtitle: 'Command-Line Tools · A+ Domain 1.4',
+    num: 'Mission 1 of 8',
+    scenario: `<strong>Situation Report:</strong> A student's laptop shows "No Internet Access" but the network cable is plugged in. You open Command Prompt to investigate. Which command should you run <em>first</em> to check the machine's IP address and default gateway?`,
+    choices: [
+      { letter: 'A', text: 'ping 8.8.8.8 — Test connectivity to Google DNS' },
+      { letter: 'B', text: 'ipconfig — Display IP address, subnet mask, and default gateway' },
+      { letter: 'C', text: 'tracert google.com — Trace the route to Google' },
+      { letter: 'D', text: 'netstat -an — Show active network connections' }
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Correct! <strong>ipconfig</strong> is always the first step — it reveals whether the machine has a valid IP (e.g., 192.168.x.x) or an APIPA address (169.254.x.x), which would indicate a DHCP failure. Use <code>ipconfig /all</code> for full details including MAC address and DNS servers.',
+      wrong: '❌ Not quite. While those commands are useful, <strong>ipconfig</strong> should come first. You need to confirm the machine has a valid IP address before testing connectivity. An APIPA address (169.254.x.x) immediately tells you DHCP isn\'t working.'
+    }
+  },
+
+  // MISSION 2 – Scenario (ping / tracert)
+  {
+    type: 'scenario',
+    icon: '📡',
+    title: 'Connectivity Recon',
+    subtitle: 'ping & tracert · A+ Domain 1.4',
+    num: 'Mission 2 of 8',
+    scenario: `<strong>Situation Report:</strong> ipconfig shows a valid IP (192.168.1.45) and gateway (192.168.1.1). You run <code>ping 192.168.1.1</code> — it succeeds. But <code>ping 8.8.8.8</code> fails with "Request timed out." What does this tell you, and what's your next command?`,
+    choices: [
+      { letter: 'A', text: 'The NIC is broken — replace the network card immediately' },
+      { letter: 'B', text: 'The local network is fine but traffic isn\'t reaching the internet — run tracert 8.8.8.8 to find where packets stop' },
+      { letter: 'C', text: 'DNS is failing — run ipconfig /flushdns to clear the cache' },
+      { letter: 'D', text: 'The firewall is blocking all traffic — disable Windows Defender Firewall' }
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Excellent deduction! Since the gateway responds but 8.8.8.8 doesn\'t, the problem is <em>beyond</em> the local network — likely at the router/ISP level. <strong>tracert 8.8.8.8</strong> shows each hop and where packets stop, pinpointing the failure. This is systematic troubleshooting!',
+      wrong: '❌ Think it through: the gateway ping succeeded, so the NIC and local network are fine. The issue is upstream. <strong>tracert 8.8.8.8</strong> would show exactly where packets stop — that\'s the right next step.'
+    }
+  },
+
+  // MISSION 3 – Drag and Drop (Command Matching)
+  {
+    type: 'dragdrop',
+    icon: '💻',
+    title: 'Command Arsenal',
+    subtitle: 'CMD Tools Reference · A+ Domain 1.4',
+    num: 'Mission 3 of 8',
+    scenario: `<strong>Situation Report:</strong> Your team needs a quick-reference guide. Match each Windows command-line tool to its correct primary function.`,
+    items: [
+      { id: 'cmd1', text: 'ipconfig /release', emoji: '📋' },
+      { id: 'cmd2', text: 'netstat -an', emoji: '🔌' },
+      { id: 'cmd3', text: 'nslookup', emoji: '🔍' },
+      { id: 'cmd4', text: 'ipconfig /flushdns', emoji: '🧹' }
+    ],
+    zones: [
+      { id: 'zone1', label: 'Releases the current DHCP-assigned IP address', correct: 'cmd1' },
+      { id: 'zone2', label: 'Displays all active TCP/UDP connections and listening ports', correct: 'cmd2' },
+      { id: 'zone3', label: 'Queries DNS to resolve a hostname to an IP address', correct: 'cmd3' },
+      { id: 'zone4', label: 'Clears the local DNS resolver cache', correct: 'cmd4' }
+    ]
+  },
+
+  // MISSION 4 – Scenario (Remote Desktop)
+  {
+    type: 'scenario',
+    icon: '🖥️',
+    title: 'Remote Access Command',
+    subtitle: 'Remote Desktop Protocol · A+ Domain 1.5',
+    num: 'Mission 4 of 8',
+    scenario: `<strong>Situation Report:</strong> A teacher needs to remotely manage a classroom PC from the main office. You're setting up Remote Desktop (RDP). Which port does RDP use by default, and what's a key security best practice when enabling it?`,
+    choices: [
+      { letter: 'A', text: 'Port 22 — Use password authentication only for simplicity' },
+      { letter: 'B', text: 'Port 3389 — Change the default port, use Network Level Authentication (NLA), and restrict access via firewall rules' },
+      { letter: 'C', text: 'Port 3389 — Enable RDP for all users including Guest accounts for easy access' },
+      { letter: 'D', text: 'Port 443 — RDP runs over HTTPS for built-in encryption' }
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Spot on! RDP uses <strong>port 3389</strong>. Security best practices include: enabling <strong>Network Level Authentication (NLA)</strong> to require credentials before a session is established, restricting RDP access via firewall to specific IP ranges, and optionally changing the default port to reduce automated attacks.',
+      wrong: '❌ RDP uses <strong>port 3389</strong> (not 22 — that\'s SSH, not 443 — that\'s HTTPS). Enabling RDP for Guest accounts is a major security risk. NLA and firewall restrictions are essential security measures for any RDP deployment.'
+    }
+  },
+
+  // MISSION 5 – Simulation (SSH)
+  {
+    type: 'simulation',
+    icon: '🔐',
+    title: 'SSH Secure Channel',
+    subtitle: 'SSH Configuration · A+ Domain 1.5',
+    num: 'Mission 5 of 8',
+    scenario: `<strong>Situation Report:</strong> You need to securely connect to a remote Linux server from a Windows machine. Walk through the correct SSH connection sequence by selecting the right commands in order.`,
+    steps: [
+      {
+        prompt: 'C:\\Users\\Cadet>',
+        instruction: 'Step 1: You want to connect to server 10.0.0.50 as user "admin" via SSH. Select the correct command:',
+        options: [
+          { text: 'ssh admin@10.0.0.50', correct: true, output: 'Connecting to 10.0.0.50...\nThe authenticity of host \'10.0.0.50\' can\'t be established.\nRSA key fingerprint is SHA256:xK9mP2...\nAre you sure you want to continue connecting? (yes/no):' },
+          { text: 'rdp admin@10.0.0.50', correct: false, output: 'ERROR: \'rdp\' is not recognized. RDP uses mstsc.exe, not a command-line tool like SSH.' },
+          { text: 'connect -ssh 10.0.0.50', correct: false, output: 'ERROR: Invalid syntax. SSH command format is: ssh [user]@[host]' }
+        ]
+      },
+      {
+        prompt: 'Are you sure you want to continue? (yes/no):',
+        instruction: 'Step 2: The server\'s host key is shown for the first time. What should you do?',
+        options: [
+          { text: 'no (abort — unknown key)', correct: false, output: 'Connection aborted. Note: For a known server, you should verify the fingerprint and accept it.' },
+          { text: 'yes (accept and save key)', correct: true, output: 'Warning: Permanently added \'10.0.0.50\' to known hosts.\nadmin@10.0.0.50\'s password:' },
+          { text: 'skip (ignore the warning)', correct: false, output: 'ERROR: \'skip\' is not a valid response. You must type yes or no.' }
+        ]
+      },
+      {
+        prompt: 'admin@10.0.0.50\'s password:',
+        instruction: 'Step 3: You\'re logged in! To improve security, which SSH hardening action is MOST recommended for a production server?',
+        options: [
+          { text: 'Disable SSH entirely after first login', correct: false, output: 'Incorrect. Disabling SSH removes your remote management capability entirely — that\'s not a hardening strategy.' },
+          { text: 'Set up SSH key-based authentication and disable password login', correct: true, output: 'admin@server:~$ \n✅ SSH keys configured! Key-based auth is far more secure than passwords — no brute-force risk. Edit /etc/ssh/sshd_config: set PasswordAuthentication no and PubkeyAuthentication yes.' },
+          { text: 'Share the password with all team members for convenience', correct: false, output: 'Security Alert! Sharing passwords violates least-privilege principles and makes auditing impossible.' }
+        ]
+      }
+    ]
+  },
+
+  // MISSION 6 – Scenario (Task Manager / Event Viewer)
+  {
+    type: 'scenario',
+    icon: '📊',
+    title: 'System Health Analysis',
+    subtitle: 'Task Manager & Event Viewer · A+ Domain 4.9',
+    num: 'Mission 6 of 8',
+    scenario: `<strong>Situation Report:</strong> A PC is running extremely slowly. Task Manager shows CPU at 98% usage. You need to investigate further. In <strong>Event Viewer</strong>, which log location should you check first for application errors and system warnings?`,
+    choices: [
+      { letter: 'A', text: 'Applications and Services Logs → Microsoft → Windows → Diagnostics' },
+      { letter: 'B', text: 'Windows Logs → Application and Windows Logs → System — check for Error and Critical events' },
+      { letter: 'C', text: 'Custom Views → Administrative Events only' },
+      { letter: 'D', text: 'Subscriptions → Forward Events from remote computers' }
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Correct! In Event Viewer, <strong>Windows Logs → Application</strong> shows app crashes and errors, while <strong>Windows Logs → System</strong> shows OS-level issues like driver failures and service crashes. Filter by <em>Error</em> and <em>Critical</em> levels. Look for Event IDs — for example, Event ID 41 (Kernel-Power) indicates unexpected shutdowns.',
+      wrong: '❌ The primary logs to check are <strong>Windows Logs → Application</strong> (for app errors) and <strong>Windows Logs → System</strong> (for OS/driver issues). Filter by Error and Critical severity. Custom Views and Subscriptions are advanced features for specific scenarios.'
+    }
+  },
+
+  // MISSION 7 – Drag and Drop (Recovery Tools)
+  {
+    type: 'dragdrop',
+    icon: '🔧',
+    title: 'Recovery Operations',
+    subtitle: 'System Restore & WinRE · A+ Domain 3.1',
+    num: 'Mission 7 of 8',
+    scenario: `<strong>Situation Report:</strong> Multiple recovery scenarios have come in. Match each situation to the correct Windows recovery tool.`,
+    items: [
+      { id: 'rec1', text: 'System Restore', emoji: '⏪' },
+      { id: 'rec2', text: 'WinRE – Startup Repair', emoji: '🔄' },
+      { id: 'rec3', text: 'WinRE – Command Prompt', emoji: '⌨️' },
+      { id: 'rec4', text: 'Reset this PC', emoji: '🔃' }
+    ],
+    zones: [
+      { id: 'rzone1', label: 'PC worked fine last week; a new driver install broke it — roll back to a restore point', correct: 'rec1' },
+      { id: 'rzone2', label: 'Windows won\'t boot at all — automatically diagnose and fix boot issues', correct: 'rec2' },
+      { id: 'rzone3', label: 'Need to run bootrec /fixmbr to repair the Master Boot Record', correct: 'rec3' },
+      { id: 'rzone4', label: 'Malware-infected PC — reinstall Windows while keeping personal files', correct: 'rec4' }
+    ]
+  },
+
+  // MISSION 8 – Scenario (Performance Monitor)
+  {
+    type: 'scenario',
+    icon: '📈',
+    title: 'Performance Intelligence',
+    subtitle: 'Performance Monitor · A+ Domain 4.9',
+    num: 'Mission 8 of 8',
+    scenario: `<strong>Final Mission:</strong> A server is experiencing intermittent slowdowns. You open <strong>Performance Monitor (perfmon)</strong> to create a Data Collector Set. Which combination of counters would BEST help diagnose a memory bottleneck?`,
+    choices: [
+      { letter: 'A', text: 'Processor → % Processor Time and Network Interface → Bytes Total/sec' },
+      { letter: 'B', text: 'Memory → Available MBytes, Memory → Pages/sec, and Paging File → % Usage' },
+      { letter: 'C', text: 'PhysicalDisk → Disk Read Bytes/sec only' },
+      { letter: 'D', text: 'System → Processor Queue Length and TCP/IP → Segments/sec' }
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Perfect analysis! For memory bottlenecks: <strong>Memory → Available MBytes</strong> (should stay above 100MB), <strong>Memory → Pages/sec</strong> (high values = excessive paging to disk = memory pressure), and <strong>Paging File → % Usage</strong> (high % means RAM is exhausted). These three together confirm a RAM shortage. The fix: add more RAM or close memory-hungry processes.',
+      wrong: '❌ For a <em>memory</em> bottleneck, you need memory-specific counters. The key trio is: <strong>Memory → Available MBytes</strong>, <strong>Memory → Pages/sec</strong> (excessive paging indicates RAM shortage), and <strong>Paging File → % Usage</strong>. Processor and network counters diagnose different bottlenecks.'
+    }
+  }
+];
+
+// ===================== STATE =====================
+let score = 0;
+let streak = 0;
+let currentMission = 0;
+let answeredMissions = 0;
+let dragSource = null;
+let simSteps = {};
+
+const RANKS = [
+  { min: 0,  label: '🎖️ Trainee',    badge: '🎖️' },
+  { min: 25, label: '⚙️ Apprentice',  badge: '⚙️' },
+  { min: 50, label: '🛡️ Expert',      badge: '🛡️' },
+  { min: 75, label: '🏆 Master',      badge: '🏆' }
+];
+
+function getRank(s) {
+  let r = RANKS[0];
+  for (const rank of RANKS) { if (s >= rank.min) r = rank; }
+  return r;
+}
+
+function updateHeader() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakDisplay').textContent = streak;
+  document.getElementById('missionNum').textContent = answeredMissions;
+  const rank = getRank(score);
+  document.getElementById('rankDisplay').textContent = rank.label;
+  const pct = (answeredMissions / missions.length) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ===================== RENDER =====================
+function startActivity() {
+  document.getElementById('introScreen').classList.add('hidden');
+  document.getElementById('missionsContainer').classList.remove('hidden');
+  renderAllMissions();
+  updateHeader();
+}
+
+function renderAllMissions() {
+  const container = document.getElementById('missionsContainer');
+  container.innerHTML = '';
+  missions.forEach((m, i) => {
+    const card = document.createElement('div');
+    card.className = 'mission-card';
+    card.id = 'mission-' + i;
+    if (m.type === 'scenario') card.innerHTML = renderScenario(m, i);
+    else if (m.type === 'dragdrop') card.innerHTML = renderDragDrop(m, i);
+    else if (m.type === 'simulation') card.innerHTML = renderSimulation(m, i);
+    container.appendChild(card);
+    if (m.type === 'dragdrop') initDragDrop(m, i);
+    if (m.type === 'simulation') initSimulation(m, i);
+  });
+}
+
+function renderScenario(m, i) {
+  const choices = m.choices.map((c, ci) => `
+    <button class="choice-btn" id="choice-${i}-${ci}" onclick="answerScenario(${i},${ci})">
+      <span class="choice-letter">${c.letter}</span>
+      <span>${c.text}</span>
+    </button>
+  `).join('');
+  return `
+    <div class="mission-header">
+      <span class="mission-icon">${m.icon}</span>
+      <div>
+        <div class="mission-title">${m.title}</div>
+        <div class="mission-subtitle">${m.subtitle}</div>
+      </div>
+      <span class="mission-num">${m.num}</span>
+    </div>
+    <div class="mission-body">
+      <div class="scenario-text">${m.scenario}</div>
+      <div class="choices">${choices}</div>
+      <div class="feedback-box" id="feedback-${i}"></div>
+      <button class="next-btn" id="next-${i}" onclick="scrollToNext(${i})">Next Mission →</button>
+    </div>
+  `;
+}
+
+function renderDragDrop(m, i) {
+  const items = m.items.map(item => `
+    <div class="drag-item" id="drag-${i}-${item.id}" draggable="true" data-id="${item.id}" data-mission="${i}">
+      <span>${item.emoji}</span> ${item.text}
+    </div>
+  `).join('');
+  const zones = m.zones.map(zone => `
+    <div class="drop-label">${zone.label}</div>
+    <div class="drop-zone" id="zone-${i}-${zone.id}" data-zone="${zone.id}" data-mission="${i}" data-correct="${zone.correct}">
+      Drop command here…
+    </div>
+  `).join('');
+  return `
+    <div class="mission-header">
+      <span class="mission-icon">${m.icon}</span>
+      <div>
+        <div class="mission-title">${m.title}</div>
+        <div class="mission-subtitle">${m.subtitle}</div>
+      </div>
+      <span class="mission-num">${m.num}</span>
+    </div>
+    <div class="mission-body">
+      <div class="scenario-text">${m.scenario}</div>
+      <div class="drag-area">
+        <div class="drag-col">
+          <div class="drag-col-title">🛠️ Tools / Commands</div>
+          <div id="drag-source-${i}">${items}</div>
+        </div>
+        <div class="drag-col">
+          <div class="drag-col-title">📋 Functions / Scenarios</div>
+          ${zones}
+        </div>
+      </div>
+      <button class="check-btn" id="check-${i}" onclick="checkDragDrop(${i})">✅ Check Answers</button>
+      <div class="feedback-box" id="feedback-${i}"></div>
+      <button class="next-btn" id="next-${i}" onclick="scrollToNext(${i})">Next Mission →</button>
+    </div>
+  `;
+}
+
+function renderSimulation(m, i) {
+  simSteps[i] = 0;
+  return `
+    <div class="mission-header">
+      <span class="mission-icon">${m.icon}</span>
+      <div>
+        <div class="mission-title">${m.title}</div>
+        <div class="mission-subtitle">${m.subtitle}</div>
+      </div>
+      <span class="mission-num">${m.num}</span>
+    </div>
+    <div class="mission-body">
+      <div class="scenario-text">${m.scenario}</div>
+      <div class="sim-terminal" id="sim-terminal-${i}">
+        <span class="prompt">${m.steps[0].prompt} </span><span style="color:#fff">_</span>
+      </div>
+      <div style="font-size:0.88rem; color:#555; margin-bottom:8px;" id="sim-instruction-${i}">${m.steps[0].instruction}</div>
+      <div class="sim-options" id="sim-options-${i}"></div>
+      <div class="feedback-box" id="feedback-${i}"></div>
+      <button class="next-btn" id="next-${i}" onclick="scrollToNext(${i})">Next Mission →</button>
+    </div>
+  `;
+}
+
+// ===================== SCENARIO LOGIC =====================
+function answerScenario(missionIdx, choiceIdx) {
+  const m = missions[missionIdx];
+  const isCorrect = choiceIdx === m.correct;
+  const buttons = document.querySelectorAll(`[id^="choice-${missionIdx}-"]`);
+  buttons.forEach((btn, ci) => {
+    btn.disabled = true;
+    if (ci === m.correct) btn.classList.add('correct');
+    else if (ci === choiceIdx && !isCorrect) btn.classList.add('wrong');
+  });
+  showFeedback(missionIdx, isCorrect, m.feedback.correct, m.feedback.wrong);
+  handleScore(missionIdx, isCorrect);
+}
+
+// ===================== DRAG AND DROP LOGIC =====================
+function initDragDrop(m, i) {
+  setTimeout(() => {
+    const items = document.querySelectorAll(`[id^="drag-${i}-"]`);
+    const zones = document.querySelectorAll(`[id^="zone-${i}-"]`);
+    items.forEach(item => {
+      item.addEventListener('dragstart', e => {
+        dragSource = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    });
+    zones.forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (!dragSource) return;
+        // Return previous occupant to source
+        const prev = zone.dataset.occupant;
+        if (prev) {
+          const prevEl = document.getElementById(`drag-${i}-${prev}`);
+          if (prevEl) { prevEl.style.display = 'flex'; }
+        }
+        zone.dataset.occupant = dragSource.dataset.id;
+        zone.classList.add('filled');
+        zone.classList.remove('correct-drop', 'wrong-drop');
+        zone.innerHTML = dragSource.innerHTML;
+        dragSource.style.display = 'none';
+        dragSource = null;
+      });
+    });
+  }, 100);
+}
+
+function checkDragDrop(i) {
+  const m = missions[i];
+  let correct = 0;
+  m.zones.forEach(zone => {
+    const zoneEl = document.getElementById(`zone-${i}-${zone.id}`);
+    const occupant = zoneEl.dataset.occupant;
+    if (occupant === zone.correct) {
+      zoneEl.classList.add('correct-drop');
+      correct++;
+    } else if (occupant) {
+      zoneEl.classList.add('wrong-drop');
+    }
+  });
+  const allCorrect = correct === m.zones.length;
+  const pts = allCorrect ? 12 : Math.round((correct / m.zones.length) * 12);
+  const fb = document.getElementById(`feedback-${i}`);
+  fb.className = 'feedback-box ' + (allCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = allCorrect
+    ? `<span class="feedback-icon">✅</span> <strong>Perfect match!</strong> All ${m.zones.length} items correctly matched. +${pts} points!`
+    : `<span class="feedback-icon">⚠️</span> <strong>${correct} of ${m.zones.length} correct.</strong> Review the highlighted zones. +${pts} points. Check the A+ study guide for command references.`;
+  document.getElementById(`check-${i}`).disabled = true;
+  handleScore(i, allCorrect, pts);
+}
+
+// ===================== SIMULATION LOGIC =====================
+function initSimulation(m, i) {
+  setTimeout(() => renderSimOptions(m, i, 0), 100);
+}
+
+function renderSimOptions(m, i, stepIdx) {
+  const step = m.steps[stepIdx];
+  const container = document.getElementById(`sim-options-${i}`);
+  container.innerHTML = step.options.map((opt, oi) => `
+    <button class="sim-btn" onclick="handleSimStep(${i},${stepIdx},${oi})">
+      ${step.prompt} ${opt.text}
+    </button>
+  `).join('');
+}
+
+function handleSimStep(missionIdx, stepIdx, optIdx) {
+  const m = missions[missionIdx];
+  const step = m.steps[stepIdx];
+  const opt = step.options[optIdx];
+  const terminal = document.getElementById(`sim-terminal-${missionIdx}`);
+  const instruction = document.getElementById(`sim-instruction-${missionIdx}`);
+  const optContainer = document.getElementById(`sim-options-${missionIdx}`);
+
+  // Append to terminal
+  terminal.innerHTML += `\n<span class="prompt">${step.prompt}</span> <span style="color:#fff">${opt.text}</span>\n`;
+  opt.output.split('\n').forEach(line => {
+    terminal.innerHTML += `<span class="${opt.correct ? 'output' : 'error'}">${line}</span>\n`;
+  });
+  terminal.scrollTop = terminal.scrollHeight;
+
+  if (!opt.correct) {
+    // Wrong — let them retry
+    terminal.innerHTML += `<span class="error">↩ Try again...</span>\n`;
+    return;
+  }
+
+  // Correct step
+  const nextStep = stepIdx + 1;
+  if (nextStep < m.steps.length) {
+    instruction.textContent = m.steps[nextStep].instruction;
+    renderSimOptions(m, missionIdx, nextStep);
+  } else {
+    // All steps done
+    optContainer.innerHTML = '';
+    instruction.textContent = '✅ SSH session complete! All steps executed correctly.';
+    handleScore(missionIdx, true);
+  }
+}
+
+// ===================== SCORE & FEEDBACK =====================
+function showFeedback(i, isCorrect, correctMsg, wrongMsg) {
+  const fb = document.getElementById(`feedback-${i}`);
+  fb.className = 'feedback-box ' + (isCorrect ? 'correct' : 'wrong');
+  fb.innerHTML = isCorrect ? correctMsg : wrongMsg;
+  const nextBtn = document.getElementById(`next-${i}`);
+  if (nextBtn) nextBtn.classList.add('visible');
+}
+
+function handleScore(missionIdx, isCorrect, customPts) {
+  const card = document.getElementById(`mission-${missionIdx}`);
+  if (isCorrect) {
+    const pts = customPts !== undefined ? customPts : 12;
+    score += pts;
+    streak++;
+    card.classList.add('answered-correct');
+    if (streak >= 3) showStreakPopup(streak);
+    if (streak === 3 || streak === 5 || streak === 8) launchConfetti();
+  } else {
+    streak = 0;
+    card.classList.add('answered-wrong');
+  }
+  answeredMissions++;
+  updateHeader();
+  const nextBtn = document.getElementById(`next-${missionIdx}`);
+  if (nextBtn) nextBtn.classList.add('visible');
+  if (answeredMissions >= missions.length) {
+    setTimeout(showCompletion, 1200);
+  }
+}
+
+function scrollToNext(i) {
+  const next = document.getElementById(`mission-${i + 1}`);
+  if (next) next.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  else showCompletion();
+}
+
+// ===================== COMPLETION =====================
+function showCompletion() {
+  document.getElementById('missionsContainer').classList.add('hidden');
+  const cs = document.getElementById('completionScreen');
+  cs.classList.add('visible');
+  document.getElementById('finalScore').textContent = score;
+  const rank = getRank(score);
+  document.getElementById('completionRank').textContent = 'Final Rank: ' + rank.label;
+  document.getElementById('completionBadge').textContent = rank.badge;
+  launchConfetti(120);
+  cs.scrollIntoView({ behavior: 'smooth' });
+}
+
+function restartActivity() {
+  score = 0; streak = 0; currentMission = 0; answeredMissions = 0; simSteps = {};
+  document.getElementById('completionScreen').classList.remove('visible');
+  document.getElementById('missionsContainer').classList.remove('hidden');
+  renderAllMissions();
+  updateHeader();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti(count = 60) {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#ffdd57','#2176d2','#ffffff','#c0392b'];
+  for (let i = 0; i < count; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    piece.style.animationDelay = (Math.random() * 0.8) + 's';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ===================== STREAK POPUP =====================
+function showStreakPopup(n) {
+  const popup = document.getElementById('streakPopup');
+  const msgs = { 3: '🔥 3 in a Row!', 5: '⚡ 5 Streak! On Fire!', 8: '🏆 8 Streak! LEGENDARY!' };
+  popup.textContent = msgs[n] || `🔥 ${n} Streak!`;
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 2000);
+}
+</script>
+</body>
+</html>
