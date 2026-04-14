@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows Security & Resource Management | UVA Mission Control</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #134080;
+    --uva-blue-light: #2a7fd4;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #27a352;
+    --gold: #F5A623;
+    --gold-light: #FFD166;
+    --white: #ffffff;
+    --light-bg: #f0f4fb;
+    --card-bg: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #3a3a5c;
+    --text-light: #6b7280;
+    --border: #d1dce8;
+    --success: #1E7A3E;
+    --error: #c0392b;
+    --streak-color: #e67e22;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #0d2b5e 0%, #1B5EAF 50%, #1E7A3E 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: var(--uva-blue-dark);
+    border-bottom: 4px solid var(--gold);
+    padding: 0;
+  }
+  .motto-ribbon {
+    background: var(--gold);
+    text-align: center;
+    padding: 5px 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--uva-blue-dark);
+    text-transform: uppercase;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+  .logo-shield {
+    width: 52px; height: 60px;
+    background: var(--gold);
+    clip-path: polygon(50% 0%, 100% 15%, 100% 70%, 50% 100%, 0% 70%, 0% 15%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: 900; color: var(--uva-blue-dark);
+    flex-shrink: 0;
+  }
+  .logo-text h1 { font-size: 1.2rem; color: var(--white); font-weight: 800; }
+  .logo-text p { font-size: 0.72rem; color: #a8c4e8; letter-spacing: 1px; }
+  .hud {
+    display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
+  }
+  .hud-box {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 6px 14px;
+    text-align: center;
+    min-width: 80px;
+  }
+  .hud-box .label { font-size: 0.62rem; color: #a8c4e8; text-transform: uppercase; letter-spacing: 1px; }
+  .hud-box .value { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+  .rank-badge {
+    background: linear-gradient(135deg, var(--gold), #e8920a);
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--uva-blue-dark);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .streak-display {
+    background: linear-gradient(135deg, var(--streak-color), #d35400);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: white;
+    display: none;
+    align-items: center; gap: 4px;
+  }
+  .streak-display.active { display: flex; }
+
+  /* ── MAIN CONTAINER ── */
+  .main { max-width: 900px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* ── MISSION INTRO ── */
+  .mission-intro {
+    background: rgba(255,255,255,0.97);
+    border-radius: 18px;
+    padding: 32px;
+    margin-bottom: 24px;
+    border: 2px solid var(--gold);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+  .mission-intro h2 { font-size: 1.6rem; color: var(--uva-blue); margin-bottom: 8px; }
+  .mission-intro p { color: var(--text-mid); font-size: 0.95rem; line-height: 1.6; }
+  .mission-meta {
+    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 16px;
+  }
+  .meta-chip {
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.78rem;
+    color: var(--uva-blue);
+    font-weight: 600;
+  }
+  .start-btn {
+    margin-top: 22px;
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 14px 40px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(27,94,175,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,94,175,0.5); }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap {
+    background: rgba(255,255,255,0.15);
+    border-radius: 30px;
+    height: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--uva-green-light));
+    border-radius: 30px;
+    transition: width 0.5s ease;
+  }
+  .progress-label {
+    text-align: right;
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  /* ── MISSION CARD ── */
+  .mission-card {
+    background: var(--card-bg);
+    border-radius: 18px;
+    padding: 28px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    border: 2px solid transparent;
+    transition: border-color 0.3s;
+    display: none;
+  }
+  .mission-card.active { display: block; }
+  .mission-card.correct-border { border-color: var(--success); }
+  .mission-card.wrong-border { border-color: var(--error); }
+
+  .mission-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--uva-blue);
+    color: white;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .mission-number {
+    font-size: 0.7rem;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .mission-question {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .scenario-box {
+    background: #eef4ff;
+    border-left: 4px solid var(--uva-blue);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 0.9rem;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .scenario-box strong { color: var(--uva-blue); }
+
+  /* ── ANSWER OPTIONS ── */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  @media (max-width: 560px) { .options-grid { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    background: var(--light-bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--uva-blue);
+    background: #ddeeff;
+    transform: translateY(-1px);
+  }
+  .option-btn.selected { border-color: var(--uva-blue); background: #ddeeff; }
+  .option-btn.correct { border-color: var(--success); background: #d4edda; color: var(--success); }
+  .option-btn.wrong { border-color: var(--error); background: #fde8e8; color: var(--error); }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    display: inline-block;
+    background: var(--uva-blue);
+    color: white;
+    border-radius: 50%;
+    width: 22px; height: 22px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-align: center;
+    line-height: 22px;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .option-btn.correct .option-letter { background: var(--success); }
+  .option-btn.wrong .option-letter { background: var(--error); }
+
+  /* ── DRAG & DROP ── */
+  .drag-area {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .drag-column { flex: 1; min-width: 200px; }
+  .drag-column h4 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--uva-blue);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--uva-blue);
+  }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+  .drag-item {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid transparent;
+  }
+  .drag-item:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(27,94,175,0.3); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drop-zone {
+    background: #f8faff;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    min-height: 50px;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .drop-zone.drag-over { border-color: var(--uva-blue); background: #eef4ff; }
+  .drop-zone.correct-zone { border-color: var(--success); background: #d4edda; }
+  .drop-zone.wrong-zone { border-color: var(--error); background: #fde8e8; }
+  .drop-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+    padding: 8px 12px;
+    background: var(--light-bg);
+    border-radius: 8px;
+  }
+
+  /* ── ORDERING ── */
+  .order-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .order-item {
+    background: var(--light-bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: grab;
+    display: flex; align-items: center; gap: 12px;
+    transition: all 0.2s;
+  }
+  .order-item:hover { border-color: var(--uva-blue); background: #ddeeff; }
+  .order-item.dragging { opacity: 0.4; }
+  .order-item.drag-over-item { border-color: var(--gold); background: #fff8e1; }
+  .order-num {
+    background: var(--uva-blue);
+    color: white;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .order-item.correct-order { border-color: var(--success); background: #d4edda; }
+  .order-item.wrong-order { border-color: var(--error); background: #fde8e8; }
+
+  /* ── FEEDBACK ── */
+  .feedback-box {
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb {
+    background: #d4edda;
+    border: 2px solid var(--success);
+    color: #155724;
+  }
+  .feedback-box.wrong-fb {
+    background: #fde8e8;
+    border: 2px solid var(--error);
+    color: #721c24;
+  }
+  .feedback-icon { font-size: 1.2rem; margin-right: 6px; }
+  .feedback-box strong { display: block; margin-bottom: 4px; font-size: 1rem; }
+
+  /* ── SUBMIT / NEXT ── */
+  .action-row {
+    display: flex; gap: 12px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap;
+  }
+  .submit-btn {
+    background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light));
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(30,122,62,0.35);
+  }
+  .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30,122,62,0.45); }
+  .submit-btn:disabled { opacity: 0.5; cursor: default; }
+  .next-btn {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(27,94,175,0.35);
+    display: none;
+  }
+  .next-btn.show { display: block; }
+  .next-btn:hover { transform: translateY(-2px); }
+
+  /* ── RESULTS SCREEN ── */
+  .results-screen {
+    background: rgba(255,255,255,0.97);
+    border-radius: 18px;
+    padding: 36px 28px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    display: none;
+  }
+  .results-screen.show { display: block; }
+  .results-trophy { font-size: 4rem; margin-bottom: 12px; }
+  .results-screen h2 { font-size: 1.8rem; color: var(--uva-blue); margin-bottom: 8px; }
+  .results-screen .final-rank {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold), #e8920a);
+    color: var(--uva-blue-dark);
+    border-radius: 30px;
+    padding: 8px 24px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin: 12px 0;
+  }
+  .score-circle {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 20px auto;
+    box-shadow: 0 6px 24px rgba(27,94,175,0.4);
+  }
+  .score-circle .score-num { font-size: 2.2rem; font-weight: 900; color: white; }
+  .score-circle .score-denom { font-size: 0.85rem; color: rgba(255,255,255,0.8); }
+  .results-breakdown {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    margin: 20px 0; text-align: center;
+  }
+  .breakdown-item {
+    background: var(--light-bg);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .breakdown-item .bi-val { font-size: 1.5rem; font-weight: 800; color: var(--uva-blue); }
+  .breakdown-item .bi-label { font-size: 0.75rem; color: var(--text-light); margin-top: 4px; }
+  .objectives-list {
+    text-align: left;
+    background: var(--light-bg);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 16px 0;
+  }
+  .objectives-list h4 { color: var(--uva-blue); margin-bottom: 10px; font-size: 0.9rem; }
+  .obj-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    font-size: 0.83rem; color: var(--text-mid);
+    margin-bottom: 6px; line-height: 1.4;
+  }
+  .obj-check { color: var(--success); font-size: 1rem; flex-shrink: 0; }
+  .restart-btn {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white; border: none; border-radius: 25px;
+    padding: 13px 36px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; margin-top: 10px;
+    box-shadow: 0 4px 14px rgba(27,94,175,0.35);
+    transition: transform 0.15s;
+  }
+  .restart-btn:hover { transform: translateY(-2px); }
+
+  /* ── TOAST / STREAK POPUP ── */
+  .toast {
+    position: fixed;
+    top: 80px; right: 20px;
+    background: linear-gradient(135deg, var(--streak-color), #d35400);
+    color: white;
+    border-radius: 14px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    z-index: 9999;
+    transform: translateX(200px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .toast.show { transform: translateX(0); opacity: 1; }
+
+  /* ── CONFETTI ── */
+  .confetti-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9998; overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    opacity: 0;
+    animation: confettiFall 2.5s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── BADGE POPUP ── */
+  .badge-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white;
+    border-radius: 20px;
+    padding: 30px 40px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    z-index: 10000;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 3px solid var(--gold);
+  }
+  .badge-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .badge-popup .badge-icon { font-size: 3.5rem; margin-bottom: 10px; }
+  .badge-popup h3 { color: var(--uva-blue); font-size: 1.3rem; margin-bottom: 6px; }
+  .badge-popup p { color: var(--text-mid); font-size: 0.9rem; }
+  .badge-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); z-index: 9999; display: none;
+  }
+  .badge-overlay.show { display: block; }
+
+  /* ── COMMAND LINE MISSION ── */
+  .cmd-terminal {
+    background: #1a1a2e;
+    border-radius: 12px;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    margin-bottom: 16px;
+  }
+  .cmd-terminal .cmd-header {
+    display: flex; gap: 6px; margin-bottom: 12px;
+  }
+  .cmd-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .cmd-dot.red { background: #ff5f57; }
+  .cmd-dot.yellow { background: #febc2e; }
+  .cmd-dot.green { background: #28c840; }
+  .cmd-output { color: #a8c4e8; font-size: 0.85rem; line-height: 1.8; }
+  .cmd-output .prompt { color: var(--gold); }
+  .cmd-output .cmd-text { color: #7ec8e3; }
+  .cmd-output .result { color: #90ee90; }
+  .cmd-output .error-text { color: #ff6b6b; }
+  .cmd-input-row {
+    display: flex; align-items: center; gap: 8px; margin-top: 10px;
+  }
+  .cmd-input-row .prompt { color: var(--gold); font-family: monospace; font-size: 0.85rem; white-space: nowrap; }
+  .cmd-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--gold);
+    color: #7ec8e3;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    flex: 1;
+    outline: none;
+    padding: 2px 4px;
+  }
+
+  /* ── PERMISSION TABLE ── */
+  .perm-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+  }
+  .perm-table th {
+    background: var(--uva-blue);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 0.8rem;
+  }
+  .perm-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .perm-table tr:nth-child(even) td { background: var(--light-bg); }
+  .perm-badge {
+    display: inline-block;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .perm-badge.allow { background: #d4edda; color: var(--success); }
+  .perm-badge.deny { background: #fde8e8; color: var(--error); }
+  .perm-badge.rw { background: #fff3cd; color: #856404; }
+
+  /* ── AD DIAGRAM ── */
+  .ad-diagram {
+    background: var(--light-bg);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .ad-level {
+    display: flex; justify-content: center; gap: 10px;
+    flex-wrap: wrap; margin-bottom: 8px;
+  }
+  .ad-node {
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 2px solid;
+  }
+  .ad-node.forest { background: #e8f4fd; border-color: var(--uva-blue); color: var(--uva-blue); }
+  .ad-node.domain { background: #d4edda; border-color: var(--success); color: var(--success); }
+  .ad-node.ou { background: #fff3cd; border-color: #856404; color: #856404; }
+  .ad-node.gpo { background: #fde8e8; border-color: var(--error); color: var(--error); }
+  .ad-arrow { color: var(--text-light); font-size: 1.2rem; margin: 2px 0; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header-inner { padding: 10px 14px; }
+    .hud { gap: 8px; }
+    .hud-box { min-width: 60px; padding: 5px 10px; }
+    .mission-card { padding: 20px 16px; }
+    .results-breakdown { grid-template-columns: 1fr 1fr; }
+    .drag-area { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- BADGE OVERLAY -->
+<div class="badge-overlay" id="badgeOverlay" onclick="closeBadge()"></div>
+<div class="badge-popup" id="badgePopup">
+  <div class="badge-icon" id="badgeIcon">🏅</div>
+  <h3 id="badgeTitle">Achievement Unlocked!</h3>
+  <p id="badgeDesc">You earned a new rank!</p>
+  <button class="submit-btn" style="margin-top:14px;" onclick="closeBadge()">Claim Reward!</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">🔥 3-in-a-row Streak!</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="motto-ribbon">✦ Virtue  ·  Vigor  ·  Vision ✦</div>
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-shield">UVA</div>
+      <div class="logo-text">
+        <h1>University View Academy</h1>
+        <p>MISSION CONTROL · COMPUTER ARCHITECTURE</p>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="streak-display" id="streakDisplay">🔥 <span id="streakCount">0</span>-Streak!</div>
+      <div class="hud-box">
+        <div class="label">Score</div>
+        <div class="value" id="hudScore">0</div>
+      </div>
+      <div class="hud-box">
+        <div class="label">XP</div>
+        <div class="value" id="hudXP">0</div>
+      </div>
+      <div class="rank-badge" id="rankBadge">⚡ Trainee</div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- INTRO SCREEN -->
+  <div class="mission-intro" id="introScreen">
+    <div style="font-size:3rem;margin-bottom:12px;">🛡️</div>
+    <h2>Operation: Windows Fortress</h2>
+    <p>Welcome, Cadet! UVA's network has been flagged for a security audit. Your mission is to demonstrate mastery of <strong>Windows Security Settings and Network Sharing</strong> to earn your clearance badge and protect the academy's infrastructure.</p>
+    <div class="mission-meta">
+      <span class="meta-chip">🎯 8 Missions</span>
+      <span class="meta-chip">⏱ 10–15 min</span>
+      <span class="meta-chip">📋 CompTIA A+ Core 2 – 2.2</span>
+      <span class="meta-chip">🏆 Earn up to 800 XP</span>
+    </div>
+    <button class="start-btn" onclick="startMissions()">🚀 Begin Mission Briefing</button>
+  </div>
+
+  <!-- PROGRESS -->
+  <div id="progressArea" style="display:none;">
+    <div class="progress-label" id="progressLabel">Mission 1 of 8</div>
+    <div class="progress-wrap">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- MISSION CARDS -->
+  <div id="missionArea"></div>
+
+  <!-- RESULTS -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-trophy" id="resultsTrophy">🏆</div>
+    <h2 id="resultsTitle">Mission Complete!</h2>
+    <div class="final-rank" id="finalRank">⚡ Trainee</div>
+    <div class="score-circle">
+      <div class="score-num" id="finalScore">0</div>
+      <div class="score-denom" id="finalDenom">/ 8</div>
+    </div>
+    <div class="results-breakdown">
+      <div class="breakdown-item">
+        <div class="bi-val" id="resCorrect">0</div>
+        <div class="bi-label">Correct</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="bi-val" id="resXP">0</div>
+        <div class="bi-label">XP Earned</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="bi-val" id="resBestStreak">0</div>
+        <div class="bi-label">Best Streak</div>
+      </div>
+    </div>
+    <div class="objectives-list">
+      <h4>✅ Learning Objectives Covered</h4>
+      <div class="obj-item"><span class="obj-check">✔</span> Differentiated Windows local, network, and remote sign-in options</div>
+      <div class="obj-item"><span class="obj-check">✔</span> Identified authentication factors and TPM's role in Windows Hello</div>
+      <div class="obj-item"><span class="obj-check">✔</span> Explained Active Directory: Domains, OUs, and GPOs</div>
+      <div class="obj-item"><span class="obj-check">✔</span> Analyzed NTFS vs. Share permission precedence</div>
+      <div class="obj-item"><span class="obj-check">✔</span> Executed command-line tools for security and network mapping</div>
+    </div>
+    <button class="restart-btn" onclick="restartMissions()">🔄 Retry Mission</button>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let score = 0, xp = 0, streak = 0, bestStreak = 0, currentMission = 0;
+let answered = false;
+let dragSrc = null;
+let orderDragSrc = null;
+
+const RANKS = [
+  { name: 'Trainee',    icon: '⚡', minXP: 0   },
+  { name: 'Apprentice', icon: '🔰', minXP: 150 },
+  { name: 'Expert',     icon: '🛡️', minXP: 350 },
+  { name: 'Master',     icon: '🏆', minXP: 600 },
+];
+
+// ═══════════════════════════════════════════════════════
+//  MISSIONS DATA
+// ═══════════════════════════════════════════════════════
+const missions = [
+
+  // ── MISSION 1: MCQ – Sign-in Types ──
+  {
+    type: 'mcq',
+    tag: '🔐 Sign-In Intelligence',
+    title: 'Mission 1: Identify the Sign-In',
+    scenario: 'A UVA IT technician is setting up a new workstation. The user needs to log in using credentials stored on the local machine only — no domain or remote access required.',
+    question: 'Which Windows sign-in type is the technician configuring?',
+    options: [
+      { letter: 'A', text: 'Network sign-in — authenticates against a domain controller via Kerberos or NTLM' },
+      { letter: 'B', text: 'Local sign-in — authenticates using credentials stored in the local SAM database' },
+      { letter: 'C', text: 'Remote sign-in — uses RDP to authenticate over the network from another machine' },
+      { letter: 'D', text: 'Azure AD sign-in — authenticates against Microsoft\'s cloud identity service' },
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Correct! A <strong>local sign-in</strong> uses the Security Accounts Manager (SAM) database stored on the local machine. No network or domain controller is involved. This is the default for standalone workstations.',
+      wrong: '❌ Not quite. The key clue is "credentials stored on the local machine only." That points to a <strong>local sign-in</strong> using the SAM database — not a domain controller, cloud service, or RDP session.'
+    }
+  },
+
+  // ── MISSION 2: MCQ – Windows Hello / TPM ──
+  {
+    type: 'mcq',
+    tag: '🔑 Authentication Intel',
+    title: 'Mission 2: Windows Hello & TPM',
+    scenario: 'UVA is upgrading its laptops to use Windows Hello for Business with biometric authentication. The security team asks: "What hardware component stores the cryptographic keys that make Windows Hello secure?"',
+    question: 'Which component is responsible for securely storing Windows Hello credentials?',
+    options: [
+      { letter: 'A', text: 'BIOS/UEFI firmware — stores all system passwords in non-volatile memory' },
+      { letter: 'B', text: 'Trusted Platform Module (TPM) — a dedicated security chip that stores cryptographic keys' },
+      { letter: 'C', text: 'Windows Credential Manager — a software vault in the OS for storing passwords' },
+      { letter: 'D', text: 'Active Directory — stores biometric templates on the domain controller' },
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Excellent! The <strong>TPM (Trusted Platform Module)</strong> is a dedicated hardware chip (or firmware equivalent) that securely stores cryptographic keys. Windows Hello uses TPM to ensure credentials never leave the device in plaintext — a key CompTIA A+ concept!',
+      wrong: '❌ The answer is the <strong>TPM (Trusted Platform Module)</strong>. It\'s a dedicated security chip that stores cryptographic keys for Windows Hello. BIOS stores settings, Credential Manager is software-based, and AD doesn\'t store biometrics locally.'
+    }
+  },
+
+  // ── MISSION 3: DRAG & DROP – AD Structure ──
+  {
+    type: 'dragdrop',
+    tag: '🏢 Active Directory Ops',
+    title: 'Mission 3: Build the AD Hierarchy',
+    question: 'Drag each Active Directory component to its correct level in the organizational hierarchy (top = broadest scope, bottom = most specific).',
+    items: ['Forest', 'Domain', 'Organizational Unit (OU)', 'Group Policy Object (GPO)'],
+    zones: [
+      { label: '🌐 Level 1 — Broadest Scope', correct: 'Forest' },
+      { label: '🏛️ Level 2 — Authentication Boundary', correct: 'Domain' },
+      { label: '📁 Level 3 — Container for Users/Computers', correct: 'Organizational Unit (OU)' },
+      { label: '⚙️ Level 4 — Policy Applied to Container', correct: 'Group Policy Object (GPO)' },
+    ],
+    feedback: {
+      correct: '✅ Perfect hierarchy! <strong>Forest → Domain → OU → GPO</strong>. A Forest is the top-level AD container. Domains are authentication boundaries within a forest. OUs organize users/computers within a domain. GPOs are linked to OUs (or domains) to apply settings.',
+      wrong: '❌ Not quite right. The correct order is: <strong>Forest → Domain → OU → GPO</strong>. Remember: Forest is the broadest container, Domains sit inside forests, OUs organize objects within domains, and GPOs are policies linked to OUs or domains.'
+    }
+  },
+
+  // ── MISSION 4: MCQ – GPO Precedence ──
+  {
+    type: 'mcq',
+    tag: '⚙️ Policy Command',
+    title: 'Mission 4: GPO Precedence',
+    scenario: 'A UVA student\'s computer is in the "Students" OU. A Local GPO disables USB drives. A Domain GPO enables USB drives. A Site GPO has no USB setting. Which policy wins?',
+    question: 'Using the LSDOU precedence rule, which GPO setting takes effect?',
+    options: [
+      { letter: 'A', text: 'Local GPO wins — it is applied first and takes highest priority' },
+      { letter: 'B', text: 'Site GPO wins — site-level policies always override domain and OU policies' },
+      { letter: 'C', text: 'Domain GPO wins — domain policies override local and site policies' },
+      { letter: 'D', text: 'OU GPO wins — OU is processed last and has highest precedence (if configured)' },
+    ],
+    correct: 3,
+    feedback: {
+      correct: '✅ Correct! LSDOU = <strong>Local → Site → Domain → OU</strong>. The LAST applied wins. Since no OU GPO is set for USB, the Domain GPO (enable USB) is the last applicable policy — so USB is <em>enabled</em>. OU GPO would win if one existed.',
+      wrong: '❌ Remember LSDOU: <strong>Local → Site → Domain → OU</strong>. Policies are applied in this order, and the LAST one wins. With no OU GPO set, the Domain GPO (enable USB) is the last applicable policy and takes effect.'
+    }
+  },
+
+  // ── MISSION 5: MCQ – NTFS vs Share Permissions ──
+  {
+    type: 'mcq',
+    tag: '📂 Permission Analysis',
+    title: 'Mission 5: Effective Permissions',
+    scenario: null,
+    question: 'A shared folder on a UVA file server has these permissions:\n• NTFS Permission for "Students" group: Read & Execute\n• Share Permission for "Students" group: Full Control\n\nA student accesses the folder over the network. What is their effective permission?',
+    options: [
+      { letter: 'A', text: 'Full Control — Share permissions take precedence over NTFS when accessing over the network' },
+      { letter: 'B', text: 'Read & Execute — The most restrictive combination of NTFS and Share permissions applies' },
+      { letter: 'C', text: 'No Access — Conflicting permissions always result in denial' },
+      { letter: 'D', text: 'Full Control — NTFS permissions are ignored for network access' },
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Spot on! When accessing over the network, Windows applies <strong>both</strong> NTFS and Share permissions, and the <strong>most restrictive</strong> combination wins. NTFS = Read & Execute, Share = Full Control → Effective = <strong>Read & Execute</strong>.',
+      wrong: '❌ The rule is: effective network permission = the <strong>most restrictive</strong> of NTFS and Share permissions combined. NTFS (Read & Execute) is more restrictive than Share (Full Control), so the effective permission is <strong>Read & Execute</strong>.'
+    }
+  },
+
+  // ── MISSION 6: ORDERING – Windows Update via CMD ──
+  {
+    type: 'ordering',
+    tag: '💻 Command-Line Ops',
+    title: 'Mission 6: Security Update Sequence',
+    question: 'A UVA IT admin needs to force a Windows security update check and install using command-line tools. Arrange these steps in the correct order:',
+    items: [
+      { id: 'a', text: 'Open an elevated Command Prompt (Run as Administrator)' },
+      { id: 'b', text: 'Run: net stop wuauserv  (stop Windows Update service)' },
+      { id: 'c', text: 'Run: net start wuauserv  (restart Windows Update service)' },
+      { id: 'd', text: 'Run: wuauclt /detectnow  (trigger update detection)' },
+      { id: 'e', text: 'Run: wuauclt /updatenow  (force update installation)' },
+    ],
+    correctOrder: ['a', 'b', 'c', 'd', 'e'],
+    feedback: {
+      correct: '✅ Perfect sequence! Elevate → Stop service → Restart service (clears cache) → Detect → Install. This is the standard CompTIA A+ procedure for forcing Windows Update via command line.',
+      wrong: '❌ The correct order is: <strong>Elevate → Stop wuauserv → Start wuauserv → /detectnow → /updatenow</strong>. Stopping and restarting the service clears the update cache before triggering detection and installation.'
+    }
+  },
+
+  // ── MISSION 7: MCQ – net use command ──
+  {
+    type: 'mcq',
+    tag: '🌐 Network Mapping',
+    title: 'Mission 7: Map the Network Drive',
+    scenario: 'A UVA student needs to map the school\'s shared folder \\\\uva-server\\StudentFiles to drive letter Z: using the command line.',
+    question: 'Which command correctly maps the network drive?',
+    options: [
+      { letter: 'A', text: 'net share Z: \\\\uva-server\\StudentFiles' },
+      { letter: 'B', text: 'net use Z: \\\\uva-server\\StudentFiles /persistent:yes' },
+      { letter: 'C', text: 'map drive Z: \\\\uva-server\\StudentFiles' },
+      { letter: 'D', text: 'netstat -r Z: \\\\uva-server\\StudentFiles' },
+    ],
+    correct: 1,
+    feedback: {
+      correct: '✅ Correct! <code>net use Z: \\\\\\\\server\\\\share</code> maps a network drive. The <code>/persistent:yes</code> flag ensures the mapping survives reboots. <code>net share</code> creates shares (server-side), <code>map drive</code> doesn\'t exist as a command, and <code>netstat</code> shows network statistics.',
+      wrong: '❌ The correct command is <strong>net use Z: \\\\\\\\uva-server\\\\StudentFiles /persistent:yes</strong>. "net use" maps network drives. "net share" creates shares on the server side. "map drive" and "netstat -r" are not valid for this purpose.'
+    }
+  },
+
+  // ── MISSION 8: MCQ – Authentication Factors ──
+  {
+    type: 'mcq',
+    tag: '🔐 Multi-Factor Auth',
+    title: 'Mission 8: Authentication Factors',
+    scenario: 'UVA is implementing multi-factor authentication (MFA). The IT team lists these factors: (1) Password, (2) Fingerprint scan, (3) Smart card, (4) One-time PIN sent to phone.',
+    question: 'Which combination correctly represents "something you know" + "something you are" + "something you have"?',
+    options: [
+      { letter: 'A', text: 'Password (know) + Fingerprint (are) + Smart card (have) — all three factor types' },
+      { letter: 'B', text: 'Password (know) + PIN (know) + Smart card (have) — two "know" factors' },
+      { letter: 'C', text: 'Fingerprint (are) + Smart card (have) + OTP (have) — missing "know" factor' },
+      { letter: 'D', text: 'Password (know) + PIN (know) + Fingerprint (are) — missing "have" factor' },
+    ],
+    correct: 0,
+    feedback: {
+      correct: '✅ Perfect! The three authentication factors are: <strong>Something you KNOW</strong> (password/PIN), <strong>Something you ARE</strong> (biometrics like fingerprint), and <strong>Something you HAVE</strong> (smart card, token, phone). Option A correctly uses one of each!',
+      wrong: '❌ The three factors are: <strong>Know</strong> (password/PIN), <strong>Are</strong> (biometrics), <strong>Have</strong> (smart card/token). Only Option A — Password + Fingerprint + Smart card — correctly uses one of each distinct factor type.'
+    }
+  },
+];
+
+// ═══════════════════════════════════════════════════════
+//  RENDER ENGINE
+// ═══════════════════════════════════════════════════════
+function startMissions() {
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('progressArea').style.display = 'block';
+  renderMission(0);
+}
+
+function renderMission(idx) {
+  currentMission = idx;
+  answered = false;
+  updateProgress(idx);
+
+  const area = document.getElementById('missionArea');
+  area.innerHTML = '';
+
+  const m = missions[idx];
+  const card = document.createElement('div');
+  card.className = 'mission-card active';
+  card.id = 'missionCard';
+
+  let inner = `
+    <div class="mission-tag">${m.tag}</div>
+    <div class="mission-number">Mission ${idx + 1} of ${missions.length}</div>
+    <div class="mission-question">${m.title}</div>
+  `;
+
+  if (m.scenario) {
+    inner += `<div class="scenario-box"><strong>📋 Scenario:</strong> ${m.scenario}</div>`;
+  }
+
+  if (m.type === 'mcq') {
+    inner += `<p style="font-weight:600;color:var(--text-mid);margin-bottom:14px;font-size:0.95rem;">${m.question}</p>`;
+    inner += `<div class="options-grid" id="optionsGrid">`;
+    m.options.forEach((opt, i) => {
+      inner += `<button class="option-btn" id="opt${i}" onclick="selectMCQ(${i})">
+        <span class="option-letter">${opt.letter}</span>${opt.text}
+      </button>`;
+    });
+    inner += `</div>`;
+  }
+
+  if (m.type === 'dragdrop') {
+    inner += `<p style="font-weight:600;color:var(--text-mid);margin-bottom:14px;font-size:0.95rem;">${m.question}</p>`;
+    inner += `<div class="drag-area">
+      <div class="drag-column">
+        <h4>🧩 Components</h4>
+        <div class="drag-items" id="dragSource">`;
+    m.items.forEach((item, i) => {
+      inner += `<div class="drag-item" draggable="true" id="di${i}" data-item="${item}"
+        ondragstart="dragStart(event)" ondragend="dragEnd(event)">${item}</div>`;
+    });
+    inner += `</div></div>
+      <div class="drag-column">
+        <h4>📍 Hierarchy Levels</h4>`;
+    m.zones.forEach((zone, i) => {
+      inner += `<div class="drop-label">${zone.label}</div>
+        <div class="drop-zone" id="dz${i}" data-zone="${i}"
+          ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropItem(event,${i})"></div>`;
+    });
+    inner += `</div></div>`;
+  }
+
+  if (m.type === 'ordering') {
+    inner += `<p style="font-weight:600;color:var(--text-mid);margin-bottom:14px;font-size:0.95rem;">${m.question}</p>`;
+    inner += `<p style="font-size:0.8rem;color:var(--text-light);margin-bottom:10px;">💡 Drag items to reorder them</p>`;
+    inner += `<div class="order-list" id="orderList">`;
+    // Shuffle for display
+    const shuffled = [...m.items].sort(() => Math.random() - 0.5);
+    shuffled.forEach((item, i) => {
+      inner += `<div class="order-item" draggable="true" id="oi${i}" data-id="${item.id}"
+        ondragstart="orderDragStart(event)" ondragend="orderDragEnd(event)"
+        ondragover="orderDragOver(event)" ondragleave="orderDragLeave(event)" ondrop="orderDrop(event)">
+        <div class="order-num">${i + 1}</div>
+        <span>${item.text}</span>
+      </div>`;
+    });
+    inner += `</div>`;
+  }
+
+  inner += `<div class="feedback-box" id="feedbackBox"></div>`;
+  inner += `<div class="action-row">
+    <button class="submit-btn" id="submitBtn" onclick="submitAnswer()">⚡ Submit Answer</button>
+    <button class="next-btn" id="nextBtn" onclick="nextMission()">Next Mission →</button>
+  </div>`;
+
+  card.innerHTML = inner;
+  area.appendChild(card);
+
+  // Re-number order items after render
+  if (m.type === 'ordering') {
+    updateOrderNumbers();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  MCQ LOGIC
+// ═══════════════════════════════════════════════════════
+let selectedOption = -1;
+function selectMCQ(i) {
+  if (answered) return;
+  selectedOption = i;
+  document.querySelectorAll('.option-btn').forEach((b, idx) => {
+    b.classList.toggle('selected', idx === i);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  DRAG & DROP LOGIC (AD Hierarchy)
+// ═══════════════════════════════════════════════════════
+function dragStart(e) {
+  dragSrc = e.target;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', e.target.dataset.item);
+}
+function dragEnd(e) { e.target.classList.remove('dragging'); }
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function dragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+function dropItem(e, zoneIdx) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const item = e.dataTransfer.getData('text/plain');
+  const zone = e.currentTarget;
+  // Remove from previous zone if any
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.querySelectorAll('.drag-item').forEach(di => {
+      if (di.dataset.item === item) di.remove();
+    });
+  });
+  // Remove from source
+  document.querySelectorAll('#dragSource .drag-item').forEach(di => {
+    if (di.dataset.item === item) di.remove();
+  });
+  // Add to zone
+  const newItem = document.createElement('div');
+  newItem.className = 'drag-item';
+  newItem.draggable = true;
+  newItem.dataset.item = item;
+  newItem.textContent = item;
+  newItem.ondragstart = dragStart;
+  newItem.ondragend = dragEnd;
+  zone.appendChild(newItem);
+}
+
+// ═══════════════════════════════════════════════════════
+//  ORDERING DRAG LOGIC
+// ═══════════════════════════════════════════════════════
+function orderDragStart(e) {
+  orderDragSrc = e.currentTarget;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function orderDragEnd(e) { e.currentTarget.classList.remove('dragging'); }
+function orderDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over-item');
+}
+function orderDragLeave(e) { e.currentTarget.classList.remove('drag-over-item'); }
+function orderDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over-item');
+  if (orderDragSrc === e.currentTarget) return;
+  const list = document.getElementById('orderList');
+  const items = [...list.children];
+  const srcIdx = items.indexOf(orderDragSrc);
+  const tgtIdx = items.indexOf(e.currentTarget);
+  if (srcIdx < tgtIdx) {
+    list.insertBefore(orderDragSrc, e.currentTarget.nextSibling);
+  } else {
+    list.insertBefore(orderDragSrc, e.currentTarget);
+  }
+  updateOrderNumbers();
+}
+function updateOrderNumbers() {
+  const list = document.getElementById('orderList');
+  if (!list) return;
+  [...list.children].forEach((item, i) => {
+    item.querySelector('.order-num').textContent = i + 1;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+//  SUBMIT LOGIC
+// ═══════════════════════════════════════════════════════
+function submitAnswer() {
+  if (answered) return;
+  const m = missions[currentMission];
+  let isCorrect = false;
+
+  if (m.type === 'mcq') {
+    if (selectedOption === -1) { showToastMsg('⚠️ Select an answer first!', '#555'); return; }
+    isCorrect = selectedOption === m.correct;
+    document.querySelectorAll('.option-btn').forEach((b, i) => {
+      b.disabled = true;
+      if (i === m.correct) b.classList.add('correct');
+      else if (i === selectedOption && !isCorrect) b.classList.add('wrong');
+    });
+    selectedOption = -1;
+  }
+
+  if (m.type === 'dragdrop') {
+    isCorrect = true;
+    m.zones.forEach((zone, i) => {
+      const dz = document.getElementById(`dz${i}`);
+      const placed = dz.querySelector('.drag-item');
+      const correct = placed && placed.dataset.item === zone.correct;
+      dz.classList.add(correct ? 'correct-zone' : 'wrong-zone');
+      if (!correct) isCorrect = false;
+    });
+    document.querySelectorAll('.drag-item').forEach(d => d.draggable = false);
+  }
+
+  if (m.type === 'ordering') {
+    const list = document.getElementById('orderList');
+    const currentOrder = [...list.children].map(c => c.dataset.id);
+    isCorrect = JSON.stringify(currentOrder) === JSON.stringify(m.correctOrder);
+    [...list.children].forEach((item, i) => {
+      const correct = item.dataset.id === m.correctOrder[i];
+      item.classList.add(correct ? 'correct-order' : 'wrong-order');
+      item.draggable = false;
+    });
+  }
+
+  answered = true;
+  showFeedback(isCorrect, m.feedback);
+  updateScore(isCorrect);
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+// ═══════════════════════════════════════════════════════
+//  SCORE & RANK
+// ═══════════════════════════════════════════════════════
+function updateScore(isCorrect) {
+  if (isCorrect) {
+    score++;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    const bonus = streak >= 3 ? 20 : 0;
+    xp += 100 + bonus;
+    if (streak >= 3) {
+      showToastMsg(`🔥 ${streak}-in-a-row! +${100 + bonus} XP`, '#e67e22');
+    }
+    if (streak === 3) launchConfetti();
+  } else {
+    streak = 0;
+  }
+
+  document.getElementById('hudScore').textContent = score;
+  document.getElementById('hudXP').textContent = xp;
+
+  const streakEl = document.getElementById('streakDisplay');
+  const streakCount = document.getElementById('streakCount');
+  if (streak >= 2) {
+    streakEl.classList.add('active');
+    streakCount.textContent = streak;
+  } else {
+    streakEl.classList.remove('active');
+  }
+
+  updateRank();
+}
+
+function updateRank() {
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (xp >= r.minXP) rank = r; }
+  const prev = document.getElementById('rankBadge').textContent;
+  document.getElementById('rankBadge').textContent = `${rank.icon} ${rank.name}`;
+
+  // Badge popup on rank up
+  const prevRankName = prev.split(' ').slice(1).join(' ');
+  if (prevRankName !== rank.name && prevRankName !== '') {
+    showBadge(rank.icon, `Rank Up: ${rank.name}!`, `You've proven yourself worthy of the ${rank.name} rank at UVA!`);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  FEEDBACK
+// ═══════════════════════════════════════════════════════
+function showFeedback(isCorrect, fb) {
+  const box = document.getElementById('feedbackBox');
+  box.className = `feedback-box show ${isCorrect ? 'correct-fb' : 'wrong-fb'}`;
+  box.innerHTML = isCorrect ? fb.correct : fb.wrong;
+  const card = document.getElementById('missionCard');
+  card.classList.add(isCorrect ? 'correct-border' : 'wrong-border');
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+function nextMission() {
+  if (currentMission + 1 >= missions.length) {
+    showResults();
+  } else {
+    renderMission(currentMission + 1);
+  }
+}
+
+function updateProgress(idx) {
+  const pct = (idx / missions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `Mission ${idx + 1} of ${missions.length}`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  RESULTS
+// ═══════════════════════════════════════════════════════
+function showResults() {
+  document.getElementById('progressArea').style.display = 'none';
+  document.getElementById('missionArea').innerHTML = '';
+
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (xp >= r.minXP) rank = r; }
+
+  const pct = score / missions.length;
+  let trophy = pct >= 0.875 ? '🏆' : pct >= 0.625 ? '🥈' : pct >= 0.375 ? '🥉' : '📋';
+  let title = pct >= 0.875 ? 'Outstanding Performance!' : pct >= 0.625 ? 'Mission Accomplished!' : pct >= 0.375 ? 'Good Effort, Cadet!' : 'Keep Training, Cadet!';
+
+  document.getElementById('resultsTrophy').textContent = trophy;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('finalRank').textContent = `${rank.icon} ${rank.name}`;
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('finalDenom').textContent = `/ ${missions.length}`;
+  document.getElementById('resCorrect').textContent = score;
+  document.getElementById('resXP').textContent = xp;
+  document.getElementById('resBestStreak').textContent = bestStreak;
+
+  document.getElementById('resultsScreen').classList.add('show');
+
+  if (pct >= 0.875) launchConfetti();
+}
+
+function restartMissions() {
+  score = 0; xp = 0; streak = 0; bestStreak = 0; currentMission = 0;
+  document.getElementById('hudScore').textContent = '0';
+  document.getElementById('hudXP').textContent = '0';
+  document.getElementById('rankBadge').textContent = '⚡ Trainee';
+  document.getElementById('streakDisplay').classList.remove('active');
+  document.getElementById('resultsScreen').classList.remove('show');
+  document.getElementById('progressArea').style.display = 'block';
+  renderMission(0);
+}
+
+// ═══════════════════════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════════════════════
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#FFD166','#ffffff','#e74c3c','#9b59b6'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.top = '-20px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 10 + 6) + 'px';
+    piece.style.height = (Math.random() * 10 + 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    piece.style.animationDuration = (Math.random() * 1.5 + 2) + 's';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+function showToastMsg(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || 'linear-gradient(135deg, #e67e22, #d35400)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════════
+//  BADGE POPUP
+// ═══════════════════════════════════════════════════════
+function showBadge(icon, title, desc) {
+  document.getElementById('badgeIcon').textContent = icon;
+  document.getElementById('badgeTitle').textContent = title;
+  document.getElementById('badgeDesc').textContent = desc;
+  document.getElementById('badgeOverlay').classList.add('show');
+  document.getElementById('badgePopup').classList.add('show');
+  launchConfetti();
+}
+function closeBadge() {
+  document.getElementById('badgeOverlay').classList.remove('show');
+  document.getElementById('badgePopup').classList.remove('show');
+}
+</script>
+</body>
+</html>
