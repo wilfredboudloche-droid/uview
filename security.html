@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 15A: Logical Security Concepts – UVA</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --green: #1E7A3E;
+    --light-blue: #2a7fd4;
+    --light-green: #27a352;
+    --gold: #f0c040;
+    --bg: #f0f4f8;
+    --white: #ffffff;
+    --dark: #1a1a2e;
+    --gray: #6c757d;
+    --light-gray: #e9ecef;
+    --success: #28a745;
+    --danger: #dc3545;
+    --shadow: 0 4px 20px rgba(0,0,0,0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--dark);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--blue) 0%, #0d3d7a 100%);
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .logo-circle {
+    width: 56px; height: 56px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 900; color: var(--blue);
+    text-align: center; line-height: 1.1;
+    border: 3px solid var(--gold);
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .logo-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+  .header-title h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: 0.5px; }
+  .header-title p { font-size: 0.75rem; opacity: 0.85; }
+  .motto-ribbon {
+    background: var(--green);
+    color: white;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 2px solid var(--gold);
+  }
+
+  /* RANK BAR */
+  .rank-bar {
+    background: linear-gradient(90deg, #0d3d7a, var(--blue));
+    color: white;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+  .rank-display {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .rank-badge {
+    background: var(--gold);
+    color: var(--dark);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+  .score-display { display: flex; align-items: center; gap: 16px; }
+  .score-item { text-align: center; }
+  .score-item .val { font-size: 1.2rem; font-weight: 800; color: var(--gold); }
+  .score-item .lbl { font-size: 0.65rem; opacity: 0.8; text-transform: uppercase; }
+  .streak-display {
+    background: rgba(255,255,255,0.15);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  .streak-display.hot { background: #ff6b35; animation: pulse 0.6s infinite alternate; }
+  @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
+
+  /* PROGRESS BAR */
+  .progress-section {
+    background: white;
+    padding: 10px 24px;
+    border-bottom: 2px solid var(--light-gray);
+  }
+  .progress-label { font-size: 0.75rem; color: var(--gray); margin-bottom: 4px; font-weight: 600; }
+  .progress-bar-outer {
+    background: var(--light-gray);
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--light-green));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .mission-header {
+    background: linear-gradient(135deg, var(--green), var(--light-green));
+    color: white;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mission-icon {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .mission-header h2 { font-size: 1rem; font-weight: 800; }
+  .mission-header p { font-size: 0.78rem; opacity: 0.9; margin-top: 2px; }
+  .mission-body { padding: 20px; }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* INTRO SCREEN */
+  .intro-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 20px 0;
+  }
+  .intro-card {
+    background: linear-gradient(135deg, var(--blue), var(--light-blue));
+    color: white;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .intro-card .icon { font-size: 2rem; margin-bottom: 8px; }
+  .intro-card h3 { font-size: 0.9rem; font-weight: 700; }
+  .intro-card p { font-size: 0.75rem; opacity: 0.9; margin-top: 4px; }
+  .btn-start {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, var(--green), var(--light-green));
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(30,122,62,0.4);
+    margin-top: 10px;
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30,122,62,0.5); }
+
+  /* DRAG AND DROP */
+  .dnd-container { display: flex; flex-direction: column; gap: 20px; }
+  .dnd-banks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px;
+    background: var(--light-gray);
+    border-radius: 12px;
+    min-height: 60px;
+  }
+  .drag-item {
+    background: var(--blue);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: grab;
+    font-size: 0.82rem;
+    font-weight: 600;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid transparent;
+  }
+  .drag-item:hover { transform: scale(1.04); box-shadow: 0 4px 12px rgba(27,94,175,0.4); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drag-item.correct { background: var(--success); border-color: #1a7a30; }
+  .drag-item.incorrect { background: var(--danger); border-color: #a01020; }
+  .drop-zones { display: flex; flex-direction: column; gap: 12px; }
+  .drop-zone-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .drop-zone-label {
+    background: var(--green);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    min-width: 160px;
+    text-align: center;
+  }
+  .drop-zone {
+    flex: 1;
+    min-height: 46px;
+    min-width: 180px;
+    border: 2px dashed #aaa;
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    background: white;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .drop-zone.over { border-color: var(--blue); background: #e8f0fb; }
+  .drop-zone.correct-zone { border-color: var(--success); background: #e8f8ed; }
+  .drop-zone.incorrect-zone { border-color: var(--danger); background: #fde8e8; }
+
+  /* MCQ */
+  .question-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .scenario-box {
+    background: linear-gradient(135deg, #e8f0fb, #d0e4f7);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .option-btn {
+    background: white;
+    border: 2px solid var(--light-gray);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--blue); background: #e8f0fb; }
+  .option-btn.selected-correct { border-color: var(--success); background: #e8f8ed; color: var(--success); }
+  .option-btn.selected-wrong { border-color: var(--danger); background: #fde8e8; color: var(--danger); }
+  .option-btn.reveal-correct { border-color: var(--success); background: #e8f8ed; }
+  .option-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--light-gray);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .option-btn.selected-correct .option-letter { background: var(--success); color: white; }
+  .option-btn.selected-wrong .option-letter { background: var(--danger); color: white; }
+  .option-btn.reveal-correct .option-letter { background: var(--success); color: white; }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    display: none;
+    line-height: 1.5;
+  }
+  .feedback-box.correct { background: #e8f8ed; border: 2px solid var(--success); color: #1a5c2a; }
+  .feedback-box.incorrect { background: #fde8e8; border: 2px solid var(--danger); color: #7a1020; }
+  .feedback-box.show { display: block; }
+
+  /* STREAK POPUP */
+  .streak-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--gold), #e0a800);
+    color: var(--dark);
+    padding: 20px 36px;
+    border-radius: 20px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+  }
+  .streak-popup.show { transform: translate(-50%, -50%) scale(1); }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* BADGE */
+  .badge-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white;
+    border: 4px solid var(--gold);
+    border-radius: 20px;
+    padding: 30px 40px;
+    text-align: center;
+    z-index: 1001;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+    min-width: 260px;
+  }
+  .badge-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .badge-icon { font-size: 4rem; margin-bottom: 10px; }
+  .badge-title { font-size: 1.3rem; font-weight: 900; color: var(--blue); }
+  .badge-sub { font-size: 0.85rem; color: var(--gray); margin-top: 4px; }
+
+  /* NAV BUTTONS */
+  .nav-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { background: #0d3d7a; }
+  .btn-success { background: var(--green); color: white; }
+  .btn-success:hover { background: #155c2e; }
+  .btn-secondary { background: var(--light-gray); color: var(--dark); }
+  .btn-secondary:hover { background: #d0d5da; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* RESULTS SCREEN */
+  .results-card {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .results-icon { font-size: 5rem; margin-bottom: 16px; }
+  .results-title { font-size: 1.8rem; font-weight: 900; color: var(--blue); margin-bottom: 8px; }
+  .results-score {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--green);
+    margin: 16px 0;
+  }
+  .results-rank {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--dark);
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 1rem;
+    margin-bottom: 20px;
+  }
+  .results-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .breakdown-item {
+    background: var(--light-gray);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .breakdown-item .val { font-size: 1.5rem; font-weight: 900; color: var(--blue); }
+  .breakdown-item .lbl { font-size: 0.72rem; color: var(--gray); text-transform: uppercase; font-weight: 600; }
+  .objectives-list {
+    text-align: left;
+    background: #e8f0fb;
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .objectives-list h4 { color: var(--blue); font-size: 0.9rem; margin-bottom: 10px; }
+  .objectives-list li { font-size: 0.82rem; margin-bottom: 6px; padding-left: 4px; }
+
+  /* SIMULATION */
+  .sim-window {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  .sim-titlebar {
+    background: #2d2d2d;
+    color: white;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sim-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .sim-body { background: white; padding: 16px; }
+  .sim-step { display: none; }
+  .sim-step.active { display: block; }
+  .sim-instruction {
+    background: linear-gradient(135deg, #fff8e1, #fff3cd);
+    border-left: 4px solid var(--gold);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .cmd-box {
+    background: #1e1e1e;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin: 10px 0;
+  }
+  .cmd-box .prompt { color: #888; }
+  .net-user-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 10px;
+  }
+  .net-user-table th {
+    background: var(--blue);
+    color: white;
+    padding: 8px 10px;
+    text-align: left;
+  }
+  .net-user-table td { padding: 7px 10px; border-bottom: 1px solid var(--light-gray); }
+  .net-user-table tr:hover td { background: #f0f4f8; }
+
+  /* MATCHING */
+  .match-container { display: flex; gap: 16px; flex-wrap: wrap; }
+  .match-col { flex: 1; min-width: 200px; }
+  .match-col h4 { font-size: 0.82rem; font-weight: 700; color: var(--gray); text-transform: uppercase; margin-bottom: 10px; }
+  .match-item {
+    background: white;
+    border: 2px solid var(--light-gray);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .match-item:hover { border-color: var(--blue); background: #e8f0fb; }
+  .match-item.selected { border-color: var(--blue); background: #d0e4f7; }
+  .match-item.matched-correct { border-color: var(--success); background: #e8f8ed; color: var(--success); cursor: default; }
+  .match-item.matched-wrong { border-color: var(--danger); background: #fde8e8; color: var(--danger); }
+  .match-item.disabled { cursor: default; opacity: 0.7; }
+
+  /* FILL BLANK */
+  .fill-blank-input {
+    border: 2px solid var(--light-gray);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 300px;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .fill-blank-input:focus { outline: none; border-color: var(--blue); }
+  .fill-blank-input.correct { border-color: var(--success); background: #e8f8ed; }
+  .fill-blank-input.incorrect { border-color: var(--danger); background: #fde8e8; }
+
+  /* MISSION TABS */
+  .mission-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .mission-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 2px solid var(--light-gray);
+    background: white;
+    color: var(--gray);
+    cursor: default;
+    transition: all 0.2s;
+  }
+  .mission-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
+  .mission-tab.completed { background: var(--green); color: white; border-color: var(--green); }
+
+  /* TOOLTIP */
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    color: var(--blue);
+    font-weight: 700;
+    border-bottom: 1px dashed var(--blue);
+  }
+  .tooltip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--dark);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 100;
+    font-weight: 400;
+  }
+
+  /* OVERLAY */
+  .overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 998;
+    display: none;
+  }
+  .overlay.show { display: block; }
+
+  @media (max-width: 600px) {
+    .header { padding: 12px 14px; }
+    .main { padding: 14px 10px; }
+    .match-container { flex-direction: column; }
+    .drop-zone-row { flex-direction: column; align-items: flex-start; }
+    .drop-zone-label { min-width: unset; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="logo-circle">
+      <img src="logo.png" alt="UVA Logo" onerror="this.style.display='none';this.parentElement.innerHTML='UVA';">
+    </div>
+    <div class="header-title">
+      <h1>🔐 Lesson 15A: Logical Security Concepts</h1>
+      <p>Computer Architecture · A+ Core 2 – Domains 1.5, 2.1, 2.2</p>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+</div>
+
+<!-- RANK BAR -->
+<div class="rank-bar">
+  <div class="rank-display">
+    <span>🎖️ Rank:</span>
+    <span class="rank-badge" id="rankBadge">Trainee</span>
+    <span id="rankEmoji">🔰</span>
+  </div>
+  <div class="score-display">
+    <div class="score-item">
+      <div class="val" id="scoreVal">0</div>
+      <div class="lbl">Score</div>
+    </div>
+    <div class="score-item">
+      <div class="val" id="correctVal">0</div>
+      <div class="lbl">Correct</div>
+    </div>
+    <div class="streak-display" id="streakDisplay">🔥 Streak: 0</div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-section">
+  <div class="progress-label" id="progressLabel">Mission Progress: 0 / 5 Missions Complete</div>
+  <div class="progress-bar-outer">
+    <div class="progress-bar-inner" id="progressBar"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- MISSION TABS -->
+  <div class="mission-tabs" id="missionTabs" style="display:none;">
+    <div class="mission-tab" id="tab0">M1: CIA Triad</div>
+    <div class="mission-tab" id="tab1">M2: Security Controls</div>
+    <div class="mission-tab" id="tab2">M3: Encryption</div>
+    <div class="mission-tab" id="tab3">M4: User Accounts</div>
+    <div class="mission-tab" id="tab4">M5: MFA</div>
+  </div>
+
+  <!-- INTRO SCREEN -->
+  <div class="screen active" id="screen-intro">
+    <div class="mission-card">
+      <div class="mission-header">
+        <div class="mission-icon">🛡️</div>
+        <div>
+          <h2>Welcome, Security Cadet!</h2>
+          <p>Your mission: Master Logical Security Concepts to earn the rank of Master</p>
+        </div>
+      </div>
+      <div class="mission-body">
+        <p style="font-size:0.9rem; color:var(--gray); margin-bottom:16px;">
+          You are a new recruit at <strong>UVA CyberOps</strong>. Complete all 5 missions to prove your skills and earn your Master badge. Each correct answer earns points — build streaks for bonus rewards!
+        </p>
+        <div class="intro-grid">
+          <div class="intro-card">
+            <div class="icon">🔺</div>
+            <h3>Mission 1</h3>
+            <p>CIA Triad Drag & Drop</p>
+          </div>
+          <div class="intro-card">
+            <div class="icon">🔒</div>
+            <h3>Mission 2</h3>
+            <p>Security Controls Matching</p>
+          </div>
+          <div class="intro-card">
+            <div class="icon">🔑</div>
+            <h3>Mission 3</h3>
+            <p>Encryption Scenarios</p>
+          </div>
+          <div class="intro-card">
+            <div class="icon">👤</div>
+            <h3>Mission 4</h3>
+            <p>User Account Simulation</p>
+          </div>
+          <div class="intro-card">
+            <div class="icon">📱</div>
+            <h3>Mission 5</h3>
+            <p>MFA Challenge</p>
+          </div>
+        </div>
+        <div style="background:#e8f0fb;border-radius:10px;padding:14px;margin-bottom:16px;font-size:0.82rem;">
+          <strong>🏆 Rank System:</strong> Trainee (0–19 pts) → Apprentice (20–39 pts) → Expert (40–59 pts) → <strong>Master (60+ pts)</strong><br>
+          <strong>🔥 Streak Bonus:</strong> 3 in a row = +5 pts · 5 in a row = +10 pts + Badge!
+        </div>
+        <button class="btn-start" onclick="startMissions()">🚀 BEGIN MISSIONS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 1: CIA TRIAD DRAG & DROP -->
+  <div class="screen" id="screen-0">
+    <div class="mission-card">
+      <div class="mission-header" style="background: linear-gradient(135deg, var(--blue), var(--light-blue));">
+        <div class="mission-icon">🔺</div>
+        <div>
+          <h2>Mission 1: CIA Triad Classification</h2>
+          <p>Drag each scenario to the correct CIA Triad component</p>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="sim-instruction">
+          🎯 <strong>Your Task:</strong> The UVA CyberOps team has flagged 6 security events. Drag each event to the correct CIA Triad pillar it relates to.
+        </div>
+        <div class="dnd-container">
+          <div>
+            <p style="font-size:0.8rem;font-weight:700;color:var(--gray);margin-bottom:8px;">📦 SECURITY EVENTS (drag these):</p>
+            <div class="dnd-banks" id="dndBank">
+              <div class="drag-item" draggable="true" data-id="0">A hacker reads private emails</div>
+              <div class="drag-item" draggable="true" data-id="1">A file is altered without authorization</div>
+              <div class="drag-item" draggable="true" data-id="2">A server crashes during finals week</div>
+              <div class="drag-item" draggable="true" data-id="3">A student's grade is changed in the DB</div>
+              <div class="drag-item" draggable="true" data-id="4">A VPN encrypts student login data</div>
+              <div class="drag-item" draggable="true" data-id="5">A DDoS attack takes down the school portal</div>
+            </div>
+          </div>
+          <div class="drop-zones">
+            <div class="drop-zone-row">
+              <div class="drop-zone-label">🔐 Confidentiality<br><small style="font-weight:400;opacity:0.85;">Protecting data from unauthorized access</small></div>
+              <div class="drop-zone" id="zone-C" data-zone="C"></div>
+            </div>
+            <div class="drop-zone-row">
+              <div class="drop-zone-label">✅ Integrity<br><small style="font-weight:400;opacity:0.85;">Ensuring data accuracy & trustworthiness</small></div>
+              <div class="drop-zone" id="zone-I" data-zone="I"></div>
+            </div>
+            <div class="drop-zone-row">
+              <div class="drop-zone-label">🌐 Availability<br><small style="font-weight:400;opacity:0.85;">Ensuring systems are accessible when needed</small></div>
+              <div class="drop-zone" id="zone-A" data-zone="A"></div>
+            </div>
+          </div>
+        </div>
+        <div class="feedback-box" id="dnd-feedback"></div>
+        <div class="nav-buttons">
+          <button class="btn btn-success" id="dndCheckBtn" onclick="checkDnD()" disabled>✔ Check Answers</button>
+          <button class="btn btn-primary" id="dndNextBtn" onclick="goToMission(1)" style="display:none;">Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 2: SECURITY CONTROLS MATCHING -->
+  <div class="screen" id="screen-1">
+    <div class="mission-card">
+      <div class="mission-header" style="background: linear-gradient(135deg, #5c2d91, #7b3fc4);">
+        <div class="mission-icon">🔒</div>
+        <div>
+          <h2>Mission 2: Security Controls Intel</h2>
+          <p>Match each security control to its correct category</p>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="sim-instruction">
+          🎯 <strong>Your Task:</strong> UVA CyberOps needs you to classify 6 security controls. Click a control on the left, then click its matching category on the right.
+        </div>
+        <div class="match-container">
+          <div class="match-col">
+            <h4>🛡️ Security Controls</h4>
+            <div class="match-item" id="mc0" data-id="0" onclick="selectMatchLeft(0)">Security camera at server room door</div>
+            <div class="match-item" id="mc1" data-id="1" onclick="selectMatchLeft(1)">Firewall blocking unauthorized ports</div>
+            <div class="match-item" id="mc2" data-id="2" onclick="selectMatchLeft(2)">Password policy requiring 12+ characters</div>
+            <div class="match-item" id="mc3" data-id="3" onclick="selectMatchLeft(3)">Biometric lock on the data center</div>
+            <div class="match-item" id="mc4" data-id="4" onclick="selectMatchLeft(4)">Antivirus software scanning files</div>
+            <div class="match-item" id="mc5" data-id="5" onclick="selectMatchLeft(5)">Acceptable Use Policy (AUP) document</div>
+          </div>
+          <div class="match-col">
+            <h4>📂 Categories</h4>
+            <div class="match-item" id="mr0" data-cat="Physical" onclick="selectMatchRight('Physical')">🏢 Physical Security</div>
+            <div class="match-item" id="mr1" data-cat="Logical" onclick="selectMatchRight('Logical')">💻 Logical Security</div>
+            <div class="match-item" id="mr2" data-cat="Procedural" onclick="selectMatchRight('Procedural')">📋 Procedural Security</div>
+          </div>
+        </div>
+        <div class="feedback-box" id="match-feedback"></div>
+        <div style="margin-top:12px;font-size:0.8rem;color:var(--gray);" id="matchScore">Matched: 0 / 6</div>
+        <div class="nav-buttons">
+          <button class="btn btn-primary" id="matchNextBtn" onclick="goToMission(2)" style="display:none;">Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 3: ENCRYPTION SCENARIOS (MCQ) -->
+  <div class="screen" id="screen-2">
+    <div class="mission-card">
+      <div class="mission-header" style="background: linear-gradient(135deg, #c0392b, #e74c3c);">
+        <div class="mission-icon">🔑</div>
+        <div>
+          <h2>Mission 3: Encryption Ops</h2>
+          <p>Choose the correct encryption method for each scenario</p>
+        </div>
+      </div>
+      <div class="mission-body" id="encBody">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 4: USER ACCOUNT SIMULATION -->
+  <div class="screen" id="screen-3">
+    <div class="mission-card">
+      <div class="mission-header" style="background: linear-gradient(135deg, #e67e22, #f39c12);">
+        <div class="mission-icon">👤</div>
+        <div>
+          <h2>Mission 4: Account Management Ops</h2>
+          <p>Use the net user command and GUI tools to manage accounts</p>
+        </div>
+      </div>
+      <div class="mission-body" id="simBody">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 5: MFA CHALLENGE -->
+  <div class="screen" id="screen-4">
+    <div class="mission-card">
+      <div class="mission-header" style="background: linear-gradient(135deg, var(--green), var(--light-green));">
+        <div class="mission-icon">📱</div>
+        <div>
+          <h2>Mission 5: MFA Defense Protocol</h2>
+          <p>Identify and apply multifactor authentication methods</p>
+        </div>
+      </div>
+      <div class="mission-body" id="mfaBody">
+        <!-- Dynamically rendered -->
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="screen" id="screen-results">
+    <div class="mission-card">
+      <div class="mission-header">
+        <div class="mission-icon">🏆</div>
+        <div>
+          <h2>Mission Debrief – All Missions Complete!</h2>
+          <p>University View Academy · Logical Security Assessment</p>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="results-card" id="resultsContent"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- OVERLAYS -->
+<div class="overlay" id="overlay"></div>
+<div class="streak-popup" id="streakPopup"></div>
+<div class="badge-popup" id="badgePopup">
+  <div class="badge-icon" id="badgeIcon">🏅</div>
+  <div class="badge-title" id="badgeTitle">Achievement Unlocked!</div>
+  <div class="badge-sub" id="badgeSub"></div>
+</div>
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+// ===================== STATE =====================
+let score = 0;
+let correct = 0;
+let streak = 0;
+let maxStreak = 0;
+let currentMission = -1;
+let missionsDone = [false,false,false,false,false];
+let dndAnswers = { C: [], I: [], A: [] };
+let dndCorrect = { 0:'C', 1:'I', 2:'A', 3:'I', 4:'C', 5:'A' };
+let matchSelected = null;
+let matchCorrect = { 0:'Physical', 1:'Logical', 2:'Procedural', 3:'Physical', 4:'Logical', 5:'Procedural' };
+let matchDone = 0;
+let encQIdx = 0;
+let simQIdx = 0;
+let mfaQIdx = 0;
+
+// ===================== RANKS =====================
+function getRank(s) {
+  if (s >= 60) return { name: 'Master', emoji: '👑', color: '#f0c040' };
+  if (s >= 40) return { name: 'Expert', emoji: '⭐', color: '#1B5EAF' };
+  if (s >= 20) return { name: 'Apprentice', emoji: '🔵', color: '#1E7A3E' };
+  return { name: 'Trainee', emoji: '🔰', color: '#6c757d' };
+}
+function updateRankBar() {
+  const r = getRank(score);
+  document.getElementById('rankBadge').textContent = r.name;
+  document.getElementById('rankBadge').style.background = r.color;
+  document.getElementById('rankEmoji').textContent = r.emoji;
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('correctVal').textContent = correct;
+  const sd = document.getElementById('streakDisplay');
+  sd.textContent = '🔥 Streak: ' + streak;
+  sd.className = 'streak-display' + (streak >= 3 ? ' hot' : '');
+}
+function updateProgress() {
+  const done = missionsDone.filter(Boolean).length;
+  document.getElementById('progressLabel').textContent = `Mission Progress: ${done} / 5 Missions Complete`;
+  document.getElementById('progressBar').style.width = (done / 5 * 100) + '%';
+  for (let i = 0; i < 5; i++) {
+    const t = document.getElementById('tab' + i);
+    if (missionsDone[i]) t.className = 'mission-tab completed';
+    else if (i === currentMission) t.className = 'mission-tab active';
+    else t.className = 'mission-tab';
+  }
+}
+
+// ===================== SCORING =====================
+function addScore(pts, isCorrect) {
+  if (isCorrect) {
+    score += pts;
+    correct++;
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    if (streak === 3) { showStreakPopup('🔥 3 in a Row! +5 Bonus!'); score += 5; }
+    if (streak === 5) { showStreakPopup('⚡ 5 in a Row! +10 Bonus!'); score += 10; showBadge('⚡','Streak Master!','5 correct answers in a row!'); }
+  } else {
+    streak = 0;
+  }
+  updateRankBar();
+}
+
+// ===================== POPUPS =====================
+function showStreakPopup(msg) {
+  const p = document.getElementById('streakPopup');
+  p.textContent = msg;
+  p.classList.add('show');
+  setTimeout(() => p.classList.remove('show'), 2000);
+}
+function showBadge(icon, title, sub) {
+  document.getElementById('badgeIcon').textContent = icon;
+  document.getElementById('badgeTitle').textContent = title;
+  document.getElementById('badgeSub').textContent = sub;
+  const b = document.getElementById('badgePopup');
+  const o = document.getElementById('overlay');
+  b.classList.add('show');
+  o.classList.add('show');
+  setTimeout(() => { b.classList.remove('show'); o.classList.remove('show'); }, 2800);
+}
+function launchConfetti() {
+  const c = document.getElementById('confettiContainer');
+  c.innerHTML = '';
+  const colors = ['#1B5EAF','#1E7A3E','#f0c040','#e74c3c','#9b59b6','#2ecc71'];
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    p.style.width = (8 + Math.random() * 8) + 'px';
+    p.style.height = (8 + Math.random() * 8) + 'px';
+    p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    p.style.animationDelay = Math.random() * 1 + 's';
+    c.appendChild(p);
+  }
+  setTimeout(() => c.innerHTML = '', 4000);
+}
+
+// ===================== NAVIGATION =====================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function startMissions() {
+  document.getElementById('missionTabs').style.display = 'flex';
+  goToMission(0);
+}
+function goToMission(n) {
+  currentMission = n;
+  if (n < 5) {
+    showScreen('screen-' + n);
+    updateProgress();
+    if (n === 2) renderEncQ();
+    if (n === 3) renderSimQ();
+    if (n === 4) renderMfaQ();
+  } else {
+    showResults();
+  }
+}
+
+// ===================== MISSION 1: DnD =====================
+(function initDnD() {
+  document.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', item.dataset.id);
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('over');
+      const id = e.dataTransfer.getData('text/plain');
+      const item = document.querySelector(`.drag-item[data-id="${id}"]`);
+      if (!item) return;
+      // Remove from previous zone
+      const prev = item.parentElement;
+      if (prev && prev.classList.contains('drop-zone')) {
+        const pz = prev.dataset.zone;
+        dndAnswers[pz] = dndAnswers[pz].filter(x => x !== id);
+      }
+      zone.appendChild(item);
+      dndAnswers[zone.dataset.zone].push(id);
+      checkDnDReady();
+    });
+  });
+})();
+
+function checkDnDReady() {
+  const total = Object.values(dndAnswers).flat().length;
+  document.getElementById('dndCheckBtn').disabled = total < 6;
+}
+
+function checkDnD() {
+  let pts = 0;
+  let allCorrect = true;
+  document.querySelectorAll('.drag-item').forEach(item => {
+    const id = item.dataset.id;
+    const zone = item.parentElement.dataset.zone;
+    if (zone === dndCorrect[id]) {
+      item.classList.add('correct');
+      pts++;
+    } else {
+      item.classList.add('incorrect');
+      allCorrect = false;
+    }
+  });
+  const fb = document.getElementById('dnd-feedback');
+  if (allCorrect) {
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = '✅ <strong>Excellent work, Cadet!</strong> All 6 events correctly classified! The CIA Triad is the foundation of all security decisions. +' + (pts * 2) + ' pts';
+    addScore(pts * 2, true);
+    launchConfetti();
+    showBadge('🔺', 'CIA Triad Expert!', 'All events classified correctly!');
+  } else {
+    fb.className = 'feedback-box incorrect show';
+    fb.innerHTML = `⚠️ <strong>${pts}/6 correct.</strong> Review: <em>Confidentiality</em> = preventing unauthorized access. <em>Integrity</em> = preventing unauthorized modification. <em>Availability</em> = ensuring systems are accessible.`;
+    addScore(pts, pts > 3);
+  }
+  document.getElementById('dndCheckBtn').disabled = true;
+  document.getElementById('dndNextBtn').style.display = 'inline-block';
+  missionsDone[0] = true;
+  updateProgress();
+}
+
+// ===================== MISSION 2: MATCHING =====================
+let matchLeftSel = null;
+function selectMatchLeft(id) {
+  const el = document.getElementById('mc' + id);
+  if (el.classList.contains('matched-correct') || el.classList.contains('matched-wrong')) return;
+  document.querySelectorAll('[id^="mc"]').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  matchLeftSel = id;
+  if (matchLeftSel !== null) tryMatch();
+}
+let matchRightSel = null;
+function selectMatchRight(cat) {
+  const el = document.querySelector(`[data-cat="${cat}"]`);
+  document.querySelectorAll('[data-cat]').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+  matchRightSel = cat;
+  if (matchLeftSel !== null) tryMatch();
+}
+function tryMatch() {
+  if (matchLeftSel === null || matchRightSel === null) return;
+  const lid = matchLeftSel;
+  const cat = matchRightSel;
+  const leftEl = document.getElementById('mc' + lid);
+  const isCorrect = matchCorrect[lid] === cat;
+  const fb = document.getElementById('match-feedback');
+  if (isCorrect) {
+    leftEl.classList.remove('selected');
+    leftEl.classList.add('matched-correct');
+    leftEl.classList.add('disabled');
+    leftEl.innerHTML += ' ✅';
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `✅ <strong>Correct!</strong> "${leftEl.textContent.replace(' ✅','')}" is a <strong>${cat}</strong> security control.`;
+    addScore(2, true);
+    matchDone++;
+    document.getElementById('matchScore').textContent = `Matched: ${matchDone} / 6`;
+    if (matchDone === 6) {
+      launchConfetti();
+      showBadge('🔒', 'Security Controls Pro!', 'All 6 controls matched correctly!');
+      document.getElementById('matchNextBtn').style.display = 'inline-block';
+      missionsDone[1] = true;
+      updateProgress();
+    }
+  } else {
+    leftEl.classList.remove('selected');
+    leftEl.classList.add('matched-wrong');
+    setTimeout(() => { leftEl.classList.remove('matched-wrong'); }, 1200);
+    fb.className = 'feedback-box incorrect show';
+    fb.innerHTML = `❌ <strong>Not quite.</strong> Hint: Physical = tangible barriers, Logical = software/digital controls, Procedural = policies & rules.`;
+    addScore(0, false);
+  }
+  document.querySelectorAll('[data-cat]').forEach(e => e.classList.remove('selected'));
+  matchLeftSel = null;
+  matchRightSel = null;
+}
+
+// ===================== MISSION 3: ENCRYPTION MCQ =====================
+const encQuestions = [
+  {
+    scenario: "UVA's IT team needs to encrypt a large batch of student files quickly. Both the sender and receiver share the same secret key.",
+    q: "Which encryption method is being described?",
+    opts: ["Asymmetric Encryption", "Symmetric Encryption", "Hashing", "Public Key Infrastructure"],
+    correct: 1,
+    explain: "Symmetric encryption uses the SAME key for both encryption and decryption. It's fast and efficient for large data. Examples: AES, DES. The downside is securely sharing the key."
+  },
+  {
+    scenario: "A student wants to send a secure message to the school counselor. The student uses the counselor's PUBLIC key to encrypt it, and only the counselor's PRIVATE key can decrypt it.",
+    q: "What type of encryption is this?",
+    opts: ["Symmetric Encryption", "Hashing", "Asymmetric Encryption", "Steganography"],
+    correct: 2,
+    explain: "Asymmetric encryption uses a KEY PAIR: a public key (shared openly) to encrypt, and a private key (kept secret) to decrypt. Examples: RSA, ECC. Used in HTTPS, email encryption."
+  },
+  {
+    scenario: "When a student creates a password, the system converts it to a fixed-length string like 'a94f3b2c...'. The original password CANNOT be recovered from this string.",
+    q: "What process is being described?",
+    opts: ["Symmetric Encryption", "Asymmetric Encryption", "Hashing", "Tokenization"],
+    correct: 2,
+    explain: "Hashing is a ONE-WAY function that converts data to a fixed-length digest. It CANNOT be reversed. Used for password storage and file integrity checks. Examples: SHA-256, MD5 (deprecated)."
+  },
+  {
+    scenario: "A technician needs to verify that a downloaded file hasn't been tampered with. They compare the file's computed value against the one published on the official website.",
+    q: "Which security concept is being used to verify file integrity?",
+    opts: ["Asymmetric Encryption", "Symmetric Encryption", "Digital Signature", "Hash / Checksum"],
+    correct: 3,
+    explain: "A hash/checksum is used to verify file INTEGRITY. If even one bit changes, the hash changes completely. This is how you verify downloads haven't been corrupted or tampered with."
+  }
+];
+
+function renderEncQ() {
+  encQIdx = 0;
+  renderEncQuestion();
+}
+function renderEncQuestion() {
+  const q = encQuestions[encQIdx];
+  const body = document.getElementById('encBody');
+  body.innerHTML = `
+    <div style="font-size:0.8rem;color:var(--gray);margin-bottom:12px;font-weight:700;">Question ${encQIdx+1} of ${encQuestions.length}</div>
+    <div class="scenario-box">📋 <strong>Scenario:</strong> ${q.scenario}</div>
+    <div class="question-text">${q.q}</div>
+    <div class="options-grid" id="encOpts">
+      ${q.opts.map((o,i) => `<button class="option-btn" id="encOpt${i}" onclick="answerEnc(${i})">
+        <span class="option-letter">${String.fromCharCode(65+i)}</span>${o}
+      </button>`).join('')}
+    </div>
+    <div class="feedback-box" id="encFeedback"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-primary" id="encNextBtn" onclick="nextEncQ()" style="display:none;">
+        ${encQIdx < encQuestions.length - 1 ? 'Next Question →' : 'Complete Mission →'}
+      </button>
+    </div>
+  `;
+}
+function answerEnc(idx) {
+  const q = encQuestions[encQIdx];
+  document.querySelectorAll('[id^="encOpt"]').forEach(b => b.disabled = true);
+  const fb = document.getElementById('encFeedback');
+  const btn = document.getElementById('encOpt' + idx);
+  if (idx === q.correct) {
+    btn.classList.add('selected-correct');
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `✅ <strong>Correct!</strong> ${q.explain}`;
+    addScore(3, true);
+  } else {
+    btn.classList.add('selected-wrong');
+    document.getElementById('encOpt' + q.correct).classList.add('reveal-correct');
+    fb.className = 'feedback-box incorrect show';
+    fb.innerHTML = `❌ <strong>Not quite.</strong> The correct answer is <strong>${q.opts[q.correct]}</strong>. ${q.explain}`;
+    addScore(0, false);
+  }
+  document.getElementById('encNextBtn').style.display = 'inline-block';
+}
+function nextEncQ() {
+  encQIdx++;
+  if (encQIdx < encQuestions.length) {
+    renderEncQuestion();
+  } else {
+    missionsDone[2] = true;
+    updateProgress();
+    launchConfetti();
+    showBadge('🔑', 'Encryption Analyst!', 'Encryption mission complete!');
+    setTimeout(() => goToMission(3), 2000);
+  }
+}
+
+// ===================== MISSION 4: SIMULATION =====================
+const simQuestions = [
+  {
+    type: 'mcq',
+    scenario: "You open Command Prompt as Administrator on a Windows 10 machine. You need to see all local user accounts.",
+    q: "Which net user command displays all local accounts?",
+    opts: ["net user /list", "net user", "net user /all", "net accounts"],
+    correct: 1,
+    explain: "Running <code>net user</code> with no arguments lists all local user accounts on the machine. It's a core A+ command you must know!"
+  },
+  {
+    type: 'sim',
+    scenario: "A new student 'jsmith' needs a local account with password 'P@ssw0rd!'.",
+    q: "Which command creates this local account?",
+    opts: [
+      "net user jsmith /add",
+      "net user jsmith P@ssw0rd! /add",
+      "net user /create jsmith P@ssw0rd!",
+      "net add user jsmith P@ssw0rd!"
+    ],
+    correct: 1,
+    explain: "The correct syntax is: <code>net user [username] [password] /add</code>. The /add switch creates the account. Without a password, the account is created with no password."
+  },
+  {
+    type: 'mcq',
+    scenario: "A student is setting up a new Windows 11 PC. They want to sign in with their Microsoft account (e.g., student@outlook.com) to sync settings across devices.",
+    q: "What is the KEY difference between a Microsoft account and a local account?",
+    opts: [
+      "Microsoft accounts require a PIN; local accounts use passwords",
+      "Microsoft accounts sync settings/data to the cloud; local accounts are device-only",
+      "Local accounts can access OneDrive; Microsoft accounts cannot",
+      "Microsoft accounts are only for administrators"
+    ],
+    correct: 1,
+    explain: "Microsoft accounts are cloud-connected (linked to outlook.com/hotmail.com) and sync settings, OneDrive, and app data across devices. Local accounts exist only on that machine with no cloud sync."
+  },
+  {
+    type: 'mcq',
+    scenario: "An IT tech needs to disable a former employee's account without deleting it (to preserve audit logs).",
+    q: "Which net user command disables the account 'jdoe'?",
+    opts: [
+      "net user jdoe /delete",
+      "net user jdoe /disable",
+      "net user jdoe /active:no",
+      "net user jdoe /lock"
+    ],
+    correct: 2,
+    explain: "The correct switch is <code>/active:no</code> to disable an account. Use <code>/active:yes</code> to re-enable it. The <code>/delete</code> switch permanently removes the account."
+  }
+];
+
+function renderSimQ() {
+  simQIdx = 0;
+  renderSimQuestion();
+}
+function renderSimQuestion() {
+  const q = simQuestions[simQIdx];
+  const body = document.getElementById('simBody');
+  body.innerHTML = `
+    <div style="font-size:0.8rem;color:var(--gray);margin-bottom:12px;font-weight:700;">Question ${simQIdx+1} of ${simQuestions.length}</div>
+    <div class="sim-window">
+      <div class="sim-titlebar">
+        <div class="sim-dot" style="background:#ff5f57;"></div>
+        <div class="sim-dot" style="background:#febc2e;"></div>
+        <div class="sim-dot" style="background:#28c840;"></div>
+        <span style="margin-left:8px;">Administrator: Command Prompt</span>
+      </div>
+      <div class="sim-body">
+        <div class="cmd-box"><span class="prompt">C:\\Windows\\system32></span> _</div>
+      </div>
+    </div>
+    <div class="scenario-box">📋 <strong>Scenario:</strong> ${q.scenario}</div>
+    <div class="question-text">${q.q}</div>
+    <div class="options-grid" id="simOpts">
+      ${q.opts.map((o,i) => `<button class="option-btn" id="simOpt${i}" onclick="answerSim(${i})">
+        <span class="option-letter">${String.fromCharCode(65+i)}</span><code style="font-family:monospace;">${o}</code>
+      </button>`).join('')}
+    </div>
+    <div class="feedback-box" id="simFeedback"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-primary" id="simNextBtn" onclick="nextSimQ()" style="display:none;">
+        ${simQIdx < simQuestions.length - 1 ? 'Next Question →' : 'Complete Mission →'}
+      </button>
+    </div>
+  `;
+}
+function answerSim(idx) {
+  const q = simQuestions[simQIdx];
+  document.querySelectorAll('[id^="simOpt"]').forEach(b => b.disabled = true);
+  const fb = document.getElementById('simFeedback');
+  const btn = document.getElementById('simOpt' + idx);
+  if (idx === q.correct) {
+    btn.classList.add('selected-correct');
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `✅ <strong>Correct!</strong> ${q.explain}`;
+    addScore(3, true);
+    // Update cmd box
+    const cmd = document.querySelector('.cmd-box');
+    if (cmd) cmd.innerHTML = `<span class="prompt">C:\\Windows\\system32></span> <span style="color:#00ff41;">${q.opts[idx]}</span>`;
+  } else {
+    btn.classList.add('selected-wrong');
+    document.getElementById('simOpt' + q.correct).classList.add('reveal-correct');
+    fb.className = 'feedback-box incorrect show';
+    fb.innerHTML = `❌ <strong>Not quite.</strong> Correct: <code>${q.opts[q.correct]}</code>. ${q.explain}`;
+    addScore(0, false);
+  }
+  document.getElementById('simNextBtn').style.display = 'inline-block';
+}
+function nextSimQ() {
+  simQIdx++;
+  if (simQIdx < simQuestions.length) {
+    renderSimQuestion();
+  } else {
+    missionsDone[3] = true;
+    updateProgress();
+    launchConfetti();
+    showBadge('👤', 'Account Manager!', 'User account mission complete!');
+    setTimeout(() => goToMission(4), 2000);
+  }
+}
+
+// ===================== MISSION 5: MFA =====================
+const mfaQuestions = [
+  {
+    scenario: "A student logs into the UVA student portal with their password. The system then sends a 6-digit code to their phone via SMS.",
+    q: "Which MFA factor category does the SMS code represent?",
+    opts: [
+      "Something you know",
+      "Something you have",
+      "Something you are",
+      "Somewhere you are"
+    ],
+    correct: 1,
+    explain: "The SMS code goes to the student's PHONE — a physical device they possess. This is 'Something you HAVE.' The password is 'Something you KNOW.' Together they form 2-factor authentication (2FA)."
+  },
+  {
+    scenario: "A teacher uses Google Authenticator on their phone. Every 30 seconds, a new 6-digit code appears. They enter this code after their password.",
+    q: "What type of code does an authenticator app generate?",
+    opts: [
+      "Static OTP (One-Time Password)",
+      "TOTP (Time-based One-Time Password)",
+      "HOTP (HMAC-based One-Time Password)",
+      "SMS verification code"
+    ],
+    correct: 1,
+    explain: "Authenticator apps like Google Authenticator and Microsoft Authenticator generate TOTP (Time-based One-Time Passwords) that refresh every 30 seconds. They work OFFLINE and are more secure than SMS codes."
+  },
+  {
+    scenario: "The school's server room uses a fingerprint scanner to grant access. An IT tech must scan their finger before entering.",
+    q: "Which authentication factor is a fingerprint scanner?",
+    opts: [
+      "Something you know",
+      "Something you have",
+      "Something you are",
+      "Something you do"
+    ],
+    correct: 2,
+    explain: "Biometrics (fingerprint, retina scan, facial recognition, voice) are 'Something you ARE.' They are inherence factors — unique physical characteristics. They're the hardest to steal but can't be changed if compromised."
+  },
+  {
+    scenario: "A student is setting up 2-step verification on their Google account. They must choose a second factor in addition to their password.",
+    q: "Which option provides the STRONGEST second factor?",
+    opts: [
+      "SMS text message code",
+      "Email verification code",
+      "Security question answer",
+      "Authenticator app (TOTP)"
+    ],
+    correct: 3,
+    explain: "Authenticator apps are stronger than SMS (vulnerable to SIM swapping) and email codes (if email is compromised). Security questions are 'something you know' — not a true second factor. For A+ exam: authenticator apps > SMS > email."
+  },
+  {
+    scenario: "A company requires employees to use: (1) a password, (2) a smart card, AND (3) a fingerprint to access sensitive systems.",
+    q: "How many authentication FACTORS are being used?",
+    opts: [
+      "1 factor (all are the same type)",
+      "2 factors (2FA)",
+      "3 factors (MFA)",
+      "4 factors (MFA)"
+    ],
+    correct: 2,
+    explain: "This is 3-factor MFA: Password = Something you KNOW, Smart card = Something you HAVE, Fingerprint = Something you ARE. True MFA requires factors from DIFFERENT categories — not just multiple passwords."
+  }
+];
+
+function renderMfaQ() {
+  mfaQIdx = 0;
+  renderMfaQuestion();
+}
+function renderMfaQuestion() {
+  const q = mfaQuestions[mfaQIdx];
+  const body = document.getElementById('mfaBody');
+  body.innerHTML = `
+    <div style="font-size:0.8rem;color:var(--gray);margin-bottom:12px;font-weight:700;">Question ${mfaQIdx+1} of ${mfaQuestions.length}</div>
+    <div class="scenario-box">📋 <strong>Scenario:</strong> ${q.scenario}</div>
+    <div class="question-text">${q.q}</div>
+    <div class="options-grid" id="mfaOpts">
+      ${q.opts.map((o,i) => `<button class="option-btn" id="mfaOpt${i}" onclick="answerMfa(${i})">
+        <span class="option-letter">${String.fromCharCode(65+i)}</span>${o}
+      </button>`).join('')}
+    </div>
+    <div class="feedback-box" id="mfaFeedback"></div>
+    <div class="nav-buttons">
+      <button class="btn btn-success" id="mfaNextBtn" onclick="nextMfaQ()" style="display:none;">
+        ${mfaQIdx < mfaQuestions.length - 1 ? 'Next Question →' : '🏁 Complete All Missions!'}
+      </button>
+    </div>
+  `;
+}
+function answerMfa(idx) {
+  const q = mfaQuestions[mfaQIdx];
+  document.querySelectorAll('[id^="mfaOpt"]').forEach(b => b.disabled = true);
+  const fb = document.getElementById('mfaFeedback');
+  const btn = document.getElementById('mfaOpt' + idx);
+  if (idx === q.correct) {
+    btn.classList.add('selected-correct');
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `✅ <strong>Correct!</strong> ${q.explain}`;
+    addScore(3, true);
+  } else {
+    btn.classList.add('selected-wrong');
+    document.getElementById('mfaOpt' + q.correct).classList.add('reveal-correct');
+    fb.className = 'feedback-box incorrect show';
+    fb.innerHTML = `❌ <strong>Not quite.</strong> ${q.explain}`;
+    addScore(0, false);
+  }
+  document.getElementById('mfaNextBtn').style.display = 'inline-block';
+}
+function nextMfaQ() {
+  mfaQIdx++;
+  if (mfaQIdx < mfaQuestions.length) {
+    renderMfaQuestion();
+  } else {
+    missionsDone[4] = true;
+    updateProgress();
+    launchConfetti();
+    showBadge('📱', 'MFA Guardian!', 'All missions complete!');
+    setTimeout(() => showResults(), 2500);
+  }
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+  showScreen('screen-results');
+  updateProgress();
+  const rank = getRank(score);
+  const total = encQuestions.length + simQuestions.length + mfaQuestions.length + 6 + 6; // approx max
+  const pct = Math.min(100, Math.round(score / 80 * 100));
+  let emoji = score >= 60 ? '🏆' : score >= 40 ? '⭐' : score >= 20 ? '👍' : '💪';
+  let msg = score >= 60 ? "Outstanding! You've mastered Logical Security!" :
+            score >= 40 ? "Great work! You have a strong grasp of the concepts." :
+            score >= 20 ? "Good effort! Review the areas where you struggled." :
+            "Keep practicing! Review the lesson and try again.";
+  document.getElementById('resultsContent').innerHTML = `
+    <div class="results-icon">${emoji}</div>
+    <div class="results-title">Mission Debrief Complete!</div>
+    <div class="results-score">${score} pts</div>
+    <div class="results-rank">${rank.emoji} Final Rank: ${rank.name}</div>
+    <p style="color:var(--gray);font-size:0.9rem;margin-bottom:20px;">${msg}</p>
+    <div class="results-breakdown">
+      <div class="breakdown-item"><div class="val">${correct}</div><div class="lbl">Correct</div></div>
+      <div class="breakdown-item"><div class="val">${maxStreak}</div><div class="lbl">Best Streak</div></div>
+      <div class="breakdown-item"><div class="val">${pct}%</div><div class="lbl">Score %</div></div>
+      <div class="breakdown-item"><div class="val">5/5</div><div class="lbl">Missions</div></div>
+    </div>
+    <div class="objectives-list">
+      <h4>📚 Learning Objectives Covered (A+ Core 2)</h4>
+      <ul style="list-style:none;padding:0;">
+        <li>✅ CIA Triad: Confidentiality, Integrity, Availability (Domain 1.5)</li>
+        <li>✅ Physical, Procedural & Logical Security Controls (Domain 2.2)</li>
+        <li>✅ Symmetric, Asymmetric Encryption & Hashing (Domain 2.1)</li>
+        <li>✅ Local & Microsoft Accounts / net user command (Domain 2.2)</li>
+        <li>✅ MFA: 2-Step Verification & Authenticator Apps (Domain 2.2)</li>
+      </ul>
+    </div>
+    <div style="background:linear-gradient(135deg,var(--blue),var(--light-blue));color:white;border-radius:12px;padding:16px;margin:16px 0;font-size:0.85rem;">
+      <strong>🎓 UVA CyberOps Certification:</strong> You have demonstrated knowledge of Logical Security Concepts aligned with CompTIA A+ Core 2 objectives. Continue your journey with <em>Virtue, Vigor, and Vision!</em>
+    </div>
+    <button class="btn-start" onclick="restartActivity()" style="margin-top:0;">🔄 Restart Missions</button>
+  `;
+  launchConfetti();
+  if (score >= 60) showBadge('👑', 'MASTER ACHIEVED!', 'You earned the highest rank!');
+}
+
+function restartActivity() {
+  score = 0; correct = 0; streak = 0; maxStreak = 0; currentMission = -1;
+  missionsDone = [false,false,false,false,false];
+  dndAnswers = { C: [], I: [], A: [] };
+  matchSelected = null; matchLeftSel = null; matchRightSel = null; matchDone = 0;
+  encQIdx = 0; simQIdx = 0; mfaQIdx = 0;
+  // Reset DnD
+  const bank = document.getElementById('dndBank');
+  document.querySelectorAll('.drag-item').forEach(item => {
+    item.classList.remove('correct','incorrect','dragging');
+    bank.appendChild(item);
+  });
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.className = 'drop-zone';
+  });
+  document.getElementById('dndCheckBtn').disabled = true;
+  document.getElementById('dndNextBtn').style.display = 'none';
+  const dndFb = document.getElementById('dnd-feedback');
+  if (dndFb) dndFb.className = 'feedback-box';
+  // Reset match
+  for (let i = 0; i < 6; i++) {
+    const el = document.getElementById('mc' + i);
+    if (el) { el.className = 'match-item'; el.textContent = el.textContent.replace(' ✅',''); }
+  }
+  document.querySelectorAll('[data-cat]').forEach(e => e.className = 'match-item');
+  document.getElementById('matchScore').textContent = 'Matched: 0 / 6';
+  document.getElementById('matchNextBtn').style.display = 'none';
+  const mFb = document.getElementById('match-feedback');
+  if (mFb) mFb.className = 'feedback-box';
+  updateRankBar();
+  updateProgress();
+  document.getElementById('missionTabs').style.display = 'none';
+  showScreen('screen-intro');
+}
+
+// Init
+updateRankBar();
+</script>
+</body>
+</html>
