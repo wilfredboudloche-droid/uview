@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Visualization Missions | UVA Computer Tech Literacy</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-green: #1E7A3E;
+    --uva-light-blue: #2E7DD1;
+    --uva-gold: #F5A623;
+    --uva-dark: #0D2E5A;
+    --uva-light: #EAF2FF;
+    --success: #1E7A3E;
+    --error: #C0392B;
+    --white: #FFFFFF;
+    --gray-100: #F8F9FA;
+    --gray-200: #E9ECEF;
+    --gray-600: #6C757D;
+    --gray-800: #343A40;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0D2E5A 0%, #1B5EAF 50%, #1E7A3E 100%);
+    min-height: 100vh;
+    color: var(--gray-800);
+  }
+
+  /* ── MOTTO RIBBON ── */
+  .motto-ribbon {
+    background: var(--uva-gold);
+    color: var(--uva-dark);
+    text-align: center;
+    padding: 6px 0;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: rgba(13,46,90,0.95);
+    backdrop-filter: blur(10px);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 3px solid var(--uva-gold);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .uva-crest {
+    width: 52px; height: 52px;
+    background: var(--uva-gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 900; color: var(--uva-dark);
+    flex-shrink: 0;
+  }
+  .header-title h1 { color: var(--white); font-size: 1.15rem; font-weight: 700; }
+  .header-title p { color: #A8C4E8; font-size: 0.78rem; margin-top: 2px; }
+
+  /* ── RANK BADGE ── */
+  .rank-display {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 50px;
+    padding: 8px 16px;
+  }
+  .rank-icon { font-size: 1.4rem; }
+  .rank-info { text-align: right; }
+  .rank-label { color: var(--uva-gold); font-size: 0.7rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+  .rank-name { color: var(--white); font-size: 0.95rem; font-weight: 700; }
+
+  /* ── SCORE BAR ── */
+  .score-bar {
+    background: rgba(13,46,90,0.8);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .score-item { display: flex; align-items: center; gap: 8px; color: var(--white); font-size: 0.85rem; }
+  .score-item span:first-child { color: #A8C4E8; }
+  .score-item strong { color: var(--uva-gold); font-size: 1rem; }
+  .streak-badge {
+    background: linear-gradient(135deg, var(--uva-gold), #E8920A);
+    color: var(--uva-dark);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: none;
+    animation: pulse 0.5s ease;
+  }
+  .streak-badge.show { display: inline-block; }
+  @keyframes pulse { 0%{transform:scale(0.8)} 50%{transform:scale(1.15)} 100%{transform:scale(1)} }
+
+  /* ── PROGRESS BAR ── */
+  .progress-container { padding: 8px 24px; background: rgba(13,46,90,0.6); }
+  .progress-track { background: rgba(255,255,255,0.15); border-radius: 10px; height: 8px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; border-radius: 10px;
+    background: linear-gradient(90deg, var(--uva-green), var(--uva-gold));
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-label { color: #A8C4E8; font-size: 0.72rem; margin-top: 4px; text-align: right; }
+
+  /* ── MAIN CONTENT ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* ── MISSION CARD ── */
+  .mission-card {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    margin-bottom: 20px;
+    display: none;
+  }
+  .mission-card.active { display: block; animation: slideIn 0.4s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .mission-header {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-dark));
+    padding: 18px 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .mission-number {
+    background: var(--uva-gold);
+    color: var(--uva-dark);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .mission-meta { flex: 1; }
+  .mission-type { color: var(--uva-gold); font-size: 0.72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+  .mission-title { color: var(--white); font-size: 1.05rem; font-weight: 700; margin-top: 2px; }
+  .mission-pts { color: #A8C4E8; font-size: 0.78rem; margin-top: 2px; }
+
+  .mission-body { padding: 24px; }
+  .mission-question { font-size: 1rem; font-weight: 600; color: var(--uva-dark); margin-bottom: 6px; line-height: 1.5; }
+  .mission-context {
+    background: var(--uva-light);
+    border-left: 4px solid var(--uva-blue);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.88rem;
+    color: var(--gray-600);
+    margin-bottom: 18px;
+    line-height: 1.6;
+  }
+  .mission-context strong { color: var(--uva-blue); }
+
+  /* ── ANSWER OPTIONS ── */
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--gray-100);
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.92rem;
+    color: var(--gray-800);
+    transition: all 0.2s ease;
+    display: flex; align-items: flex-start; gap: 12px;
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--uva-blue);
+    background: var(--uva-light);
+    transform: translateX(4px);
+  }
+  .option-btn.correct {
+    border-color: var(--success);
+    background: #E8F5EE;
+    color: var(--success);
+  }
+  .option-btn.incorrect {
+    border-color: var(--error);
+    background: #FDECEA;
+    color: var(--error);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    background: var(--uva-blue);
+    color: var(--white);
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-btn.correct .option-letter { background: var(--success); }
+  .option-btn.incorrect .option-letter { background: var(--error); }
+
+  /* ── DRAG & DROP ── */
+  .drag-area { display: flex; gap: 20px; flex-wrap: wrap; }
+  .drag-column { flex: 1; min-width: 200px; }
+  .drag-column h4 { font-size: 0.8rem; font-weight: 700; color: var(--uva-blue); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+  .drag-item {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-light-blue));
+    color: var(--white);
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: grab;
+    font-size: 0.85rem;
+    font-weight: 600;
+    user-select: none;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .drag-item:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(27,94,175,0.3); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drop-zone {
+    background: var(--gray-100);
+    border: 2px dashed var(--gray-200);
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 80px;
+    transition: all 0.2s;
+  }
+  .drop-zone.drag-over { border-color: var(--uva-blue); background: var(--uva-light); }
+  .drop-zone-label { font-size: 0.78rem; color: var(--gray-600); margin-bottom: 8px; font-weight: 600; }
+  .drop-zone.correct-zone { border-color: var(--success); background: #E8F5EE; }
+  .drop-zone.incorrect-zone { border-color: var(--error); background: #FDECEA; }
+
+  /* ── ORDERING ── */
+  .order-list { display: flex; flex-direction: column; gap: 8px; }
+  .order-item {
+    background: var(--gray-100);
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: grab;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .order-item:hover { border-color: var(--uva-blue); background: var(--uva-light); }
+  .order-item.dragging { opacity: 0.4; }
+  .order-item.drag-over-item { border-color: var(--uva-gold); background: #FFF8E8; }
+  .order-handle { color: var(--gray-600); font-size: 1.1rem; }
+  .order-num {
+    background: var(--uva-blue);
+    color: var(--white);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  /* ── FEEDBACK ── */
+  .feedback-box {
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb { background: #E8F5EE; border: 1px solid var(--success); color: #145A2E; }
+  .feedback-box.incorrect-fb { background: #FDECEA; border: 1px solid var(--error); color: #922B21; }
+  .feedback-icon { font-size: 1.2rem; margin-right: 6px; }
+
+  /* ── NEXT BUTTON ── */
+  .btn-next {
+    margin-top: 18px;
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-dark));
+    color: var(--white);
+    border: none;
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,94,175,0.4); }
+  .btn-next.show { display: inline-block; }
+
+  .btn-submit {
+    margin-top: 18px;
+    background: linear-gradient(135deg, var(--uva-green), #155C2E);
+    color: var(--white);
+    border: none;
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(30,122,62,0.4); }
+  .btn-submit:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+  /* ── SCENARIO BRANCHES ── */
+  .scenario-box {
+    background: linear-gradient(135deg, #F0F4FF, #E8F5EE);
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .scenario-box .scenario-title { font-weight: 700; color: var(--uva-dark); margin-bottom: 8px; font-size: 0.95rem; }
+  .scenario-box p { font-size: 0.88rem; color: var(--gray-600); line-height: 1.6; }
+
+  /* ── RESULTS SCREEN ── */
+  #results-screen {
+    display: none;
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+  #results-screen.show { display: block; animation: slideIn 0.5s ease; }
+  .results-header {
+    background: linear-gradient(135deg, var(--uva-dark), var(--uva-blue));
+    padding: 36px 24px;
+  }
+  .results-badge {
+    font-size: 4rem;
+    margin-bottom: 12px;
+    display: block;
+    animation: bounce 0.6s ease;
+  }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+  .results-rank { color: var(--uva-gold); font-size: 1.5rem; font-weight: 900; letter-spacing: 2px; }
+  .results-title { color: var(--white); font-size: 1.1rem; margin-top: 6px; }
+  .results-body { padding: 32px 24px; }
+  .score-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-green));
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    box-shadow: 0 8px 24px rgba(27,94,175,0.3);
+  }
+  .score-circle .big-score { color: var(--white); font-size: 2.2rem; font-weight: 900; line-height: 1; }
+  .score-circle .score-denom { color: rgba(255,255,255,0.7); font-size: 0.85rem; }
+  .results-stats { display: flex; justify-content: center; gap: 32px; margin-bottom: 24px; flex-wrap: wrap; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 1.6rem; font-weight: 900; color: var(--uva-blue); }
+  .stat-label { font-size: 0.78rem; color: var(--gray-600); text-transform: uppercase; letter-spacing: 1px; }
+  .results-message { font-size: 0.95rem; color: var(--gray-600); line-height: 1.7; max-width: 500px; margin: 0 auto 24px; }
+  .btn-restart {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-dark));
+    color: var(--white);
+    border: none;
+    padding: 14px 36px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,94,175,0.4); }
+
+  /* ── INTRO SCREEN ── */
+  #intro-screen {
+    background: var(--white);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+  .intro-header {
+    background: linear-gradient(135deg, var(--uva-dark), var(--uva-blue));
+    padding: 36px 24px;
+  }
+  .intro-icon { font-size: 3.5rem; margin-bottom: 12px; display: block; }
+  .intro-header h2 { color: var(--white); font-size: 1.4rem; font-weight: 900; }
+  .intro-header p { color: #A8C4E8; font-size: 0.9rem; margin-top: 6px; }
+  .intro-body { padding: 28px 24px; }
+  .intro-body p { color: var(--gray-600); font-size: 0.92rem; line-height: 1.7; margin-bottom: 20px; }
+  .mission-list { text-align: left; background: var(--gray-100); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; }
+  .mission-list li { font-size: 0.88rem; color: var(--gray-800); padding: 5px 0; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; gap: 10px; }
+  .mission-list li:last-child { border-bottom: none; }
+  .mission-list .m-icon { font-size: 1rem; }
+  .btn-start {
+    background: linear-gradient(135deg, var(--uva-green), #155C2E);
+    color: var(--white);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(30,122,62,0.4); }
+
+  /* ── CONFETTI ── */
+  .confetti-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999; overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+    border-radius: 2px;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; top: 80px; right: 20px;
+    background: var(--uva-dark);
+    color: var(--white);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 1000;
+    display: none;
+    animation: toastIn 0.3s ease;
+    border-left: 4px solid var(--uva-gold);
+    max-width: 280px;
+  }
+  .toast.show { display: block; }
+  @keyframes toastIn { from{opacity:0;transform:translateX(30px)} to{opacity:1;transform:translateX(0)} }
+
+  /* ── CHART TYPE VISUAL ── */
+  .chart-visual {
+    display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .chart-card {
+    flex: 1; min-width: 130px;
+    background: var(--gray-100);
+    border: 2px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chart-card:hover:not(:disabled) { border-color: var(--uva-blue); background: var(--uva-light); }
+  .chart-card.selected { border-color: var(--uva-blue); background: var(--uva-light); }
+  .chart-card.correct { border-color: var(--success); background: #E8F5EE; }
+  .chart-card.incorrect { border-color: var(--error); background: #FDECEA; }
+  .chart-card svg { display: block; margin: 0 auto 8px; }
+  .chart-card span { font-size: 0.8rem; font-weight: 600; color: var(--gray-800); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .header { padding: 12px 16px; }
+    .score-bar { padding: 8px 16px; }
+    .main { padding: 16px 12px 40px; }
+    .mission-body { padding: 16px; }
+    .drag-area { flex-direction: column; }
+    .results-stats { gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MOTTO RIBBON -->
+<div class="motto-ribbon">✦ Virtue  ·  Vigor  ·  Vision ✦  |  University View Academy</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="uva-crest">UVA</div>
+    <div class="header-title">
+      <h1>📊 Data Visualization Missions</h1>
+      <p>Computer Tech Literacy  ·  Google Sheets Mastery</p>
+    </div>
+  </div>
+  <div class="rank-display">
+    <div class="rank-icon" id="rank-icon">🎓</div>
+    <div class="rank-info">
+      <div class="rank-label">Current Rank</div>
+      <div class="rank-name" id="rank-name">Trainee</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCORE BAR -->
+<div class="score-bar">
+  <div class="score-item"><span>⭐ Score:</span><strong id="score-display">0</strong></div>
+  <div class="score-item"><span>✅ Correct:</span><strong id="correct-display">0</strong></div>
+  <div class="score-item"><span>📋 Mission:</span><strong id="mission-display">0 / 7</strong></div>
+  <div class="streak-badge" id="streak-badge">🔥 Streak!</div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-container">
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="progress-label" id="progress-label">Begin your missions to earn rank</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen">
+    <div class="intro-header">
+      <span class="intro-icon">📊</span>
+      <h2>The Professional's Guide to Data Visualization</h2>
+      <p>Google Sheets Mastery  ·  UVA Tech Literacy Program</p>
+    </div>
+    <div class="intro-body">
+      <p>Welcome, UVA Cadet! You've been assigned to the <strong>Data Visualization Division</strong>. Complete all 7 missions to earn your <strong>Master Analyst</strong> rank and prove your Google Sheets expertise.</p>
+      <ul class="mission-list">
+        <li><span class="m-icon">🗂️</span> Mission 1 – Chart Type Intel: Bar vs. Histogram</li>
+        <li><span class="m-icon">🔢</span> Mission 2 – Data Hygiene Protocol</li>
+        <li><span class="m-icon">📋</span> Mission 3 – Chart Creation Workflow</li>
+        <li><span class="m-icon">🎯</span> Mission 4 – Axis Customization Command</li>
+        <li><span class="m-icon">🔀</span> Mission 5 – Drag & Drop: Chart Elements</li>
+        <li><span class="m-icon">⚙️</span> Mission 6 – Scenario: Fix the Chart Error</li>
+        <li><span class="m-icon">🏆</span> Mission 7 – Final Sequence: Build a Chart</li>
+      </ul>
+      <button class="btn-start" onclick="startGame()">🚀 Begin Missions</button>
+    </div>
+  </div>
+
+  <!-- MISSION CARDS (hidden until started) -->
+
+  <!-- MISSION 1: Chart Type Selection -->
+  <div class="mission-card" id="mission-1">
+    <div class="mission-header">
+      <div class="mission-number">1</div>
+      <div class="mission-meta">
+        <div class="mission-type">🗂️ Chart Intel Mission</div>
+        <div class="mission-title">Bar Chart vs. Histogram — Know Your Weapon</div>
+        <div class="mission-pts">+100 pts · Data Visualization Fundamentals</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-context">
+        <strong>Briefing:</strong> Your supervisor has a dataset of <em>student test scores (0–100)</em> from 200 students. She wants to see the <em>distribution</em> of scores — how many students scored in each range (0–10, 11–20, etc.). Which chart type should you recommend?
+      </div>
+      <p class="mission-question">Select the correct chart type for visualizing the <strong>distribution of continuous numeric data</strong>:</p>
+      <div class="chart-visual" id="chart-visual-1">
+        <div class="chart-card" onclick="selectChartCard(this, 'bar', 1)">
+          <svg width="80" height="60" viewBox="0 0 80 60">
+            <rect x="5" y="30" width="14" height="25" fill="#1B5EAF"/>
+            <rect x="23" y="15" width="14" height="40" fill="#1B5EAF"/>
+            <rect x="41" y="22" width="14" height="33" fill="#1B5EAF"/>
+            <rect x="59" y="38" width="14" height="17" fill="#1B5EAF"/>
+            <line x1="2" y1="55" x2="78" y2="55" stroke="#333" stroke-width="1.5"/>
+          </svg>
+          <span>Bar Chart</span>
+        </div>
+        <div class="chart-card" onclick="selectChartCard(this, 'histogram', 1)">
+          <svg width="80" height="60" viewBox="0 0 80 60">
+            <rect x="5" y="45" width="14" height="10" fill="#1E7A3E"/>
+            <rect x="19" y="30" width="14" height="25" fill="#1E7A3E"/>
+            <rect x="33" y="15" width="14" height="40" fill="#1E7A3E"/>
+            <rect x="47" y="25" width="14" height="30" fill="#1E7A3E"/>
+            <rect x="61" y="42" width="14" height="13" fill="#1E7A3E"/>
+            <line x1="2" y1="55" x2="78" y2="55" stroke="#333" stroke-width="1.5"/>
+          </svg>
+          <span>Histogram</span>
+        </div>
+        <div class="chart-card" onclick="selectChartCard(this, 'pie', 1)">
+          <svg width="80" height="60" viewBox="0 0 80 60">
+            <circle cx="40" cy="30" r="24" fill="#F5A623"/>
+            <path d="M40,30 L40,6 A24,24 0 0,1 61,42 Z" fill="#1B5EAF"/>
+            <path d="M40,30 L61,42 A24,24 0 0,1 19,42 Z" fill="#1E7A3E"/>
+          </svg>
+          <span>Pie Chart</span>
+        </div>
+        <div class="chart-card" onclick="selectChartCard(this, 'line', 1)">
+          <svg width="80" height="60" viewBox="0 0 80 60">
+            <polyline points="5,50 20,35 35,40 50,20 65,28 78,15" fill="none" stroke="#1B5EAF" stroke-width="2.5"/>
+            <circle cx="5" cy="50" r="3" fill="#1B5EAF"/>
+            <circle cx="20" cy="35" r="3" fill="#1B5EAF"/>
+            <circle cx="35" cy="40" r="3" fill="#1B5EAF"/>
+            <circle cx="50" cy="20" r="3" fill="#1B5EAF"/>
+            <circle cx="65" cy="28" r="3" fill="#1B5EAF"/>
+            <circle cx="78" cy="15" r="3" fill="#1B5EAF"/>
+          </svg>
+          <span>Line Chart</span>
+        </div>
+      </div>
+      <div class="feedback-box" id="fb-1"></div>
+      <button class="btn-next show" id="next-1" onclick="nextMission(2)" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+
+  <!-- MISSION 2: Data Hygiene MCQ -->
+  <div class="mission-card" id="mission-2">
+    <div class="mission-header">
+      <div class="mission-number">2</div>
+      <div class="mission-meta">
+        <div class="mission-type">🔢 Data Hygiene Protocol</div>
+        <div class="mission-title">Identify the Chart-Breaking Data Error</div>
+        <div class="mission-pts">+100 pts · Data Hygiene Standards</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-context">
+        <strong>Briefing:</strong> A cadet tried to create a bar chart in Google Sheets but got an error. Their data column for "Sales" contains: <code>1500, 2300, N/A, 4100, "three thousand", 2800</code>. Google Sheets cannot render the chart correctly.
+      </div>
+      <p class="mission-question">Which TWO data hygiene issues are causing the chart generation error? (Select the best answer)</p>
+      <div class="options-grid" id="options-2">
+        <button class="option-btn" onclick="selectOption(this, 2, false)">
+          <span class="option-letter">A</span>
+          <span>The numbers are too large for Google Sheets to process in a chart</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 2, true)">
+          <span class="option-letter">B</span>
+          <span>The column contains <strong>mixed data types</strong> — "N/A" (text) and "three thousand" (text) are in a numeric column, preventing chart rendering</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 2, false)">
+          <span class="option-letter">C</span>
+          <span>The column header is missing a dollar sign ($) symbol</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 2, false)">
+          <span class="option-letter">D</span>
+          <span>Google Sheets requires at least 10 data points to generate a bar chart</span>
+        </button>
+      </div>
+      <div class="feedback-box" id="fb-2"></div>
+      <button class="btn-next" id="next-2" onclick="nextMission(3)" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+
+  <!-- MISSION 3: Ordering — Chart Creation Workflow -->
+  <div class="mission-card" id="mission-3">
+    <div class="mission-header">
+      <div class="mission-number">3</div>
+      <div class="mission-meta">
+        <div class="mission-type">📋 Workflow Sequencing Mission</div>
+        <div class="mission-title">Order the Chart Creation Steps in Google Sheets</div>
+        <div class="mission-pts">+150 pts · Technical Workflow Mastery</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-context">
+        <strong>Briefing:</strong> Arrange the correct sequence for creating a chart in Google Sheets. Drag the steps into the correct order (1 = first step).
+      </div>
+      <p class="mission-question">Drag to arrange the correct Google Sheets chart creation workflow:</p>
+      <div class="order-list" id="order-list-3">
+        <div class="order-item" draggable="true" data-step="insert">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="onum-insert">?</span>
+          <span>Click <strong>Insert</strong> in the top menu bar</span>
+        </div>
+        <div class="order-item" draggable="true" data-step="select">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="onum-select">?</span>
+          <span>Select your <strong>data range</strong> (highlight cells including headers)</span>
+        </div>
+        <div class="order-item" draggable="true" data-step="chart">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="onum-chart">?</span>
+          <span>Click <strong>Chart</strong> from the Insert dropdown menu</span>
+        </div>
+        <div class="order-item" draggable="true" data-step="editor">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="onum-editor">?</span>
+          <span>Use the <strong>Chart Editor</strong> panel to customize chart type and data</span>
+        </div>
+        <div class="order-item" draggable="true" data-step="clean">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="onum-clean">?</span>
+          <span>Ensure data is <strong>clean</strong> — consistent types, no blank headers</span>
+        </div>
+      </div>
+      <button class="btn-submit" id="submit-3" onclick="checkOrder()">✅ Submit Order</button>
+      <div class="feedback-box" id="fb-3"></div>
+      <button class="btn-next" id="next-3" onclick="nextMission(4)" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+
+  <!-- MISSION 4: Axis Customization MCQ -->
+  <div class="mission-card" id="mission-4">
+    <div class="mission-header">
+      <div class="mission-number">4</div>
+      <div class="mission-meta">
+        <div class="mission-type">🎯 Axis Customization Command</div>
+        <div class="mission-title">Advanced Axis Formatting for Narrative Clarity</div>
+        <div class="mission-pts">+100 pts · Advanced Formatting</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-context">
+        <strong>Briefing:</strong> You've created a bar chart showing monthly revenue. The Y-axis shows values like <em>1000000, 2000000, 3000000</em>. Your supervisor says the chart is hard to read and looks unprofessional. In Google Sheets' Chart Editor → Customize → Vertical Axis, what is the BEST fix?
+      </div>
+      <p class="mission-question">Which axis customization best improves readability of large numeric values on the Y-axis?</p>
+      <div class="options-grid" id="options-4">
+        <button class="option-btn" onclick="selectOption(this, 4, false)">
+          <span class="option-letter">A</span>
+          <span>Change the chart type to a pie chart so the Y-axis disappears entirely</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 4, false)">
+          <span class="option-letter">B</span>
+          <span>Delete the Y-axis label so viewers aren't confused by the large numbers</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 4, true)">
+          <span class="option-letter">C</span>
+          <span>Add a descriptive <strong>axis title</strong> (e.g., "Revenue (in Millions)") and adjust the <strong>number format</strong> to display values in millions (e.g., 1M, 2M, 3M)</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 4, false)">
+          <span class="option-letter">D</span>
+          <span>Increase the font size of the axis numbers to make them more visible</span>
+        </button>
+      </div>
+      <div class="feedback-box" id="fb-4"></div>
+      <button class="btn-next" id="next-4" onclick="nextMission(5)" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+
+  <!-- MISSION 5: Drag & Drop — Chart Elements -->
+  <div class="mission-card" id="mission-5">
+    <div class="mission-header">
+      <div class="mission-number">5</div>
+      <div class="mission-meta">
+        <div class="mission-type">🔀 Drag & Drop Classification</div>
+        <div class="mission-title">Classify Chart Elements: Categorical vs. Numeric</div>
+        <div class="mission-pts">+150 pts · Data Type Differentiation</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-context">
+        <strong>Briefing:</strong> Drag each data type into the correct axis category. In Google Sheets charts, the <strong>X-axis</strong> typically holds categorical data, while the <strong>Y-axis</strong> holds numeric (quantitative) data.
+      </div>
+      <p class="mission-question">Drag each item to the correct axis:</p>
+      <div class="drag-area">
+        <div class="drag-column">
+          <h4>📦 Items to Sort</h4>
+          <div class="drag-items" id="drag-source">
+            <div class="drag-item" draggable="true" data-id="months" data-correct="x">📅 Month Names (Jan, Feb...)</div>
+            <div class="drag-item" draggable="true" data-id="sales" data-correct="y">💰 Total Sales ($)</div>
+            <div class="drag-item" draggable="true" data-id="dept" data-correct="x">🏢 Department Names</div>
+            <div class="drag-item" draggable="true" data-id="score" data-correct="y">📊 Average Test Score</div>
+            <div class="drag-item" draggable="true" data-id="city" data-correct="x">🌆 City Names</div>
+            <div class="drag-item" draggable="true" data-id="temp" data-correct="y">🌡️ Temperature (°F)</div>
+          </div>
+        </div>
+        <div class="drag-column">
+          <h4>📐 X-Axis (Categorical)</h4>
+          <div class="drop-zone" id="drop-x" ondragover="allowDrop(event)" ondrop="dropItem(event, 'x')">
+            <div class="drop-zone-label">Drop categorical data here</div>
+          </div>
+          <h4 style="margin-top:16px">📏 Y-Axis (Numeric)</h4>
+          <div class="drop-zone" id="drop-y" ondragover="allowDrop(event)" ondrop="dropItem(event, 'y')">
+            <div class="drop-zone-label">Drop numeric data here</div>
+          </div>
+        </div>
+      </div>
+      <button class="btn-submit" id="submit-5" onclick="checkDragDrop()">✅ Check Classification</button>
+      <div class="feedback-box" id="fb-5"></div>
+      <button class="btn-next" id="next-5" onclick="nextMission(6)" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+
+  <!-- MISSION 6: Scenario / Branching -->
+  <div class="mission-card" id="mission-6">
+    <div class="mission-header">
+      <div class="mission-number">6</div>
+      <div class="mission-meta">
+        <div class="mission-type">⚙️ Scenario Decision Mission</div>
+        <div class="mission-title">Diagnose & Fix the Chart Error</div>
+        <div class="mission-pts">+100 pts · Troubleshooting Expertise</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="scenario-box">
+        <div class="scenario-title">📋 Scenario: The Broken Dashboard</div>
+        <p>A classmate shares their Google Sheets file. They selected cells A1:B8 and clicked Insert → Chart, but the chart shows <em>"No data"</em> and the Chart Editor shows the data range as invalid. Column A has the header "Product" and Column B has the header "Revenue" — but Row 3 is completely empty, and cells B5 and B7 contain the word "unknown".</p>
+      </div>
+      <p class="mission-question">What is the MOST COMPLETE fix to resolve this chart error?</p>
+      <div class="options-grid" id="options-6">
+        <button class="option-btn" onclick="selectOption(this, 6, false)">
+          <span class="option-letter">A</span>
+          <span>Delete the entire spreadsheet and start over with a new file</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 6, false)">
+          <span class="option-letter">B</span>
+          <span>Change the chart type from Bar to Line chart in the Chart Editor</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 6, true)">
+          <span class="option-letter">C</span>
+          <span>Remove the empty row 3, replace "unknown" in B5 and B7 with actual numeric values (or leave blank and exclude from range), then re-select the clean data range before inserting the chart</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 6, false)">
+          <span class="option-letter">D</span>
+          <span>Right-click the chart and select "Refresh" to force Google Sheets to re-read the data</span>
+        </button>
+      </div>
+      <div class="feedback-box" id="fb-6"></div>
+      <button class="btn-next" id="next-6" onclick="nextMission(7)" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+
+  <!-- MISSION 7: Final — Chart Editor Navigation MCQ -->
+  <div class="mission-card" id="mission-7">
+    <div class="mission-header">
+      <div class="mission-number">7</div>
+      <div class="mission-meta">
+        <div class="mission-type">🏆 Final Mission — Master Challenge</div>
+        <div class="mission-title">Navigate the Google Sheets Chart Editor Like a Pro</div>
+        <div class="mission-pts">+200 pts · Complete Mastery</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-context">
+        <strong>Final Briefing:</strong> You've created a chart. Now you need to: (1) change the chart type, (2) add a chart title, and (3) change the color of the bars. In Google Sheets' Chart Editor, which tabs contain these options?
+      </div>
+      <p class="mission-question">Match the task to the correct Chart Editor tab. Which answer correctly maps ALL THREE tasks?</p>
+      <div class="options-grid" id="options-7">
+        <button class="option-btn" onclick="selectOption(this, 7, false)">
+          <span class="option-letter">A</span>
+          <span>All three options are found under the <strong>Setup</strong> tab in the Chart Editor</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 7, true)">
+          <span class="option-letter">B</span>
+          <span><strong>Setup tab</strong> → Change chart type  |  <strong>Customize tab → Chart & axis titles</strong> → Add chart title  |  <strong>Customize tab → Series</strong> → Change bar color</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 7, false)">
+          <span class="option-letter">C</span>
+          <span><strong>Customize tab</strong> → Change chart type  |  <strong>Setup tab</strong> → Add chart title  |  <strong>Setup tab → Series</strong> → Change bar color</span>
+        </button>
+        <button class="option-btn" onclick="selectOption(this, 7, false)">
+          <span class="option-letter">D</span>
+          <span>Chart type and title are in <strong>Format menu</strong>; bar color is in <strong>Insert menu</strong></span>
+        </button>
+      </div>
+      <div class="feedback-box" id="fb-7"></div>
+      <button class="btn-next" id="next-7" onclick="showResults()" style="display:none">🏁 View Final Results</button>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen">
+    <div class="results-header">
+      <span class="results-badge" id="results-badge">🏆</span>
+      <div class="results-rank" id="results-rank-name">MASTER ANALYST</div>
+      <div class="results-title" id="results-title">Mission Complete — Outstanding Performance!</div>
+    </div>
+    <div class="results-body">
+      <div class="score-circle">
+        <div class="big-score" id="final-score">0</div>
+        <div class="score-denom">points</div>
+      </div>
+      <div class="results-stats">
+        <div class="stat-item">
+          <div class="stat-num" id="stat-correct">0</div>
+          <div class="stat-label">Correct</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="stat-missions">7</div>
+          <div class="stat-label">Missions</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="stat-pct">0%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+      </div>
+      <p class="results-message" id="results-message">Loading your performance summary...</p>
+      <div style="margin-bottom:20px">
+        <div style="display:inline-block;background:var(--uva-light);border:2px solid var(--uva-blue);border-radius:10px;padding:12px 24px;font-size:0.85rem;color:var(--uva-dark);">
+          <strong>🎓 UVA Data Literacy & Software Proficiency Standards</strong><br>
+          <span style="color:var(--gray-600)">Google Sheets · Chart Construction · Data Hygiene · Axis Formatting</span>
+        </div>
+      </div>
+      <button class="btn-restart" onclick="restartGame()">🔄 Retry Missions</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── STATE ──
+let score = 0;
+let correctCount = 0;
+let streak = 0;
+let maxStreak = 0;
+let currentMission = 0;
+let missionAnswered = new Array(8).fill(false);
+
+const RANKS = [
+  { name: 'Trainee',    icon: '🎓', min: 0   },
+  { name: 'Apprentice', icon: '📐', min: 150 },
+  { name: 'Expert',     icon: '🔬', min: 400 },
+  { name: 'Master',     icon: '🏆', min: 700 },
+];
+
+const CORRECT_ORDER = ['clean', 'select', 'insert', 'chart', 'editor'];
+
+// ── DRAG STATE ──
+let draggedItem = null;
+let draggedOrderItem = null;
+let dragOverOrderItem = null;
+
+// ── INIT ──
+function startGame() {
+  document.getElementById('intro-screen').style.display = 'none';
+  showMission(1);
+  updateScoreBar();
+}
+
+function showMission(n) {
+  currentMission = n;
+  document.getElementById(`mission-${n}`).classList.add('active');
+  updateProgress(n);
+  document.getElementById('mission-display').textContent = `${n} / 7`;
+  if (n === 3) initOrderDrag();
+  if (n === 5) initDragDrop();
+}
+
+function nextMission(n) {
+  document.getElementById(`mission-${n-1}`).classList.remove('active');
+  showMission(n);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// ── SCORE & RANK ──
+function updateScoreBar() {
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('correct-display').textContent = correctCount;
+  updateRank();
+}
+
+function updateRank() {
+  let rank = RANKS[0];
+  for (let r of RANKS) { if (score >= r.min) rank = r; }
+  document.getElementById('rank-name').textContent = rank.name;
+  document.getElementById('rank-icon').textContent = rank.icon;
+  document.getElementById('progress-label').textContent = `Rank: ${rank.name} · Score: ${score}`;
+}
+
+function updateProgress(n) {
+  const pct = ((n - 1) / 7) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function addScore(pts, correct) {
+  if (correct) {
+    score += pts;
+    correctCount++;
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    showStreakBadge();
+  } else {
+    streak = 0;
+    document.getElementById('streak-badge').classList.remove('show');
+  }
+  updateScoreBar();
+}
+
+function showStreakBadge() {
+  const badge = document.getElementById('streak-badge');
+  if (streak >= 2) {
+    badge.textContent = streak >= 4 ? `🔥🔥 ${streak}x Streak!` : `🔥 ${streak}x Streak!`;
+    badge.classList.add('show');
+    if (streak === 3) showToast('🔥 3 in a row! You\'re on fire!');
+    if (streak === 5) { showToast('⚡ 5-streak! Legendary!'); launchConfetti(); }
+  }
+}
+
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── CONFETTI ──
+function launchConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#E74C3C','#9B59B6','#2ECC71','#3498DB'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    piece.style.animationDelay = Math.random() * 0.8 + 's';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ── MCQ OPTIONS ──
+function selectOption(btn, missionNum, isCorrect) {
+  if (missionAnswered[missionNum]) return;
+  missionAnswered[missionNum] = true;
+
+  const container = document.getElementById(`options-${missionNum}`);
+  const allBtns = container.querySelectorAll('.option-btn');
+  allBtns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById(`fb-${missionNum}`);
+  const nextBtn = document.getElementById(`next-${missionNum}`);
+
+  if (isCorrect) {
+    btn.classList.add('correct');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = getFeedbackCorrect(missionNum);
+    addScore(100, true);
+    if (missionNum === 7) addScore(100, true); // bonus for final
+    showToast('✅ Correct! +100 pts');
+    launchConfetti();
+  } else {
+    btn.classList.add('incorrect');
+    // highlight correct
+    allBtns.forEach(b => {
+      const onclick = b.getAttribute('onclick');
+      if (onclick && onclick.includes('true')) b.classList.add('correct');
+    });
+    fb.className = 'feedback-box show incorrect-fb';
+    fb.innerHTML = getFeedbackIncorrect(missionNum);
+    addScore(0, false);
+    showToast('❌ Not quite — review the explanation!');
+  }
+
+  nextBtn.style.display = 'inline-block';
+}
+
+// ── CHART CARD SELECTION (Mission 1) ──
+function selectChartCard(card, type, missionNum) {
+  if (missionAnswered[missionNum]) return;
+  missionAnswered[missionNum] = true;
+
+  const container = document.getElementById(`chart-visual-${missionNum}`);
+  const allCards = container.querySelectorAll('.chart-card');
+  allCards.forEach(c => { c.style.pointerEvents = 'none'; });
+
+  const isCorrect = (type === 'histogram');
+  const fb = document.getElementById(`fb-${missionNum}`);
+  const nextBtn = document.getElementById(`next-${missionNum}`);
+
+  if (isCorrect) {
+    card.classList.add('correct');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = getFeedbackCorrect(missionNum);
+    addScore(100, true);
+    showToast('✅ Correct! Histogram it is! +100 pts');
+    launchConfetti();
+  } else {
+    card.classList.add('incorrect');
+    allCards.forEach(c => {
+      if (c.querySelector('span').textContent === 'Histogram') c.classList.add('correct');
+    });
+    fb.className = 'feedback-box show incorrect-fb';
+    fb.innerHTML = getFeedbackIncorrect(missionNum);
+    addScore(0, false);
+    showToast('❌ Not quite — check the explanation!');
+  }
+  nextBtn.style.display = 'inline-block';
+}
+
+// ── FEEDBACK TEXT ──
+function getFeedbackCorrect(n) {
+  const msgs = {
+    1: '<span class="feedback-icon">✅</span><strong>Excellent!</strong> A <strong>Histogram</strong> is the correct choice for showing the <em>distribution</em> of continuous numeric data (like test scores). Unlike a bar chart (which compares discrete categories), a histogram groups continuous data into bins/ranges and shows frequency. In Google Sheets, select your score data → Insert → Chart → Chart type: Histogram.',
+    2: '<span class="feedback-icon">✅</span><strong>Correct!</strong> Mixed data types are the culprit. Google Sheets requires a numeric column to contain <em>only numbers</em> (or blanks). Text values like "N/A" and "three thousand" in a numeric column prevent chart generation. Fix: replace text with actual numbers or leave cells blank, then re-select the range.',
+    4: '<span class="feedback-icon">✅</span><strong>Outstanding!</strong> Adding a descriptive axis title (e.g., "Revenue in Millions") and formatting numbers as millions (1M, 2M) dramatically improves readability. In Chart Editor → Customize → Chart & axis titles → add your title. For number format, go to Customize → Vertical axis → Number format.',
+    6: '<span class="feedback-icon">✅</span><strong>Perfect diagnosis!</strong> The fix requires: (1) removing the empty row that breaks the data range, (2) replacing non-numeric "unknown" values with real data or excluding them, and (3) re-selecting the clean, contiguous data range before inserting the chart. Data hygiene is always step one!',
+    7: '<span class="feedback-icon">✅</span><strong>Master-level knowledge!</strong> In Google Sheets Chart Editor: <strong>Setup tab</strong> controls chart type and data range. <strong>Customize tab</strong> contains all visual formatting — including Chart & axis titles (for the title) and Series (for bar colors). This is the exact workflow you\'ll use in real projects.',
+  };
+  return msgs[n] || '<span class="feedback-icon">✅</span><strong>Correct!</strong> Well done!';
+}
+
+function getFeedbackIncorrect(n) {
+  const msgs = {
+    1: '<span class="feedback-icon">❌</span><strong>Not quite.</strong> The correct answer is <strong>Histogram</strong>. A histogram shows the <em>distribution</em> of continuous numeric data by grouping values into bins. A bar chart compares <em>discrete categories</em>. A pie chart shows proportions. A line chart shows trends over time. For test score distributions, always use a histogram.',
+    2: '<span class="feedback-icon">❌</span><strong>Review needed.</strong> The issue is <strong>mixed data types</strong>. Google Sheets cannot render a chart when a numeric column contains text values like "N/A" or "three thousand." The fix is to ensure all values in a numeric column are actual numbers (or blank). Column size and header formatting are not the issue here.',
+    4: '<span class="feedback-icon">❌</span><strong>Not the best approach.</strong> The correct fix is to add a descriptive <strong>axis title</strong> and format numbers in millions. Deleting the axis or changing chart type doesn\'t solve readability — it removes information. Increasing font size alone doesn\'t address the confusing large numbers.',
+    6: '<span class="feedback-icon">❌</span><strong>Incorrect approach.</strong> The correct fix is targeted data hygiene: remove the empty row, replace "unknown" text with numeric values, and re-select the clean range. Deleting the file, changing chart type, or "refreshing" won\'t fix underlying data quality issues.',
+    7: '<span class="feedback-icon">❌</span><strong>Review the Chart Editor tabs.</strong> Remember: <strong>Setup tab</strong> = chart type and data range. <strong>Customize tab</strong> = all visual formatting (titles, colors, fonts, axes). The Format and Insert menus in the main toolbar are NOT where you customize existing charts — that\'s done in the Chart Editor panel.',
+  };
+  return msgs[n] || '<span class="feedback-icon">❌</span><strong>Incorrect.</strong> Review the explanation above.';
+}
+
+// ── ORDER DRAG (Mission 3) ──
+function initOrderDrag() {
+  const items = document.querySelectorAll('#order-list-3 .order-item');
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      draggedOrderItem = item;
+      setTimeout(() => item.classList.add('dragging'), 0);
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      document.querySelectorAll('.order-item').forEach(i => i.classList.remove('drag-over-item'));
+      draggedOrderItem = null;
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (item !== draggedOrderItem) {
+        document.querySelectorAll('.order-item').forEach(i => i.classList.remove('drag-over-item'));
+        item.classList.add('drag-over-item');
+        dragOverOrderItem = item;
+      }
+    });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      if (draggedOrderItem && draggedOrderItem !== item) {
+        const list = document.getElementById('order-list-3');
+        const items = [...list.querySelectorAll('.order-item')];
+        const fromIdx = items.indexOf(draggedOrderItem);
+        const toIdx = items.indexOf(item);
+        if (fromIdx < toIdx) {
+          list.insertBefore(draggedOrderItem, item.nextSibling);
+        } else {
+          list.insertBefore(draggedOrderItem, item);
+        }
+        updateOrderNumbers();
+      }
+    });
+  });
+  updateOrderNumbers();
+}
+
+function updateOrderNumbers() {
+  const items = document.querySelectorAll('#order-list-3 .order-item');
+  items.forEach((item, i) => {
+    const step = item.getAttribute('data-step');
+    document.getElementById(`onum-${step}`).textContent = i + 1;
+  });
+}
+
+function checkOrder() {
+  if (missionAnswered[3]) return;
+  missionAnswered[3] = true;
+
+  const items = document.querySelectorAll('#order-list-3 .order-item');
+  const userOrder = [...items].map(i => i.getAttribute('data-step'));
+  const isCorrect = JSON.stringify(userOrder) === JSON.stringify(CORRECT_ORDER);
+
+  const fb = document.getElementById('fb-3');
+  const nextBtn = document.getElementById('next-3');
+  document.getElementById('submit-3').disabled = true;
+
+  if (isCorrect) {
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Perfect sequence!</strong> The correct Google Sheets workflow is: (1) <strong>Clean your data</strong> first, (2) <strong>Select your data range</strong> including headers, (3) Click <strong>Insert</strong> in the menu, (4) Click <strong>Chart</strong>, (5) Use the <strong>Chart Editor</strong> to customize. This is the exact workflow used by data professionals!';
+    addScore(150, true);
+    showToast('✅ Perfect order! +150 pts');
+    launchConfetti();
+  } else {
+    fb.className = 'feedback-box show incorrect-fb';
+    fb.innerHTML = `<span class="feedback-icon">❌</span><strong>Not quite.</strong> The correct order is: <ol style="margin-top:8px;padding-left:20px;font-size:0.88rem"><li><strong>Clean your data</strong> — ensure no mixed types or empty headers</li><li><strong>Select your data range</strong> — highlight cells including column headers</li><li>Click <strong>Insert</strong> in the top menu</li><li>Click <strong>Chart</strong> from the dropdown</li><li>Use the <strong>Chart Editor</strong> panel to customize</li></ol>`;
+    addScore(0, false);
+    showToast('❌ Check the correct order in the feedback!');
+  }
+  nextBtn.style.display = 'inline-block';
+}
+
+// ── DRAG & DROP (Mission 5) ──
+function initDragDrop() {
+  setTimeout(() => {
+    const items = document.querySelectorAll('#drag-source .drag-item');
+    items.forEach(item => {
+      item.addEventListener('dragstart', e => {
+        draggedItem = item;
+        e.dataTransfer.setData('text/plain', item.getAttribute('data-id'));
+        setTimeout(() => item.classList.add('dragging'), 0);
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        draggedItem = null;
+      });
+    });
+    ['drop-x','drop-y'].forEach(zoneId => {
+      const zone = document.getElementById(zoneId);
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const id = e.dataTransfer.getData('text/plain');
+        const item = document.querySelector(`[data-id="${id}"]`);
+        if (item) {
+          zone.appendChild(item);
+          item.classList.remove('dragging');
+        }
+      });
+    });
+  }, 100);
+}
+
+function allowDrop(e) { e.preventDefault(); }
+
+function dropItem(e, zone) {
+  e.preventDefault();
+  const id = e.dataTransfer.getData('text/plain');
+  const item = document.querySelector(`[data-id="${id}"]`);
+  const dropZone = document.getElementById(`drop-${zone}`);
+  if (item && dropZone) {
+    dropZone.appendChild(item);
+  }
+}
+
+function checkDragDrop() {
+  if (missionAnswered[5]) return;
+  missionAnswered[5] = true;
+
+  const xZone = document.getElementById('drop-x');
+  const yZone = document.getElementById('drop-y');
+  const xItems = xZone.querySelectorAll('.drag-item');
+  const yItems = yZone.querySelectorAll('.drag-item');
+
+  let allCorrect = true;
+  let wrongCount = 0;
+
+  xItems.forEach(item => {
+    if (item.getAttribute('data-correct') !== 'x') { allCorrect = false; wrongCount++; }
+  });
+  yItems.forEach(item => {
+    if (item.getAttribute('data-correct') !== 'y') { allCorrect = false; wrongCount++; }
+  });
+
+  // Check if all 6 items are placed
+  const totalPlaced = xItems.length + yItems.length;
+  if (totalPlaced < 6) {
+    showToast('⚠️ Place all items before submitting!');
+    missionAnswered[5] = false;
+    return;
+  }
+
+  const fb = document.getElementById('fb-5');
+  const nextBtn = document.getElementById('next-5');
+  document.getElementById('submit-5').disabled = true;
+
+  if (allCorrect) {
+    xZone.classList.add('correct-zone');
+    yZone.classList.add('correct-zone');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Perfect classification!</strong> <strong>X-axis (Categorical):</strong> Month Names, Department Names, City Names — these are labels/categories. <strong>Y-axis (Numeric):</strong> Total Sales, Average Test Score, Temperature — these are measurable quantities. In Google Sheets, the Chart Editor automatically detects data types, but understanding this distinction helps you set up your data correctly.';
+    addScore(150, true);
+    showToast('✅ All classified correctly! +150 pts');
+    launchConfetti();
+  } else {
+    xZone.classList.add('incorrect-zone');
+    yZone.classList.add('incorrect-zone');
+    fb.className = 'feedback-box show incorrect-fb';
+    fb.innerHTML = `<span class="feedback-icon">❌</span><strong>${wrongCount} item(s) misclassified.</strong> Remember: <strong>X-axis = Categorical</strong> (names, labels, groups — Month Names, Department Names, City Names). <strong>Y-axis = Numeric</strong> (measurable values — Sales $, Test Scores, Temperature). Categorical data describes <em>what</em>; numeric data describes <em>how much</em>.`;
+    addScore(0, false);
+    showToast('❌ Some items misclassified — review the feedback!');
+  }
+  nextBtn.style.display = 'inline-block';
+}
+
+// ── RESULTS ──
+function showResults() {
+  document.getElementById('mission-7').classList.remove('active');
+  const resultsScreen = document.getElementById('results-screen');
+  resultsScreen.classList.add('show');
+
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('stat-correct').textContent = correctCount;
+  document.getElementById('stat-pct').textContent = Math.round((correctCount / 7) * 100) + '%';
+
+  let rank = RANKS[0];
+  for (let r of RANKS) { if (score >= r.min) rank = r; }
+
+  document.getElementById('results-badge').textContent = rank.icon;
+  document.getElementById('results-rank-name').textContent = rank.name.toUpperCase() + ' ANALYST';
+
+  const pct = Math.round((correctCount / 7) * 100);
+  let msg = '';
+  let title = '';
+  if (pct >= 86) {
+    title = 'Mission Complete — Outstanding Performance!';
+    msg = `Exceptional work, UVA Cadet! You've demonstrated mastery of Google Sheets data visualization — from chart type selection and data hygiene to axis customization and the Chart Editor workflow. You're ready for real-world data analysis projects. Virtue, Vigor, Vision! 🎓`;
+    launchConfetti();
+    setTimeout(launchConfetti, 1000);
+  } else if (pct >= 57) {
+    title = 'Mission Complete — Solid Performance!';
+    msg = `Good effort, UVA Cadet! You've shown a solid understanding of data visualization fundamentals. Review the missions where you lost points — especially data hygiene practices and the Chart Editor tab structure. Keep pushing toward Master rank!`;
+  } else {
+    title = 'Mission Complete — Keep Training!';
+    msg = `You've completed all 7 missions, UVA Cadet! Data visualization takes practice. Focus on: (1) when to use histograms vs. bar charts, (2) data hygiene before charting, and (3) the Setup vs. Customize tabs in Google Sheets Chart Editor. Retry to improve your rank!`;
+  }
+
+  document.getElementById('results-title').textContent = title;
+  document.getElementById('results-message').textContent = msg;
+  updateProgress(8);
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function restartGame() {
+  score = 0; correctCount = 0; streak = 0; maxStreak = 0; currentMission = 0;
+  missionAnswered = new Array(8).fill(false);
+
+  document.getElementById('results-screen').classList.remove('show');
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('streak-badge').classList.remove('show');
+  document.getElementById('progress-fill').style.width = '0%';
+
+  // Reset drag zones
+  const src = document.getElementById('drag-source');
+  if (src) {
+    document.querySelectorAll('[data-id]').forEach(item => src.appendChild(item));
+    document.getElementById('drop-x').className = 'drop-zone';
+    document.getElementById('drop-y').className = 'drop-zone';
+  }
+
+  // Reset feedbacks and buttons
+  for (let i = 1; i <= 7; i++) {
+    const fb = document.getElementById(`fb-${i}`);
+    if (fb) { fb.className = 'feedback-box'; fb.innerHTML = ''; }
+    const nb = document.getElementById(`next-${i}`);
+    if (nb) nb.style.display = 'none';
+  }
+
+  // Reset MCQ buttons
+  [2,4,6,7].forEach(n => {
+    const opts = document.getElementById(`options-${n}`);
+    if (opts) opts.querySelectorAll('.option-btn').forEach(b => {
+      b.className = 'option-btn';
+      b.disabled = false;
+    });
+  });
+
+  // Reset chart cards
+  const cv = document.getElementById('chart-visual-1');
+  if (cv) cv.querySelectorAll('.chart-card').forEach(c => {
+    c.className = 'chart-card';
+    c.style.pointerEvents = '';
+  });
+
+  // Reset order submit
+  const sub3 = document.getElementById('submit-3');
+  if (sub3) sub3.disabled = false;
+  const sub5 = document.getElementById('submit-5');
+  if (sub5) sub5.disabled = false;
+
+  updateScoreBar();
+  document.getElementById('intro-screen').style.display = 'block';
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+</body>
+</html>
