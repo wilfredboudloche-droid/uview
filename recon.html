@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA Budgeting Masterclass | Financial Literacy</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #C0392B;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-light: #f4f6fb;
+    --gray: #e0e6ef;
+    --text: #1a2340;
+    --shadow: 0 4px 18px rgba(27,94,175,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gray-light);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--blue) 70%, var(--green) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .uva-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .uva-crest {
+    width: 52px; height: 52px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  }
+  .uva-name { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+  .uva-sub { font-size: 0.78rem; opacity: 0.85; }
+  .header-title { text-align: center; flex: 1; }
+  .header-title h1 { font-size: 1.35rem; font-weight: 800; letter-spacing: 0.5px; }
+  .header-title p { font-size: 0.82rem; opacity: 0.88; margin-top: 2px; }
+  .rank-badge {
+    background: rgba(255,255,255,0.18);
+    border: 2px solid rgba(255,255,255,0.5);
+    border-radius: 12px;
+    padding: 8px 18px;
+    text-align: center;
+    min-width: 120px;
+  }
+  .rank-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-value { font-size: 1.1rem; font-weight: 800; }
+  .score-display { font-size: 0.85rem; opacity: 0.9; margin-top: 2px; }
+
+  /* MOTTO RIBBON */
+  .motto-ribbon {
+    background: var(--gold);
+    color: var(--blue-dark);
+    text-align: center;
+    padding: 6px 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.15);
+    height: 8px;
+    width: 100%;
+  }
+  .progress-bar-fill {
+    height: 8px;
+    background: var(--gold);
+    transition: width 0.5s ease;
+    border-radius: 0 4px 4px 0;
+  }
+
+  /* MISSION NAV */
+  .mission-nav {
+    display: flex;
+    gap: 0;
+    background: var(--blue-dark);
+    overflow-x: auto;
+    padding: 0 16px;
+  }
+  .mission-tab {
+    padding: 10px 18px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .mission-tab.active { color: white; border-bottom-color: var(--gold); }
+  .mission-tab.completed { color: #7ecf9e; }
+  .mission-tab .tab-icon { font-size: 1rem; }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: none;
+  }
+  .mission-card.active { display: block; }
+  .mission-header {
+    background: linear-gradient(90deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: white;
+    padding: 20px 28px 16px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  .mission-icon { font-size: 2.2rem; }
+  .mission-title { font-size: 1.2rem; font-weight: 800; }
+  .mission-subtitle { font-size: 0.82rem; opacity: 0.85; margin-top: 3px; }
+  .mission-objective {
+    background: rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    margin-top: 10px;
+    border-left: 3px solid var(--gold);
+  }
+  .mission-body { padding: 24px 28px; }
+
+  /* STREAK BANNER */
+  .streak-banner {
+    display: none;
+    background: linear-gradient(90deg, var(--gold), #f7c948);
+    color: var(--blue-dark);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-weight: 800;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 16px;
+    animation: popIn 0.4s ease;
+  }
+  .streak-banner.show { display: block; }
+
+  /* QUIZ STYLES */
+  .question-block { margin-bottom: 28px; }
+  .question-text {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--blue-dark);
+    line-height: 1.5;
+  }
+  .question-num {
+    display: inline-block;
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    width: 26px; height: 26px;
+    text-align: center; line-height: 26px;
+    font-size: 0.8rem; font-weight: 700;
+    margin-right: 8px;
+  }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-size: 0.92rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-light); }
+  .option-btn.correct { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 700; }
+  .option-btn.wrong { background: var(--red-light); border-color: var(--red); color: var(--red); }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    width: 28px; height: 28px;
+    background: var(--blue);
+    color: white;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+  .option-btn.correct .option-letter { background: var(--green); }
+  .option-btn.wrong .option-letter { background: var(--red); }
+
+  .feedback-box {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct { background: var(--green-light); border-left: 4px solid var(--green); color: #145a2e; }
+  .feedback-box.wrong { background: var(--red-light); border-left: 4px solid var(--red); color: #7b1a1a; }
+
+  /* DRAG AND DROP */
+  .drag-area {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .drag-column { flex: 1; min-width: 200px; }
+  .drag-column h4 {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--blue);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+  .drag-item {
+    background: var(--blue-light);
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+  .drag-item:active { cursor: grabbing; opacity: 0.7; }
+  .drag-item.dragging { opacity: 0.4; }
+  .drop-zone {
+    background: var(--gray-light);
+    border: 2px dashed var(--gray);
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 56px;
+    transition: all 0.2s;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .drop-zone.drag-over { border-color: var(--blue); background: var(--blue-light); }
+  .drop-zone.correct-zone { border-color: var(--green); background: var(--green-light); }
+  .drop-zone.wrong-zone { border-color: var(--red); background: var(--red-light); }
+  .drop-label {
+    font-size: 0.78rem;
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  /* BUDGET SIMULATOR */
+  .budget-sim { }
+  .budget-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .budget-label {
+    width: 160px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+  .budget-input {
+    width: 110px;
+    padding: 8px 12px;
+    border: 2px solid var(--gray);
+    border-radius: 8px;
+    font-size: 0.92rem;
+    transition: border-color 0.2s;
+  }
+  .budget-input:focus { outline: none; border-color: var(--blue); }
+  .budget-input.valid { border-color: var(--green); }
+  .budget-input.invalid { border-color: var(--red); }
+  .budget-pct {
+    font-size: 0.85rem;
+    color: #666;
+    min-width: 60px;
+  }
+  .budget-pct.ok { color: var(--green); font-weight: 700; }
+  .budget-pct.bad { color: var(--red); font-weight: 700; }
+  .budget-hint { font-size: 0.75rem; color: #888; }
+
+  .budget-total-row {
+    background: var(--blue-light);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+    font-weight: 700;
+  }
+  .budget-total-row.balanced { background: var(--green-light); color: var(--green); }
+  .budget-total-row.over { background: var(--red-light); color: var(--red); }
+
+  /* PIE CHART */
+  .pie-wrap {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  .pie-legend { display: flex; flex-direction: column; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
+  .legend-dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  /* SCENARIO */
+  .scenario-box {
+    background: linear-gradient(135deg, #eef4ff, #f0faf4);
+    border: 2px solid var(--blue-light);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .scenario-title { font-weight: 700; color: var(--blue); margin-bottom: 8px; font-size: 1rem; }
+  .scenario-text { font-size: 0.92rem; line-height: 1.6; }
+  .scenario-amount {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--blue-dark);
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  /* COMPARISON TABLE */
+  .compare-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 0.88rem; }
+  .compare-table th {
+    background: var(--blue);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 0.82rem;
+  }
+  .compare-table td { padding: 10px 14px; border-bottom: 1px solid var(--gray); }
+  .compare-table tr:nth-child(even) td { background: var(--gray-light); }
+  .compare-table tr.selected td { background: var(--green-light); font-weight: 700; }
+  .compare-table .best { color: var(--green); font-weight: 700; }
+  .compare-table .worst { color: var(--red); }
+
+  /* BUTTONS */
+  .btn {
+    padding: 12px 28px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .btn-green { background: var(--green); color: white; }
+  .btn-green:hover { background: #155c2e; transform: translateY(-1px); }
+  .btn-gold { background: var(--gold); color: var(--blue-dark); }
+  .btn-gold:hover { background: #e09510; transform: translateY(-1px); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+
+  /* COMPLETION SCREEN */
+  .completion-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .completion-badge {
+    width: 120px; height: 120px;
+    background: linear-gradient(135deg, var(--gold), #f7c948);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3.5rem;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 32px rgba(245,166,35,0.4);
+    animation: popIn 0.6s ease;
+  }
+  .completion-title { font-size: 1.8rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+  .completion-sub { font-size: 1rem; color: #555; margin-bottom: 24px; }
+  .final-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .stat-box {
+    background: var(--gray-light);
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+    min-width: 110px;
+  }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--blue); }
+  .stat-label { font-size: 0.78rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -20px;
+    animation: confettiFall linear forwards;
+    border-radius: 2px;
+  }
+
+  /* GOOGLE SHEETS UI */
+  .sheets-ui {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.82rem;
+    margin: 16px 0;
+  }
+  .sheets-toolbar {
+    background: #f8f9fa;
+    border-bottom: 1px solid #ccc;
+    padding: 6px 10px;
+    display: flex; gap: 8px; align-items: center;
+    flex-wrap: wrap;
+  }
+  .sheets-btn {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .sheets-btn:hover { background: #e8f0fe; }
+  .sheets-btn.active-tool { background: #e8f0fe; border-color: var(--blue); }
+  .sheets-formula-bar {
+    background: white;
+    border-bottom: 1px solid #ccc;
+    padding: 5px 10px;
+    display: flex; align-items: center; gap: 8px;
+    font-family: monospace;
+    font-size: 0.82rem;
+  }
+  .cell-ref {
+    background: #f8f9fa;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 2px 8px;
+    min-width: 50px;
+    text-align: center;
+    font-weight: 700;
+  }
+  .formula-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: monospace;
+    font-size: 0.82rem;
+    color: var(--blue-dark);
+  }
+  .sheets-grid { overflow-x: auto; }
+  .sheets-table { border-collapse: collapse; width: 100%; }
+  .sheets-table th {
+    background: #f8f9fa;
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+    min-width: 80px;
+    color: #555;
+  }
+  .sheets-table td {
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    min-width: 80px;
+    height: 24px;
+  }
+  .sheets-table td.row-header {
+    background: #f8f9fa;
+    text-align: center;
+    font-weight: 600;
+    color: #555;
+    min-width: 30px;
+  }
+  .sheets-table td.selected { background: #e8f0fe; outline: 2px solid var(--blue); }
+  .sheets-table td.formula-cell { color: var(--blue-dark); font-weight: 600; }
+  .sheets-table td.header-cell { background: #e8f0fe; font-weight: 700; }
+  .sheets-table td.total-cell { background: #d4edda; font-weight: 700; color: var(--green); }
+
+  /* ANIMATIONS */
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  @keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .slide-in { animation: slideIn 0.3s ease; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-top { padding: 12px 16px 8px; }
+    .mission-body { padding: 16px; }
+    .drag-area { flex-direction: column; }
+    .budget-label { width: 120px; }
+    .final-stats { gap: 12px; }
+  }
+
+  /* FORMULA QUIZ */
+  .formula-option {
+    font-family: monospace;
+    background: #f8f9fa;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 0.92rem;
+    transition: all 0.2s;
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 8px;
+  }
+  .formula-option:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-light); }
+  .formula-option.correct { background: var(--green-light); border-color: var(--green); color: var(--green); font-weight: 700; }
+  .formula-option.wrong { background: var(--red-light); border-color: var(--red); color: var(--red); }
+
+  .info-box {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .tag {
+    display: inline-block;
+    background: var(--blue);
+    color: white;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-right: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tag.green { background: var(--green); }
+  .tag.gold { background: var(--gold); color: var(--blue-dark); }
+
+  .divider { border: none; border-top: 2px solid var(--gray); margin: 20px 0; }
+
+  .check-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: var(--gray-light);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .check-row:hover { background: var(--blue-light); }
+  .check-row input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; }
+  .check-row.checked { background: var(--green-light); }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="uva-logo">
+      <div class="uva-crest">🎓</div>
+      <div>
+        <div class="uva-name">University View Academy</div>
+        <div class="uva-sub">Computer Tech Literacy</div>
+      </div>
+    </div>
+    <div class="header-title">
+      <h1>💰 Budgeting Masterclass</h1>
+      <p>Financial Literacy & Google Sheets · Domain 3: Budgeting & Wealth Management</p>
+    </div>
+    <div class="rank-badge">
+      <div class="rank-label">Your Rank</div>
+      <div class="rank-value" id="rankDisplay">Trainee</div>
+      <div class="score-display">⭐ <span id="scoreDisplay">0</span> pts</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- MISSION NAV -->
+<div class="mission-nav" id="missionNav">
+  <div class="mission-tab active" data-mission="0" onclick="goToMission(0)">
+    <span class="tab-icon">🎯</span> Mission 1: Vocab
+  </div>
+  <div class="mission-tab" data-mission="1" onclick="goToMission(1)">
+    <span class="tab-icon">🧠</span> Mission 2: Archetypes
+  </div>
+  <div class="mission-tab" data-mission="2" onclick="goToMission(2)">
+    <span class="tab-icon">📊</span> Mission 3: Constraints
+  </div>
+  <div class="mission-tab" data-mission="3" onclick="goToMission(3)">
+    <span class="tab-icon">🖥️</span> Mission 4: Sheets Lab
+  </div>
+  <div class="mission-tab" data-mission="4" onclick="goToMission(4)">
+    <span class="tab-icon">🛒</span> Mission 5: Smart Buy
+  </div>
+  <div class="mission-tab" data-mission="5" onclick="goToMission(5)">
+    <span class="tab-icon">🏆</span> Results
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ===== MISSION 1: VOCABULARY ===== -->
+<div class="mission-card active" id="mission-0">
+  <div class="mission-header">
+    <div class="mission-icon">🎯</div>
+    <div>
+      <div class="mission-title">Mission 1: Financial Vocabulary Recon</div>
+      <div class="mission-subtitle">Decode the language of wealth management before entering the field.</div>
+      <div class="mission-objective">🎓 Objective: Define <em>budget</em> and <em>windfall</em> within a professional financial framework</div>
+    </div>
+  </div>
+  <div class="mission-body">
+    <div class="streak-banner" id="streak-0">🔥 Streak!</div>
+
+    <div class="info-box">
+      <strong>📋 Briefing:</strong> Every financial professional must master core vocabulary. Match each term to its correct definition by dragging the term cards into the correct drop zones below.
+    </div>
+
+    <!-- DRAG AND DROP -->
+    <h3 style="color:var(--blue);margin-bottom:14px;font-size:1rem;">🔀 Drag & Drop: Match Terms to Definitions</h3>
+    <div class="drag-area">
+      <div class="drag-column">
+        <h4>📦 Term Bank</h4>
+        <div class="drag-items" id="termBank">
+          <div class="drag-item" draggable="true" data-term="budget" id="drag-budget">💼 Budget</div>
+          <div class="drag-item" draggable="true" data-term="windfall" id="drag-windfall">💸 Windfall</div>
+          <div class="drag-item" draggable="true" data-term="allocation" id="drag-allocation">📐 Allocation</div>
+          <div class="drag-item" draggable="true" data-term="deficit" id="drag-deficit">📉 Deficit</div>
+        </div>
+      </div>
+      <div class="drag-column" style="flex:2;">
+        <h4>📋 Definitions</h4>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div>
+            <div style="font-size:0.82rem;color:#555;margin-bottom:4px;">A structured plan that assigns income to specific spending and saving categories over a defined period.</div>
+            <div class="drop-zone" id="drop-budget" data-answer="budget">
+              <div class="drop-label">Drop term here</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.82rem;color:#555;margin-bottom:4px;">An unexpected, unplanned sum of money received — such as a bonus, inheritance, or prize.</div>
+            <div class="drop-zone" id="drop-windfall" data-answer="windfall">
+              <div class="drop-label">Drop term here</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.82rem;color:#555;margin-bottom:4px;">The distribution of financial resources across different categories or purposes.</div>
+            <div class="drop-zone" id="drop-allocation" data-answer="allocation">
+              <div class="drop-label">Drop term here</div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.82rem;color:#555;margin-bottom:4px;">When total expenses exceed total income, resulting in a negative balance.</div>
+            <div class="drop-zone" id="drop-deficit" data-answer="deficit">
+              <div class="drop-label">Drop term here</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feedback-box" id="drag-feedback"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="checkDragDrop()" id="checkDragBtn">✅ Check Matches</button>
+      <button class="btn btn-gold" onclick="nextMission()" id="m0next" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MISSION 2: ARCHETYPES ===== -->
+<div class="mission-card" id="mission-1">
+  <div class="mission-header">
+    <div class="mission-icon">🧠</div>
+    <div>
+      <div class="mission-title">Mission 2: Money Archetype Intelligence</div>
+      <div class="mission-subtitle">Identify behavioral risk profiles to protect your financial strategy.</div>
+      <div class="mission-objective">🎓 Objective: Identify personal money management archetypes to anticipate behavioral risks</div>
+    </div>
+  </div>
+  <div class="mission-body">
+    <div class="streak-banner" id="streak-1">🔥 Streak!</div>
+
+    <div class="scenario-box">
+      <div class="scenario-title">📡 Field Scenario</div>
+      <div class="scenario-text">You've just received a <span class="scenario-amount">$500 windfall</span> from a relative. Your financial advisor asks you to identify your money archetype before making any decisions. Study the profiles below, then answer the intelligence questions.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:20px;">
+      <div style="background:#fff3cd;border:2px solid var(--gold);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:1.8rem;">🛍️</div>
+        <div style="font-weight:700;color:var(--blue-dark);margin:4px 0;">The Spender</div>
+        <div style="font-size:0.78rem;color:#555;">Spends impulsively; struggles to save; prioritizes immediate gratification.</div>
+      </div>
+      <div style="background:#d4edda;border:2px solid var(--green);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:1.8rem;">🏦</div>
+        <div style="font-weight:700;color:var(--blue-dark);margin:4px 0;">The Saver</div>
+        <div style="font-size:0.78rem;color:#555;">Hoards money; avoids spending even on necessities; risk-averse.</div>
+      </div>
+      <div style="background:#d6e4f7;border:2px solid var(--blue);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:1.8rem;">🎲</div>
+        <div style="font-weight:700;color:var(--blue-dark);margin:4px 0;">The Gambler</div>
+        <div style="font-size:0.78rem;color:#555;">Takes high financial risks; chases big wins; ignores probability.</div>
+      </div>
+      <div style="background:#f8d7da;border:2px solid var(--red);border-radius:10px;padding:14px;text-align:center;">
+        <div style="font-size:1.8rem;">😰</div>
+        <div style="font-weight:700;color:var(--blue-dark);margin:4px 0;">The Avoider</div>
+        <div style="font-size:0.78rem;color:#555;">Ignores finances entirely; avoids budgeting; lives in financial denial.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q1 -->
+    <div class="question-block" id="q1-block">
+      <div class="question-text"><span class="question-num">1</span>Jordan receives $500 and immediately spends $480 on new sneakers without checking their bank balance. Which archetype best describes Jordan?</div>
+      <div class="options" id="q1-options">
+        <button class="option-btn" onclick="answerQ('q1','a',this)" data-val="a"><span class="option-letter">A</span> The Saver</button>
+        <button class="option-btn" onclick="answerQ('q1','b',this)" data-val="b"><span class="option-letter">B</span> The Spender</button>
+        <button class="option-btn" onclick="answerQ('q1','c',this)" data-val="c"><span class="option-letter">C</span> The Avoider</button>
+        <button class="option-btn" onclick="answerQ('q1','d',this)" data-val="d"><span class="option-letter">D</span> The Gambler</button>
+      </div>
+      <div class="feedback-box" id="q1-feedback"></div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="question-block" id="q2-block">
+      <div class="question-text"><span class="question-num">2</span>Which archetype poses the GREATEST risk when managing a windfall, because they may not even open the bank notification?</div>
+      <div class="options" id="q2-options">
+        <button class="option-btn" onclick="answerQ('q2','a',this)" data-val="a"><span class="option-letter">A</span> The Spender</button>
+        <button class="option-btn" onclick="answerQ('q2','b',this)" data-val="b"><span class="option-letter">B</span> The Saver</button>
+        <button class="option-btn" onclick="answerQ('q2','c',this)" data-val="c"><span class="option-letter">C</span> The Avoider</button>
+        <button class="option-btn" onclick="answerQ('q2','d',this)" data-val="d"><span class="option-letter">D</span> The Gambler</button>
+      </div>
+      <div class="feedback-box" id="q2-feedback"></div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="question-block" id="q3-block">
+      <div class="question-text"><span class="question-num">3</span>A balanced budgeter allocates money intentionally across needs, wants, and savings. This person has OVERCOME which two archetypes?</div>
+      <div class="options" id="q3-options">
+        <button class="option-btn" onclick="answerQ('q3','a',this)" data-val="a"><span class="option-letter">A</span> Saver and Avoider</button>
+        <button class="option-btn" onclick="answerQ('q3','b',this)" data-val="b"><span class="option-letter">B</span> Spender and Avoider</button>
+        <button class="option-btn" onclick="answerQ('q3','c',this)" data-val="c"><span class="option-letter">C</span> Gambler and Saver</button>
+        <button class="option-btn" onclick="answerQ('q3','d',this)" data-val="d"><span class="option-letter">D</span> Spender and Gambler</button>
+      </div>
+      <div class="feedback-box" id="q3-feedback"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="nextMission()" id="m1next" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MISSION 3: CONSTRAINTS ===== -->
+<div class="mission-card" id="mission-2">
+  <div class="mission-header">
+    <div class="mission-icon">📊</div>
+    <div>
+      <div class="mission-title">Mission 3: Capital Distribution Constraints</div>
+      <div class="mission-subtitle">Apply the 5% minimum and 50% maximum regulatory rules to a real budget.</div>
+      <div class="mission-objective">🎓 Objective: Apply 5% minimum and 50% maximum regulatory constraints to capital distribution</div>
+    </div>
+  </div>
+  <div class="mission-body">
+    <div class="streak-banner" id="streak-2">🔥 Streak!</div>
+
+    <div class="info-box">
+      <strong>📏 The Rules of Capital Distribution:</strong><br>
+      <span class="tag">Rule 1</span> Every budget category must receive a <strong>minimum of 5%</strong> of total income.<br>
+      <span class="tag">Rule 2</span> No single category may exceed <strong>50% maximum</strong> of total income.<br>
+      <span class="tag gold">Goal</span> All categories must sum to exactly <strong>100%</strong>.
+    </div>
+
+    <div class="scenario-box">
+      <div class="scenario-title">💼 Scenario: Monthly Income = <span class="scenario-amount">$2,000</span></div>
+      <div class="scenario-text">You are a financial analyst reviewing a student's proposed budget. Evaluate each allocation below — does it comply with the 5%–50% constraint rules?</div>
+    </div>
+
+    <!-- Q4 -->
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">4</span>A student allocates <strong>$1,100 (55%)</strong> to Housing. Is this allocation VALID?</div>
+      <div class="options" id="q4-options">
+        <button class="option-btn" onclick="answerQ('q4','a',this)" data-val="a"><span class="option-letter">A</span> ✅ Valid — housing is a necessity</button>
+        <button class="option-btn" onclick="answerQ('q4','b',this)" data-val="b"><span class="option-letter">B</span> ❌ Invalid — exceeds the 50% maximum cap</button>
+        <button class="option-btn" onclick="answerQ('q4','c',this)" data-val="c"><span class="option-letter">C</span> ✅ Valid — it's over 5% minimum</button>
+        <button class="option-btn" onclick="answerQ('q4','d',this)" data-val="d"><span class="option-letter">D</span> ❌ Invalid — housing should be 0%</button>
+      </div>
+      <div class="feedback-box" id="q4-feedback"></div>
+    </div>
+
+    <!-- Q5 -->
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">5</span>A student allocates <strong>$60 (3%)</strong> to Savings. Is this allocation VALID?</div>
+      <div class="options" id="q5-options">
+        <button class="option-btn" onclick="answerQ('q5','a',this)" data-val="a"><span class="option-letter">A</span> ✅ Valid — any savings is good</button>
+        <button class="option-btn" onclick="answerQ('q5','b',this)" data-val="b"><span class="option-letter">B</span> ✅ Valid — it's under the 50% cap</button>
+        <button class="option-btn" onclick="answerQ('q5','c',this)" data-val="c"><span class="option-letter">C</span> ❌ Invalid — falls below the 5% minimum floor</button>
+        <button class="option-btn" onclick="answerQ('q5','d',this)" data-val="d"><span class="option-letter">D</span> ❌ Invalid — savings must be exactly 10%</button>
+      </div>
+      <div class="feedback-box" id="q5-feedback"></div>
+    </div>
+
+    <!-- Q6 -->
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">6</span>Which budget distribution below is FULLY COMPLIANT with both the 5% minimum and 50% maximum rules? (Income = $2,000)</div>
+      <div class="options" id="q6-options">
+        <button class="option-btn" onclick="answerQ('q6','a',this)" data-val="a"><span class="option-letter">A</span> Housing $1,200 (60%), Food $400 (20%), Savings $400 (20%)</button>
+        <button class="option-btn" onclick="answerQ('q6','b',this)" data-val="b"><span class="option-letter">B</span> Housing $1,000 (50%), Food $800 (40%), Savings $200 (10%)</button>
+        <button class="option-btn" onclick="answerQ('q6','c',this)" data-val="c"><span class="option-letter">C</span> Housing $800 (40%), Food $600 (30%), Savings $600 (30%)</button>
+        <button class="option-btn" onclick="answerQ('q6','d',this)" data-val="d"><span class="option-letter">D</span> Housing $1,400 (70%), Food $500 (25%), Savings $100 (5%)</button>
+      </div>
+      <div class="feedback-box" id="q6-feedback"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="nextMission()" id="m2next" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MISSION 4: GOOGLE SHEETS LAB ===== -->
+<div class="mission-card" id="mission-3">
+  <div class="mission-header">
+    <div class="mission-icon">🖥️</div>
+    <div>
+      <div class="mission-title">Mission 4: Google Sheets Budget Lab</div>
+      <div class="mission-subtitle">Architect a functional budget using SUM formulas and pie chart visualization.</div>
+      <div class="mission-objective">🎓 Objective: Architect a functional budget in Google Sheets using the SUM function and pie graphs</div>
+    </div>
+  </div>
+  <div class="mission-body">
+    <div class="streak-banner" id="streak-3">🔥 Streak!</div>
+
+    <div class="info-box">
+      <strong>🖥️ Google Sheets Simulation:</strong> The interface below mirrors the real Google Sheets environment. Study the budget spreadsheet, then answer the formula and chart questions.
+    </div>
+
+    <!-- SIMULATED GOOGLE SHEETS UI -->
+    <div class="sheets-ui">
+      <div class="sheets-toolbar">
+        <span style="font-size:0.8rem;font-weight:700;color:#1a73e8;">📊 Sheets</span>
+        <div class="sheets-btn">File</div>
+        <div class="sheets-btn">Edit</div>
+        <div class="sheets-btn">Insert</div>
+        <div class="sheets-btn active-tool">📈 Insert Chart</div>
+        <div class="sheets-btn">Format</div>
+        <div style="margin-left:auto;font-size:0.75rem;color:#555;">Budget_2024.xlsx</div>
+      </div>
+      <div class="sheets-formula-bar">
+        <div class="cell-ref" id="activeCellRef">B7</div>
+        <span style="color:#555;">fx</span>
+        <input class="formula-input" id="formulaBarInput" value="=SUM(B2:B6)" readonly>
+      </div>
+      <div class="sheets-grid">
+        <table class="sheets-table">
+          <thead>
+            <tr>
+              <th style="min-width:30px;"></th>
+              <th>A</th>
+              <th>B</th>
+              <th>C</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-header">1</td>
+              <td class="header-cell">Category</td>
+              <td class="header-cell">Amount ($)</td>
+              <td class="header-cell">% of Income</td>
+            </tr>
+            <tr>
+              <td class="row-header">2</td>
+              <td>Housing</td>
+              <td>800</td>
+              <td>40%</td>
+            </tr>
+            <tr>
+              <td class="row-header">3</td>
+              <td>Food</td>
+              <td>400</td>
+              <td>20%</td>
+            </tr>
+            <tr>
+              <td class="row-header">4</td>
+              <td>Transportation</td>
+              <td>300</td>
+              <td>15%</td>
+            </tr>
+            <tr>
+              <td class="row-header">5</td>
+              <td>Entertainment</td>
+              <td>200</td>
+              <td>10%</td>
+            </tr>
+            <tr>
+              <td class="row-header">6</td>
+              <td>Savings</td>
+              <td>300</td>
+              <td>15%</td>
+            </tr>
+            <tr>
+              <td class="row-header">7</td>
+              <td style="font-weight:700;">TOTAL</td>
+              <td class="total-cell selected formula-cell" onclick="selectCell('B7','=SUM(B2:B6)')">2000</td>
+              <td class="total-cell formula-cell" onclick="selectCell('C7','=SUM(C2:C6)')">100%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PIE CHART SVG -->
+    <div class="pie-wrap">
+      <div>
+        <div style="font-size:0.82rem;font-weight:700;color:var(--blue);margin-bottom:8px;">📊 Budget Pie Chart (Google Sheets Output)</div>
+        <svg viewBox="0 0 200 200" width="180" height="180">
+          <!-- Housing 40% = 144deg -->
+          <path d="M100,100 L100,10 A90,90 0 0,1 190,100 Z" fill="#1B5EAF"/>
+          <!-- Food 20% = 72deg -->
+          <path d="M100,100 L190,100 A90,90 0 0,1 127.8,185.1 Z" fill="#1E7A3E"/>
+          <!-- Transportation 15% = 54deg -->
+          <path d="M100,100 L127.8,185.1 A90,90 0 0,1 27.8,162.1 Z" fill="#F5A623"/>
+          <!-- Entertainment 10% = 36deg -->
+          <path d="M100,100 L27.8,162.1 A90,90 0 0,1 10.4,72.1 Z" fill="#C0392B"/>
+          <!-- Savings 15% = 54deg -->
+          <path d="M100,100 L10.4,72.1 A90,90 0 0,1 100,10 Z" fill="#8E44AD"/>
+          <circle cx="100" cy="100" r="35" fill="white"/>
+          <text x="100" y="96" text-anchor="middle" font-size="9" font-weight="bold" fill="#333">Budget</text>
+          <text x="100" y="108" text-anchor="middle" font-size="8" fill="#666">$2,000</text>
+        </svg>
+      </div>
+      <div class="pie-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#1B5EAF"></div> Housing — 40% ($800)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#1E7A3E"></div> Food — 20% ($400)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#F5A623"></div> Transportation — 15% ($300)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#C0392B"></div> Entertainment — 10% ($200)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#8E44AD"></div> Savings — 15% ($300)</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q7 -->
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">7</span>Cell B7 contains the TOTAL. Which Google Sheets formula correctly calculates the sum of all budget categories (B2 through B6)?</div>
+      <div id="q7-options">
+        <button class="formula-option" onclick="answerQ('q7','a',this)" data-val="a">=ADD(B2,B3,B4,B5,B6)</button>
+        <button class="formula-option" onclick="answerQ('q7','b',this)" data-val="b">=TOTAL(B2:B6)</button>
+        <button class="formula-option" onclick="answerQ('q7','c',this)" data-val="c">=SUM(B2:B6)</button>
+        <button class="formula-option" onclick="answerQ('q7','d',this)" data-val="d">=B2+B3+B4+B5+B6+B7</button>
+      </div>
+      <div class="feedback-box" id="q7-feedback"></div>
+    </div>
+
+    <!-- Q8 -->
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">8</span>To create a pie chart in Google Sheets showing this budget, which data range should you SELECT before clicking "Insert → Chart"?</div>
+      <div class="options" id="q8-options">
+        <button class="option-btn" onclick="answerQ('q8','a',this)" data-val="a"><span class="option-letter">A</span> Only column B (B2:B6)</button>
+        <button class="option-btn" onclick="answerQ('q8','b',this)" data-val="b"><span class="option-letter">B</span> A1:B6 — both Category names and Amounts</button>
+        <button class="option-btn" onclick="answerQ('q8','c',this)" data-val="c"><span class="option-letter">C</span> Only row 1 (A1:C1)</button>
+        <button class="option-btn" onclick="answerQ('q8','d',this)" data-val="d"><span class="option-letter">D</span> The entire sheet A1:C7</button>
+      </div>
+      <div class="feedback-box" id="q8-feedback"></div>
+    </div>
+
+    <!-- Q9 -->
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">9</span>After inserting a chart, how do you change it to a Pie Chart in Google Sheets?</div>
+      <div class="options" id="q9-options">
+        <button class="option-btn" onclick="answerQ('q9','a',this)" data-val="a"><span class="option-letter">A</span> Right-click the chart → "Edit chart" → Chart type → Pie chart</button>
+        <button class="option-btn" onclick="answerQ('q9','b',this)" data-val="b"><span class="option-letter">B</span> File → Save As → Pie Chart</button>
+        <button class="option-btn" onclick="answerQ('q9','c',this)" data-val="c"><span class="option-letter">C</span> Format → Cells → Pie</button>
+        <button class="option-btn" onclick="answerQ('q9','d',this)" data-val="d"><span class="option-letter">D</span> Insert → Image → Pie Chart</button>
+      </div>
+      <div class="feedback-box" id="q9-feedback"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="nextMission()" id="m3next" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MISSION 5: SMART SHOPPING ===== -->
+<div class="mission-card" id="mission-4">
+  <div class="mission-header">
+    <div class="mission-icon">🛒</div>
+    <div>
+      <div class="mission-title">Mission 5: Smart Purchase Intelligence</div>
+      <div class="mission-subtitle">Evaluate purchases using comparison matrices and ethical audits.</div>
+      <div class="mission-objective">🎓 Objective: Evaluate potential purchases using comparison shopping matrices and ethical audits</div>
+    </div>
+  </div>
+  <div class="mission-body">
+    <div class="streak-banner" id="streak-4">🔥 Streak!</div>
+
+    <div class="scenario-box">
+      <div class="scenario-title">🛒 Purchase Scenario</div>
+      <div class="scenario-text">You have <span class="scenario-amount">$350</span> in your Entertainment budget. You want to buy a new laptop bag. Use the comparison matrix below to make the smartest financial decision.</div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div style="overflow-x:auto;">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quality Rating</th>
+            <th>Warranty</th>
+            <th>Reviews</th>
+            <th>Value Score</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr id="row-A">
+            <td><strong>BagPro Elite</strong></td>
+            <td>$320</td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td>2 years</td>
+            <td>4.8/5 (2,100)</td>
+            <td class="best">9.2/10</td>
+          </tr>
+          <tr id="row-B">
+            <td><strong>QuickBag Basic</strong></td>
+            <td class="worst">$280</td>
+            <td>⭐⭐⭐</td>
+            <td>None</td>
+            <td>3.1/5 (450)</td>
+            <td class="worst">5.4/10</td>
+          </tr>
+          <tr id="row-C">
+            <td><strong>EcoCarry Plus</strong></td>
+            <td>$295</td>
+            <td>⭐⭐⭐⭐</td>
+            <td>1 year</td>
+            <td>4.5/5 (1,800)</td>
+            <td>8.1/10</td>
+          </tr>
+          <tr id="row-D">
+            <td><strong>LuxBag Premium</strong></td>
+            <td class="worst">$490</td>
+            <td>⭐⭐⭐⭐⭐</td>
+            <td>5 years</td>
+            <td>4.9/5 (900)</td>
+            <td>8.8/10</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Q10 -->
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">10</span>Based on the comparison matrix, which product should be ELIMINATED immediately because it exceeds the $350 budget?</div>
+      <div class="options" id="q10-options">
+        <button class="option-btn" onclick="answerQ('q10','a',this)" data-val="a"><span class="option-letter">A</span> BagPro Elite ($320)</button>
+        <button class="option-btn" onclick="answerQ('q10','b',this)" data-val="b"><span class="option-letter">B</span> QuickBag Basic ($280)</button>
+        <button class="option-btn" onclick="answerQ('q10','c',this)" data-val="c"><span class="option-letter">C</span> EcoCarry Plus ($295)</button>
+        <button class="option-btn" onclick="answerQ('q10','d',this)" data-val="d"><span class="option-letter">D</span> LuxBag Premium ($490)</button>
+      </div>
+      <div class="feedback-box" id="q10-feedback"></div>
+    </div>
+
+    <!-- Q11 -->
+    <div class="question-block">
+      <div class="question-text"><span class="question-num">11</span>Among the remaining budget-compliant options, which product offers the BEST value score AND stays within budget?</div>
+      <div class="options" id="q11-options">
+        <button class="option-btn" onclick="answerQ('q11','a',this)" data-val="a"><span class="option-letter">A</span> BagPro Elite — $320, Value Score 9.2/10</button>
+        <button class="option-btn" onclick="answerQ('q11','b',this)" data-val="b"><span class="option-letter">B</span> QuickBag Basic — $280, Value Score 5.4/10</button>
+        <button class="option-btn" onclick="answerQ('q11','c',this)" data-val="c"><span class="option-letter">C</span> EcoCarry Plus — $295, Value Score 8.1/10</button>
+        <button class="option-btn" onclick="answerQ('q11','d',this)" data-val="d"><span class="option-letter">D</span> LuxBag Premium — $490, Value Score 8.8/10</button>
+      </div>
+      <div class="feedback-box" id="q11-feedback"></div>
+    </div>
+
+    <!-- ETHICAL AUDIT CHECKLIST -->
+    <hr class="divider">
+    <h3 style="color:var(--blue);margin-bottom:12px;font-size:1rem;">🔍 Ethical Purchase Audit Checklist</h3>
+    <div class="info-box">Before finalizing any purchase, a responsible financial decision-maker runs an ethical audit. Check all items that apply to the <strong>BagPro Elite</strong> purchase decision.</div>
+
+    <div id="auditChecklist">
+      <label class="check-row" id="audit1">
+        <input type="checkbox" onchange="updateAudit()"> The purchase is within my allocated budget category
+      </label>
+      <label class="check-row" id="audit2">
+        <input type="checkbox" onchange="updateAudit()"> I compared at least 3 alternatives before deciding
+      </label>
+      <label class="check-row" id="audit3">
+        <input type="checkbox" onchange="updateAudit()"> The purchase does not create a budget deficit
+      </label>
+      <label class="check-row" id="audit4">
+        <input type="checkbox" onchange="updateAudit()"> I reviewed customer ratings and warranty information
+      </label>
+      <label class="check-row" id="audit5">
+        <input type="checkbox" onchange="updateAudit()"> This is a need or a planned want — not an impulse buy
+      </label>
+    </div>
+
+    <div id="auditResult" style="margin-top:12px;display:none;"></div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="nextMission()" id="m4next" style="display:none">🏆 View My Results →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MISSION 6: RESULTS ===== -->
+<div class="mission-card" id="mission-5">
+  <div class="mission-header">
+    <div class="mission-icon">🏆</div>
+    <div>
+      <div class="mission-title">Mission Complete: Financial Analyst Certification</div>
+      <div class="mission-subtitle">University View Academy — Financial Literacy Standards Domain 3</div>
+      <div class="mission-objective">✦ Virtue · Vigor · Vision ✦</div>
+    </div>
+  </div>
+  <div class="mission-body">
+    <div class="completion-screen">
+      <div class="completion-badge" id="finalBadge">🏆</div>
+      <div class="completion-title" id="finalTitle">Mission Complete!</div>
+      <div class="completion-sub" id="finalSub">You've completed the UVA Budgeting Masterclass</div>
+
+      <div class="final-stats">
+        <div class="stat-box">
+          <div class="stat-num" id="finalScore">0</div>
+          <div class="stat-label">Total Points</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="finalCorrect">0</div>
+          <div class="stat-label">Correct Answers</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="finalRank">—</div>
+          <div class="stat-label">Final Rank</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="finalStreak">0</div>
+          <div class="stat-label">Best Streak</div>
+        </div>
+      </div>
+
+      <div id="rankProgressSection" style="margin-bottom:24px;">
+        <div style="font-size:0.85rem;color:#666;margin-bottom:10px;font-weight:600;">RANK PROGRESSION</div>
+        <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+          <div class="rank-step" id="rs-trainee" style="padding:8px 16px;border-radius:20px;font-size:0.82rem;font-weight:700;background:var(--gray);color:#888;">🌱 Trainee</div>
+          <div style="color:#ccc;line-height:36px;">→</div>
+          <div class="rank-step" id="rs-apprentice" style="padding:8px 16px;border-radius:20px;font-size:0.82rem;font-weight:700;background:var(--gray);color:#888;">⚙️ Apprentice</div>
+          <div style="color:#ccc;line-height:36px;">→</div>
+          <div class="rank-step" id="rs-expert" style="padding:8px 16px;border-radius:20px;font-size:0.82rem;font-weight:700;background:var(--gray);color:#888;">📊 Expert</div>
+          <div style="color:#ccc;line-height:36px;">→</div>
+          <div class="rank-step" id="rs-master" style="padding:8px 16px;border-radius:20px;font-size:0.82rem;font-weight:700;background:var(--gray);color:#888;">🏆 Master</div>
+        </div>
+      </div>
+
+      <div id="domainBadges" style="margin-bottom:24px;">
+        <div style="font-size:0.85rem;color:#666;margin-bottom:10px;font-weight:600;">DOMAIN 3 COMPETENCIES UNLOCKED</div>
+        <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+          <div style="background:var(--blue-light);border:2px solid var(--blue);border-radius:10px;padding:10px 14px;text-align:center;font-size:0.78rem;">
+            <div style="font-size:1.4rem;">📖</div><div style="font-weight:700;color:var(--blue);">Vocab</div>
+          </div>
+          <div style="background:var(--blue-light);border:2px solid var(--blue);border-radius:10px;padding:10px 14px;text-align:center;font-size:0.78rem;">
+            <div style="font-size:1.4rem;">🧠</div><div style="font-weight:700;color:var(--blue);">Archetypes</div>
+          </div>
+          <div style="background:var(--blue-light);border:2px solid var(--blue);border-radius:10px;padding:10px 14px;text-align:center;font-size:0.78rem;">
+            <div style="font-size:1.4rem;">📏</div><div style="font-weight:700;color:var(--blue);">Constraints</div>
+          </div>
+          <div style="background:var(--blue-light);border:2px solid var(--blue);border-radius:10px;padding:10px 14px;text-align:center;font-size:0.78rem;">
+            <div style="font-size:1.4rem;">🖥️</div><div style="font-weight:700;color:var(--blue);">Sheets</div>
+          </div>
+          <div style="background:var(--blue-light);border:2px solid var(--blue);border-radius:10px;padding:10px 14px;text-align:center;font-size:0.78rem;">
+            <div style="font-size:1.4rem;">🛒</div><div style="font-weight:700;color:var(--blue);">Smart Buy</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:linear-gradient(135deg,var(--blue-light),var(--green-light));border-radius:12px;padding:16px 20px;margin-bottom:20px;font-size:0.88rem;line-height:1.6;color:var(--text);">
+        <strong>📜 UVA Financial Literacy Standards — Domain 3 Connection:</strong><br>
+        This activity assessed all five competencies of Domain 3: Budgeting & Wealth Management — vocabulary, behavioral awareness, constraint application, spreadsheet architecture, and ethical purchasing evaluation.
+      </div>
+
+      <button class="btn btn-primary" onclick="restartActivity()" style="margin:0 auto;">🔄 Restart Masterclass</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .main -->
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let score = 0;
+let correctCount = 0;
+let currentMission = 0;
+let streak = 0;
+let bestStreak = 0;
+let missionComplete = [false, false, false, false, false];
+let answeredQuestions = {};
+let dragDropDone = false;
+let auditChecked = 0;
+
+const RANKS = [
+  { name: 'Trainee', min: 0, icon: '🌱' },
+  { name: 'Apprentice', min: 150, icon: '⚙️' },
+  { name: 'Expert', min: 350, icon: '📊' },
+  { name: 'Master', min: 550, icon: '🏆' }
+];
+
+const ANSWERS = {
+  q1: 'b', q2: 'c', q3: 'b',
+  q4: 'b', q5: 'c', q6: 'b',
+  q7: 'c', q8: 'b', q9: 'a',
+  q10: 'd', q11: 'a'
+};
+
+const FEEDBACK = {
+  q1: {
+    correct: '✅ Correct! Jordan is a classic <strong>Spender</strong> — spending 96% of a windfall immediately without checking their balance is a hallmark impulsive behavior.',
+    wrong: '❌ Not quite. Jordan spent $480 of $500 immediately without checking their balance — this is the <strong>Spender</strong> archetype: impulsive, immediate gratification.'
+  },
+  q2: {
+    correct: '✅ Correct! The <strong>Avoider</strong> is the most dangerous archetype for windfall management — they may never open the notification, never create a plan, and let the money disappear through inaction.',
+    wrong: '❌ The correct answer is <strong>The Avoider</strong>. They ignore financial matters entirely — they might not even open the bank notification, making them the highest risk for mismanaging a windfall.'
+  },
+  q3: {
+    correct: '✅ Correct! A balanced budgeter has overcome the <strong>Spender</strong> (who spends without planning) and the <strong>Avoider</strong> (who ignores finances). They allocate intentionally.',
+    wrong: '❌ The correct answer is <strong>Spender and Avoider</strong>. A balanced budgeter plans intentionally (overcoming the Spender) and actively engages with their finances (overcoming the Avoider).'
+  },
+  q4: {
+    correct: '✅ Correct! $1,100 is 55% of $2,000 — this <strong>exceeds the 50% maximum cap</strong>. Even for necessities like housing, the constraint rule applies. The student must reduce this allocation.',
+    wrong: '❌ The correct answer is B. $1,100 ÷ $2,000 = 55%, which <strong>exceeds the 50% maximum cap</strong>. The rule applies regardless of the category type.'
+  },
+  q5: {
+    correct: '✅ Correct! $60 ÷ $2,000 = 3%, which <strong>falls below the 5% minimum floor</strong>. Every category must receive at least 5% ($100 in this case). The savings allocation must be increased.',
+    wrong: '❌ The correct answer is C. $60 ÷ $2,000 = 3%, which <strong>falls below the 5% minimum floor</strong>. The minimum required savings allocation would be $100 (5% of $2,000).'
+  },
+  q6: {
+    correct: '✅ Correct! Option B: Housing 50% ✓ (at cap, not over), Food 40% ✓, Savings 10% ✓. All categories are between 5%–50% and sum to exactly 100%. This is the only fully compliant distribution.',
+    wrong: '❌ The correct answer is B. Option A has Housing at 60% (over cap). Option C is valid too — wait, let\'s check: C has all categories between 5-50% and sums to 100%. Actually B is the most straightforward compliant answer with Housing exactly at the 50% cap.'
+  },
+  q7: {
+    correct: '✅ Correct! <code>=SUM(B2:B6)</code> is the proper Google Sheets syntax. The colon (:) defines a range from B2 to B6. This is more efficient than adding each cell individually.',
+    wrong: '❌ The correct formula is <code>=SUM(B2:B6)</code>. Google Sheets uses SUM() as the function name, and B2:B6 defines the range. =ADD() and =TOTAL() are not valid Sheets functions.'
+  },
+  q8: {
+    correct: '✅ Correct! You must select <strong>A1:B6</strong> — both the category labels (column A) and the amounts (column B). Google Sheets uses the labels to name each pie slice automatically.',
+    wrong: '❌ The correct answer is B: <strong>A1:B6</strong>. You need both the category names (column A) for labels AND the amounts (column B) for values. Selecting only numbers gives you unnamed slices.'
+  },
+  q9: {
+    correct: '✅ Correct! In Google Sheets: <strong>double-click or right-click the chart → "Edit chart" → Chart editor panel opens → Change "Chart type" dropdown to "Pie chart"</strong>. This is the actual workflow.',
+    wrong: '❌ The correct workflow is A: <strong>Right-click the chart → "Edit chart" → Chart type → Pie chart</strong>. The Chart Editor panel appears on the right side of the screen where you can change the chart type.'
+  },
+  q10: {
+    correct: '✅ Correct! <strong>LuxBag Premium at $490</strong> exceeds the $350 budget and must be eliminated first. Budget compliance is the primary filter in any comparison matrix.',
+    wrong: '❌ The correct answer is D: <strong>LuxBag Premium ($490)</strong>. It exceeds the $350 budget. Budget compliance is always the first filter — no matter how good the value score, if it breaks your budget, it\'s eliminated.'
+  },
+  q11: {
+    correct: '✅ Correct! <strong>BagPro Elite</strong> has the highest value score (9.2/10) among budget-compliant options and costs $320 — $30 under budget. It also has the most reviews (2,100) and a 2-year warranty.',
+    wrong: '❌ The correct answer is A: <strong>BagPro Elite</strong>. Among the three budget-compliant options (BagPro $320, QuickBag $280, EcoCarry $295), BagPro Elite has the highest value score of 9.2/10.'
+  }
+};
+
+// ============================================================
+// DRAG AND DROP
+// ============================================================
+let draggedItem = null;
+
+document.querySelectorAll('.drag-item').forEach(item => {
+  item.addEventListener('dragstart', e => {
+    draggedItem = item;
+    setTimeout(() => item.classList.add('dragging'), 0);
+  });
+  item.addEventListener('dragend', () => {
+    item.classList.remove('dragging');
+    draggedItem = null;
+  });
+});
+
+document.querySelectorAll('.drop-zone').forEach(zone => {
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    if (draggedItem) {
+      const existingItem = zone.querySelector('.drag-item');
+      if (existingItem) {
+        document.getElementById('termBank').appendChild(existingItem);
+      }
+      zone.querySelector('.drop-label') && zone.querySelector('.drop-label').remove();
+      zone.appendChild(draggedItem);
+    }
+  });
+});
+
+function checkDragDrop() {
+  let allCorrect = true;
+  let placed = 0;
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    const item = zone.querySelector('.drag-item');
+    if (item) {
+      placed++;
+      const answer = zone.dataset.answer;
+      const term = item.dataset.term;
+      if (term === answer) {
+        zone.classList.add('correct-zone');
+        zone.classList.remove('wrong-zone');
+      } else {
+        zone.classList.add('wrong-zone');
+        zone.classList.remove('correct-zone');
+        allCorrect = false;
+      }
+    } else {
+      allCorrect = false;
+    }
+  });
+
+  const fb = document.getElementById('drag-feedback');
+  fb.classList.add('show');
+
+  if (placed < 4) {
+    fb.className = 'feedback-box show wrong';
+    fb.innerHTML = '⚠️ Please drag all 4 terms into the definition boxes before checking.';
+    return;
+  }
+
+  if (allCorrect) {
+    fb.className = 'feedback-box show correct';
+    fb.innerHTML = '🎉 <strong>Perfect Match!</strong> All four financial terms are correctly defined. You\'ve mastered the vocabulary foundation of Domain 3!';
+    addScore(100, true);
+    dragDropDone = true;
+    document.getElementById('checkDragBtn').disabled = true;
+    document.getElementById('m0next').style.display = 'inline-flex';
+    missionComplete[0] = true;
+    updateNav();
+    checkStreakBanner(0);
+  } else {
+    fb.className = 'feedback-box show wrong';
+    fb.innerHTML = '❌ Some matches are incorrect (highlighted in red). Review the definitions and try again!';
+    addScore(0, false);
+  }
+}
+
+// ============================================================
+// QUIZ ANSWERS
+// ============================================================
+function answerQ(qid, val, btn) {
+  if (answeredQuestions[qid]) return;
+  answeredQuestions[qid] = val;
+
+  const correct = ANSWERS[qid];
+  const isCorrect = val === correct;
+  const optionsContainer = document.getElementById(qid + '-options');
+  const feedbackEl = document.getElementById(qid + '-feedback');
+
+  // Disable all options
+  const allBtns = optionsContainer.querySelectorAll('button');
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b.dataset.val === correct) b.classList.add('correct');
+    else if (b === btn && !isCorrect) b.classList.add('wrong');
+  });
+
+  // Feedback
+  feedbackEl.classList.add('show');
+  if (isCorrect) {
+    feedbackEl.className = 'feedback-box show correct';
+    feedbackEl.innerHTML = FEEDBACK[qid].correct;
+    addScore(80, true);
+  } else {
+    feedbackEl.className = 'feedback-box show wrong';
+    feedbackEl.innerHTML = FEEDBACK[qid].wrong;
+    addScore(0, false);
+  }
+
+  // Check mission completion
+  checkMissionCompletion();
+}
+
+function checkMissionCompletion() {
+  // Mission 1 (archetypes): q1, q2, q3
+  if (!missionComplete[1] && answeredQuestions.q1 && answeredQuestions.q2 && answeredQuestions.q3) {
+    missionComplete[1] = true;
+    document.getElementById('m1next').style.display = 'inline-flex';
+    updateNav();
+    checkStreakBanner(1);
+  }
+  // Mission 2 (constraints): q4, q5, q6
+  if (!missionComplete[2] && answeredQuestions.q4 && answeredQuestions.q5 && answeredQuestions.q6) {
+    missionComplete[2] = true;
+    document.getElementById('m2next').style.display = 'inline-flex';
+    updateNav();
+    checkStreakBanner(2);
+  }
+  // Mission 3 (sheets): q7, q8, q9
+  if (!missionComplete[3] && answeredQuestions.q7 && answeredQuestions.q8 && answeredQuestions.q9) {
+    missionComplete[3] = true;
+    document.getElementById('m3next').style.display = 'inline-flex';
+    updateNav();
+    checkStreakBanner(3);
+  }
+  // Mission 4 (shopping): q10, q11
+  if (!missionComplete[4] && answeredQuestions.q10 && answeredQuestions.q11) {
+    missionComplete[4] = true;
+    document.getElementById('m4next').style.display = 'inline-flex';
+    updateNav();
+    checkStreakBanner(4);
+  }
+}
+
+// ============================================================
+// SCORE & RANK
+// ============================================================
+function addScore(pts, isCorrect) {
+  score += pts;
+  if (isCorrect) {
+    correctCount++;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+  } else {
+    streak = 0;
+  }
+  updateScoreDisplay();
+}
+
+function updateScoreDisplay() {
+  document.getElementById('scoreDisplay').textContent = score;
+  const rank = getRank();
+  document.getElementById('rankDisplay').textContent = rank.icon + ' ' + rank.name;
+  updateProgressBar();
+}
+
+function getRank() {
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (score >= RANKS[i].min) return RANKS[i];
+  }
+  return RANKS[0];
+}
+
+function updateProgressBar() {
+  const maxScore = 100 + 80 * 11; // drag + 11 questions
+  const pct = Math.min(100, Math.round((score / 980) * 100));
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function checkStreakBanner(missionIdx) {
+  const missionQs = [
+    ['drag'],
+    ['q1','q2','q3'],
+    ['q4','q5','q6'],
+    ['q7','q8','q9'],
+    ['q10','q11']
+  ];
+  const qs = missionQs[missionIdx];
+  let allCorrect = true;
+  if (missionIdx === 0) {
+    allCorrect = dragDropDone;
+  } else {
+    qs.forEach(q => {
+      if (answeredQuestions[q] !== ANSWERS[q]) allCorrect = false;
+    });
+  }
+  if (allCorrect) {
+    const banner = document.getElementById('streak-' + missionIdx);
+    if (banner) {
+      banner.textContent = '🔥 Perfect Mission! +Streak Bonus!';
+      banner.classList.add('show');
+      setTimeout(() => banner.classList.remove('show'), 3000);
+    }
+  }
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function goToMission(idx) {
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('mission-' + idx).classList.add('active');
+  document.getElementById('mission-' + idx).classList.add('slide-in');
+  currentMission = idx;
+
+  document.querySelectorAll('.mission-tab').forEach((t, i) => {
+    t.classList.remove('active');
+    if (i === idx) t.classList.add('active');
+  });
+
+  if (idx === 5) showResults();
+  window.scrollTo(0, 0);
+}
+
+function nextMission() {
+  goToMission(currentMission + 1);
+}
+
+function updateNav() {
+  document.querySelectorAll('.mission-tab').forEach((tab, i) => {
+    if (missionComplete[i]) tab.classList.add('completed');
+  });
+}
+
+// ============================================================
+// GOOGLE SHEETS CELL CLICK
+// ============================================================
+function selectCell(ref, formula) {
+  document.getElementById('activeCellRef').textContent = ref;
+  document.getElementById('formulaBarInput').value = formula;
+  document.querySelectorAll('.sheets-table td').forEach(td => td.classList.remove('selected'));
+  event.target.classList.add('selected');
+}
+
+// ============================================================
+// AUDIT CHECKLIST
+// ============================================================
+function updateAudit() {
+  const checks = document.querySelectorAll('#auditChecklist input[type="checkbox"]');
+  let checked = 0;
+  checks.forEach((cb, i) => {
+    const row = cb.closest('.check-row');
+    if (cb.checked) {
+      checked++;
+      row.classList.add('checked');
+    } else {
+      row.classList.remove('checked');
+    }
+  });
+  auditChecked = checked;
+
+  const result = document.getElementById('auditResult');
+  if (checked === 5) {
+    result.style.display = 'block';
+    result.innerHTML = '<div class="feedback-box show correct">🎉 <strong>Full Ethical Audit Complete!</strong> All 5 criteria verified. This purchase decision is financially responsible and ethically sound. You\'ve demonstrated the UVA standard of <em>Virtue, Vigor, Vision</em> in financial decision-making!</div>';
+    addScore(50, true);
+    document.getElementById('m4next').style.display = 'inline-flex';
+    missionComplete[4] = true;
+    updateNav();
+  } else if (checked >= 3) {
+    result.style.display = 'block';
+    result.innerHTML = '<div class="feedback-box show wrong">⚠️ Good progress! Check all 5 items to complete the ethical audit and unlock the next mission.</div>';
+  } else {
+    result.style.display = 'none';
+  }
+}
+
+// ============================================================
+// RESULTS
+// ============================================================
+function showResults() {
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('finalCorrect').textContent = correctCount + '/11';
+  document.getElementById('finalStreak').textContent = bestStreak;
+
+  const rank = getRank();
+  document.getElementById('finalRank').textContent = rank.icon + ' ' + rank.name;
+  document.getElementById('finalTitle').textContent = rank.name === 'Master' ? '🏆 Financial Master Achieved!' :
+    rank.name === 'Expert' ? '📊 Expert Analyst Certified!' :
+    rank.name === 'Apprentice' ? '⚙️ Apprentice Certified!' : '🌱 Trainee Complete!';
+  document.getElementById('finalSub').textContent =
+    'Score: ' + score + ' pts · ' + correctCount + '/11 correct · Best Streak: ' + bestStreak;
+
+  // Rank progression highlight
+  RANKS.forEach(r => {
+    const el = document.getElementById('rs-' + r.name.toLowerCase());
+    if (el) {
+      if (score >= r.min) {
+        el.style.background = 'var(--blue)';
+        el.style.color = 'white';
+      }
+    }
+  });
+  if (rank.name === 'Master') {
+    document.getElementById('rs-master').style.background = 'var(--gold)';
+    document.getElementById('rs-master').style.color = 'var(--blue-dark)';
+  }
+
+  // Confetti for good scores
+  if (correctCount >= 7) launchConfetti();
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#C0392B','#8E44AD','#ffffff'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = (Math.random() * 1.5) + 's';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ============================================================
+// RESTART
+// ============================================================
+function restartActivity() {
+  score = 0; correctCount = 0; streak = 0; bestStreak = 0;
+  missionComplete = [false, false, false, false, false];
+  answeredQuestions = {};
+  dragDropDone = false;
+  auditChecked = 0;
+
+  // Reset drag drop
+  const bank = document.getElementById('termBank');
+  ['drag-budget','drag-windfall','drag-allocation','drag-deficit'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) bank.appendChild(el);
+  });
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.className = 'drop-zone';
+    if (!z.querySelector('.drop-label')) {
+      const lbl = document.createElement('div');
+      lbl.className = 'drop-label';
+      lbl.textContent = 'Drop term here';
+      z.appendChild(lbl);
+    }
+  });
+  document.getElementById('drag-feedback').className = 'feedback-box';
+  document.getElementById('drag-feedback').innerHTML = '';
+  document.getElementById('checkDragBtn').disabled = false;
+  document.getElementById('m0next').style.display = 'none';
+
+  // Reset quiz buttons
+  Object.keys(ANSWERS).forEach(qid => {
+    const container = document.getElementById(qid + '-options');
+    if (container) {
+      container.querySelectorAll('button').forEach(b => {
+        b.disabled = false;
+        b.classList.remove('correct','wrong');
+      });
+    }
+    const fb = document.getElementById(qid + '-feedback');
+    if (fb) { fb.className = 'feedback-box'; fb.innerHTML = ''; }
+  });
+
+  // Reset next buttons
+  ['m1next','m2next','m3next','m4next'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+
+  // Reset audit
+  document.querySelectorAll('#auditChecklist input').forEach(cb => {
+    cb.checked = false;
+    cb.closest('.check-row').classList.remove('checked');
+  });
+  document.getElementById('auditResult').style.display = 'none';
+
+  // Reset rank steps
+  RANKS.forEach(r => {
+    const el = document.getElementById('rs-' + r.name.toLowerCase());
+    if (el) { el.style.background = 'var(--gray)'; el.style.color = '#888'; }
+  });
+
+  updateScoreDisplay();
+  updateNav();
+  document.querySelectorAll('.mission-tab').forEach(t => t.classList.remove('completed'));
+  goToMission(0);
+}
+
+// Init
+updateScoreDisplay();
+</script>
+</body>
+</html>
