@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA | Car Payment Calculator Mission</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #c0392b;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-light: #f4f6fb;
+    --gray: #e0e6ef;
+    --text: #1a2340;
+    --shadow: 0 4px 24px rgba(27,94,175,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #e8f0fb 0%, #f0f7f2 100%);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--blue);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 12px; }
+  .logo-shield {
+    width: 48px; height: 56px;
+    background: white;
+    clip-path: polygon(50% 0%, 100% 15%, 100% 70%, 50% 100%, 0% 70%, 0% 15%);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-shield span { font-size: 22px; }
+  .school-name { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.5px; }
+  .school-sub { font-size: 0.75rem; opacity: 0.85; }
+  .rank-display {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 30px;
+    padding: 6px 18px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .rank-label { font-size: 0.65rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-name { font-size: 1rem; font-weight: 700; }
+  .rank-icon { font-size: 1.2rem; }
+  .motto-ribbon {
+    background: var(--green);
+    text-align: center;
+    padding: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: white;
+  }
+  .mission-banner {
+    background: linear-gradient(90deg, var(--blue-dark), #2471d4, var(--blue-dark));
+    text-align: center;
+    padding: 14px 20px 10px;
+    color: white;
+  }
+  .mission-banner h1 { font-size: 1.3rem; font-weight: 800; }
+  .mission-banner p { font-size: 0.82rem; opacity: 0.9; margin-top: 3px; }
+
+  /* PROGRESS BAR */
+  .progress-area {
+    background: white;
+    padding: 10px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 2px solid var(--gray);
+    flex-wrap: wrap;
+  }
+  .progress-label { font-size: 0.78rem; font-weight: 600; color: var(--blue); white-space: nowrap; }
+  .progress-bar-wrap { flex: 1; min-width: 120px; background: var(--gray); border-radius: 20px; height: 12px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--green), #27ae60); border-radius: 20px; transition: width 0.5s ease; }
+  .score-badge {
+    background: var(--blue);
+    color: white;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .streak-badge {
+    background: var(--gold);
+    color: #333;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    display: none;
+    white-space: nowrap;
+  }
+  .streak-badge.show { display: inline-block; animation: pulse 0.5s ease; }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .mission-card.active { display: block; animation: slideIn 0.4s ease; }
+  .mission-header {
+    background: linear-gradient(90deg, var(--blue), #2471d4);
+    color: white;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mission-num {
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .mission-title { font-size: 1rem; font-weight: 700; }
+  .mission-subtitle { font-size: 0.75rem; opacity: 0.85; }
+  .mission-body { padding: 22px; }
+  .mission-intro {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+  .mission-intro strong { color: var(--blue); }
+
+  /* TERM CARDS (Mission 1 - Matching) */
+  .matching-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  @media(max-width:600px){ .matching-grid { grid-template-columns: 1fr; } }
+  .term-col h3, .def-col h3 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--blue);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .term-item {
+    background: var(--blue);
+    color: white;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border: 2px solid transparent;
+  }
+  .term-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(27,94,175,0.3); }
+  .term-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .term-item.matched { background: var(--green); cursor: default; }
+  .term-item.wrong { background: var(--red); animation: shake 0.4s; }
+  .def-item {
+    background: var(--gray-light);
+    border: 2px dashed var(--gray);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 0.83rem;
+    line-height: 1.5;
+    min-height: 52px;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+  }
+  .def-item.drag-over { border-color: var(--blue); background: var(--blue-light); }
+  .def-item.matched { border-color: var(--green); background: var(--green-light); }
+  .def-item.wrong { border-color: var(--red); background: var(--red-light); }
+  .def-item .match-label {
+    position: absolute;
+    top: 6px; right: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--green);
+    display: none;
+  }
+  .def-item.matched .match-label { display: block; }
+
+  /* FORMULA BUILDER (Mission 2) */
+  .formula-display {
+    background: #1a1a2e;
+    color: #00ff88;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    min-height: 52px;
+    letter-spacing: 0.5px;
+    border: 2px solid #00ff88;
+  }
+  .formula-parts { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .formula-chip {
+    background: var(--blue-light);
+    border: 2px solid var(--blue);
+    color: var(--blue);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Courier New', monospace;
+  }
+  .formula-chip:hover { background: var(--blue); color: white; }
+  .formula-chip.used { opacity: 0.35; pointer-events: none; }
+  .formula-chip.correct { background: var(--green); color: white; border-color: var(--green); }
+  .formula-chip.wrong-chip { background: var(--red); color: white; border-color: var(--red); animation: shake 0.4s; }
+
+  /* SCENARIO (Mission 3) */
+  .scenario-box {
+    background: linear-gradient(135deg, #f8f9ff, #eef4ff);
+    border: 2px solid var(--blue-light);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 18px;
+  }
+  .scenario-box h3 { color: var(--blue); font-size: 0.95rem; margin-bottom: 10px; }
+  .scenario-data {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .data-card {
+    background: white;
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--gray);
+    text-align: center;
+  }
+  .data-card .label { font-size: 0.7rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .data-card .value { font-size: 1.1rem; font-weight: 700; color: var(--blue); }
+  .calc-input-group { margin-bottom: 14px; }
+  .calc-input-group label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 5px; color: var(--text); }
+  .calc-input-group input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid var(--gray);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: 'Courier New', monospace;
+    transition: border-color 0.2s;
+  }
+  .calc-input-group input:focus { outline: none; border-color: var(--blue); }
+  .calc-input-group input.correct { border-color: var(--green); background: var(--green-light); }
+  .calc-input-group input.wrong { border-color: var(--red); background: var(--red-light); }
+  .hint-text { font-size: 0.78rem; color: #888; margin-top: 4px; }
+
+  /* AMORTIZATION (Mission 4) */
+  .amort-table-wrap { overflow-x: auto; margin-bottom: 16px; }
+  .amort-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .amort-table th {
+    background: var(--blue);
+    color: white;
+    padding: 9px 12px;
+    text-align: center;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .amort-table td {
+    padding: 8px 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--gray);
+  }
+  .amort-table tr:nth-child(even) td { background: var(--gray-light); }
+  .amort-table td input {
+    width: 90px;
+    padding: 5px 8px;
+    border: 2px solid var(--gray);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+  }
+  .amort-table td input.correct { border-color: var(--green); background: var(--green-light); }
+  .amort-table td input.wrong { border-color: var(--red); background: var(--red-light); }
+  .fill-label { font-size: 0.7rem; color: #aaa; display: block; }
+
+  /* DATA VALIDATION (Mission 5) */
+  .sheets-mockup {
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .sheets-toolbar {
+    background: #f1f3f4;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--gray);
+    flex-wrap: wrap;
+  }
+  .sheets-toolbar span { font-size: 0.75rem; color: #555; }
+  .sheets-menu-item {
+    font-size: 0.78rem;
+    color: #333;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .sheets-menu-item:hover { background: #e0e0e0; }
+  .sheets-menu-item.highlight { background: #fce8b2; font-weight: 600; }
+  .sheets-cell-area {
+    padding: 12px;
+    background: white;
+  }
+  .sheets-row { display: flex; gap: 4px; margin-bottom: 4px; align-items: center; }
+  .sheets-cell {
+    border: 1px solid #dadce0;
+    padding: 5px 8px;
+    font-size: 0.8rem;
+    min-width: 80px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+  }
+  .sheets-cell.header { background: #f8f9fa; font-weight: 600; color: #555; justify-content: center; }
+  .sheets-cell.selected { border: 2px solid #1a73e8; background: #e8f0fe; }
+  .sheets-cell.input-cell { background: #fff9c4; }
+  .dv-steps { counter-reset: step; }
+  .dv-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px;
+    background: var(--gray-light);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dv-step:hover { border-color: var(--blue); background: var(--blue-light); }
+  .dv-step.selected { border-color: var(--blue); background: var(--blue-light); }
+  .dv-step.correct { border-color: var(--green); background: var(--green-light); }
+  .dv-step.wrong { border-color: var(--red); background: var(--red-light); }
+  .step-num {
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-text { font-size: 0.85rem; line-height: 1.5; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 11px 26px;
+    border-radius: 10px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .btn-success { background: var(--green); color: white; }
+  .btn-success:hover { background: #166030; transform: translateY(-1px); }
+  .btn-outline { background: white; color: var(--blue); border: 2px solid var(--blue); }
+  .btn-outline:hover { background: var(--blue-light); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 0.87rem;
+    line-height: 1.6;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct { background: var(--green-light); border: 2px solid var(--green); color: #145a2e; }
+  .feedback-box.wrong { background: var(--red-light); border: 2px solid var(--red); color: #7b1a1a; }
+  .feedback-box.info { background: var(--blue-light); border: 2px solid var(--blue); color: var(--blue-dark); }
+
+  /* COMPLETION SCREEN */
+  #completion-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  #completion-screen.show { display: block; animation: slideIn 0.5s ease; }
+  .completion-badge {
+    width: 120px; height: 120px;
+    background: linear-gradient(135deg, var(--gold), #e67e22);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 30px rgba(245,166,35,0.4);
+    animation: spin-in 0.6s ease;
+  }
+  .completion-title { font-size: 2rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+  .completion-sub { font-size: 1rem; color: #555; margin-bottom: 24px; }
+  .final-stats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 24px;
+    box-shadow: var(--shadow);
+    min-width: 120px;
+  }
+  .stat-card .stat-val { font-size: 2rem; font-weight: 800; color: var(--blue); }
+  .stat-card .stat-lbl { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
+  .standard-badge {
+    background: var(--green-light);
+    border: 2px solid var(--green);
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: inline-block;
+    font-size: 0.82rem;
+    color: var(--green);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  /* CONFETTI */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confetti-fall linear forwards;
+    z-index: 9999;
+    border-radius: 2px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: var(--blue);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    z-index: 1000;
+    display: none;
+    animation: slideInRight 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+  .toast.show { display: block; }
+  .toast.streak { background: var(--gold); color: #333; }
+  .toast.rank-up { background: var(--green); }
+
+  /* ANIMATIONS */
+  @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+  @keyframes spin-in { from { transform: scale(0) rotate(-180deg); } to { transform: scale(1) rotate(0); } }
+  @keyframes confetti-fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* INTRO SCREEN */
+  #intro-screen { text-align: center; padding: 30px 20px; }
+  .intro-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 32px 28px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .intro-icon { font-size: 3.5rem; margin-bottom: 12px; }
+  .intro-card h2 { font-size: 1.5rem; color: var(--blue); margin-bottom: 8px; }
+  .intro-card p { font-size: 0.88rem; color: #555; line-height: 1.7; margin-bottom: 16px; }
+  .mission-list { text-align: left; margin-bottom: 20px; }
+  .mission-list-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    background: var(--gray-light);
+    font-size: 0.85rem;
+  }
+  .mission-list-item .mi { font-size: 1.1rem; }
+  .objective-tags { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 20px; }
+  .obj-tag {
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo-area">
+      <div class="logo-shield"><span>🎓</span></div>
+      <div>
+        <div class="school-name">University View Academy</div>
+        <div class="school-sub">Computer Technology Literacy</div>
+      </div>
+    </div>
+    <div class="rank-display">
+      <div class="rank-label">Current Rank</div>
+      <div class="rank-icon" id="rank-icon">🔰</div>
+      <div class="rank-name" id="rank-name">Trainee</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue  ·  Vigor  ·  Vision ✦</div>
+  <div class="mission-banner">
+    <h1>🚗 Mission: Car Payment Calculator</h1>
+    <p>Personal Finance & Financial Modeling in Google Sheets  |  Standard 4.2: Credit & Debt Management</p>
+  </div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-area" id="progress-area" style="display:none;">
+  <span class="progress-label" id="progress-label">Mission 1 of 5</span>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+  <span class="score-badge">⭐ <span id="score-display">0</span> pts</span>
+  <span class="streak-badge" id="streak-badge">🔥 Streak!</span>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen">
+    <div class="intro-card">
+      <div class="intro-icon">🚗💰</div>
+      <h2>Welcome, UVA Scholar!</h2>
+      <p>You've been tasked with a critical financial mission: <strong>help a classmate decide if they can afford a car loan</strong> using Google Sheets. Complete all 5 missions to earn your <strong>Financial Modeling Master</strong> badge!</p>
+      <div class="mission-list">
+        <div class="mission-list-item"><span class="mi">📚</span> <strong>Mission 1:</strong> Decode Lending Terms (Drag & Drop)</div>
+        <div class="mission-list-item"><span class="mi">🔢</span> <strong>Mission 2:</strong> Build the PMT Formula</div>
+        <div class="mission-list-item"><span class="mi">🧮</span> <strong>Mission 3:</strong> Calculate Monthly Payment</div>
+        <div class="mission-list-item"><span class="mi">📊</span> <strong>Mission 4:</strong> Complete the Amortization Table</div>
+        <div class="mission-list-item"><span class="mi">🛡️</span> <strong>Mission 5:</strong> Apply Data Validation</div>
+      </div>
+      <div class="objective-tags">
+        <span class="obj-tag">Principal & APR</span>
+        <span class="obj-tag">PMT Function</span>
+        <span class="obj-tag">Amortization</span>
+        <span class="obj-tag">Data Validation</span>
+        <span class="obj-tag">Depreciation</span>
+      </div>
+      <button class="btn btn-primary" onclick="startMissions()" style="font-size:1rem; padding:14px 36px;">
+        🚀 Begin Your Mission
+      </button>
+    </div>
+  </div>
+
+  <!-- MISSION 1: DRAG & DROP MATCHING -->
+  <div class="mission-card" id="mission-1">
+    <div class="mission-header">
+      <div class="mission-num">1</div>
+      <div>
+        <div class="mission-title">📚 Mission 1: Decode the Lending Terms</div>
+        <div class="mission-subtitle">Drag each term to its correct definition to unlock the next mission</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🎯 Briefing:</strong> Before you can build a car payment calculator, you need to understand the language of lending. Drag each financial term from the left column and drop it onto its matching definition on the right.
+      </div>
+      <div class="matching-grid">
+        <div class="term-col">
+          <h3>📌 Terms</h3>
+          <div class="term-item" draggable="true" id="term-principal" data-term="principal">Principal</div>
+          <div class="term-item" draggable="true" id="term-apr" data-term="apr">APR</div>
+          <div class="term-item" draggable="true" id="term-depreciation" data-term="depreciation">Depreciation</div>
+          <div class="term-item" draggable="true" id="term-amortization" data-term="amortization">Amortization</div>
+          <div class="term-item" draggable="true" id="term-pmt" data-term="pmt">PMT Function</div>
+        </div>
+        <div class="def-col">
+          <h3>📖 Definitions</h3>
+          <div class="def-item" data-answer="principal" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
+            The original amount of money borrowed before any interest is added.
+            <span class="match-label">✓ Matched!</span>
+          </div>
+          <div class="def-item" data-answer="depreciation" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
+            The decrease in a car's value over time due to age and wear.
+            <span class="match-label">✓ Matched!</span>
+          </div>
+          <div class="def-item" data-answer="apr" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
+            Annual Percentage Rate — the yearly cost of borrowing money, expressed as a percentage.
+            <span class="match-label">✓ Matched!</span>
+          </div>
+          <div class="def-item" data-answer="pmt" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
+            A Google Sheets formula that calculates a fixed periodic payment for a loan.
+            <span class="match-label">✓ Matched!</span>
+          </div>
+          <div class="def-item" data-answer="amortization" ondragover="dragOver(event)" ondrop="drop(event)" ondragleave="dragLeave(event)">
+            The process of paying off a loan through scheduled, regular payments over time.
+            <span class="match-label">✓ Matched!</span>
+          </div>
+        </div>
+      </div>
+      <div class="feedback-box" id="m1-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="resetMission1()">🔄 Reset</button>
+        <button class="btn btn-success" id="m1-next" onclick="nextMission(2)" disabled>Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 2: FORMULA BUILDER -->
+  <div class="mission-card" id="mission-2">
+    <div class="mission-header">
+      <div class="mission-num">2</div>
+      <div>
+        <div class="mission-title">🔢 Mission 2: Build the PMT Formula</div>
+        <div class="mission-subtitle">Click the parts in the correct order to assemble the Google Sheets PMT formula</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🎯 Briefing:</strong> The <code>PMT</code> function is your most powerful tool. Its syntax is:<br>
+        <code>=PMT(rate, nper, pv)</code><br><br>
+        Where: <strong>rate</strong> = monthly interest rate  |  <strong>nper</strong> = total number of payments  |  <strong>pv</strong> = loan amount (present value)
+      </div>
+      <p style="font-size:0.85rem; margin-bottom:10px; font-weight:600;">🖥️ Build the formula for: <em>$18,000 loan, 6% APR, 48-month term</em></p>
+      <div class="formula-display" id="formula-display">=PMT( <span id="formula-built" style="color:#fff"></span><span id="formula-cursor" style="animation: pulse 1s infinite;">▌</span> )</div>
+      <p style="font-size:0.78rem; color:#888; margin-bottom:10px;">Click the correct parts in order:</p>
+      <div class="formula-parts" id="formula-parts">
+        <div class="formula-chip" data-val="B2/12" data-order="0" onclick="addFormulaPart(this)">B2/12</div>
+        <div class="formula-chip" data-val="B2*12" data-order="wrong" onclick="addFormulaPart(this)">B2*12</div>
+        <div class="formula-chip" data-val="B3*12" data-order="1" onclick="addFormulaPart(this)">B3*12</div>
+        <div class="formula-chip" data-val="B3/12" data-order="wrong" onclick="addFormulaPart(this)">B3/12</div>
+        <div class="formula-chip" data-val="B1" data-order="2" onclick="addFormulaPart(this)">B1</div>
+        <div class="formula-chip" data-val="-B1" data-order="wrong" onclick="addFormulaPart(this)">-B1</div>
+      </div>
+      <div style="font-size:0.78rem; color:#888; margin-bottom:12px;">
+        💡 Hint: B1 = Loan Amount ($18,000)  |  B2 = APR (6%)  |  B3 = Term in Years (4)
+      </div>
+      <div class="feedback-box" id="m2-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="resetMission2()">🔄 Reset</button>
+        <button class="btn btn-success" id="m2-next" onclick="nextMission(3)" disabled>Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 3: CALCULATE PAYMENT -->
+  <div class="mission-card" id="mission-3">
+    <div class="mission-header">
+      <div class="mission-num">3</div>
+      <div>
+        <div class="mission-title">🧮 Mission 3: Calculate the Monthly Payment</div>
+        <div class="mission-subtitle">Convert the loan terms and compute the correct values</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🎯 Briefing:</strong> Your classmate Alex wants to buy a used car. Use the loan details below to calculate the correct spreadsheet inputs and monthly payment. Remember: APR must be converted to a <em>monthly rate</em>, and loan term must be converted to <em>months</em>.
+      </div>
+      <div class="scenario-box">
+        <h3>🚗 Alex's Car Loan Details</h3>
+        <div class="scenario-data">
+          <div class="data-card"><div class="label">Car Price</div><div class="value">$22,500</div></div>
+          <div class="data-card"><div class="label">Down Payment</div><div class="value">$2,500</div></div>
+          <div class="data-card"><div class="label">Loan Amount</div><div class="value">$20,000</div></div>
+          <div class="data-card"><div class="label">APR</div><div class="value">7.2%</div></div>
+          <div class="data-card"><div class="label">Loan Term</div><div class="value">5 Years</div></div>
+        </div>
+      </div>
+      <div class="calc-input-group">
+        <label>Q1: What is the monthly interest rate? (Enter as a decimal, e.g. 0.006)</label>
+        <input type="text" id="q3-rate" placeholder="Enter monthly rate..." oninput="checkM3()">
+        <div class="hint-text">💡 Divide the APR by 12</div>
+      </div>
+      <div class="calc-input-group">
+        <label>Q2: How many total monthly payments (nper)?</label>
+        <input type="text" id="q3-nper" placeholder="Enter number of payments..." oninput="checkM3()">
+        <div class="hint-text">💡 Multiply years by 12</div>
+      </div>
+      <div class="calc-input-group">
+        <label>Q3: What is the approximate monthly payment? (Round to nearest dollar)</label>
+        <input type="text" id="q3-pmt" placeholder="Enter monthly payment as $XXX..." oninput="checkM3()">
+        <div class="hint-text">💡 Use =PMT(0.006, 60, 20000) — result will be negative, report as positive</div>
+      </div>
+      <div class="feedback-box" id="m3-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="submitMission3()">✅ Submit Answers</button>
+        <button class="btn btn-success" id="m3-next" onclick="nextMission(4)" disabled>Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 4: AMORTIZATION TABLE -->
+  <div class="mission-card" id="mission-4">
+    <div class="mission-header">
+      <div class="mission-num">4</div>
+      <div>
+        <div class="mission-title">📊 Mission 4: Complete the Amortization Table</div>
+        <div class="mission-subtitle">Fill in the missing values to visualize how Alex's debt decreases</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🎯 Briefing:</strong> An amortization table shows how each payment splits between <em>interest</em> and <em>principal</em>. Using Alex's loan ($20,000 at 0.6% monthly rate, $396/month payment), complete the missing cells below.
+      </div>
+      <div class="amort-table-wrap">
+        <table class="amort-table">
+          <thead>
+            <tr>
+              <th>Month</th>
+              <th>Beginning Balance</th>
+              <th>Monthly Payment</th>
+              <th>Interest Paid</th>
+              <th>Principal Paid</th>
+              <th>Ending Balance</th>
+            </tr>
+          </thead>
+          <tbody id="amort-body">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:0.78rem; color:#666; margin-bottom:12px;">
+        💡 Formulas: <strong>Interest = Beginning Balance × 0.006</strong>  |  <strong>Principal = Payment − Interest</strong>  |  <strong>Ending Balance = Beginning − Principal</strong>
+      </div>
+      <div class="feedback-box" id="m4-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="checkAmortization()">✅ Check My Table</button>
+        <button class="btn btn-success" id="m4-next" onclick="nextMission(5)" disabled>Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 5: DATA VALIDATION -->
+  <div class="mission-card" id="mission-5">
+    <div class="mission-header">
+      <div class="mission-num">5</div>
+      <div>
+        <div class="mission-title">🛡️ Mission 5: Apply Data Validation</div>
+        <div class="mission-subtitle">Sequence the correct steps to protect your spreadsheet model</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🎯 Briefing:</strong> Data validation prevents users from entering invalid values (like a negative loan amount or 200% APR). In Google Sheets, you need to follow the correct sequence of steps. Click the steps in the <strong>correct order</strong> to apply data validation to cell B1 (Loan Amount).
+      </div>
+      <div class="sheets-mockup">
+        <div class="sheets-toolbar">
+          <span style="font-weight:700; color:#1a73e8;">📊 Sheets</span>
+          <span class="sheets-menu-item">File</span>
+          <span class="sheets-menu-item">Edit</span>
+          <span class="sheets-menu-item">View</span>
+          <span class="sheets-menu-item">Insert</span>
+          <span class="sheets-menu-item" id="data-menu" onclick="highlightDataMenu()">Data ▾</span>
+          <span class="sheets-menu-item">Format</span>
+          <span class="sheets-menu-item">Tools</span>
+        </div>
+        <div class="sheets-cell-area">
+          <div class="sheets-row">
+            <div class="sheets-cell header" style="min-width:30px;">  </div>
+            <div class="sheets-cell header">A</div>
+            <div class="sheets-cell header">B</div>
+          </div>
+          <div class="sheets-row">
+            <div class="sheets-cell header">1</div>
+            <div class="sheets-cell">Loan Amount</div>
+            <div class="sheets-cell selected input-cell" id="cell-b1">$20,000</div>
+          </div>
+          <div class="sheets-row">
+            <div class="sheets-cell header">2</div>
+            <div class="sheets-cell">APR</div>
+            <div class="sheets-cell input-cell">7.2%</div>
+          </div>
+          <div class="sheets-row">
+            <div class="sheets-cell header">3</div>
+            <div class="sheets-cell">Term (Years)</div>
+            <div class="sheets-cell input-cell">5</div>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:0.85rem; font-weight:600; margin-bottom:10px; color:var(--blue);">📋 Click the steps in the correct order (1 → 5):</p>
+      <div class="dv-steps" id="dv-steps">
+        <!-- Filled by JS -->
+      </div>
+      <div class="feedback-box" id="m5-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-outline" onclick="resetMission5()">🔄 Reset Order</button>
+        <button class="btn btn-success" id="m5-next" onclick="showCompletion()" disabled>🏆 Complete Mission!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLETION SCREEN -->
+  <div id="completion-screen">
+    <div class="completion-badge">🏆</div>
+    <div class="completion-title">Mission Complete!</div>
+    <div class="completion-sub">You've earned the <strong>Financial Modeling Master</strong> badge, UVA Scholar!</div>
+    <div class="standard-badge">✅ Standard 4.2: Credit & Debt Management — MASTERED</div>
+    <div class="final-stats">
+      <div class="stat-card"><div class="stat-val" id="final-score">0</div><div class="stat-lbl">Total Points</div></div>
+      <div class="stat-card"><div class="stat-val" id="final-rank">🏆</div><div class="stat-lbl">Final Rank</div></div>
+      <div class="stat-card"><div class="stat-val" id="final-missions">5/5</div><div class="stat-lbl">Missions Done</div></div>
+    </div>
+    <div style="background:white; border-radius:12px; padding:20px; max-width:500px; margin:0 auto 24px; box-shadow:var(--shadow); text-align:left;">
+      <h3 style="color:var(--blue); margin-bottom:12px;">📚 Key Takeaways</h3>
+      <ul style="font-size:0.85rem; line-height:2; padding-left:18px; color:#444;">
+        <li><strong>Principal</strong> = original loan amount (not including interest)</li>
+        <li><strong>Monthly Rate</strong> = APR ÷ 12 (convert annual to monthly)</li>
+        <li><strong>PMT formula</strong> = <code>=PMT(rate, nper, pv)</code></li>
+        <li>Early payments = more interest; later payments = more principal</li>
+        <li>Data validation protects model integrity from bad inputs</li>
+      </ul>
+    </div>
+    <button class="btn btn-primary" onclick="restartAll()" style="font-size:1rem; padding:14px 36px;">🔄 Restart Missions</button>
+  </div>
+
+</div><!-- end main -->
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let score = 0;
+let streak = 0;
+let currentMission = 0;
+const ranks = [
+  { name: 'Trainee', icon: '🔰', min: 0 },
+  { name: 'Apprentice', icon: '📘', min: 50 },
+  { name: 'Expert', icon: '⚡', min: 120 },
+  { name: 'Master', icon: '🏆', min: 200 }
+];
+
+// ============================================================
+// INIT
+// ============================================================
+function startMissions() {
+  document.getElementById('intro-screen').style.display = 'none';
+  document.getElementById('progress-area').style.display = 'flex';
+  showMission(1);
+  buildAmortTable();
+  buildDVSteps();
+}
+
+function showMission(n) {
+  currentMission = n;
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('mission-' + n);
+  if (card) card.classList.add('active');
+  updateProgress();
+}
+
+function nextMission(n) {
+  showMission(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress() {
+  const pct = ((currentMission - 1) / 5) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Mission ' + currentMission + ' of 5';
+  document.getElementById('score-display').textContent = score;
+  updateRank();
+}
+
+function addScore(pts) {
+  score += pts;
+  streak++;
+  document.getElementById('score-display').textContent = score;
+  updateRank();
+  if (streak >= 3) {
+    showToast('🔥 ' + streak + ' in a row! Streak Bonus!', 'streak');
+    const sb = document.getElementById('streak-badge');
+    sb.textContent = '🔥 ' + streak + ' Streak!';
+    sb.classList.add('show');
+  }
+}
+
+function updateRank() {
+  let rank = ranks[0];
+  for (let r of ranks) { if (score >= r.min) rank = r; }
+  const prevRank = document.getElementById('rank-name').textContent;
+  document.getElementById('rank-name').textContent = rank.name;
+  document.getElementById('rank-icon').textContent = rank.icon;
+  if (prevRank !== rank.name && prevRank !== '') {
+    showToast('🎉 Rank Up! You are now ' + rank.icon + ' ' + rank.name + '!', 'rank-up');
+  }
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => { t.className = 'toast'; }, 3000);
+}
+
+function showFeedback(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'feedback-box show ' + type;
+}
+
+// ============================================================
+// MISSION 1: DRAG & DROP
+// ============================================================
+let draggedTerm = null;
+let m1Matched = 0;
+
+document.querySelectorAll('.term-item').forEach(item => {
+  item.addEventListener('dragstart', e => {
+    draggedTerm = item.dataset.term;
+    item.classList.add('dragging');
+  });
+  item.addEventListener('dragend', e => {
+    item.classList.remove('dragging');
+  });
+});
+
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function drop(e) {
+  e.preventDefault();
+  const def = e.currentTarget;
+  def.classList.remove('drag-over');
+  if (def.classList.contains('matched')) return;
+  const correct = def.dataset.answer;
+  if (draggedTerm === correct) {
+    def.classList.add('matched');
+    const termEl = document.getElementById('term-' + draggedTerm);
+    termEl.classList.add('matched');
+    termEl.draggable = false;
+    m1Matched++;
+    addScore(20);
+    showFeedback('m1-feedback', '✅ Correct! "' + draggedTerm.charAt(0).toUpperCase() + draggedTerm.slice(1) + '" matched! (' + m1Matched + '/5)', 'correct');
+    if (m1Matched === 5) {
+      showFeedback('m1-feedback', '🎉 All 5 terms matched! You\'ve mastered the lending vocabulary! +100 pts total', 'correct');
+      document.getElementById('m1-next').disabled = false;
+      launchConfetti();
+    }
+  } else {
+    const termEl = document.getElementById('term-' + draggedTerm);
+    termEl.classList.add('wrong');
+    def.classList.add('wrong');
+    streak = 0;
+    document.getElementById('streak-badge').classList.remove('show');
+    showFeedback('m1-feedback', '❌ Not quite! Try again — think about what each term means.', 'wrong');
+    setTimeout(() => {
+      termEl.classList.remove('wrong');
+      def.classList.remove('wrong');
+    }, 800);
+  }
+}
+
+function resetMission1() {
+  m1Matched = 0;
+  document.querySelectorAll('.term-item').forEach(t => {
+    t.className = 'term-item';
+    t.draggable = true;
+  });
+  document.querySelectorAll('.def-item').forEach(d => {
+    d.className = 'def-item';
+    d.setAttribute('ondragover', 'dragOver(event)');
+    d.setAttribute('ondrop', 'drop(event)');
+  });
+  document.getElementById('m1-feedback').className = 'feedback-box';
+  document.getElementById('m1-next').disabled = true;
+}
+
+// ============================================================
+// MISSION 2: FORMULA BUILDER
+// ============================================================
+const correctFormula = ['B2/12', 'B3*12', 'B1'];
+let formulaBuilt = [];
+
+function addFormulaPart(chip) {
+  if (chip.classList.contains('used')) return;
+  const val = chip.dataset.val;
+  const order = chip.dataset.order;
+  const expectedIndex = formulaBuilt.length;
+  if (parseInt(order) === expectedIndex) {
+    formulaBuilt.push(val);
+    chip.classList.add('used', 'correct');
+    updateFormulaDisplay();
+    if (formulaBuilt.length === 3) {
+      addScore(30);
+      showFeedback('m2-feedback', '🎉 Perfect! =PMT(B2/12, B3*12, B1) is the correct formula! This calculates the monthly payment for Alex\'s loan. +30 pts', 'correct');
+      document.getElementById('m2-next').disabled = false;
+      document.getElementById('formula-cursor').style.display = 'none';
+    } else {
+      showFeedback('m2-feedback', '✅ Correct part! Keep going — ' + (3 - formulaBuilt.length) + ' more to add.', 'correct');
+    }
+  } else {
+    chip.classList.add('wrong-chip');
+    streak = 0;
+    document.getElementById('streak-badge').classList.remove('show');
+    const hints = ['', 'First: the monthly rate (APR ÷ 12)', 'Second: total payments (years × 12)', 'Third: the loan amount'];
+    showFeedback('m2-feedback', '❌ Wrong order! ' + hints[expectedIndex + 1], 'wrong');
+    setTimeout(() => chip.classList.remove('wrong-chip'), 600);
+  }
+}
+
+function updateFormulaDisplay() {
+  const separators = [', ', ', ', ''];
+  let built = '';
+  formulaBuilt.forEach((v, i) => {
+    built += '<span style="color:#00ff88">' + v + '</span>' + (i < formulaBuilt.length - 1 ? '<span style="color:#aaa">, </span>' : '');
+  });
+  document.getElementById('formula-built').innerHTML = built;
+}
+
+function resetMission2() {
+  formulaBuilt = [];
+  document.getElementById('formula-built').innerHTML = '';
+  document.getElementById('formula-cursor').style.display = 'inline';
+  document.querySelectorAll('.formula-chip').forEach(c => c.className = 'formula-chip');
+  document.getElementById('m2-feedback').className = 'feedback-box';
+  document.getElementById('m2-next').disabled = true;
+}
+
+// ============================================================
+// MISSION 3: CALCULATIONS
+// ============================================================
+function submitMission3() {
+  const rate = document.getElementById('q3-rate').value.trim();
+  const nper = document.getElementById('q3-nper').value.trim();
+  const pmt = document.getElementById('q3-pmt').value.trim();
+
+  const rateEl = document.getElementById('q3-rate');
+  const nperEl = document.getElementById('q3-nper');
+  const pmtEl = document.getElementById('q3-pmt');
+
+  let correct = 0;
+  // Rate: 7.2/12/100 = 0.006
+  const rateVal = parseFloat(rate);
+  if (Math.abs(rateVal - 0.006) < 0.0005) {
+    rateEl.className = 'correct'; correct++;
+  } else { rateEl.className = 'wrong'; }
+
+  // nper: 5*12 = 60
+  if (parseInt(nper) === 60) {
+    nperEl.className = 'correct'; correct++;
+  } else { nperEl.className = 'wrong'; }
+
+  // PMT: =PMT(0.006,60,20000) ≈ $396
+  const pmtNum = parseFloat(pmt.replace(/[$,]/g, ''));
+  if (pmtNum >= 394 && pmtNum <= 398) {
+    pmtEl.className = 'correct'; correct++;
+  } else { pmtEl.className = 'wrong'; }
+
+  if (correct === 3) {
+    addScore(40);
+    showFeedback('m3-feedback', '🎉 All correct! Monthly rate = 0.006, 60 payments, ~$396/month. Alex will pay about $396 every month for 5 years! +40 pts', 'correct');
+    document.getElementById('m3-next').disabled = false;
+    launchConfetti();
+  } else {
+    streak = 0;
+    document.getElementById('streak-badge').classList.remove('show');
+    showFeedback('m3-feedback', '❌ ' + correct + '/3 correct. Check the highlighted fields. Remember: Monthly Rate = APR ÷ 12 ÷ 100 = 7.2 ÷ 12 ÷ 100 = 0.006', 'wrong');
+  }
+}
+
+// ============================================================
+// MISSION 4: AMORTIZATION TABLE
+// ============================================================
+const amortData = [
+  { month: 1, begin: 20000, payment: 396, interest: 120, principal: 276, end: 19724 },
+  { month: 2, begin: 19724, payment: 396, interest: 118.34, principal: 277.66, end: 19446.34 },
+  { month: 3, begin: 19446.34, payment: 396, interest: 116.68, principal: 279.32, end: 19167.02 },
+  { month: 4, begin: 19167.02, payment: 396, interest: 115.00, principal: 281.00, end: 18886.02 },
+];
+
+function buildAmortTable() {
+  const tbody = document.getElementById('amort-body');
+  tbody.innerHTML = '';
+  amortData.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    // Rows 0 and 2 have blanks; rows 1 and 3 are fully shown
+    const showInterest = (i === 1 || i === 3);
+    const showPrincipal = (i === 0 || i === 2);
+    const showEnd = (i === 1 || i === 3);
+
+    tr.innerHTML = `
+      <td>${row.month}</td>
+      <td>$${row.begin.toFixed(2)}</td>
+      <td>$${row.payment.toFixed(2)}</td>
+      <td>${showInterest ? '$' + row.interest.toFixed(2) :
+        '<input type="text" id="amort-int-' + i + '" placeholder="$0.00"><span class="fill-label">Fill in</span>'}</td>
+      <td>${showPrincipal ? '$' + row.principal.toFixed(2) :
+        '<input type="text" id="amort-prin-' + i + '" placeholder="$0.00"><span class="fill-label">Fill in</span>'}</td>
+      <td>${showEnd ? '$' + row.end.toFixed(2) :
+        '<input type="text" id="amort-end-' + i + '" placeholder="$0.00"><span class="fill-label">Fill in</span>'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function checkAmortization() {
+  let correct = 0; let total = 0;
+  // Row 0: interest and end are blank (principal shown)
+  const r0int = document.getElementById('amort-int-0');
+  const r0end = document.getElementById('amort-end-0');
+  // Row 2: interest and end are blank (principal shown)
+  const r2int = document.getElementById('amort-int-2');
+  const r2end = document.getElementById('amort-end-2');
+  // Row 1: principal blank
+  const r1prin = document.getElementById('amort-prin-1');
+  // Row 3: principal blank
+  const r3prin = document.getElementById('amort-prin-3');
+
+  function checkField(el, expected, tolerance) {
+    if (!el) return;
+    total++;
+    const val = parseFloat(el.value.replace(/[$,]/g, ''));
+    if (Math.abs(val - expected) <= tolerance) {
+      el.className = 'correct'; correct++;
+    } else { el.className = 'wrong'; }
+  }
+
+  checkField(r0int, 120, 1);
+  checkField(r0end, 19724, 2);
+  checkField(r2int, 116.68, 1.5);
+  checkField(r2end, 19167.02, 3);
+  checkField(r1prin, 277.66, 1.5);
+  checkField(r3prin, 281.00, 1.5);
+
+  if (correct === total) {
+    addScore(50);
+    showFeedback('m4-feedback', '🎉 Excellent! Your amortization table is correct! Notice how the interest portion decreases each month as the balance shrinks — that\'s amortization in action! +50 pts', 'correct');
+    document.getElementById('m4-next').disabled = false;
+    launchConfetti();
+  } else {
+    streak = 0;
+    document.getElementById('streak-badge').classList.remove('show');
+    showFeedback('m4-feedback', '❌ ' + correct + '/' + total + ' correct. Remember: Interest = Beginning Balance × 0.006 | Principal = $396 − Interest | Ending = Beginning − Principal', 'wrong');
+  }
+}
+
+// ============================================================
+// MISSION 5: DATA VALIDATION SEQUENCING
+// ============================================================
+const dvStepsCorrect = [
+  { id: 'dv1', text: '1️⃣ Click on cell <strong>B1</strong> (Loan Amount) to select it', correct: 0 },
+  { id: 'dv2', text: '2️⃣ Click the <strong>Data</strong> menu in the top toolbar', correct: 1 },
+  { id: 'dv3', text: '3️⃣ Select <strong>Data Validation</strong> from the dropdown', correct: 2 },
+  { id: 'dv4', text: '4️⃣ Set Criteria to <strong>Number → Greater than → 0</strong>', correct: 3 },
+  { id: 'dv5', text: '5️⃣ Check <strong>"Show warning"</strong> and click <strong>Save</strong>', correct: 4 },
+];
+
+// Shuffled display order
+const dvShuffled = [
+  { id: 'dv3', text: '🔽 Select <strong>Data Validation</strong> from the dropdown', correct: 2 },
+  { id: 'dv1', text: '🖱️ Click on cell <strong>B1</strong> (Loan Amount) to select it', correct: 0 },
+  { id: 'dv5', text: '💾 Check <strong>"Show warning"</strong> and click <strong>Save</strong>', correct: 4 },
+  { id: 'dv2', text: '📋 Click the <strong>Data</strong> menu in the top toolbar', correct: 1 },
+  { id: 'dv4', text: '🔢 Set Criteria to <strong>Number → Greater than → 0</strong>', correct: 3 },
+];
+
+let dvClickOrder = [];
+let dvDone = false;
+
+function buildDVSteps() {
+  const container = document.getElementById('dv-steps');
+  container.innerHTML = '';
+  dvShuffled.forEach((step, i) => {
+    const div = document.createElement('div');
+    div.className = 'dv-step';
+    div.id = 'dvstep-' + step.id;
+    div.dataset.correct = step.correct;
+    div.innerHTML = `<div class="step-num">${i + 1}</div><div class="step-text">${step.text}</div>`;
+    div.onclick = () => selectDVStep(div, step);
+    container.appendChild(div);
+  });
+}
+
+function selectDVStep(el, step) {
+  if (dvDone) return;
+  const expectedOrder = dvClickOrder.length;
+  if (parseInt(step.correct) === expectedOrder) {
+    dvClickOrder.push(step.correct);
+    el.classList.add('correct');
+    el.onclick = null;
+    addScore(10);
+    if (dvClickOrder.length === 5) {
+      dvDone = true;
+      addScore(20);
+      showFeedback('m5-feedback', '🎉 Perfect sequence! You\'ve correctly applied Data Validation to protect the loan amount cell. This ensures users can only enter positive numbers! +70 pts total', 'correct');
+      document.getElementById('m5-next').disabled = false;
+      launchConfetti();
+    } else {
+      showFeedback('m5-feedback', '✅ Step ' + dvClickOrder.length + '/5 correct! Keep going...', 'correct');
+    }
+  } else {
+    el.classList.add('wrong');
+    streak = 0;
+    document.getElementById('streak-badge').classList.remove('show');
+    showFeedback('m5-feedback', '❌ Wrong order! Think about what you need to do first in Google Sheets before accessing menus.', 'wrong');
+    setTimeout(() => el.classList.remove('wrong'), 700);
+  }
+}
+
+function resetMission5() {
+  dvClickOrder = [];
+  dvDone = false;
+  buildDVSteps();
+  document.getElementById('m5-feedback').className = 'feedback-box';
+  document.getElementById('m5-next').disabled = true;
+}
+
+function highlightDataMenu() {
+  document.getElementById('data-menu').classList.toggle('highlight');
+}
+
+// ============================================================
+// COMPLETION
+// ============================================================
+function showCompletion() {
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'All Missions Complete! 🎉';
+  const cs = document.getElementById('completion-screen');
+  cs.classList.add('show');
+  document.getElementById('final-score').textContent = score;
+  let rank = ranks[0];
+  for (let r of ranks) { if (score >= r.min) rank = r; }
+  document.getElementById('final-rank').textContent = rank.icon + ' ' + rank.name;
+  launchConfetti(80);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartAll() {
+  score = 0; streak = 0; currentMission = 0;
+  m1Matched = 0;
+  formulaBuilt = [];
+  dvClickOrder = []; dvDone = false;
+  document.getElementById('score-display').textContent = '0';
+  document.getElementById('rank-name').textContent = 'Trainee';
+  document.getElementById('rank-icon').textContent = '🔰';
+  document.getElementById('streak-badge').classList.remove('show');
+  document.getElementById('completion-screen').classList.remove('show');
+  document.getElementById('progress-area').style.display = 'none';
+  resetMission1();
+  resetMission2();
+  document.getElementById('q3-rate').value = '';
+  document.getElementById('q3-nper').value = '';
+  document.getElementById('q3-pmt').value = '';
+  ['q3-rate','q3-nper','q3-pmt'].forEach(id => document.getElementById(id).className = '');
+  document.getElementById('m3-feedback').className = 'feedback-box';
+  document.getElementById('m3-next').disabled = true;
+  buildAmortTable();
+  document.getElementById('m4-feedback').className = 'feedback-box';
+  document.getElementById('m4-next').disabled = true;
+  resetMission5();
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('intro-screen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function launchConfetti(count = 40) {
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#e74c3c','#9b59b6','#3498db','#2ecc71'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (Math.random() * 8 + 6) + 'px';
+      piece.style.height = (Math.random() * 8 + 6) + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      piece.style.animationDelay = Math.random() * 0.5 + 's';
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 4000);
+    }, i * 30);
+  }
+}
+</script>
+</body>
+</html>
