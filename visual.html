@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA Masterclass: Data Visualization & Financial Architecture</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #134080;
+    --uva-blue-light: #2a7fd4;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #28a052;
+    --gold: #F5C518;
+    --gold-dark: #d4a800;
+    --white: #ffffff;
+    --light-bg: #f0f4fb;
+    --card-bg: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #3a3a5c;
+    --border: #c8d8f0;
+    --success: #1E7A3E;
+    --error: #c0392b;
+    --streak-orange: #e67e22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0d2b5e 0%, #1B5EAF 50%, #1E7A3E 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(90deg, var(--uva-blue-dark), var(--uva-blue));
+    padding: 0;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.03) 10px, rgba(255,255,255,0.03) 20px);
+  }
+  .header-top {
+    padding: 18px 20px 8px;
+    position: relative;
+  }
+  .school-name {
+    font-size: 13px; font-weight: 700; letter-spacing: 3px;
+    color: var(--gold); text-transform: uppercase;
+  }
+  .course-title {
+    font-size: clamp(16px, 3vw, 22px); font-weight: 800;
+    color: white; margin: 4px 0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .motto-ribbon {
+    background: linear-gradient(90deg, var(--uva-green), var(--uva-green-light), var(--uva-green));
+    padding: 8px 20px;
+    font-size: 13px; font-weight: 700; letter-spacing: 4px;
+    color: white; text-transform: uppercase;
+    position: relative;
+  }
+  .motto-ribbon::before, .motto-ribbon::after {
+    content: '✦';
+    margin: 0 12px;
+    color: var(--gold);
+  }
+
+  /* RANK BAR */
+  .rank-bar {
+    background: rgba(0,0,0,0.35);
+    padding: 10px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .rank-display {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .rank-badge {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #1a1a00; font-weight: 800; font-size: 12px;
+    padding: 4px 12px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(245,197,24,0.5);
+    transition: all 0.3s;
+  }
+  .rank-label { color: rgba(255,255,255,0.7); font-size: 12px; }
+  .rank-name { color: white; font-weight: 700; font-size: 15px; }
+  .score-display {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .score-item {
+    text-align: center;
+  }
+  .score-num {
+    color: var(--gold); font-size: 20px; font-weight: 800;
+    display: block; line-height: 1;
+  }
+  .score-lbl {
+    color: rgba(255,255,255,0.6); font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .streak-display {
+    background: var(--streak-orange);
+    padding: 4px 12px; border-radius: 20px;
+    color: white; font-weight: 700; font-size: 13px;
+    display: flex; align-items: center; gap: 5px;
+    transition: all 0.3s;
+    min-width: 80px; justify-content: center;
+  }
+  .streak-display.hidden { opacity: 0; }
+
+  /* PROGRESS BAR */
+  .progress-section {
+    background: rgba(0,0,0,0.2);
+    padding: 8px 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .progress-label { color: rgba(255,255,255,0.7); font-size: 11px; white-space: nowrap; }
+  .progress-bar-outer {
+    flex: 1; height: 8px; background: rgba(255,255,255,0.15);
+    border-radius: 4px; overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%; background: linear-gradient(90deg, var(--gold), var(--uva-green-light));
+    border-radius: 4px; transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-pct { color: var(--gold); font-size: 11px; font-weight: 700; min-width: 30px; }
+
+  /* MAIN CONTAINER */
+  .main {
+    max-width: 860px; margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .mission-card.active { display: block; animation: slideIn 0.4s ease; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .mission-header {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    padding: 16px 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .mission-icon {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .mission-meta { flex: 1; }
+  .mission-num {
+    font-size: 11px; color: rgba(255,255,255,0.7);
+    text-transform: uppercase; letter-spacing: 2px;
+  }
+  .mission-title {
+    font-size: clamp(14px, 2.5vw, 18px); font-weight: 800;
+    color: white;
+  }
+  .mission-domain {
+    font-size: 10px; color: var(--gold);
+    text-transform: uppercase; letter-spacing: 1px; margin-top: 2px;
+  }
+
+  .mission-body { padding: 20px; }
+  .mission-scenario {
+    background: var(--light-bg);
+    border-left: 4px solid var(--uva-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 14px; line-height: 1.6; color: var(--text-mid);
+  }
+  .mission-scenario strong { color: var(--uva-blue); }
+  .mission-question {
+    font-size: 15px; font-weight: 700; color: var(--text-dark);
+    margin-bottom: 14px; line-height: 1.5;
+  }
+
+  /* OPTIONS */
+  .options-grid {
+    display: grid; gap: 10px;
+  }
+  .option-btn {
+    background: white; border: 2px solid var(--border);
+    border-radius: 10px; padding: 12px 16px;
+    text-align: left; cursor: pointer;
+    font-size: 14px; color: var(--text-dark);
+    transition: all 0.2s; display: flex; align-items: center; gap: 10px;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--uva-blue);
+    background: #eef4ff;
+    transform: translateX(4px);
+  }
+  .option-btn.correct {
+    border-color: var(--success); background: #e8f5ee;
+    color: var(--success);
+  }
+  .option-btn.incorrect {
+    border-color: var(--error); background: #fdecea;
+    color: var(--error);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--light-bg); border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .option-btn.correct .option-letter {
+    background: var(--success); border-color: var(--success); color: white;
+  }
+  .option-btn.incorrect .option-letter {
+    background: var(--error); border-color: var(--error); color: white;
+  }
+
+  /* DRAG AND DROP */
+  .drag-area {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    padding: 12px; background: var(--light-bg);
+    border-radius: 10px; margin-bottom: 14px;
+    min-height: 56px;
+  }
+  .drag-item {
+    background: var(--uva-blue); color: white;
+    padding: 7px 14px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; cursor: grab;
+    user-select: none; transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(27,94,175,0.3);
+  }
+  .drag-item:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(27,94,175,0.4); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drop-zone {
+    border: 2px dashed var(--border); border-radius: 10px;
+    padding: 10px 14px; min-height: 48px;
+    display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+    transition: all 0.2s; background: white;
+    font-size: 13px; color: #aaa;
+  }
+  .drop-zone.drag-over { border-color: var(--uva-blue); background: #eef4ff; }
+  .drop-zone.correct-zone { border-color: var(--success); background: #e8f5ee; }
+  .drop-zone.incorrect-zone { border-color: var(--error); background: #fdecea; }
+  .drop-label {
+    font-size: 12px; font-weight: 700; color: var(--text-mid);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .drop-row {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 14px;
+  }
+  @media (max-width: 500px) { .drop-row { grid-template-columns: 1fr; } }
+
+  /* SIMULATION */
+  .sim-step {
+    background: var(--light-bg); border-radius: 10px;
+    padding: 14px; margin-bottom: 12px;
+    border: 2px solid transparent; transition: all 0.3s;
+  }
+  .sim-step.active-step { border-color: var(--uva-blue); background: #eef4ff; }
+  .sim-step.done-step { border-color: var(--success); background: #e8f5ee; }
+  .sim-step-num {
+    font-size: 11px; font-weight: 700; color: var(--uva-blue);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .sim-step.done-step .sim-step-num { color: var(--success); }
+  .sim-step-text { font-size: 14px; color: var(--text-dark); line-height: 1.5; }
+
+  .formula-box {
+    background: #1a1a2e; color: #7ec8e3;
+    font-family: 'Courier New', monospace; font-size: 14px;
+    padding: 12px 16px; border-radius: 8px;
+    margin: 10px 0; border-left: 4px solid var(--gold);
+    letter-spacing: 0.5px;
+  }
+  .formula-box .formula-label {
+    color: var(--gold); font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px;
+    font-family: 'Segoe UI', Arial, sans-serif;
+  }
+
+  .input-row {
+    display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .sim-input {
+    border: 2px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; font-size: 14px; flex: 1; min-width: 120px;
+    transition: border-color 0.2s;
+  }
+  .sim-input:focus { outline: none; border-color: var(--uva-blue); }
+  .sim-input.correct-input { border-color: var(--success); background: #e8f5ee; }
+  .sim-input.incorrect-input { border-color: var(--error); background: #fdecea; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 22px; border-radius: 8px; border: none;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s; letter-spacing: 0.5px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white; box-shadow: 0 3px 10px rgba(27,94,175,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(27,94,175,0.4); }
+  .btn-success {
+    background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light));
+    color: white; box-shadow: 0 3px 10px rgba(30,122,62,0.3);
+  }
+  .btn-success:hover { transform: translateY(-2px); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: #1a1a00; box-shadow: 0 3px 10px rgba(245,197,24,0.3);
+  }
+  .btn:disabled { opacity: 0.5; cursor: default; transform: none !important; }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px; padding: 14px 16px;
+    margin-top: 14px; display: none; animation: fadeIn 0.3s ease;
+    font-size: 14px; line-height: 1.6;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb {
+    background: #e8f5ee; border: 2px solid var(--success); color: var(--success);
+  }
+  .feedback-box.incorrect-fb {
+    background: #fdecea; border: 2px solid var(--error); color: var(--error);
+  }
+  .feedback-icon { font-size: 20px; margin-right: 8px; }
+  .feedback-explanation {
+    margin-top: 8px; color: var(--text-mid); font-size: 13px;
+    border-top: 1px solid rgba(0,0,0,0.1); padding-top: 8px;
+  }
+
+  .next-btn-row {
+    margin-top: 16px; text-align: right;
+  }
+
+  /* BUDGET TABLE */
+  .budget-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    margin: 12px 0;
+  }
+  .budget-table th {
+    background: var(--uva-blue); color: white;
+    padding: 8px 10px; text-align: left; font-size: 12px;
+  }
+  .budget-table td {
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+  }
+  .budget-table tr:nth-child(even) td { background: var(--light-bg); }
+  .budget-table .highlight-row td {
+    background: #fff3cd; font-weight: 700;
+  }
+  .budget-table .total-row td {
+    background: var(--uva-blue); color: white; font-weight: 700;
+  }
+
+  /* SPREADSHEET MOCK */
+  .sheet-mock {
+    border: 2px solid #ccc; border-radius: 8px; overflow: hidden;
+    font-size: 12px; margin: 12px 0;
+  }
+  .sheet-toolbar {
+    background: #f1f3f4; padding: 6px 10px;
+    border-bottom: 1px solid #ccc;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: #555;
+  }
+  .sheet-toolbar span { font-weight: 600; }
+  .sheet-grid {
+    display: grid;
+    grid-template-columns: 30px repeat(4, 1fr);
+  }
+  .sheet-cell {
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 5px 8px; min-height: 28px;
+    display: flex; align-items: center;
+  }
+  .sheet-cell.header-cell {
+    background: #f1f3f4; font-weight: 700; font-size: 11px;
+    color: #555; justify-content: center;
+  }
+  .sheet-cell.row-num {
+    background: #f1f3f4; font-weight: 700; font-size: 11px;
+    color: #555; justify-content: center;
+  }
+  .sheet-cell.blue-border {
+    border: 2px solid #1B5EAF !important;
+    background: #eef4ff;
+  }
+  .sheet-cell.formula-cell {
+    background: #fff9e6; color: #1a1a00; font-family: monospace;
+  }
+
+  /* COMPLETION SCREEN */
+  .completion-screen {
+    display: none; text-align: center; padding: 30px 20px;
+  }
+  .completion-screen.show { display: block; animation: slideIn 0.5s ease; }
+  .completion-trophy { font-size: 80px; margin-bottom: 16px; }
+  .completion-title {
+    font-size: clamp(22px, 4vw, 32px); font-weight: 800;
+    color: var(--uva-blue); margin-bottom: 8px;
+  }
+  .completion-subtitle { font-size: 16px; color: var(--text-mid); margin-bottom: 20px; }
+  .final-score-box {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    border-radius: 16px; padding: 24px; color: white;
+    margin: 20px auto; max-width: 400px;
+  }
+  .final-score-num {
+    font-size: 56px; font-weight: 800; color: var(--gold);
+    line-height: 1;
+  }
+  .final-rank-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #1a1a00; font-weight: 800; font-size: 18px;
+    padding: 8px 24px; border-radius: 30px; margin: 12px 0;
+    text-transform: uppercase; letter-spacing: 2px;
+  }
+  .cert-box {
+    border: 3px solid var(--gold); border-radius: 12px;
+    padding: 16px; margin: 16px auto; max-width: 500px;
+    background: linear-gradient(135deg, #fffdf0, #fff9e0);
+  }
+  .cert-title { font-size: 13px; font-weight: 700; color: var(--uva-blue); letter-spacing: 2px; text-transform: uppercase; }
+  .cert-name { font-size: 20px; font-weight: 800; color: var(--text-dark); margin: 6px 0; }
+  .cert-domain { font-size: 12px; color: var(--text-mid); }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999; overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute; width: 10px; height: 10px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* STREAK POPUP */
+  .streak-popup {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, var(--streak-orange), #f39c12);
+    color: white; font-size: 24px; font-weight: 800;
+    padding: 16px 32px; border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    z-index: 1000; display: none;
+    animation: popIn 0.3s ease;
+    text-align: center;
+  }
+  @keyframes popIn {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    70% { transform: translate(-50%, -50%) scale(1.1); }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+
+  /* BADGE POPUP */
+  .badge-popup {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    background: white; border: 4px solid var(--gold);
+    border-radius: 20px; padding: 24px 32px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    z-index: 1001; display: none; text-align: center;
+    animation: popIn 0.4s ease;
+    min-width: 260px;
+  }
+  .badge-popup .badge-icon { font-size: 56px; margin-bottom: 8px; }
+  .badge-popup .badge-title { font-size: 20px; font-weight: 800; color: var(--uva-blue); }
+  .badge-popup .badge-sub { font-size: 14px; color: var(--text-mid); margin-top: 4px; }
+
+  /* DOMAIN TAG */
+  .domain-tag {
+    display: inline-block;
+    background: rgba(27,94,175,0.1); color: var(--uva-blue);
+    font-size: 10px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  /* RULE CALLOUT */
+  .rule-callout {
+    background: linear-gradient(135deg, #fff9e0, #fffdf0);
+    border: 2px solid var(--gold); border-radius: 10px;
+    padding: 12px 14px; margin: 10px 0;
+    font-size: 13px; color: var(--text-dark);
+  }
+  .rule-callout .rule-title {
+    font-weight: 800; color: var(--gold-dark);
+    font-size: 12px; text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .tag {
+    background: var(--light-bg); border: 1px solid var(--border);
+    border-radius: 12px; padding: 3px 10px;
+    font-size: 11px; color: var(--text-mid); font-weight: 600;
+  }
+
+  /* INTRO SCREEN */
+  .intro-screen {
+    background: var(--card-bg); border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    padding: 30px 24px; text-align: center;
+    margin-bottom: 20px;
+  }
+  .intro-icon { font-size: 64px; margin-bottom: 12px; }
+  .intro-title { font-size: clamp(20px, 4vw, 28px); font-weight: 800; color: var(--uva-blue); margin-bottom: 8px; }
+  .intro-sub { font-size: 15px; color: var(--text-mid); margin-bottom: 20px; line-height: 1.6; }
+  .mission-list {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px; margin: 16px 0 24px;
+  }
+  .mission-preview {
+    background: var(--light-bg); border-radius: 10px;
+    padding: 12px; text-align: center; border: 2px solid var(--border);
+  }
+  .mission-preview .mp-icon { font-size: 28px; margin-bottom: 6px; }
+  .mission-preview .mp-title { font-size: 12px; font-weight: 700; color: var(--uva-blue); }
+  .mission-preview .mp-type { font-size: 10px; color: var(--text-mid); margin-top: 2px; }
+
+  .overlay { display: none; position: fixed; top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.5); z-index: 998; }
+  .overlay.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiContainer"></div>
+<div class="overlay" id="overlay"></div>
+
+<!-- STREAK POPUP -->
+<div class="streak-popup" id="streakPopup"></div>
+
+<!-- BADGE POPUP -->
+<div class="badge-popup" id="badgePopup">
+  <div class="badge-icon" id="badgeIcon">🏅</div>
+  <div class="badge-title" id="badgeTitle">Achievement Unlocked!</div>
+  <div class="badge-sub" id="badgeSub">You earned a new badge</div>
+  <button class="btn btn-primary" style="margin-top:14px" onclick="closeBadge()">Claim Badge!</button>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="school-name">University View Academy</div>
+    <div class="course-title">The Professional's Masterclass: Data Visualization & Financial Architecture</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:2px;">Computer Tech Literacy · Domain 3.1 & 4.2</div>
+  </div>
+  <div class="motto-ribbon">Virtue  ·  Vigor  ·  Vision</div>
+  <div class="rank-bar">
+    <div class="rank-display">
+      <div>
+        <div class="rank-label">Current Rank</div>
+        <div class="rank-name" id="rankName">Trainee</div>
+      </div>
+      <div class="rank-badge" id="rankBadge">⭐ Trainee</div>
+    </div>
+    <div class="score-display">
+      <div class="score-item">
+        <span class="score-num" id="scoreDisplay">0</span>
+        <span class="score-lbl">Points</span>
+      </div>
+      <div class="score-item">
+        <span class="score-num" id="missionDisplay">0/7</span>
+        <span class="score-lbl">Missions</span>
+      </div>
+      <div class="streak-display hidden" id="streakBar">🔥 <span id="streakCount">0</span> Streak</div>
+    </div>
+  </div>
+  <div class="progress-section">
+    <span class="progress-label">Mission Progress</span>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="progressBar"></div>
+    </div>
+    <span class="progress-pct" id="progressPct">0%</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div class="intro-screen" id="introScreen">
+    <div class="intro-icon">📊</div>
+    <div class="intro-title">Welcome, UVA Analyst Recruit!</div>
+    <div class="intro-sub">
+      You've been selected for the <strong>Professional's Masterclass</strong> — a high-stakes training program in Data Visualization and Financial Architecture using Google Sheets.<br><br>
+      Complete all <strong>7 Missions</strong> to earn your <strong>Business Technology & Financial Literacy Certification</strong> (Domain 3.1 & 4.2). Rise through the ranks from <em>Trainee</em> to <em>Master</em>!
+    </div>
+    <div class="mission-list">
+      <div class="mission-preview"><div class="mp-icon">🔬</div><div class="mp-title">Scientist's Logic</div><div class="mp-type">Multiple Choice</div></div>
+      <div class="mission-preview"><div class="mp-icon">🧹</div><div class="mp-title">Data Hygiene</div><div class="mp-type">Drag & Drop</div></div>
+      <div class="mission-preview"><div class="mp-icon">💰</div><div class="mp-title">Windfall Budget</div><div class="mp-type">Scenario</div></div>
+      <div class="mission-preview"><div class="mp-icon">📐</div><div class="mp-title">5/50 Rule</div><div class="mp-type">Calculation</div></div>
+      <div class="mission-preview"><div class="mp-icon">🏦</div><div class="mp-title">PMT Function</div><div class="mp-type">Simulation</div></div>
+      <div class="mission-preview"><div class="mp-icon">✅</div><div class="mp-title">SUM Validation</div><div class="mp-type">Multiple Choice</div></div>
+      <div class="mission-preview"><div class="mp-icon">📉</div><div class="mp-title">Amortization</div><div class="mp-type">Branching</div></div>
+    </div>
+    <div class="tag-row" style="justify-content:center">
+      <span class="tag">📋 Domain 3.1</span>
+      <span class="tag">📋 Domain 4.2</span>
+      <span class="tag">⏱ 10–15 min</span>
+      <span class="tag">🎓 High School</span>
+      <span class="tag">💻 Google Sheets</span>
+    </div>
+    <button class="btn btn-primary" style="font-size:16px;padding:14px 36px;margin-top:8px" onclick="startMissions()">🚀 Begin Masterclass</button>
+  </div>
+
+  <!-- ===== MISSION 1: Scientist's Logic ===== -->
+  <div class="mission-card" id="mission1">
+    <div class="mission-header">
+      <div class="mission-icon">🔬</div>
+      <div class="mission-meta">
+        <div class="mission-num">Mission 1 of 7</div>
+        <div class="mission-title">Scientist's Logic: Mapping Variables</div>
+        <div class="mission-domain">Domain 3.1 · Data Visualization</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>Briefing:</strong> You're building a Google Sheets chart for a science fair project tracking <em>hours studied</em> vs. <em>test scores</em>. Your supervisor says: <em>"Apply Scientist's Logic — the independent variable controls the experiment; the dependent variable responds to it."</em>
+      </div>
+      <div class="sheet-mock">
+        <div class="sheet-toolbar">
+          <span>📊 Google Sheets</span> · Chart Editor · Setup Tab
+        </div>
+        <div style="padding:10px;background:#fff;font-size:12px;">
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span style="color:#555;font-weight:600;min-width:80px;">Chart type:</span>
+            <span style="background:#f1f3f4;padding:3px 10px;border-radius:4px;border:1px solid #ccc;">Scatter chart ▾</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+            <span style="color:#555;font-weight:600;min-width:80px;">X-axis:</span>
+            <span style="background:#eef4ff;padding:3px 10px;border-radius:4px;border:1px solid #1B5EAF;color:#1B5EAF;font-weight:600;">??? ← Your Answer</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="color:#555;font-weight:600;min-width:80px;">Series (Y):</span>
+            <span style="background:#e8f5ee;padding:3px 10px;border-radius:4px;border:1px solid #1E7A3E;color:#1E7A3E;font-weight:600;">??? ← Your Answer</span>
+          </div>
+        </div>
+      </div>
+      <div class="mission-question">Which variable goes on the X-axis (independent) and which goes on the Y-axis (dependent)?</div>
+      <div class="options-grid" id="m1options">
+        <button class="option-btn" onclick="checkMC(1,'A','A')">
+          <span class="option-letter">A</span>
+          X-axis: Hours Studied  |  Y-axis: Test Scores
+        </button>
+        <button class="option-btn" onclick="checkMC(1,'B','A')">
+          <span class="option-letter">B</span>
+          X-axis: Test Scores  |  Y-axis: Hours Studied
+        </button>
+        <button class="option-btn" onclick="checkMC(1,'C','A')">
+          <span class="option-letter">C</span>
+          X-axis: Test Scores  |  Y-axis: Test Scores
+        </button>
+        <button class="option-btn" onclick="checkMC(1,'D','A')">
+          <span class="option-letter">D</span>
+          It doesn't matter — Google Sheets auto-assigns axes
+        </button>
+      </div>
+      <div class="feedback-box" id="m1feedback"></div>
+      <div class="next-btn-row"><button class="btn btn-success" id="m1next" style="display:none" onclick="nextMission(2)">Next Mission →</button></div>
+    </div>
+  </div>
+
+  <!-- ===== MISSION 2: Data Hygiene Drag & Drop ===== -->
+  <div class="mission-card" id="mission2">
+    <div class="mission-header">
+      <div class="mission-icon">🧹</div>
+      <div class="mission-meta">
+        <div class="mission-num">Mission 2 of 7</div>
+        <div class="mission-title">Data Hygiene Protocols</div>
+        <div class="mission-domain">Domain 3.1 · Unit Isolation & Blue Border Constraint</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>Briefing:</strong> Your data analyst role requires strict <em>Data Hygiene</em>. Two critical protocols are: <strong>Unit Isolation</strong> (keep units in separate label cells, never inside data cells) and the <strong>Blue Border Constraint</strong> (input cells get a blue border — never type over them with formulas).
+      </div>
+      <div class="rule-callout">
+        <div class="rule-title">⚡ Protocol Rules</div>
+        <strong>Unit Isolation:</strong> Data cells contain ONLY numbers. Units (%, $, hrs) go in adjacent label cells.<br>
+        <strong>Blue Border Constraint:</strong> Blue-bordered cells = user input only. Formula cells are separate.
+      </div>
+      <div class="mission-question">Drag each item to the correct category: <strong>VIOLATES</strong> or <strong>FOLLOWS</strong> data hygiene protocols.</div>
+      <div class="drag-area" id="m2dragArea">
+        <div class="drag-item" draggable="true" data-id="a" data-correct="follows" ondragstart="dragStart(event)">Cell A1: 85</div>
+        <div class="drag-item" draggable="true" data-id="b" data-correct="violates" ondragstart="dragStart(event)">Cell B2: 85%</div>
+        <div class="drag-item" draggable="true" data-id="c" data-correct="follows" ondragstart="dragStart(event)">Blue cell: =PMT(...)</div>
+        <div class="drag-item" draggable="true" data-id="d" data-correct="violates" ondragstart="dragStart(event)">Blue cell: 5000</div>
+        <div class="drag-item" draggable="true" data-id="e" data-correct="follows" ondragstart="dragStart(event)">Label cell: "$"</div>
+        <div class="drag-item" draggable="true" data-id="f" data-correct="violates" ondragstart="dragStart(event)">Cell C3: $1,200</div>
+      </div>
+      <div class="drop-row">
+        <div>
+          <div class="drop-label">✅ Follows Protocol</div>
+          <div class="drop-zone" id="dropFollows" ondragover="dragOver(event)" ondrop="dropItem(event,'follows')" ondragleave="dragLeave(event)">Drop here...</div>
+        </div>
+        <div>
+          <div class="drop-label">❌ Violates Protocol</div>
+          <div class="drop-zone" id="dropViolates" ondragover="dragOver(event)" ondrop="dropItem(event,'violates')" ondragleave="dragLeave(event)">Drop here...</div>
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn btn-primary" onclick="checkDragDrop()" id="m2checkBtn">Check My Answers</button>
+      </div>
+      <div class="feedback-box" id="m2feedback"></div>
+      <div class="next-btn-row"><button class="btn btn-success" id="m2next" style="display:none" onclick="nextMission(3)">Next Mission →</button></div>
+    </div>
+  </div>
+
+  <!-- ===== MISSION 3: Windfall Budget Scenario ===== -->
+  <div class="mission-card" id="mission3">
+    <div class="mission-header">
+      <div class="mission-icon">💰</div>
+      <div class="mission-meta">
+        <div class="mission-num">Mission 3 of 7</div>
+        <div class="mission-title">Windfall Budget Architecture</div>
+        <div class="mission-domain">Domain 4.2 · Financial Architecture</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>Briefing:</strong> You've won a <strong>$50,000 windfall</strong>! Your financial advisor says you must build a <em>diversified windfall budget</em>. A diversified budget spreads money across multiple categories to reduce risk and maximize long-term value.
+      </div>
+      <div class="budget-table">
+        <thead><tr><th>Category</th><th>Allocation</th><th>Amount</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td>🏦 Savings / Emergency Fund</td><td>30%</td><td>$15,000</td><td>3–6 month safety net</td></tr>
+          <tr><td>📈 Investments</td><td>25%</td><td>$12,500</td><td>Long-term growth</td></tr>
+          <tr><td>🎓 Education / Skills</td><td>20%</td><td>$10,000</td><td>Career development</td></tr>
+          <tr><td>🏠 Debt Payoff</td><td>15%</td><td>$7,500</td><td>Reduce liabilities</td></tr>
+          <tr class="highlight-row"><td>🎉 Personal / Fun</td><td>10%</td><td>$5,000</td><td>Quality of life</td></tr>
+          <tr class="total-row"><td><strong>TOTAL</strong></td><td><strong>100%</strong></td><td><strong>$50,000</strong></td><td>Fully diversified</td></tr>
+        </tbody>
+      </div>
+      <div class="mission-question">A classmate says: <em>"I'll put 80% into investments and 20% into fun — that's diversified!"</em> What is the PRIMARY problem with this budget?</div>
+      <div class="options-grid" id="m3options">
+        <button class="option-btn" onclick="checkMC(3,'A','B')">
+          <span class="option-letter">A</span>
+          The investment percentage is too high for Google Sheets to calculate
+        </button>
+        <button class="option-btn" onclick="checkMC(3,'B','B')">
+          <span class="option-letter">B</span>
+          It lacks diversification — no savings, debt payoff, or education allocation creates financial risk
+        </button>
+        <button class="option-btn" onclick="checkMC(3,'C','B')">
+          <span class="option-letter">C</span>
+          The percentages don't add up to 100%
+        </button>
+        <button class="option-btn" onclick="checkMC(3,'D','B')">
+          <span class="option-letter">D</span>
+          Fun spending should always be 0% in a professional budget
+        </button>
+      </div>
+      <div class="feedback-box" id="m3feedback"></div>
+      <div class="next-btn-row"><button class="btn btn-success" id="m3next" style="display:none" onclick="nextMission(4)">Next Mission →</button></div>
+    </div>
+  </div>
+
+  <!-- ===== MISSION 4: 5/50 Rule ===== -->
+  <div class="mission-card" id="mission4">
+    <div class="mission-header">
+      <div class="mission-icon">📐</div>
+      <div class="mission-meta">
+        <div class="mission-num">Mission 4 of 7</div>
+        <div class="mission-title">The 5/50 Rule: Mathematical Constraints</div>
+        <div class="mission-domain">Domain 4.2 · Regulatory Constraints</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>Briefing:</strong> The <strong>5/50 Rule</strong> is a mathematical regulatory constraint used in financial modeling. It states: <em>No single budget category should exceed 50% of total funds, and no single investment should be less than 5% of total funds</em> — ensuring balance and meaningful allocation.
+      </div>
+      <div class="rule-callout">
+        <div class="rule-title">📏 The 5/50 Rule</div>
+        <strong>Maximum per category:</strong> 50% of total windfall<br>
+        <strong>Minimum meaningful allocation:</strong> 5% of total windfall<br>
+        <strong>Windfall amount:</strong> $50,000
+      </div>
+      <div class="mission-question">You're reviewing three proposed budgets. Which one <strong>PASSES</strong> the 5/50 Rule?</div>
+      <div class="options-grid" id="m4options">
+        <button class="option-btn" onclick="checkMC(4,'A','C')">
+          <span class="option-letter">A</span>
+          Budget A: Savings 60% ($30,000) · Investments 40% ($20,000)
+          <br><small style="color:#888;margin-left:38px;">Only 2 categories, one exceeds 50%</small>
+        </button>
+        <button class="option-btn" onclick="checkMC(4,'B','C')">
+          <span class="option-letter">B</span>
+          Budget B: Savings 50% · Investments 48% · Education 2% ($1,000)
+          <br><small style="color:#888;margin-left:38px;">Education is below the 5% minimum</small>
+        </button>
+        <button class="option-btn" onclick="checkMC(4,'C','C')">
+          <span class="option-letter">C</span>
+          Budget C: Savings 30% · Investments 25% · Education 20% · Debt 15% · Fun 10%
+          <br><small style="color:#888;margin-left:38px;">All categories between 5%–50%</small>
+        </button>
+        <button class="option-btn" onclick="checkMC(4,'D','C')">
+          <span class="option-letter">D</span>
+          Budget D: Savings 55% · Fun 45%
+          <br><small style="color:#888;margin-left:38px;">Savings exceeds 50% maximum</small>
+        </button>
+      </div>
+      <div class="feedback-box" id="m4feedback"></div>
+      <div class="next-btn-row"><button class="btn btn-success" id="m4next" style="display:none" onclick="nextMission(5)">Next Mission →</button></div>
+    </div>
+  </div>
+
+  <!-- ===== MISSION 5: PMT Function Simulation ===== -->
+  <div class="mission-card" id="mission5">
+    <div class="mission-header">
+      <div class="mission-icon">🏦</div>
+      <div class="mission-meta">
+        <div class="mission-num">Mission 5 of 7</div>
+        <div class="mission-title">PMT Function: Loan Payment Calculator</div>
+        <div class="mission-domain">Domain 4.2 · Financial Functions</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>Briefing:</strong> You're financing a $12,000 car loan at <strong>6% annual interest</strong> over <strong>3 years</strong>. You must use Google Sheets' <code>PMT</code> function to calculate the fixed monthly payment. Remember: rate must be monthly (÷12), nper must be months (×12), and pv must be <strong>negative</strong>.
+      </div>
+      <div class="formula-box">
+        <div class="formula-label">📋 PMT Syntax</div>
+        =PMT(rate, nper, pv)<br>
+        <span style="color:#aaa;font-size:12px;">rate = monthly rate | nper = total months | pv = -principal</span>
+      </div>
+      <div class="sheet-mock">
+        <div class="sheet-toolbar"><span>📊 Google Sheets</span> · Sheet1</div>
+        <div class="sheet-grid">
+          <div class="sheet-cell header-cell"></div>
+          <div class="sheet-cell header-cell">A</div>
+          <div class="sheet-cell header-cell">B</div>
+          <div class="sheet-cell header-cell">C</div>
+          <div class="sheet-cell header-cell">D</div>
+          <div class="sheet-cell row-num">1</div>
+          <div class="sheet-cell" style="font-weight:600;color:#555">Annual Rate</div>
+          <div class="sheet-cell blue-border">6%</div>
+          <div class="sheet-cell" style="font-weight:600;color:#555">Monthly Rate</div>
+          <div class="sheet-cell formula-cell">=B1/12</div>
+          <div class="sheet-cell row-num">2</div>
+          <div class="sheet-cell" style="font-weight:600;color:#555">Years</div>
+          <div class="sheet-cell blue-border">3</div>
+          <div class="sheet-cell" style="font-weight:600;color:#555">Total Months</div>
+          <div class="sheet-cell formula-cell">=B2*12</div>
+          <div class="sheet-cell row-num">3</div>
+          <div class="sheet-cell" style="font-weight:600;color:#555">Loan Amount</div>
+          <div class="sheet-cell blue-border">12000</div>
+          <div class="sheet-cell" style="font-weight:600;color:#555">Monthly Pmt</div>
+          <div class="sheet-cell formula-cell" style="color:#1B5EAF;font-weight:700">=PMT(D1,D2,-B3)</div>
+        </div>
+      </div>
+      <div class="mission-question">Step-by-step: Build the correct PMT formula. Answer each part:</div>
+
+      <div id="m5steps">
+        <div class="sim-step active-step" id="m5s1">
+          <div class="sim-step-num">Step 1 of 3 — Rate Argument</div>
+          <div class="sim-step-text">The annual rate is 6% (0.06). What is the correct <strong>monthly rate</strong> to enter as the first argument?</div>
+          <div class="input-row">
+            <input class="sim-input" id="m5i1" placeholder="e.g. 0.005" type="text">
+            <button class="btn btn-primary" onclick="checkStep5(1)">Check</button>
+          </div>
+          <div class="feedback-box" id="m5f1"></div>
+        </div>
+        <div class="sim-step" id="m5s2">
+          <div class="sim-step-num">Step 2 of 3 — Nper Argument</div>
+          <div class="sim-step-text">The loan is for 3 years. What is the correct <strong>total number of monthly payments</strong> (nper)?</div>
+          <div class="input-row">
+            <input class="sim-input" id="m5i2" placeholder="e.g. 36" type="text">
+            <button class="btn btn-primary" onclick="checkStep5(2)">Check</button>
+          </div>
+          <div class="feedback-box" id="m5f2"></div>
+        </div>
+        <div class="sim-step" id="m5s3">
+          <div class="sim-step-num">Step 3 of 3 — PV Argument</div>
+          <div class="sim-step-text">The loan principal is $12,000. What value should you enter for <strong>pv</strong> in the PMT function? (Remember the sign rule!)</div>
+          <div class="input-row">
+            <input class="sim-input" id="m5i3" placeholder="e.g. -12000" type="text">
+            <button class="btn btn-primary" onclick="checkStep5(3)">Check</button>
+          </div>
+          <div class="feedback-box" id="m5f3"></div>
+        </div>
+      </div>
+      <div class="feedback-box" id="m5feedback"></div>
+      <div class="next-btn-row"><button class="btn btn-success" id="m5next" style="display:none" onclick="nextMission(6)">Next Mission →</button></div>
+    </div>
+  </div>
+
+  <!-- ===== MISSION 6: SUM Validation ===== -->
+  <div class="mission-card" id="mission6">
+    <div class="mission-header">
+      <div class="mission-icon">✅</div>
+      <div class="mission-meta">
+        <div class="mission-num">Mission 6 of 7</div>
+        <div class="mission-title">SUM Validation: Financial Model Integrity</div>
+        <div class="mission-domain">Domain 4.2 · Model Validation</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>Briefing:</strong> A financial model is only trustworthy if it <em>validates</em>. The <strong>SUM function</strong> is your primary validation tool. In a windfall budget, all allocations must sum to exactly 100%. In a loan amortization table, the final balance must reach exactly $0 — the <em>zero-balance success state</em>.
+      </div>
+      <div class="sheet-mock">
+        <div class="sheet-toolbar"><span>📊 Google Sheets</span> · Budget Validation</div>
+        <div class="sheet-grid">
+          <div class="sheet-cell header-cell"></div>
+          <div class="sheet-cell header-cell">A</div>
+          <div class="sheet-cell header-cell">B</div>
+          <div class="sheet-cell header-cell">C</div>
+          <div class="sheet-cell header-cell">D</div>
+          <div class="sheet-cell row-num">1</div>
+          <div class="sheet-cell" style="font-weight:700">Category</div>
+          <div class="sheet-cell" style="font-weight:700">%</div>
+          <div class="sheet-cell" style="font-weight:700">Amount</div>
+          <div class="sheet-cell" style="font-weight:700">Validation</div>
+          <div class="sheet-cell row-num">2</div>
+          <div class="sheet-cell">Savings</div>
+          <div class="sheet-cell">30%</div>
+          <div class="sheet-cell">$15,000</div>
+          <div class="sheet-cell row-num" style="background:white"></div>
+          <div class="sheet-cell row-num">6</div>
+          <div class="sheet-cell">Fun</div>
+          <div class="sheet-cell">10%</div>
+          <div class="sheet-cell">$5,000</div>
+          <div class="sheet-cell row-num" style="background:white"></div>
+          <div class="sheet-cell row-num">7</div>
+          <div class="sheet-cell" style="font-weight:700;color:#1B5EAF">TOTAL</div>
+          <div class="sheet-cell formula-cell" style="color:#1E7A3E;font-weight:700">=SUM(B2:B6)</div>
+          <div class="sheet-cell formula-cell" style="color:#1E7A3E;font-weight:700">=SUM(C2:C6)</div>
+          <div class="sheet-cell formula-cell" style="color:#1B5EAF;font-weight:700">=IF(B7=1,"✅ VALID","❌ ERROR")</div>
+        </div>
+      </div>
+      <div class="mission-question">Your SUM formula returns <strong>95%</strong> instead of 100%. What is the MOST LIKELY cause and correct fix?</div>
+      <div class="options-grid" id="m6options">
+        <button class="option-btn" onclick="checkMC(6,'A','B')">
+          <span class="option-letter">A</span>
+          The SUM formula is wrong — change =SUM(B2:B6) to =SUM(B2:B7)
+        </button>
+        <button class="option-btn" onclick="checkMC(6,'B','B')">
+          <span class="option-letter">B</span>
+          A budget category is missing or has an incorrect percentage — find the missing 5% and add/correct a category
+        </button>
+        <button class="option-btn" onclick="checkMC(6,'C','B')">
+          <span class="option-letter">C</span>
+          Google Sheets rounds percentages down automatically — this is expected behavior
+        </button>
+        <button class="option-btn" onclick="checkMC(6,'D','B')">
+          <span class="option-letter">D</span>
+          Change the validation formula to =IF(B7=0.95,"✅ VALID","❌ ERROR") to accept 95%
+        </button>
+      </div>
+      <div class="feedback-box" id="m6feedback"></div>
+      <div class="next-btn-row"><button class="btn btn-success" id="m6next" style="display:none" onclick="nextMission(7)">Next Mission →</button></div>
+    </div>
+  </div>
+
+  <!-- ===== MISSION 7: Amortization Branching ===== -->
+  <div class="mission-card" id="mission7">
+    <div class="mission-header">
+      <div class="mission-icon">📉</div>
+      <div class="mission-meta">
+        <div class="mission-num">Mission 7 of 7 — FINAL MISSION</div>
+        <div class="mission-title">Amortization Table: Zero-Balance Quest</div>
+        <div class="mission-domain">Domain 4.2 · Amortization Logic</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>Final Briefing:</strong> You're auditing an amortization table for a $12,000 car loan. An amortization table tracks each monthly payment, splitting it between <em>interest paid</em> and <em>principal paid</em>, until the balance reaches <strong>$0</strong> — the <em>zero-balance success state</em>.
+      </div>
+      <div class="budget-table">
+        <thead><tr><th>Month</th><th>Payment</th><th>Interest</th><th>Principal</th><th>Balance</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>$365.06</td><td>$60.00</td><td>$305.06</td><td>$11,694.94</td></tr>
+          <tr><td>2</td><td>$365.06</td><td>$58.47</td><td>$306.59</td><td>$11,388.35</td></tr>
+          <tr><td>3</td><td>$365.06</td><td>$56.94</td><td>$308.12</td><td>$11,080.23</td></tr>
+          <tr><td style="color:#aaa">...</td><td style="color:#aaa">...</td><td style="color:#aaa">...</td><td style="color:#aaa">...</td><td style="color:#aaa">...</td></tr>
+          <tr class="highlight-row"><td>36</td><td>$365.06</td><td>$1.82</td><td>$363.24</td><td id="finalBalance">???</td></tr>
+        </tbody>
+      </div>
+      <div id="m7branch1">
+        <div class="mission-question">🔍 <strong>Audit Question 1:</strong> In Month 1, the interest is $60.00. How was this calculated? (Loan: $12,000 at 6% annual)</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="branchAnswer(7,1,'B')">
+            <span class="option-letter">A</span>
+            $12,000 × 6% = $720 ÷ 12 months = $60.00 ✓ — Monthly interest on full balance
+          </button>
+          <button class="option-btn" onclick="branchAnswer(7,1,'A')">
+            <span class="option-letter">B</span>
+            $12,000 × 6% = $720 — Annual interest applied directly
+          </button>
+          <button class="option-btn" onclick="branchAnswer(7,1,'B')">
+            <span class="option-letter">C</span>
+            $12,000 ÷ 36 months = $333.33 — Equal principal division
+          </button>
+        </div>
+        <div class="feedback-box" id="m7f1"></div>
+      </div>
+      <div id="m7branch2" style="display:none;margin-top:16px">
+        <div class="mission-question">🔍 <strong>Audit Question 2:</strong> Notice that Month 2 interest ($58.47) is LESS than Month 1 ($60.00). Why?</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="branchAnswer(7,2,'A')">
+            <span class="option-letter">A</span>
+            The balance decreased after Month 1's principal payment, so interest is calculated on a smaller balance
+          </button>
+          <button class="option-btn" onclick="branchAnswer(7,2,'B')">
+            <span class="option-letter">B</span>
+            Google Sheets automatically reduces interest each month as a built-in feature
+          </button>
+          <button class="option-btn" onclick="branchAnswer(7,2,'B')">
+            <span class="option-letter">C</span>
+            The interest rate decreases each month as a reward for making payments
+          </button>
+        </div>
+        <div class="feedback-box" id="m7f2"></div>
+      </div>
+      <div id="m7branch3" style="display:none;margin-top:16px">
+        <div class="mission-question">🏆 <strong>Final Audit:</strong> What should the balance be in Month 36 for this amortization table to reach the <em>zero-balance success state</em>?</div>
+        <div class="options-grid">
+          <button class="option-btn" onclick="branchAnswer(7,3,'B')">
+            <span class="option-letter">A</span>
+            $365.06 — Equal to the monthly payment
+          </button>
+          <button class="option-btn" onclick="branchAnswer(7,3,'A')">
+            <span class="option-letter">B</span>
+            $0.00 — The loan is fully paid off; zero-balance success state achieved ✓
+          </button>
+          <button class="option-btn" onclick="branchAnswer(7,3,'B')">
+            <span class="option-letter">C</span>
+            $1.82 — Equal to the final month's interest
+          </button>
+        </div>
+        <div class="feedback-box" id="m7f3"></div>
+      </div>
+      <div class="feedback-box" id="m7feedback"></div>
+      <div class="next-btn-row"><button class="btn btn-gold" id="m7next" style="display:none;font-size:16px;padding:12px 28px" onclick="showCompletion()">🏆 Complete Masterclass!</button></div>
+    </div>
+  </div>
+
+  <!-- COMPLETION SCREEN -->
+  <div class="mission-card active" id="completionCard" style="display:none">
+    <div class="completion-screen" id="completionScreen">
+      <div class="completion-trophy">🏆</div>
+      <div class="completion-title">Masterclass Complete!</div>
+      <div class="completion-subtitle">You've mastered Data Visualization & Financial Architecture</div>
+      <div class="final-score-box">
+        <div style="font-size:14px;color:rgba(255,255,255,0.7);margin-bottom:4px">FINAL SCORE</div>
+        <div class="final-score-num" id="finalScore">0</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.7);margin-top:4px">points</div>
+        <div class="final-rank-badge" id="finalRank">Master</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.8)" id="finalAccuracy"></div>
+      </div>
+      <div class="cert-box">
+        <div class="cert-title">🎓 University View Academy</div>
+        <div style="font-size:12px;color:#888;margin:4px 0">hereby certifies completion of</div>
+        <div class="cert-name">Data Visualization & Financial Architecture</div>
+        <div class="cert-domain">Business Technology & Financial Literacy Certification · Domain 3.1 & 4.2</div>
+        <div style="margin-top:10px;font-size:12px;color:#888;font-style:italic">"Virtue, Vigor, Vision"</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+        <button class="btn btn-primary" onclick="restartActivity()">🔄 Restart Masterclass</button>
+        <button class="btn btn-gold" onclick="launchConfetti()">🎉 Celebrate!</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<script>
+// ===== STATE =====
+let score = 0;
+let streak = 0;
+let maxStreak = 0;
+let missionsCompleted = 0;
+let totalMissions = 7;
+let correctAnswers = 0;
+let totalAttempts = 0;
+let currentMission = 0;
+let m5stepsCompleted = 0;
+let m7branchStep = 1;
+let m7correctCount = 0;
+let draggedItem = null;
+let droppedItems = {};
+
+const RANKS = [
+  { name: 'Trainee', icon: '⭐', minScore: 0 },
+  { name: 'Apprentice', icon: '🌟', minScore: 150 },
+  { name: 'Expert', icon: '💫', minScore: 350 },
+  { name: 'Master', icon: '🏆', minScore: 600 }
+];
+
+// ===== INIT =====
+function startMissions() {
+  document.getElementById('introScreen').style.display = 'none';
+  nextMission(1);
+}
+
+function nextMission(num) {
+  // Hide all missions
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById('mission' + i);
+    if (el) { el.classList.remove('active'); }
+  }
+  document.getElementById('completionCard').style.display = 'none';
+
+  if (num <= 7) {
+    const el = document.getElementById('mission' + num);
+    if (el) {
+      el.classList.add('active');
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    currentMission = num;
+  }
+  updateProgress();
+}
+
+// ===== SCORE & RANK =====
+function addScore(pts, isCorrect) {
+  if (isCorrect) {
+    score += pts;
+    streak++;
+    correctAnswers++;
+    if (streak > maxStreak) maxStreak = streak;
+    if (streak >= 3) showStreakPopup(streak);
+  } else {
+    streak = 0;
+  }
+  totalAttempts++;
+  updateScoreDisplay();
+  checkRankUp();
+}
+
+function updateScoreDisplay() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('missionDisplay').textContent = missionsCompleted + '/' + totalMissions;
+  const sb = document.getElementById('streakBar');
+  document.getElementById('streakCount').textContent = streak;
+  if (streak >= 2) {
+    sb.classList.remove('hidden');
+  } else {
+    sb.classList.add('hidden');
+  }
+}
+
+function updateProgress() {
+  const pct = Math.round((missionsCompleted / totalMissions) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+function checkRankUp() {
+  let newRank = RANKS[0];
+  for (const r of RANKS) {
+    if (score >= r.minScore) newRank = r;
+  }
+  const currentRankName = document.getElementById('rankName').textContent;
+  document.getElementById('rankName').textContent = newRank.name;
+  document.getElementById('rankBadge').textContent = newRank.icon + ' ' + newRank.name;
+  if (newRank.name !== currentRankName && currentRankName !== 'Trainee') {
+    showBadge(newRank.icon, 'Rank Up: ' + newRank.name + '!', 'You\'ve advanced to ' + newRank.name + ' status!');
+  }
+}
+
+// ===== MULTIPLE CHOICE =====
+function checkMC(missionNum, chosen, correct) {
+  const container = document.getElementById('m' + missionNum + 'options');
+  const btns = container.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const isCorrect = chosen === correct;
+  const letters = ['A','B','C','D'];
+  btns.forEach((b, i) => {
+    if (letters[i] === correct) b.classList.add('correct');
+    else if (letters[i] === chosen && !isCorrect) b.classList.add('incorrect');
+  });
+
+  const fb = document.getElementById('m' + missionNum + 'feedback');
+  fb.classList.add('show');
+
+  const explanations = {
+    1: { correct: 'The independent variable (Hours Studied) goes on the X-axis — it\'s what you control. The dependent variable (Test Scores) goes on the Y-axis — it responds to the independent variable. This is Scientist\'s Logic!', incorrect: 'Remember Scientist\'s Logic: the INDEPENDENT variable (what you control = Hours Studied) always goes on the X-axis. The DEPENDENT variable (what responds = Test Scores) goes on the Y-axis.' },
+    3: { correct: 'A diversified budget must spread funds across multiple categories including savings (emergency fund), debt reduction, education, and investments. Putting 80% in one category creates concentration risk — if that investment fails, you lose everything.', incorrect: 'The key issue is lack of diversification. A proper windfall budget includes savings, debt payoff, education, AND investments — not just two categories. The percentages do add to 100%, so that\'s not the problem.' },
+    4: { correct: 'Budget C passes the 5/50 Rule perfectly! Every category is between 5% (minimum) and 50% (maximum). Budget A has a 60% category (too high), Budget B has a 2% category (too low), and Budget D has a 55% category (too high).', incorrect: 'Check the 5/50 Rule: no category can exceed 50% OR be below 5%. Budget C is the only one where ALL categories fall between 5% and 50%.' },
+    6: { correct: 'If SUM returns 95%, the data itself is wrong — a category is missing or has an incorrect percentage. The SUM formula is correct (it\'s summing the right range). You need to find and fix the missing 5% in your budget data.', incorrect: 'The SUM formula =SUM(B2:B6) is correct. If it returns 95%, the problem is in the DATA — a category is missing or has a wrong percentage. Google Sheets doesn\'t auto-round percentages, and you should never change the validation to accept an incorrect total.' }
+  };
+
+  if (isCorrect) {
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Excellent work, Analyst!</strong><div class="feedback-explanation">' + explanations[missionNum].correct + '</div>';
+    addScore(100, true);
+    missionsCompleted++;
+    updateProgress();
+    document.getElementById('m' + missionNum + 'next').style.display = 'inline-block';
+    if (missionsCompleted === 3) showBadge('🥉', 'Halfway Hero!', 'You\'ve completed 3 missions!');
+  } else {
+    fb.className = 'feedback-box show incorrect-fb';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Not quite — review the briefing!</strong><div class="feedback-explanation">' + explanations[missionNum].incorrect + '</div>';
+    addScore(0, false);
+    // Allow retry
+    setTimeout(() => {
+      btns.forEach(b => { b.disabled = false; b.classList.remove('correct','incorrect'); });
+      fb.classList.remove('show');
+    }, 2500);
+  }
+}
+
+// ===== DRAG AND DROP =====
+function dragStart(e) {
+  draggedItem = e.target;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function dropItem(e, zone) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!draggedItem) return;
+  const id = draggedItem.dataset.id;
+  droppedItems[id] = zone;
+  draggedItem.classList.remove('dragging');
+
+  // Move item to drop zone
+  const clone = draggedItem.cloneNode(true);
+  clone.style.cursor = 'default';
+  clone.draggable = false;
+  e.currentTarget.appendChild(clone);
+
+  // Remove from source
+  draggedItem.remove();
+  draggedItem = null;
+
+  // Remove placeholder text
+  const zones = ['dropFollows','dropViolates'];
+  zones.forEach(z => {
+    const el = document.getElementById(z);
+    const placeholder = el.querySelector('.placeholder-text');
+    if (placeholder) placeholder.remove();
+  });
+}
+
+function checkDragDrop() {
+  const items = {
+    a: 'follows', b: 'violates', c: 'violates', d: 'follows', e: 'follows', f: 'violates'
+  };
+  // c: Blue cell with formula VIOLATES (blue = input only), d: Blue cell with value FOLLOWS (blue = input, so value is correct)
+  // Actually: Blue Border = input cells. So blue cell with =PMT() VIOLATES (formula in input cell). Blue cell with 5000 FOLLOWS (input value in input cell).
+  // Wait, re-reading: "Blue-bordered cells = user input only. Formula cells are separate." So:
+  // c: Blue cell: =PMT(...) → VIOLATES (formula in blue/input cell)
+  // d: Blue cell: 5000 → FOLLOWS (value in blue/input cell is correct)
+
+  let allCorrect = true;
+  let correctCount = 0;
+  const totalItems = Object.keys(items).length;
+
+  for (const [id, correctZone] of Object.entries(items)) {
+    if (droppedItems[id] === correctZone) correctCount++;
+    else allCorrect = false;
+  }
+
+  const fb = document.getElementById('m2feedback');
+  fb.classList.add('show');
+
+  if (correctCount === totalItems) {
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Perfect Data Hygiene!</strong><div class="feedback-explanation">You correctly identified all protocol violations and compliant practices. Remember: data cells = numbers only, blue borders = input values only, units go in label cells!</div>';
+    addScore(100, true);
+    missionsCompleted++;
+    updateProgress();
+    document.getElementById('m2next').style.display = 'inline-block';
+    document.getElementById('m2checkBtn').disabled = true;
+  } else if (correctCount >= 4) {
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<span class="feedback-icon">⚠️</span><strong>Good effort! ' + correctCount + '/' + totalItems + ' correct.</strong><div class="feedback-explanation">Key rules: (1) Data cells = numbers ONLY, no units mixed in. (2) Blue-bordered cells = user INPUT values only — never put formulas in blue cells. (3) Units like $, %, hrs belong in separate label cells.</div>';
+    addScore(60, true);
+    missionsCompleted++;
+    updateProgress();
+    document.getElementById('m2next').style.display = 'inline-block';
+    document.getElementById('m2checkBtn').disabled = true;
+  } else {
+    fb.className = 'feedback-box show incorrect-fb';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Only ' + correctCount + '/' + totalItems + ' correct. Review the protocols!</strong><div class="feedback-explanation">Remember: Unit Isolation = no units inside data cells (85% violates, 85 follows). Blue Border Constraint = blue cells are for INPUT VALUES only, not formulas.</div>';
+    addScore(0, false);
+  }
+}
+
+// ===== PMT SIMULATION =====
+function checkStep5(step) {
+  const input = document.getElementById('m5i' + step);
+  const fb = document.getElementById('m5f' + step);
+  const val = input.value.trim().replace(/\s/g,'');
+
+  const answers = {
+    1: ['0.005', '0.06/12', '6%/12', '.005'],
+    2: ['36', '3*12'],
+    3: ['-12000', '-12,000']
+  };
+
+  const isCorrect = answers[step].some(a => val.toLowerCase() === a.toLowerCase());
+  fb.classList.add('show');
+
+  const explanations = [
+    '',
+    'Monthly rate = Annual rate ÷ 12 = 6% ÷ 12 = 0.5% = 0.005. In Google Sheets: =B1/12',
+    'Total months = Years × 12 = 3 × 12 = 36 monthly payments. In Google Sheets: =B2*12',
+    'The pv (present value) must be NEGATIVE in PMT because it represents money you OWE (a liability). Enter -12000 or reference it as -B3.'
+  ];
+
+  if (isCorrect) {
+    input.classList.add('correct-input');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Correct!</strong> ' + explanations[step];
+    input.disabled = true;
+    document.querySelector('#m5s' + step + ' button').disabled = true;
+    document.getElementById('m5s' + step).classList.remove('active-step');
+    document.getElementById('m5s' + step).classList.add('done-step');
+    m5stepsCompleted++;
+    addScore(40, true);
+
+    if (m5stepsCompleted === 3) {
+      const mainFb = document.getElementById('m5feedback');
+      mainFb.className = 'feedback-box show correct-fb';
+      mainFb.innerHTML = '<span class="feedback-icon">🏦</span><strong>PMT Formula Complete!</strong><div class="feedback-explanation">Your complete formula: <code>=PMT(0.005, 36, -12000)</code> or using cell references: <code>=PMT(D1, D2, -B3)</code>. This calculates a monthly payment of approximately $365.06.</div>';
+      missionsCompleted++;
+      updateProgress();
+      document.getElementById('m5next').style.display = 'inline-block';
+      if (missionsCompleted >= 5) showBadge('🥈', 'Finance Pro!', 'You\'ve mastered the PMT function!');
+    } else if (step < 3) {
+      document.getElementById('m5s' + (step+1)).classList.add('active-step');
+    }
+  } else {
+    input.classList.add('incorrect-input');
+    fb.className = 'feedback-box show incorrect-fb';
+    const hints = ['', 'Hint: Divide the annual rate (0.06) by 12 months.', 'Hint: Multiply years (3) by 12 months per year.', 'Hint: The principal is $12,000 but must be entered as a NEGATIVE number.'];
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Not quite.</strong> ' + hints[step];
+    addScore(0, false);
+    setTimeout(() => {
+      input.classList.remove('incorrect-input');
+      fb.classList.remove('show');
+    }, 2000);
+  }
+}
+
+// ===== BRANCHING (Mission 7) =====
+function branchAnswer(mission, branchStep, correct) {
+  const container = document.getElementById('m7branch' + branchStep);
+  const btns = container.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const chosen = event.currentTarget;
+  const isCorrect = correct === 'A'; // 'A' means first option clicked is correct
+
+  // Determine which button was clicked
+  const allBtns = Array.from(btns);
+  const clickedIndex = allBtns.indexOf(chosen);
+
+  // Correct answers: branch1=option0(A), branch2=option0(A), branch3=option1(B)
+  const correctIndices = { 1: 0, 2: 0, 3: 1 };
+  const isActuallyCorrect = clickedIndex === correctIndices[branchStep];
+
+  allBtns.forEach((b, i) => {
+    if (i === correctIndices[branchStep]) b.classList.add('correct');
+    else if (i === clickedIndex && !isActuallyCorrect) b.classList.add('incorrect');
+  });
+
+  const fb = document.getElementById('m7f' + branchStep);
+  fb.classList.add('show');
+
+  const explanations = {
+    1: {
+      correct: 'Month 1 Interest = Balance × Monthly Rate = $12,000 × (6%/12) = $12,000 × 0.005 = $60.00. The monthly rate is always the annual rate divided by 12.',
+      incorrect: 'The correct calculation: $12,000 × (6% ÷ 12) = $12,000 × 0.005 = $60.00. You must convert the annual rate to monthly by dividing by 12.'
+    },
+    2: {
+      correct: 'After Month 1, you paid $305.06 in principal, reducing the balance to $11,694.94. Month 2 interest = $11,694.94 × 0.005 = $58.47. As the balance decreases, so does the interest — this is how amortization works!',
+      incorrect: 'The interest decreases because the BALANCE decreases. After each payment, part goes to principal (reducing what you owe), so the next month\'s interest is calculated on a smaller balance. Google Sheets doesn\'t do this automatically — your formulas must reference the previous balance.'
+    },
+    3: {
+      correct: '🎉 Zero-Balance Success State achieved! After 36 payments, the final balance is $0.00. This confirms your PMT calculation was correct and the amortization table is valid. The loan is fully paid off!',
+      incorrect: 'The zero-balance success state means the final balance must be exactly $0.00. If your amortization table doesn\'t end at $0, your PMT formula or table logic has an error.'
+    }
+  };
+
+  if (isActuallyCorrect) {
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Correct!</strong><div class="feedback-explanation">' + explanations[branchStep].correct + '</div>';
+    addScore(50, true);
+    m7correctCount++;
+
+    if (branchStep < 3) {
+      setTimeout(() => {
+        document.getElementById('m7branch' + (branchStep+1)).style.display = 'block';
+        document.getElementById('m7branch' + (branchStep+1)).scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 1200);
+    } else {
+      // Final branch complete
+      document.getElementById('finalBalance').textContent = '$0.00';
+      document.getElementById('finalBalance').style.color = '#1E7A3E';
+      document.getElementById('finalBalance').style.fontWeight = '700';
+      missionsCompleted++;
+      updateProgress();
+      const mainFb = document.getElementById('m7feedback');
+      mainFb.className = 'feedback-box show correct-fb';
+      mainFb.innerHTML = '<span class="feedback-icon">🏆</span><strong>Amortization Audit Complete!</strong><div class="feedback-explanation">You\'ve successfully validated the entire amortization table. The loan reaches $0.00 in Month 36 — zero-balance success state confirmed! You are now a certified Financial Architecture professional.</div>';
+      document.getElementById('m7next').style.display = 'inline-block';
+    }
+  } else {
+    fb.className = 'feedback-box show incorrect-fb';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Review your amortization logic!</strong><div class="feedback-explanation">' + explanations[branchStep].incorrect + '</div>';
+    addScore(0, false);
+    setTimeout(() => {
+      allBtns.forEach(b => { b.disabled = false; b.classList.remove('correct','incorrect'); });
+      fb.classList.remove('show');
+    }, 2500);
+  }
+}
+
+// ===== COMPLETION =====
+function showCompletion() {
+  for (let i = 1; i <= 7; i++) {
+    const el = document.getElementById('mission' + i);
+    if (el) el.classList.remove('active');
+  }
+  const cc = document.getElementById('completionCard');
+  cc.style.display = 'block';
+  cc.classList.add('active');
+  document.getElementById('completionScreen').classList.add('show');
+
+  document.getElementById('finalScore').textContent = score;
+  const accuracy = totalAttempts > 0 ? Math.round((correctAnswers / totalAttempts) * 100) : 0;
+  document.getElementById('finalAccuracy').textContent = accuracy + '% accuracy · ' + maxStreak + ' max streak';
+
+  let finalRank = RANKS[0];
+  for (const r of RANKS) { if (score >= r.minScore) finalRank = r; }
+  document.getElementById('finalRank').textContent = finalRank.icon + ' ' + finalRank.name;
+
+  updateProgress();
+  launchConfetti();
+  setTimeout(() => showBadge('🎓', 'Masterclass Complete!', 'Domain 3.1 & 4.2 Certified!'), 1500);
+  cc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function restartActivity() {
+  score = 0; streak = 0; maxStreak = 0;
+  missionsCompleted = 0; correctAnswers = 0; totalAttempts = 0;
+  m5stepsCompleted = 0; m7branchStep = 1; m7correctCount = 0;
+  droppedItems = {};
+  updateScoreDisplay();
+  updateProgress();
+  document.getElementById('rankName').textContent = 'Trainee';
+  document.getElementById('rankBadge').textContent = '⭐ Trainee';
+  document.getElementById('completionCard').style.display = 'none';
+  document.getElementById('completionCard').classList.remove('active');
+  document.getElementById('completionScreen').classList.remove('show');
+  document.getElementById('introScreen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===== CONFETTI =====
+function launchConfetti() {
+  const container = document.getElementById('confettiContainer');
+  container.innerHTML = '';
+  const colors = ['#1B5EAF','#1E7A3E','#F5C518','#e74c3c','#9b59b6','#3498db','#2ecc71'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.top = '-20px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.width = (6 + Math.random() * 8) + 'px';
+    piece.style.height = (6 + Math.random() * 8) + 'px';
+    piece.style.animationDuration = (2 + Math.random() * 3) + 's';
+    piece.style.animationDelay = Math.random() * 1.5 + 's';
+    container.appendChild(piece);
+  }
+  setTimeout(() => { container.innerHTML = ''; }, 6000);
+}
+
+// ===== STREAK POPUP =====
+function showStreakPopup(count) {
+  const popup = document.getElementById('streakPopup');
+  const msgs = { 3: '🔥 3 in a Row!', 4: '⚡ 4 Streak!', 5: '💥 5 Streak! On Fire!', 6: '🌟 6 Streak! Unstoppable!', 7: '🏆 PERFECT STREAK!' };
+  const msg = msgs[count] || (count + ' Streak! 🔥');
+  popup.textContent = msg;
+  popup.style.display = 'block';
+  document.getElementById('overlay').classList.add('show');
+  setTimeout(() => {
+    popup.style.display = 'none';
+    document.getElementById('overlay').classList.remove('show');
+  }, 1800);
+}
+
+// ===== BADGE POPUP =====
+function showBadge(icon, title, sub) {
+  document.getElementById('badgeIcon').textContent = icon;
+  document.getElementById('badgeTitle').textContent = title;
+  document.getElementById('badgeSub').textContent = sub;
+  document.getElementById('badgePopup').style.display = 'block';
+  document.getElementById('overlay').classList.add('show');
+}
+
+function closeBadge() {
+  document.getElementById('badgePopup').style.display = 'none';
+  document.getElementById('overlay').classList.remove('show');
+}
+
+// Close overlay on click
+document.getElementById('overlay').addEventListener('click', () => {
+  document.getElementById('badgePopup').style.display = 'none';
+  document.getElementById('streakPopup').style.display = 'none';
+  document.getElementById('overlay').classList.remove('show');
+});
+
+// Touch support for drag and drop
+document.addEventListener('touchstart', function(e) {
+  const target = e.target.closest('.drag-item');
+  if (target) {
+    draggedItem = target;
+    target.classList.add('dragging');
+  }
+}, { passive: true });
+
+document.addEventListener('touchend', function(e) {
+  if (!draggedItem) return;
+  const touch = e.changedTouches[0];
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const dropZone = el ? el.closest('.drop-zone') : null;
+  if (dropZone) {
+    const zone = dropZone.id === 'dropFollows' ? 'follows' : 'violates';
+    const id = draggedItem.dataset.id;
+    droppedItems[id] = zone;
+    const clone = draggedItem.cloneNode(true);
+    clone.style.cursor = 'default';
+    clone.draggable = false;
+    dropZone.appendChild(clone);
+    draggedItem.remove();
+  }
+  draggedItem = null;
+}, { passive: true });
+</script>
+</body>
+</html>
