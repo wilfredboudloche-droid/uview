@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA Masterclass: Data Visualization & Financial Architecture</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #134080;
+    --uva-blue-light: #2a7fd4;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #28a052;
+    --gold: #F5C518;
+    --gold-dark: #d4a800;
+    --white: #ffffff;
+    --light-bg: #f0f4fb;
+    --card-bg: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #3a3a5c;
+    --border: #c8d8f0;
+    --success: #1E7A3E;
+    --error: #c0392b;
+    --streak-orange: #e67e22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0d2b5e 0%, #1B5EAF 50%, #1E7A3E 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+  }
+
+  /* RIBBON BANNER */
+  .ribbon-banner {
+    background: linear-gradient(90deg, var(--uva-blue-dark), var(--uva-blue), var(--uva-green));
+    color: white;
+    text-align: center;
+    padding: 8px 20px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 3px solid var(--gold);
+  }
+
+  /* HEADER */
+  .header {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(255,255,255,0.15);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .uva-crest {
+    width: 52px; height: 52px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 0 3px white, 0 0 0 5px var(--gold);
+    flex-shrink: 0;
+  }
+  .header-title { color: white; }
+  .header-title h1 { font-size: 17px; font-weight: 800; line-height: 1.2; }
+  .header-title p { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .rank-badge {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #1a1a00;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 13px;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .score-display {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 13px;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .streak-display {
+    background: linear-gradient(135deg, var(--streak-orange), #e74c3c);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 13px;
+    display: none;
+    animation: pulse 1s infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+  /* PROGRESS BAR */
+  .progress-container {
+    background: rgba(255,255,255,0.1);
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .progress-label { color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .progress-bar-outer {
+    flex: 1; height: 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px; overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--uva-green-light));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .mission-counter { color: rgba(255,255,255,0.8); font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: none;
+  }
+  .mission-card.active { display: block; animation: slideIn 0.4s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .mission-header {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-dark));
+    color: white;
+    padding: 18px 24px;
+    display: flex; align-items: flex-start; gap: 14px;
+  }
+  .mission-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0;
+  }
+  .mission-meta { flex: 1; }
+  .mission-tag {
+    background: var(--gold);
+    color: #1a1a00;
+    font-size: 10px; font-weight: 800;
+    padding: 2px 8px; border-radius: 10px;
+    text-transform: uppercase; letter-spacing: 1px;
+    display: inline-block; margin-bottom: 6px;
+  }
+  .mission-title { font-size: 18px; font-weight: 800; line-height: 1.3; }
+  .mission-subtitle { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+
+  .mission-body { padding: 24px; }
+  .mission-intro {
+    background: var(--light-bg);
+    border-left: 4px solid var(--uva-blue);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: var(--text-mid);
+    line-height: 1.6;
+  }
+  .mission-intro strong { color: var(--uva-blue); }
+
+  /* DRAG AND DROP */
+  .dnd-container { display: flex; gap: 20px; flex-wrap: wrap; }
+  .dnd-column { flex: 1; min-width: 200px; }
+  .dnd-column h4 {
+    font-size: 12px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--uva-blue);
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 2px solid var(--uva-blue);
+  }
+  .drop-zone {
+    min-height: 52px;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 8px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    background: #fafcff;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .drop-zone.drag-over { border-color: var(--uva-blue); background: #e8f0fb; }
+  .drop-zone.correct { border-color: var(--success); background: #e8f8ee; border-style: solid; }
+  .drop-zone.incorrect { border-color: var(--error); background: #fdecea; border-style: solid; }
+  .drop-zone-label {
+    font-size: 12px; color: #888; font-style: italic;
+    pointer-events: none;
+  }
+  .drag-item {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    cursor: grab;
+    margin-bottom: 8px;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 6px rgba(27,94,175,0.3);
+  }
+  .drag-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(27,94,175,0.4); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drag-item.placed { background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light)); }
+
+  /* MULTIPLE CHOICE */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dark);
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--uva-blue); background: #f0f6ff; transform: translateX(4px); }
+  .choice-btn.correct { border-color: var(--success); background: #e8f8ee; color: var(--success); }
+  .choice-btn.incorrect { border-color: var(--error); background: #fdecea; color: var(--error); }
+  .choice-btn:disabled { cursor: default; }
+  .choice-letter {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--light-bg);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; flex-shrink: 0;
+    color: var(--uva-blue);
+  }
+  .choice-btn.correct .choice-letter { background: var(--success); color: white; }
+  .choice-btn.incorrect .choice-letter { background: var(--error); color: white; }
+
+  /* FORMULA BUILDER */
+  .formula-display {
+    background: #1e1e2e;
+    color: #a8ff78;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    padding: 16px 20px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    min-height: 52px;
+    display: flex; align-items: center; gap: 4px;
+    flex-wrap: wrap;
+    border: 2px solid #333;
+  }
+  .formula-part { color: #78c1ff; }
+  .formula-blank {
+    display: inline-block;
+    min-width: 80px; height: 28px;
+    border-bottom: 2px solid #a8ff78;
+    color: #ffeb78;
+    text-align: center;
+    padding: 0 8px;
+    cursor: pointer;
+  }
+  .formula-tokens { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+  .token-btn {
+    background: var(--uva-blue);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px; font-weight: 700;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s;
+  }
+  .token-btn:hover { background: var(--uva-blue-dark); transform: translateY(-2px); }
+  .token-btn.used { background: #ccc; cursor: default; transform: none; }
+
+  /* SIMULATION */
+  .sim-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px; margin-bottom: 16px;
+  }
+  .sim-table th {
+    background: var(--uva-blue);
+    color: white;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .sim-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .sim-table tr:nth-child(even) td { background: #f8faff; }
+  .sim-input {
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 13px;
+    width: 120px;
+    font-family: 'Courier New', monospace;
+    transition: border-color 0.2s;
+  }
+  .sim-input:focus { outline: none; border-color: var(--uva-blue); }
+  .sim-input.correct { border-color: var(--success); background: #e8f8ee; }
+  .sim-input.incorrect { border-color: var(--error); background: #fdecea; }
+  .cell-ref {
+    background: #e8f0fb;
+    color: var(--uva-blue);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .blue-border-cell {
+    border: 3px solid var(--uva-blue) !important;
+    background: #e8f0fb !important;
+  }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    display: none;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+  }
+  .feedback-box.show { display: flex; animation: fadeIn 0.3s ease; }
+  .feedback-box.correct-fb { background: #e8f8ee; border: 2px solid var(--success); color: var(--success); }
+  .feedback-box.incorrect-fb { background: #fdecea; border: 2px solid var(--error); color: var(--error); }
+  .feedback-icon { font-size: 20px; flex-shrink: 0; }
+  .feedback-text { flex: 1; }
+  .feedback-text .explanation { font-weight: 400; color: var(--text-mid); margin-top: 4px; font-size: 13px; }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+
+  /* BUTTONS */
+  .btn {
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px; font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-dark));
+    color: white;
+    box-shadow: 0 4px 12px rgba(27,94,175,0.4);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(27,94,175,0.5); }
+  .btn-success {
+    background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light));
+    color: white;
+    box-shadow: 0 4px 12px rgba(30,122,62,0.4);
+  }
+  .btn-success:hover { transform: translateY(-2px); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #1a1a00;
+    box-shadow: 0 4px 12px rgba(245,197,24,0.4);
+  }
+  .btn:disabled { opacity: 0.5; cursor: default; transform: none !important; }
+  .btn-row { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+
+  /* COMPLETION SCREEN */
+  #completion-screen {
+    display: none;
+    background: white;
+    border-radius: 16px;
+    padding: 40px 32px;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  }
+  .completion-badge {
+    width: 100px; height: 100px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 0 6px rgba(245,197,24,0.3), 0 8px 24px rgba(0,0,0,0.2);
+    animation: badgePop 0.6s cubic-bezier(0.175,0.885,0.32,1.275);
+  }
+  @keyframes badgePop { from{transform:scale(0) rotate(-180deg)} to{transform:scale(1) rotate(0)} }
+  .completion-title { font-size: 28px; font-weight: 900; color: var(--uva-blue); margin-bottom: 8px; }
+  .completion-subtitle { font-size: 15px; color: var(--text-mid); margin-bottom: 24px; }
+  .score-grid { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+  .score-card {
+    background: var(--light-bg);
+    border-radius: 12px;
+    padding: 16px 24px;
+    min-width: 120px;
+  }
+  .score-card .val { font-size: 28px; font-weight: 900; color: var(--uva-blue); }
+  .score-card .lbl { font-size: 12px; color: #888; margin-top: 4px; }
+  .cert-banner {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-green));
+    color: white;
+    border-radius: 12px;
+    padding: 16px 24px;
+    margin-bottom: 24px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .cert-banner strong { font-size: 15px; display: block; margin-bottom: 4px; }
+
+  /* CONFETTI */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+    z-index: 9999;
+    border-radius: 2px;
+  }
+  @keyframes confettiFall {
+    to { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* STREAK POPUP */
+  .streak-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--streak-orange), #e74c3c);
+    color: white;
+    padding: 20px 36px;
+    border-radius: 20px;
+    font-size: 22px;
+    font-weight: 900;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    transition: transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+    pointer-events: none;
+  }
+  .streak-popup.show { transform: translate(-50%, -50%) scale(1); }
+
+  /* INTRO SCREEN */
+  #intro-screen {
+    background: white;
+    border-radius: 16px;
+    padding: 36px 32px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+  }
+  .intro-logo {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-green));
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 16px rgba(27,94,175,0.4);
+  }
+  .intro-title { font-size: 24px; font-weight: 900; color: var(--uva-blue); margin-bottom: 8px; }
+  .intro-subtitle { font-size: 14px; color: var(--text-mid); margin-bottom: 24px; line-height: 1.6; }
+  .mission-list {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin-bottom: 28px; text-align: left;
+  }
+  .mission-preview {
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border-left: 4px solid var(--uva-blue);
+    font-size: 13px;
+  }
+  .mission-preview .mp-num { font-weight: 800; color: var(--uva-blue); font-size: 11px; text-transform: uppercase; }
+  .mission-preview .mp-name { font-weight: 600; color: var(--text-dark); margin-top: 2px; }
+  .domain-tag {
+    background: var(--light-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text-mid);
+    margin-bottom: 24px;
+    display: inline-block;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header { padding: 12px 16px; }
+    .mission-body { padding: 16px; }
+    .dnd-container { flex-direction: column; }
+    .sim-input { width: 100px; }
+  }
+
+  /* TOOLTIP */
+  .tip {
+    display: inline-block;
+    background: var(--uva-blue);
+    color: white;
+    border-radius: 50%;
+    width: 18px; height: 18px;
+    font-size: 11px; font-weight: 800;
+    text-align: center; line-height: 18px;
+    cursor: help;
+    margin-left: 4px;
+    position: relative;
+  }
+  .tip:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 24px; left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a2e;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    z-index: 100;
+    max-width: 220px;
+    white-space: normal;
+    width: 200px;
+    text-align: left;
+  }
+
+  .section-divider {
+    border: none;
+    border-top: 2px dashed var(--border);
+    margin: 20px 0;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, #fff8e1, #fff3cd);
+    border: 2px solid var(--gold);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    color: #5a4000;
+  }
+  .highlight-box strong { color: #3a2800; }
+</style>
+</head>
+<body>
+
+<div class="ribbon-banner">✦ Virtue · Vigor · Vision ✦ University View Academy ✦ Virtue · Vigor · Vision ✦</div>
+
+<div class="header">
+  <div class="header-left">
+    <div class="uva-crest">🎓</div>
+    <div class="header-title">
+      <h1>The Professional's Masterclass</h1>
+      <p>Data Visualization & Financial Architecture · Domain 3.1 & 4.2</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="streak-display" id="streak-display">🔥 <span id="streak-count">0</span> Streak!</div>
+    <div class="score-display">⭐ <span id="score-val">0</span> pts</div>
+    <div class="rank-badge">🏅 <span id="rank-label">Trainee</span></div>
+  </div>
+</div>
+
+<div class="progress-container">
+  <span class="progress-label">Mission Progress</span>
+  <div class="progress-bar-outer">
+    <div class="progress-bar-inner" id="progress-bar"></div>
+  </div>
+  <span class="mission-counter" id="mission-counter">0 / 5 Missions</span>
+</div>
+
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen">
+    <div class="intro-logo">📊</div>
+    <div class="intro-title">Welcome, UVA Analyst Recruit!</div>
+    <div class="intro-subtitle">
+      You've been selected for the <strong>UVA Financial Intelligence Corps</strong>.<br>
+      Complete 5 classified missions to earn your <strong>Data & Finance Certification</strong>.<br>
+      Each mission tests real skills from the <em>Business Technology & Financial Literacy Certification</em>.
+    </div>
+    <div class="domain-tag">📋 Exam Connection: Business Technology & Financial Literacy Certification — Domain 3.1 & 4.2</div>
+    <div class="mission-list">
+      <div class="mission-preview"><div class="mp-num">Mission 01</div><div class="mp-name">Scientist's Logic: Variables</div></div>
+      <div class="mission-preview"><div class="mp-num">Mission 02</div><div class="mp-name">Data Hygiene Protocols</div></div>
+      <div class="mission-preview"><div class="mp-num">Mission 03</div><div class="mp-name">Windfall Budget Architecture</div></div>
+      <div class="mission-preview"><div class="mp-num">Mission 04</div><div class="mp-name">PMT Function Mastery</div></div>
+      <div class="mission-preview"><div class="mp-num">Mission 05</div><div class="mp-name">Zero-Balance Validation</div></div>
+    </div>
+    <div style="margin-bottom:16px;font-size:13px;color:var(--text-mid);">
+      🏅 Rank up as you score: <strong>Trainee → Apprentice → Expert → Master</strong>
+    </div>
+    <button class="btn btn-primary" onclick="startGame()" style="font-size:16px;padding:14px 36px;">
+      🚀 Begin Missions
+    </button>
+  </div>
+
+  <!-- MISSION 1: Drag & Drop Variables -->
+  <div class="mission-card" id="mission-1">
+    <div class="mission-header">
+      <div class="mission-icon">🔬</div>
+      <div class="mission-meta">
+        <span class="mission-tag">Mission 01 · Scientist's Logic</span>
+        <div class="mission-title">Map the Variables: Independent vs. Dependent</div>
+        <div class="mission-subtitle">Apply the Scientist's Logic to correctly classify chart variables in Google Sheets</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🧪 Briefing:</strong> In Google Sheets, when building a chart, you must apply <strong>Scientist's Logic</strong>: the <em>Independent Variable</em> (what you control/input — goes on the X-axis) and the <em>Dependent Variable</em> (what changes as a result — goes on the Y-axis). Drag each data label to its correct column.
+      </div>
+      <div class="highlight-box">
+        <strong>📌 Rule:</strong> Independent Variable = X-Axis (cause/input) · Dependent Variable = Y-Axis (effect/output)
+      </div>
+
+      <div class="dnd-container">
+        <div class="dnd-column">
+          <h4>📦 Data Labels (Drag These)</h4>
+          <div id="drag-bank">
+            <div class="drag-item" draggable="true" data-id="months" ondragstart="dragStart(event)">📅 Months (1–12)</div>
+            <div class="drag-item" draggable="true" data-id="sales" ondragstart="dragStart(event)">💰 Monthly Sales Revenue</div>
+            <div class="drag-item" draggable="true" data-id="temp" ondragstart="dragStart(event)">🌡️ Temperature (°F)</div>
+            <div class="drag-item" draggable="true" data-id="icecream" ondragstart="dragStart(event)">🍦 Ice Cream Units Sold</div>
+            <div class="drag-item" draggable="true" data-id="adspend" ondragstart="dragStart(event)">📣 Ad Spend ($)</div>
+            <div class="drag-item" draggable="true" data-id="clicks" ondragstart="dragStart(event)">🖱️ Website Clicks</div>
+          </div>
+        </div>
+        <div class="dnd-column">
+          <h4>📊 X-Axis (Independent Variable)</h4>
+          <div class="drop-zone" id="drop-x-1" data-accepts="months" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+            <span class="drop-zone-label">Chart 1: Time Series</span>
+          </div>
+          <div class="drop-zone" id="drop-x-2" data-accepts="temp" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+            <span class="drop-zone-label">Chart 2: Weather Study</span>
+          </div>
+          <div class="drop-zone" id="drop-x-3" data-accepts="adspend" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+            <span class="drop-zone-label">Chart 3: Marketing ROI</span>
+          </div>
+        </div>
+        <div class="dnd-column">
+          <h4>📈 Y-Axis (Dependent Variable)</h4>
+          <div class="drop-zone" id="drop-y-1" data-accepts="sales" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+            <span class="drop-zone-label">Chart 1: Time Series</span>
+          </div>
+          <div class="drop-zone" id="drop-y-2" data-accepts="icecream" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+            <span class="drop-zone-label">Chart 2: Weather Study</span>
+          </div>
+          <div class="drop-zone" id="drop-y-3" data-accepts="clicks" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+            <span class="drop-zone-label">Chart 3: Marketing ROI</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="feedback-box" id="fb-1"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="check-1" onclick="checkMission1()" disabled>✅ Check My Mapping</button>
+        <button class="btn btn-success" id="next-1" onclick="goToMission(2)" style="display:none">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 2: Data Hygiene Protocols (Multiple Choice) -->
+  <div class="mission-card" id="mission-2">
+    <div class="mission-header">
+      <div class="mission-icon">🧹</div>
+      <div class="mission-meta">
+        <span class="mission-tag">Mission 02 · Data Hygiene</span>
+        <div class="mission-title">Enforce the Data Hygiene Protocols</div>
+        <div class="mission-subtitle">Master unit isolation and the Blue Border Constraint in Google Sheets</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🛡️ Briefing:</strong> UVA analysts follow strict <strong>Data Hygiene Protocols</strong>. Two critical rules: (1) <em>Unit Isolation</em> — keep units (like "$" or "%") in a label cell, NOT inside the data cell. (2) <em>Blue Border Constraint</em> — input cells are outlined in blue to separate them from formula cells. Answer each scenario correctly.
+      </div>
+
+      <div id="m2-questions">
+        <div id="m2-q1">
+          <p style="font-weight:700;margin-bottom:12px;font-size:15px;">
+            Scenario 1 of 3 — <span style="color:var(--uva-blue)">Unit Isolation</span>
+          </p>
+          <p style="margin-bottom:14px;font-size:14px;color:var(--text-mid);">
+            A student types <code style="background:#f0f4fb;padding:2px 6px;border-radius:4px;">$45,000</code> directly into cell <span class="cell-ref">B2</span> as their annual salary input. What is the <strong>correct</strong> data hygiene approach?
+          </p>
+          <div class="choices" id="choices-m2-q1">
+            <button class="choice-btn" onclick="answerM2(0, false, 'm2-q1')" data-idx="0">
+              <span class="choice-letter">A</span> Keep it as-is — the dollar sign helps readers understand the value
+            </button>
+            <button class="choice-btn" onclick="answerM2(1, true, 'm2-q1')" data-idx="1">
+              <span class="choice-letter">B</span> Put <code>45000</code> in B2 (pure number) and label cell A2 as "Annual Salary ($)"
+            </button>
+            <button class="choice-btn" onclick="answerM2(2, false, 'm2-q1')" data-idx="2">
+              <span class="choice-letter">C</span> Use a formula like <code>=TEXT(45000,"$#,##0")</code> in B2
+            </button>
+            <button class="choice-btn" onclick="answerM2(3, false, 'm2-q1')" data-idx="3">
+              <span class="choice-letter">D</span> It doesn't matter — Google Sheets handles currency automatically
+            </button>
+          </div>
+          <div class="feedback-box" id="fb-m2-q1"></div>
+        </div>
+
+        <div id="m2-q2" style="display:none">
+          <hr class="section-divider">
+          <p style="font-weight:700;margin-bottom:12px;font-size:15px;">
+            Scenario 2 of 3 — <span style="color:var(--uva-blue)">Blue Border Constraint</span>
+          </p>
+          <p style="margin-bottom:14px;font-size:14px;color:var(--text-mid);">
+            In a financial model, which cells should receive the <strong>Blue Border</strong> formatting?
+          </p>
+          <div class="choices" id="choices-m2-q2">
+            <button class="choice-btn" onclick="answerM2(0, false, 'm2-q2')" data-idx="0">
+              <span class="choice-letter">A</span> All cells that contain any data or formulas
+            </button>
+            <button class="choice-btn" onclick="answerM2(1, false, 'm2-q2')" data-idx="1">
+              <span class="choice-letter">B</span> Only cells with SUM or PMT formulas
+            </button>
+            <button class="choice-btn" onclick="answerM2(2, true, 'm2-q2')" data-idx="2">
+              <span class="choice-letter">C</span> Only <em>input/assumption cells</em> where a user manually enters values — to visually separate them from formula-driven cells
+            </button>
+            <button class="choice-btn" onclick="answerM2(3, false, 'm2-q2')" data-idx="3">
+              <span class="choice-letter">D</span> Header row cells only, to make the table look professional
+            </button>
+          </div>
+          <div class="feedback-box" id="fb-m2-q2"></div>
+        </div>
+
+        <div id="m2-q3" style="display:none">
+          <hr class="section-divider">
+          <p style="font-weight:700;margin-bottom:12px;font-size:15px;">
+            Scenario 3 of 3 — <span style="color:var(--uva-blue)">Protocol Identification</span>
+          </p>
+          <p style="margin-bottom:14px;font-size:14px;color:var(--text-mid);">
+            A colleague's spreadsheet has interest rate stored as <code>5%</code> in cell <span class="cell-ref">C4</span>, and the PMT formula references <code>C4/12</code> for monthly rate. What data hygiene issue exists?
+          </p>
+          <div class="choices" id="choices-m2-q3">
+            <button class="choice-btn" onclick="answerM2(0, false, 'm2-q3')" data-idx="0">
+              <span class="choice-letter">A</span> No issue — this is correct practice
+            </button>
+            <button class="choice-btn" onclick="answerM2(1, true, 'm2-q3')" data-idx="1">
+              <span class="choice-letter">B</span> The "%" symbol in the cell mixes unit with data; store <code>0.05</code> as a decimal and label the column "Annual Rate (%)"
+            </button>
+            <button class="choice-btn" onclick="answerM2(2, false, 'm2-q3')" data-idx="2">
+              <span class="choice-letter">C</span> The /12 division should be done in a separate cell, not inside the formula
+            </button>
+            <button class="choice-btn" onclick="answerM2(3, false, 'm2-q3')" data-idx="3">
+              <span class="choice-letter">D</span> PMT cannot accept percentage values at all
+            </button>
+          </div>
+          <div class="feedback-box" id="fb-m2-q3"></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-success" id="next-2" onclick="goToMission(3)" style="display:none">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 3: Windfall Budget (Drag & Drop / Allocation) -->
+  <div class="mission-card" id="mission-3">
+    <div class="mission-header">
+      <div class="mission-icon">💼</div>
+      <div class="mission-meta">
+        <span class="mission-tag">Mission 03 · Financial Architecture</span>
+        <div class="mission-title">Construct the Windfall Budget: The 5/50 Rule</div>
+        <div class="mission-subtitle">Apply mathematical regulatory constraints to build a diversified windfall budget</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>💰 Briefing:</strong> You've received a <strong>$100,000 windfall</strong>. The <em>5/50 Rule</em> governs diversified budgeting: <strong>no single category exceeds 50%</strong> of total funds, and <strong>each category must receive at least 5%</strong>. Classify each proposed budget as VALID ✅ or VIOLATION ❌.
+      </div>
+      <div class="highlight-box">
+        <strong>📐 5/50 Rule:</strong> Every category: min 5% ($5,000) · max 50% ($50,000) · All categories must sum to exactly 100% ($100,000)
+      </div>
+
+      <div id="m3-scenarios">
+        <div id="m3-s1">
+          <p style="font-weight:700;margin-bottom:12px;font-size:15px;">Budget Proposal 1 of 3</p>
+          <table class="sim-table" style="margin-bottom:16px;">
+            <thead><tr><th>Category</th><th>Amount</th><th>% of Total</th></tr></thead>
+            <tbody>
+              <tr><td>🏠 Emergency Fund</td><td>$50,000</td><td>50%</td></tr>
+              <tr><td>📈 Investments</td><td>$30,000</td><td>30%</td></tr>
+              <tr><td>🎓 Education</td><td>$15,000</td><td>15%</td></tr>
+              <tr><td>🎉 Personal Enjoyment</td><td>$5,000</td><td>5%</td></tr>
+              <tr style="font-weight:700;background:#f0f4fb"><td>TOTAL</td><td>$100,000</td><td>100%</td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-success" onclick="answerM3(true, 'm3-s1', true)">✅ VALID — Follows 5/50 Rule</button>
+            <button class="btn" style="background:#e74c3c;color:white;" onclick="answerM3(false, 'm3-s1', true)">❌ VIOLATION — Breaks the Rule</button>
+          </div>
+          <div class="feedback-box" id="fb-m3-s1"></div>
+        </div>
+
+        <div id="m3-s2" style="display:none">
+          <hr class="section-divider">
+          <p style="font-weight:700;margin-bottom:12px;font-size:15px;">Budget Proposal 2 of 3</p>
+          <table class="sim-table" style="margin-bottom:16px;">
+            <thead><tr><th>Category</th><th>Amount</th><th>% of Total</th></tr></thead>
+            <tbody>
+              <tr><td>🏠 Emergency Fund</td><td>$60,000</td><td>60%</td></tr>
+              <tr><td>📈 Investments</td><td>$25,000</td><td>25%</td></tr>
+              <tr><td>🎓 Education</td><td>$10,000</td><td>10%</td></tr>
+              <tr><td>🎉 Personal Enjoyment</td><td>$5,000</td><td>5%</td></tr>
+              <tr style="font-weight:700;background:#f0f4fb"><td>TOTAL</td><td>$100,000</td><td>100%</td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-success" onclick="answerM3(false, 'm3-s2', false)">✅ VALID — Follows 5/50 Rule</button>
+            <button class="btn" style="background:#e74c3c;color:white;" onclick="answerM3(true, 'm3-s2', false)">❌ VIOLATION — Breaks the Rule</button>
+          </div>
+          <div class="feedback-box" id="fb-m3-s2"></div>
+        </div>
+
+        <div id="m3-s3" style="display:none">
+          <hr class="section-divider">
+          <p style="font-weight:700;margin-bottom:12px;font-size:15px;">Budget Proposal 3 of 3</p>
+          <table class="sim-table" style="margin-bottom:16px;">
+            <thead><tr><th>Category</th><th>Amount</th><th>% of Total</th></tr></thead>
+            <tbody>
+              <tr><td>🏠 Emergency Fund</td><td>$40,000</td><td>40%</td></tr>
+              <tr><td>📈 Investments</td><td>$40,000</td><td>40%</td></tr>
+              <tr><td>🎓 Education</td><td>$18,000</td><td>18%</td></tr>
+              <tr><td>🎉 Personal Enjoyment</td><td>$2,000</td><td>2%</td></tr>
+              <tr style="font-weight:700;background:#f0f4fb"><td>TOTAL</td><td>$100,000</td><td>100%</td></tr>
+            </tbody>
+          </table>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="btn btn-success" onclick="answerM3(false, 'm3-s3', false)">✅ VALID — Follows 5/50 Rule</button>
+            <button class="btn" style="background:#e74c3c;color:white;" onclick="answerM3(true, 'm3-s3', false)">❌ VIOLATION — Breaks the Rule</button>
+          </div>
+          <div class="feedback-box" id="fb-m3-s3"></div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-success" id="next-3" onclick="goToMission(4)" style="display:none">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 4: PMT Formula Builder -->
+  <div class="mission-card" id="mission-4">
+    <div class="mission-header">
+      <div class="mission-icon">🧮</div>
+      <div class="mission-meta">
+        <span class="mission-tag">Mission 04 · PMT Function</span>
+        <div class="mission-title">Build the PMT Formula: Loan Payment Calculator</div>
+        <div class="mission-subtitle">Calculate fixed monthly payments using correct PMT syntax and negative principal values</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🏦 Briefing:</strong> You're financing a <strong>$25,000 car loan</strong> at <strong>6% annual interest</strong> over <strong>5 years (60 months)</strong>. Build the correct PMT formula in Google Sheets. Remember: <em>principal must be negative</em> (money leaving your account), and the annual rate must be divided by 12 for monthly payments.
+      </div>
+
+      <div class="highlight-box">
+        <strong>📐 PMT Syntax:</strong> <code>=PMT(rate, nper, pv)</code> — rate = monthly rate · nper = total months · pv = present value (negative!)
+      </div>
+
+      <p style="font-weight:700;margin-bottom:10px;font-size:14px;">🔧 Build the formula by clicking the correct tokens in order:</p>
+      <div class="formula-display" id="formula-display">
+        <span style="color:#888;font-style:italic;">Click tokens below to build your formula...</span>
+      </div>
+      <div class="formula-tokens" id="formula-tokens">
+        <button class="token-btn" onclick="addToken(this, '=PMT(')">=PMT(</button>
+        <button class="token-btn" onclick="addToken(this, '6%/12')">6%/12</button>
+        <button class="token-btn" onclick="addToken(this, '0.06/12')">0.06/12</button>
+        <button class="token-btn" onclick="addToken(this, '60')">60</button>
+        <button class="token-btn" onclick="addToken(this, '5')">5</button>
+        <button class="token-btn" onclick="addToken(this, '-25000')">-25000</button>
+        <button class="token-btn" onclick="addToken(this, '25000')">25000</button>
+        <button class="token-btn" onclick="addToken(this, ',')">  ,  </button>
+        <button class="token-btn" onclick="addToken(this, ')')">  )  </button>
+        <button class="token-btn" onclick="addToken(this, '12')">12</button>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="checkPMT()">✅ Validate Formula</button>
+        <button class="btn" style="background:#888;color:white;" onclick="resetPMT()">🔄 Reset</button>
+      </div>
+
+      <div class="feedback-box" id="fb-4"></div>
+
+      <div id="pmt-followup" style="display:none">
+        <hr class="section-divider">
+        <p style="font-weight:700;margin-bottom:12px;font-size:15px;">🎯 Bonus Question: Why Negative Principal?</p>
+        <p style="margin-bottom:14px;font-size:14px;color:var(--text-mid);">
+          In the PMT function, why must the <code>pv</code> (present value / loan amount) be entered as a <strong>negative number</strong>?
+        </p>
+        <div class="choices" id="choices-pmt-bonus">
+          <button class="choice-btn" onclick="answerPMTBonus(0, false)">
+            <span class="choice-letter">A</span> It's a Google Sheets bug — it should accept positive values
+          </button>
+          <button class="choice-btn" onclick="answerPMTBonus(1, true)">
+            <span class="choice-letter">B</span> It represents cash flow direction — money borrowed is an inflow (+), so payments out are shown as positive; entering pv as negative makes the PMT result positive (money you pay)
+          </button>
+          <button class="choice-btn" onclick="answerPMTBonus(2, false)">
+            <span class="choice-letter">C</span> Negative values tell Sheets to use monthly instead of annual calculations
+          </button>
+          <button class="choice-btn" onclick="answerPMTBonus(3, false)">
+            <span class="choice-letter">D</span> It prevents the formula from returning an error when interest is above 5%
+          </button>
+        </div>
+        <div class="feedback-box" id="fb-4b"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-success" id="next-4" onclick="goToMission(5)" style="display:none">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 5: Amortization / Zero Balance Simulation -->
+  <div class="mission-card" id="mission-5">
+    <div class="mission-header">
+      <div class="mission-icon">📋</div>
+      <div class="mission-meta">
+        <span class="mission-tag">Mission 05 · Zero-Balance Validation</span>
+        <div class="mission-title">Validate the Amortization Table: Reach Zero Balance</div>
+        <div class="mission-subtitle">Use SUM validation and amortization logic to confirm a zero-balance success state</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-intro">
+        <strong>🎯 Briefing:</strong> A financial model is only valid when it reaches <strong>zero balance</strong>. Complete the amortization table by entering the correct formulas/values. The loan: <strong>$1,200 principal, 12% annual rate, 3 months</strong>. Each row must calculate correctly to reach $0.00 balance.
+      </div>
+
+      <div class="highlight-box">
+        <strong>📐 Amortization Logic:</strong> Monthly Interest = Balance × (Rate/12) · Principal Paid = Payment − Interest · New Balance = Old Balance − Principal Paid
+      </div>
+
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:12px;">
+        Monthly Payment (PMT): <strong>$422.03</strong>  |  Monthly Rate: <strong>1% (0.12/12)</strong>
+        <span class="tip" data-tip="PMT = PMT(0.12/12, 3, -1200) ≈ $422.03">?</span>
+      </p>
+
+      <table class="sim-table" id="amort-table">
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Beginning Balance</th>
+            <th>Interest (1%)</th>
+            <th>Principal Paid</th>
+            <th>Ending Balance</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1</strong></td>
+            <td class="blue-border-cell">$1,200.00</td>
+            <td><input class="sim-input" id="a-int-1" placeholder="e.g. 12.00" oninput="checkAmort()"></td>
+            <td><input class="sim-input" id="a-prin-1" placeholder="e.g. 410.03" oninput="checkAmort()"></td>
+            <td><input class="sim-input" id="a-bal-1" placeholder="e.g. 789.97" oninput="checkAmort()"></td>
+          </tr>
+          <tr>
+            <td><strong>2</strong></td>
+            <td id="a-beg-2" style="font-family:monospace;font-weight:600;">—</td>
+            <td><input class="sim-input" id="a-int-2" placeholder="—" disabled></td>
+            <td><input class="sim-input" id="a-prin-2" placeholder="—" disabled></td>
+            <td><input class="sim-input" id="a-bal-2" placeholder="—" disabled></td>
+          </tr>
+          <tr>
+            <td><strong>3</strong></td>
+            <td id="a-beg-3" style="font-family:monospace;font-weight:600;">—</td>
+            <td><input class="sim-input" id="a-int-3" placeholder="—" disabled></td>
+            <td><input class="sim-input" id="a-prin-3" placeholder="—" disabled></td>
+            <td><input class="sim-input" id="a-bal-3" placeholder="—" disabled></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div id="amort-hint" style="font-size:13px;color:var(--text-mid);margin-bottom:12px;display:none;">
+        ✅ Month 1 correct! Now complete Month 2 — beginning balance = ending balance from Month 1.
+      </div>
+
+      <div class="feedback-box" id="fb-5"></div>
+
+      <div id="sum-validation" style="display:none">
+        <hr class="section-divider">
+        <p style="font-weight:700;margin-bottom:10px;font-size:15px;">🔍 SUM Validation Check</p>
+        <p style="font-size:14px;color:var(--text-mid);margin-bottom:12px;">
+          To validate your model, the SUM of all Principal Paid values should equal the original loan amount. Which formula validates this in Google Sheets?
+        </p>
+        <div class="choices" id="choices-sum">
+          <button class="choice-btn" onclick="answerSum(0, false)">
+            <span class="choice-letter">A</span> <code>=AVERAGE(D2:D4)</code> — averages the principal payments
+          </button>
+          <button class="choice-btn" onclick="answerSum(1, true)">
+            <span class="choice-letter">B</span> <code>=SUM(D2:D4)</code> — sums all principal paid; should equal $1,200.00
+          </button>
+          <button class="choice-btn" onclick="answerSum(2, false)">
+            <span class="choice-letter">C</span> <code>=COUNT(D2:D4)</code> — counts the number of payment rows
+          </button>
+          <button class="choice-btn" onclick="answerSum(3, false)">
+            <span class="choice-letter">D</span> <code>=PMT(D2:D4)</code> — recalculates the payment from the range
+          </button>
+        </div>
+        <div class="feedback-box" id="fb-5b"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-gold" id="finish-btn" onclick="finishGame()" style="display:none;font-size:15px;">🏆 Complete Masterclass!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLETION SCREEN -->
+  <div id="completion-screen">
+    <div class="completion-badge" id="final-badge">🏆</div>
+    <div class="completion-title" id="final-title">Masterclass Complete!</div>
+    <div class="completion-subtitle" id="final-subtitle">You've earned your UVA Financial Intelligence Corps certification.</div>
+    <div class="score-grid">
+      <div class="score-card"><div class="val" id="final-score">0</div><div class="lbl">Points Earned</div></div>
+      <div class="score-card"><div class="val" id="final-correct">0</div><div class="lbl">Correct Answers</div></div>
+      <div class="score-card"><div class="val" id="final-rank">—</div><div class="lbl">Final Rank</div></div>
+      <div class="score-card"><div class="val" id="final-streak">0</div><div class="lbl">Best Streak</div></div>
+    </div>
+    <div class="cert-banner">
+      <strong>🎓 UVA Business Technology & Financial Literacy Certification</strong>
+      Domain 3.1: Data Visualization & Chart Architecture · Domain 4.2: Financial Modeling & Loan Analysis<br>
+      <em>Virtue · Vigor · Vision — University View Academy</em>
+    </div>
+    <button class="btn btn-primary" onclick="restartGame()" style="font-size:15px;padding:14px 32px;">🔄 Retake Masterclass</button>
+  </div>
+
+</div>
+
+<!-- STREAK POPUP -->
+<div class="streak-popup" id="streak-popup">
+  🔥 <span id="streak-popup-text">3 in a row!</span>
+</div>
+
+<script>
+// ============================================================
+// GAME STATE
+// ============================================================
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let correctCount = 0;
+let totalAnswered = 0;
+let currentMission = 0;
+const TOTAL_MISSIONS = 5;
+const RANKS = [
+  { name: 'Trainee', min: 0, icon: '🎖️' },
+  { name: 'Apprentice', min: 150, icon: '🥉' },
+  { name: 'Expert', min: 350, icon: '🥈' },
+  { name: 'Master', min: 550, icon: '🏆' }
+];
+
+// Mission 1 state
+let draggedItem = null;
+let m1Drops = {};
+
+// Mission 2 state
+let m2Progress = 0;
+let m2Score = 0;
+
+// Mission 3 state
+let m3Progress = 0;
+
+// Mission 4 state
+let formulaTokens = [];
+const CORRECT_PMT = ['=PMT(', '0.06/12', ',', '60', ',', '-25000', ')'];
+let pmtDone = false;
+let pmtBonusDone = false;
+
+// Mission 5 state
+let amortRow1Done = false;
+let amortDone = false;
+let sumDone = false;
+
+// ============================================================
+// UTILITY
+// ============================================================
+function updateHUD() {
+  document.getElementById('score-val').textContent = score;
+  const rank = getCurrentRank();
+  document.getElementById('rank-label').textContent = rank.icon + ' ' + rank.name;
+  const streakEl = document.getElementById('streak-display');
+  if (streak >= 2) {
+    streakEl.style.display = 'flex';
+    document.getElementById('streak-count').textContent = streak;
+  } else {
+    streakEl.style.display = 'none';
+  }
+}
+
+function getCurrentRank() {
+  let r = RANKS[0];
+  for (let rank of RANKS) { if (score >= rank.min) r = rank; }
+  return r;
+}
+
+function addScore(pts, isCorrect) {
+  if (isCorrect) {
+    score += pts;
+    streak++;
+    correctCount++;
+    if (streak > bestStreak) bestStreak = streak;
+    if (streak === 3 || streak === 5 || streak === 7) showStreakPopup(streak);
+  } else {
+    streak = 0;
+  }
+  totalAnswered++;
+  updateHUD();
+}
+
+function showStreakPopup(n) {
+  const popup = document.getElementById('streak-popup');
+  document.getElementById('streak-popup-text').textContent = n + ' in a row! 🔥';
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 2000);
+}
+
+function updateProgress(missionNum) {
+  const pct = (missionNum / TOTAL_MISSIONS) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('mission-counter').textContent = missionNum + ' / ' + TOTAL_MISSIONS + ' Missions';
+}
+
+function showFeedback(id, correct, msg, explanation) {
+  const el = document.getElementById(id);
+  el.className = 'feedback-box show ' + (correct ? 'correct-fb' : 'incorrect-fb');
+  el.innerHTML = `<span class="feedback-icon">${correct ? '✅' : '❌'}</span>
+    <div class="feedback-text">
+      <div>${msg}</div>
+      ${explanation ? `<div class="explanation">${explanation}</div>` : ''}
+    </div>`;
+}
+
+function startGame() {
+  document.getElementById('intro-screen').style.display = 'none';
+  goToMission(1);
+}
+
+function goToMission(n) {
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('mission-' + n);
+  if (card) {
+    card.classList.add('active');
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  currentMission = n;
+  updateProgress(n - 1);
+}
+
+function finishGame() {
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  const cs = document.getElementById('completion-screen');
+  cs.style.display = 'block';
+  cs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  updateProgress(5);
+  document.getElementById('mission-counter').textContent = '5 / 5 Missions ✅';
+
+  const rank = getCurrentRank();
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('final-correct').textContent = correctCount;
+  document.getElementById('final-rank').textContent = rank.name;
+  document.getElementById('final-streak').textContent = bestStreak;
+  document.getElementById('final-badge').textContent = rank.icon;
+  document.getElementById('final-title').textContent = rank.name === 'Master' ? '🏆 MASTER ANALYST!' : 'Masterclass Complete!';
+  document.getElementById('final-subtitle').textContent =
+    `Rank: ${rank.icon} ${rank.name} · Score: ${score} pts · ${correctCount} correct answers`;
+
+  launchConfetti();
+}
+
+function restartGame() {
+  score = 0; streak = 0; bestStreak = 0; correctCount = 0; totalAnswered = 0;
+  updateHUD();
+  document.getElementById('completion-screen').style.display = 'none';
+  document.getElementById('intro-screen').style.display = 'block';
+  document.getElementById('intro-screen').scrollIntoView({ behavior: 'smooth' });
+  updateProgress(0);
+  // Reset all missions
+  location.reload();
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function launchConfetti() {
+  const colors = ['#1B5EAF','#1E7A3E','#F5C518','#e74c3c','#9b59b6','#3498db','#e67e22'];
+  for (let i = 0; i < 80; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.width = (Math.random() * 10 + 6) + 'px';
+      c.style.height = (Math.random() * 10 + 6) + 'px';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      c.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      c.style.animationDelay = Math.random() * 1 + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }, i * 30);
+  }
+}
+
+// ============================================================
+// MISSION 1: DRAG & DROP
+// ============================================================
+function dragStart(e) {
+  draggedItem = e.target;
+  e.target.classList.add('dragging');
+  e.dataTransfer.setData('text/plain', e.target.dataset.id);
+}
+
+document.addEventListener('dragend', (e) => {
+  if (e.target.classList) e.target.classList.remove('dragging');
+});
+
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function dropItem(e) {
+  e.preventDefault();
+  const zone = e.currentTarget;
+  zone.classList.remove('drag-over');
+  if (!draggedItem) return;
+  // Remove from previous zone if placed
+  const prevZone = document.querySelector('.drop-zone [data-id="' + draggedItem.dataset.id + '"]');
+  if (prevZone) {
+    const parent = prevZone.closest('.drop-zone');
+    if (parent) {
+      parent.innerHTML = '<span class="drop-zone-label">' + parent.dataset.label + '</span>';
+      delete m1Drops[parent.id];
+    }
+  }
+  // Remove from bank
+  if (draggedItem.parentElement.id === 'drag-bank') {
+    draggedItem.parentElement.removeChild(draggedItem);
+  }
+  // Clear zone
+  zone.innerHTML = '';
+  const clone = draggedItem.cloneNode(true);
+  clone.classList.add('placed');
+  clone.draggable = true;
+  clone.ondragstart = (ev) => { draggedItem = clone; ev.dataTransfer.setData('text/plain', clone.dataset.id); clone.classList.add('dragging'); };
+  zone.appendChild(clone);
+  m1Drops[zone.id] = draggedItem.dataset.id;
+  // Enable check if all 6 zones filled
+  const filled = Object.keys(m1Drops).length;
+  document.getElementById('check-1').disabled = filled < 6;
+}
+
+function checkMission1() {
+  const zones = document.querySelectorAll('.drop-zone');
+  let allCorrect = true;
+  zones.forEach(zone => {
+    const expected = zone.dataset.accepts;
+    const placed = m1Drops[zone.id];
+    if (placed === expected) {
+      zone.classList.add('correct');
+    } else {
+      zone.classList.add('incorrect');
+      allCorrect = false;
+    }
+  });
+  document.getElementById('check-1').disabled = true;
+  if (allCorrect) {
+    addScore(100, true);
+    showFeedback('fb-1', true, '🎉 Perfect Variable Mapping! All 6 variables correctly classified!',
+      'Scientist\'s Logic: Independent variables (time, temperature, ad spend) are inputs you control → X-axis. Dependent variables (sales, ice cream, clicks) change as a result → Y-axis. This is the foundation of every Google Sheets chart.');
+    document.getElementById('next-1').style.display = 'inline-flex';
+    updateProgress(1);
+  } else {
+    addScore(0, false);
+    showFeedback('fb-1', false, '❌ Some variables are misclassified. Check the highlighted zones.',
+      'Remember: Independent = what you SET or CONTROL (X-axis). Dependent = what CHANGES because of it (Y-axis). Example: You set the temperature (independent) → ice cream sales change (dependent).');
+    document.getElementById('check-1').disabled = false;
+  }
+}
+
+// ============================================================
+// MISSION 2: MULTIPLE CHOICE
+// ============================================================
+function answerM2(idx, correct, questionId) {
+  const btns = document.querySelectorAll('#choices-' + questionId + ' .choice-btn');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === idx) b.classList.add(correct ? 'correct' : 'incorrect');
+    if (correct && i === idx) b.classList.add('correct');
+    // Show correct answer if wrong
+    if (!correct) {
+      // find correct btn
+      btns.forEach((bb, ii) => {
+        if (bb.onclick.toString().includes('true')) bb.classList.add('correct');
+      });
+    }
+  });
+
+  const fbMap = { 'm2-q1': 0, 'm2-q2': 1, 'm2-q3': 2 };
+  const qNum = fbMap[questionId];
+
+  if (correct) {
+    addScore(80, true);
+    const msgs = [
+      ['✅ Correct! Unit Isolation protocol followed.', 'Storing pure numbers (45000) in data cells and units in label cells keeps formulas clean. If you type "$45,000", Google Sheets may treat it as text, breaking all calculations.'],
+      ['✅ Correct! Blue Border Constraint mastered.', 'Blue borders visually signal "this is where you type." Formula cells should never be manually edited — they auto-calculate. This prevents accidental overwrites of critical formulas.'],
+      ['✅ Correct! Protocol violation identified.', 'Storing "5%" mixes the unit with the data. Store 0.05 as a decimal. The "%" symbol in a cell can cause formula errors when used in arithmetic operations like /12.']
+    ];
+    showFeedback('fb-' + questionId, true, msgs[qNum][0], msgs[qNum][1]);
+  } else {
+    addScore(0, false);
+    const msgs = [
+      ['❌ Incorrect. Unit Isolation requires separating the number from its unit.', 'The dollar sign "$" should NEVER be inside a data cell. Store 45000 as a plain number. Put "Annual Salary ($)" in the label cell. This keeps formulas working correctly.'],
+      ['❌ Incorrect. Blue borders are specifically for input cells only.', 'Blue borders mark cells where users manually enter assumptions (like interest rate, loan amount). Formula cells are protected — they calculate automatically and should not be manually edited.'],
+      ['❌ Incorrect. The "%" symbol in a data cell violates Unit Isolation.', 'Store interest rates as decimals (0.05 = 5%). The "%" in a cell can cause unexpected behavior in formulas. Always isolate units to label cells.']
+    ];
+    showFeedback('fb-' + questionId, false, msgs[qNum][0], msgs[qNum][1]);
+  }
+
+  m2Progress++;
+  setTimeout(() => {
+    if (m2Progress === 1) {
+      document.getElementById('m2-q2').style.display = 'block';
+      document.getElementById('m2-q2').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else if (m2Progress === 2) {
+      document.getElementById('m2-q3').style.display = 'block';
+      document.getElementById('m2-q3').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else if (m2Progress === 3) {
+      document.getElementById('next-2').style.display = 'inline-flex';
+      updateProgress(2);
+    }
+  }, 1200);
+}
+
+// ============================================================
+// MISSION 3: WINDFALL BUDGET
+// ============================================================
+function answerM3(clickedViolation, scenarioId, isViolation) {
+  const correct = (clickedViolation === isViolation);
+  const btns = document.querySelectorAll('#' + scenarioId + ' .btn');
+  btns.forEach(b => b.disabled = true);
+
+  const msgs = {
+    'm3-s1': {
+      correct: ['✅ VALID! This budget follows the 5/50 Rule perfectly.', 'Emergency Fund = 50% (at the max limit ✓), Investments = 30% ✓, Education = 15% ✓, Personal = 5% (at the min limit ✓). All categories between 5-50%, total = 100%. Model approved!'],
+      incorrect: ['❌ This budget is actually VALID.', 'Check again: Emergency Fund = 50% (exactly at the 50% ceiling — allowed!), all others are between 5-50%, and total = 100%. The 5/50 Rule says max 50%, so 50% is still valid.']
+    },
+    'm3-s2': {
+      correct: ['✅ VIOLATION detected! Emergency Fund exceeds 50%.', 'Emergency Fund = 60% — this VIOLATES the 50% maximum cap. No single category can exceed half the total windfall. The analyst must redistribute at least $10,000 from Emergency Fund to other categories.'],
+      incorrect: ['❌ This budget is actually a VIOLATION.', 'Emergency Fund = 60%, which exceeds the 50% maximum. The 5/50 Rule caps any single category at 50% ($50,000). This budget must be restructured.']
+    },
+    'm3-s3': {
+      correct: ['✅ VIOLATION detected! Personal Enjoyment is below 5%.', 'Personal Enjoyment = 2% ($2,000) — this VIOLATES the 5% minimum floor. Every category must receive at least 5% ($5,000). The analyst must reallocate $3,000 to Personal Enjoyment.'],
+      incorrect: ['❌ This budget is actually a VIOLATION.', 'Personal Enjoyment = 2%, which is below the 5% minimum. The 5/50 Rule requires every category to receive at least 5% ($5,000). Check all categories against both the floor (5%) and ceiling (50%).']
+    }
+  };
+
+  if (correct) {
+    addScore(90, true);
+    showFeedback('fb-' + scenarioId, true, msgs[scenarioId].correct[0], msgs[scenarioId].correct[1]);
+  } else {
+    addScore(0, false);
+    showFeedback('fb-' + scenarioId, false, msgs[scenarioId].incorrect[0], msgs[scenarioId].incorrect[1]);
+  }
+
+  m3Progress++;
+  setTimeout(() => {
+    if (m3Progress === 1) {
+      document.getElementById('m3-s2').style.display = 'block';
+      document.getElementById('m3-s2').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else if (m3Progress === 2) {
+      document.getElementById('m3-s3').style.display = 'block';
+      document.getElementById('m3-s3').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else if (m3Progress === 3) {
+      document.getElementById('next-3').style.display = 'inline-flex';
+      updateProgress(3);
+    }
+  }, 1200);
+}
+
+// ============================================================
+// MISSION 4: PMT FORMULA BUILDER
+// ============================================================
+function addToken(btn, token) {
+  if (btn.classList.contains('used')) return;
+  formulaTokens.push(token);
+  btn.classList.add('used');
+  renderFormula();
+}
+
+function renderFormula() {
+  const display = document.getElementById('formula-display');
+  if (formulaTokens.length === 0) {
+    display.innerHTML = '<span style="color:#888;font-style:italic;">Click tokens below to build your formula...</span>';
+    return;
+  }
+  display.innerHTML = formulaTokens.map(t => {
+    if (t === '=PMT(') return `<span style="color:#ff79c6">${t}</span>`;
+    if (t === ',') return `<span style="color:#f8f8f2">${t}</span>`;
+    if (t === ')') return `<span style="color:#ff79c6">${t}</span>`;
+    if (t.startsWith('-')) return `<span style="color:#ff5555">${t}</span>`;
+    return `<span style="color:#a8ff78">${t}</span>`;
+  }).join('');
+}
+
+function resetPMT() {
+  formulaTokens = [];
+  document.querySelectorAll('.token-btn').forEach(b => b.classList.remove('used'));
+  renderFormula();
+  document.getElementById('fb-4').className = 'feedback-box';
+}
+
+function checkPMT() {
+  const formula = formulaTokens.join('');
+  // Accept variations
+  const valid = (
+    formula === '=PMT(0.06/12,60,-25000)' ||
+    formula === '=PMT(0.06/12,60,-25000,)'
+  );
+  if (valid) {
+    addScore(120, true);
+    showFeedback('fb-4', true, '🎉 Perfect PMT Formula! =PMT(0.06/12, 60, -25000)',
+      'Rate = 0.06/12 (annual rate ÷ 12 for monthly) · nper = 60 (5 years × 12 months) · pv = -25000 (negative because it\'s money you owe). Result ≈ $483.32/month. This is the exact syntax Google Sheets requires!');
+    pmtDone = true;
+    document.querySelectorAll('.token-btn').forEach(b => b.disabled = true);
+    document.getElementById('pmt-followup').style.display = 'block';
+    document.getElementById('pmt-followup').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    addScore(0, false);
+    let hint = 'Check your formula structure. ';
+    if (!formula.includes('0.06/12')) hint += 'Rate should be 0.06/12 (not 6%/12 — use decimal). ';
+    if (!formula.includes('60')) hint += 'nper should be 60 (5 years × 12 months). ';
+    if (!formula.includes('-25000')) hint += 'pv must be -25000 (negative!). ';
+    showFeedback('fb-4', false, '❌ Formula not quite right. Try again!', hint);
+  }
+}
+
+function answerPMTBonus(idx, correct) {
+  const btns = document.querySelectorAll('#choices-pmt-bonus .choice-btn');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === idx) b.classList.add(correct ? 'correct' : 'incorrect');
+    if (!correct && i === 1) b.classList.add('correct');
+  });
+  if (correct) {
+    addScore(60, true);
+    showFeedback('fb-4b', true, '✅ Correct! Cash flow direction is the key concept.',
+      'In financial math, positive = money coming IN, negative = money going OUT. The loan amount is money you receive (+), so entering it as negative (-25000) makes the PMT result positive — showing what you PAY each month. This is standard financial modeling convention.');
+  } else {
+    addScore(0, false);
+    showFeedback('fb-4b', false, '❌ Incorrect. Think about cash flow direction.',
+      'The negative sign represents cash flow direction. Loan principal is money you receive (positive inflow), so entering it as negative in PMT makes the payment result positive (money flowing out). This is a core financial modeling convention.');
+  }
+  pmtBonusDone = true;
+  document.getElementById('next-4').style.display = 'inline-flex';
+  updateProgress(4);
+}
+
+// ============================================================
+// MISSION 5: AMORTIZATION TABLE
+// ============================================================
+// Correct values (rounded to 2 decimal places)
+// Month 1: Interest = 1200 * 0.01 = 12.00, Principal = 422.03 - 12.00 = 410.03, Balance = 1200 - 410.03 = 789.97
+// Month 2: Interest = 789.97 * 0.01 = 7.90, Principal = 422.03 - 7.90 = 414.13, Balance = 789.97 - 414.13 = 375.84
+// Month 3: Interest = 375.84 * 0.01 = 3.76, Principal = 422.03 - 3.76 = 418.27, Balance = 375.84 - 418.27 ≈ 0 (rounding)
+
+function parseVal(str) {
+  return parseFloat(str.replace(/[$,]/g, ''));
+}
+
+function isClose(a, b, tol) {
+  return Math.abs(a - b) <= tol;
+}
+
+function checkAmort() {
+  const int1 = parseVal(document.getElementById('a-int-1').value);
+  const prin1 = parseVal(document.getElementById('a-prin-1').value);
+  const bal1 = parseVal(document.getElementById('a-bal-1').value);
+
+  const int1ok = isClose(int1, 12.00, 0.05);
+  const prin1ok = isClose(prin1, 410.03, 0.05);
+  const bal1ok = isClose(bal1, 789.97, 0.05);
+
+  document.getElementById('a-int-1').className = 'sim-input' + (isNaN(int1) ? '' : (int1ok ? ' correct' : ' incorrect'));
+  document.getElementById('a-prin-1').className = 'sim-input' + (isNaN(prin1) ? '' : (prin1ok ? ' correct' : ' incorrect'));
+  document.getElementById('a-bal-1').className = 'sim-input' + (isNaN(bal1) ? '' : (bal1ok ? ' correct' : ' incorrect'));
+
+  if (int1ok && prin1ok && bal1ok && !amortRow1Done) {
+    amortRow1Done = true;
+    addScore(50, true);
+    document.getElementById('amort-hint').style.display = 'block';
+    // Unlock row 2
+    document.getElementById('a-beg-2').textContent = '$789.97';
+    ['a-int-2','a-prin-2','a-bal-2'].forEach(id => {
+      document.getElementById(id).disabled = false;
+      document.getElementById(id).placeholder = 'Enter value';
+    });
+    document.getElementById('a-int-2').oninput = checkAmortRow2;
+    document.getElementById('a-prin-2').oninput = checkAmortRow2;
+    document.getElementById('a-bal-2').oninput = checkAmortRow2;
+  }
+}
+
+function checkAmortRow2() {
+  const int2 = parseVal(document.getElementById('a-int-2').value);
+  const prin2 = parseVal(document.getElementById('a-prin-2').value);
+  const bal2 = parseVal(document.getElementById('a-bal-2').value);
+
+  const int2ok = isClose(int2, 7.90, 0.05);
+  const prin2ok = isClose(prin2, 414.13, 0.05);
+  const bal2ok = isClose(bal2, 375.84, 0.05);
+
+  document.getElementById('a-int-2').className = 'sim-input' + (isNaN(int2) ? '' : (int2ok ? ' correct' : ' incorrect'));
+  document.getElementById('a-prin-2').className = 'sim-input' + (isNaN(prin2) ? '' : (prin2ok ? ' correct' : ' incorrect'));
+  document.getElementById('a-bal-2').className = 'sim-input' + (isNaN(bal2) ? '' : (bal2ok ? ' correct' : ' incorrect'));
+
+  if (int2ok && prin2ok && bal2ok) {
+    addScore(50, true);
+    document.getElementById('a-beg-3').textContent = '$375.84';
+    ['a-int-3','a-prin-3','a-bal-3'].forEach(id => {
+      document.getElementById(id).disabled = false;
+      document.getElementById(id).placeholder = 'Enter value';
+    });
+    document.getElementById('a-int-3').oninput = checkAmortRow3;
+    document.getElementById('a-prin-3').oninput = checkAmortRow3;
+    document.getElementById('a-bal-3').oninput = checkAmortRow3;
+  }
+}
+
+function checkAmortRow3() {
+  const int3 = parseVal(document.getElementById('a-int-3').value);
+  const prin3 = parseVal(document.getElementById('a-prin-3').value);
+  const bal3 = parseVal(document.getElementById('a-bal-3').value);
+
+  const int3ok = isClose(int3, 3.76, 0.10);
+  const prin3ok = isClose(prin3, 418.27, 0.10);
+  const bal3ok = isClose(bal3, 0, 0.10);
+
+  document.getElementById('a-int-3').className = 'sim-input' + (isNaN(int3) ? '' : (int3ok ? ' correct' : ' incorrect'));
+  document.getElementById('a-prin-3').className = 'sim-input' + (isNaN(prin3) ? '' : (prin3ok ? ' correct' : ' incorrect'));
+  document.getElementById('a-bal-3').className = 'sim-input' + (isNaN(bal3) ? '' : (bal3ok ? ' correct' : ' incorrect'));
+
+  if (int3ok && prin3ok && bal3ok && !amortDone) {
+    amortDone = true;
+    addScore(100, true);
+    showFeedback('fb-5', true, '🎉 Zero-Balance Achieved! Your amortization table is complete and validated!',
+      'Month 3 ending balance = $0.00 ✅ This is the "zero-balance success state" — proof your financial model is mathematically sound. The loan is fully paid off in exactly 3 months with the PMT-calculated payment.');
+    document.getElementById('sum-validation').style.display = 'block';
+    document.getElementById('sum-validation').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    updateProgress(5);
+  }
+}
+
+function answerSum(idx, correct) {
+  const btns = document.querySelectorAll('#choices-sum .choice-btn');
+  btns.forEach((b, i) => {
+    b.disabled = true;
+    if (i === idx) b.classList.add(correct ? 'correct' : 'incorrect');
+    if (!correct && i === 1) b.classList.add('correct');
+  });
+  if (correct) {
+    addScore(80, true);
+    showFeedback('fb-5b', true, '✅ Correct! =SUM(D2:D4) is the validation formula.',
+      'SUM of all Principal Paid values should equal the original loan ($1,200.00). If it doesn\'t, your amortization table has a rounding error or formula mistake. This SUM check is the final quality gate in any financial model — it confirms your model is internally consistent.');
+  } else {
+    addScore(0, false);
+    showFeedback('fb-5b', false, '❌ Incorrect. SUM is the correct validation function.',
+      '=SUM(D2:D4) adds all principal payments. The total should equal $1,200.00 — the original loan amount. This validates that your amortization table correctly distributes the full principal across all payment periods.');
+  }
+  document.getElementById('finish-btn').style.display = 'inline-flex';
+}
+
+// Initialize
+updateHUD();
+</script>
+</body>
+</html>
