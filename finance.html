@@ -630,12 +630,12 @@
         <div class="dnd-column">
           <h4>📦 Data Labels (Drag These)</h4>
           <div id="drag-bank">
-            <div class="drag-item" draggable="true" data-id="months" ondragstart="dragStart(event)">📅 Months (1–12)</div>
-            <div class="drag-item" draggable="true" data-id="sales" ondragstart="dragStart(event)">💰 Monthly Sales Revenue</div>
-            <div class="drag-item" draggable="true" data-id="temp" ondragstart="dragStart(event)">🌡️ Temperature (°F)</div>
-            <div class="drag-item" draggable="true" data-id="icecream" ondragstart="dragStart(event)">🍦 Ice Cream Units Sold</div>
-            <div class="drag-item" draggable="true" data-id="adspend" ondragstart="dragStart(event)">📣 Ad Spend ($)</div>
-            <div class="drag-item" draggable="true" data-id="clicks" ondragstart="dragStart(event)">🖱️ Website Clicks</div>
+            <div class="drag-item" draggable="true" data-id="months">📅 Months (1–12)</div>
+            <div class="drag-item" draggable="true" data-id="sales">💰 Monthly Sales Revenue</div>
+            <div class="drag-item" draggable="true" data-id="temp">🌡️ Temperature (°F)</div>
+            <div class="drag-item" draggable="true" data-id="icecream">🍦 Ice Cream Units Sold</div>
+            <div class="drag-item" draggable="true" data-id="adspend">📣 Ad Spend ($)</div>
+            <div class="drag-item" draggable="true" data-id="clicks">🖱️ Website Clicks</div>
           </div>
         </div>
         <div class="dnd-column">
@@ -1217,10 +1217,24 @@ function launchConfetti() {
 // ============================================================
 // MISSION 1: DRAG & DROP
 // ============================================================
+
+// Zone label map for restoring empty drop zones
+const ZONE_LABELS = {
+  'drop-x-1': 'Chart 1: Time Series',
+  'drop-x-2': 'Chart 2: Weather Study',
+  'drop-x-3': 'Chart 3: Marketing ROI',
+  'drop-y-1': 'Chart 1: Time Series',
+  'drop-y-2': 'Chart 2: Weather Study',
+  'drop-y-3': 'Chart 3: Marketing ROI'
+};
+
 function dragStart(e) {
-  draggedItem = e.target;
-  e.target.classList.add('dragging');
-  e.dataTransfer.setData('text/plain', e.target.dataset.id);
+  const itemId = e.target.getAttribute('data-id');
+  e.dataTransfer.setData('text/plain', itemId);
+  e.dataTransfer.effectAllowed = 'move';
+  // Store source info
+  e.dataTransfer.setData('source-zone', e.target.closest('.drop-zone') ? e.target.closest('.drop-zone').id : 'drag-bank');
+  setTimeout(() => e.target.classList.add('dragging'), 0);
 }
 
 document.addEventListener('dragend', (e) => {
@@ -1229,6 +1243,7 @@ document.addEventListener('dragend', (e) => {
 
 function dragOver(e) {
   e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
   e.currentTarget.classList.add('drag-over');
 }
 
@@ -1240,40 +1255,80 @@ function dropItem(e) {
   e.preventDefault();
   const zone = e.currentTarget;
   zone.classList.remove('drag-over');
-  if (!draggedItem) return;
-  // Remove from previous zone if placed
-  const prevZone = document.querySelector('.drop-zone [data-id="' + draggedItem.dataset.id + '"]');
-  if (prevZone) {
-    const parent = prevZone.closest('.drop-zone');
-    if (parent) {
-      parent.innerHTML = '<span class="drop-zone-label">' + parent.dataset.label + '</span>';
-      delete m1Drops[parent.id];
+
+  const itemId = e.dataTransfer.getData('text/plain');
+  const sourceZoneId = e.dataTransfer.getData('source-zone');
+
+  if (!itemId) return;
+
+  // If dropping onto the same zone, do nothing
+  if (sourceZoneId === zone.id) return;
+
+  // If item came from another drop zone, clear that zone
+  if (sourceZoneId && sourceZoneId !== 'drag-bank') {
+    const sourceZone = document.getElementById(sourceZoneId);
+    if (sourceZone) {
+      sourceZone.innerHTML = '<span class="drop-zone-label">' + (ZONE_LABELS[sourceZoneId] || '') + '</span>';
+      delete m1Drops[sourceZoneId];
+    }
+  } else {
+    // Remove from drag bank
+    const bankItem = document.querySelector('#drag-bank [data-id="' + itemId + '"]');
+    if (bankItem) bankItem.remove();
+  }
+
+  // If this zone already has an item, return it to the bank
+  if (m1Drops[zone.id]) {
+    const oldId = m1Drops[zone.id];
+    const bank = document.getElementById('drag-bank');
+    // Only add back if not already in bank
+    if (!document.querySelector('#drag-bank [data-id="' + oldId + '"]')) {
+      const restored = createDragItem(oldId);
+      bank.appendChild(restored);
     }
   }
-  // Remove from bank
-  if (draggedItem.parentElement.id === 'drag-bank') {
-    draggedItem.parentElement.removeChild(draggedItem);
-  }
-  // Clear zone
+
+  // Place new item in zone
   zone.innerHTML = '';
-  const clone = draggedItem.cloneNode(true);
-  clone.classList.add('placed');
-  clone.draggable = true;
-  clone.ondragstart = (ev) => { draggedItem = clone; ev.dataTransfer.setData('text/plain', clone.dataset.id); clone.classList.add('dragging'); };
-  zone.appendChild(clone);
-  m1Drops[zone.id] = draggedItem.dataset.id;
-  // Enable check if all 6 zones filled
+  const placed = createDragItem(itemId);
+  placed.classList.add('placed');
+  zone.appendChild(placed);
+  m1Drops[zone.id] = itemId;
+
+  // Enable check button if all 6 zones filled
   const filled = Object.keys(m1Drops).length;
   document.getElementById('check-1').disabled = filled < 6;
+}
+
+// Item label map
+const ITEM_LABELS = {
+  'months':   '📅 Months (1–12)',
+  'sales':    '💰 Monthly Sales Revenue',
+  'temp':     '🌡️ Temperature (°F)',
+  'icecream': '🍦 Ice Cream Units Sold',
+  'adspend':  '📣 Ad Spend ($)',
+  'clicks':   '🖱️ Website Clicks'
+};
+
+function createDragItem(itemId) {
+  const div = document.createElement('div');
+  div.className = 'drag-item';
+  div.setAttribute('draggable', 'true');
+  div.setAttribute('data-id', itemId);
+  div.textContent = ITEM_LABELS[itemId] || itemId;
+  div.addEventListener('dragstart', dragStart);
+  return div;
 }
 
 function checkMission1() {
   const zones = document.querySelectorAll('.drop-zone');
   let allCorrect = true;
   zones.forEach(zone => {
+    // Clear previous check styling
+    zone.classList.remove('correct', 'incorrect');
     const expected = zone.dataset.accepts;
     const placed = m1Drops[zone.id];
-    if (placed === expected) {
+    if (placed && placed === expected) {
       zone.classList.add('correct');
     } else {
       zone.classList.add('incorrect');
@@ -1289,9 +1344,12 @@ function checkMission1() {
     updateProgress(1);
   } else {
     addScore(0, false);
-    showFeedback('fb-1', false, '❌ Some variables are misclassified. Check the highlighted zones.',
+    showFeedback('fb-1', false, '❌ Some variables are misclassified. Check the highlighted zones and try again.',
       'Remember: Independent = what you SET or CONTROL (X-axis). Dependent = what CHANGES because of it (Y-axis). Example: You set the temperature (independent) → ice cream sales change (dependent).');
-    document.getElementById('check-1').disabled = false;
+    // Re-enable button so student can fix and retry
+    setTimeout(() => {
+      document.getElementById('check-1').disabled = false;
+    }, 500);
   }
 }
 
