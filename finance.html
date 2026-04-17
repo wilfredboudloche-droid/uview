@@ -630,35 +630,35 @@
         <div class="dnd-column">
           <h4>📦 Data Labels (Drag These)</h4>
           <div id="drag-bank">
-            <div class="drag-item" draggable="true" data-id="months">📅 Months (1–12)</div>
-            <div class="drag-item" draggable="true" data-id="sales">💰 Monthly Sales Revenue</div>
-            <div class="drag-item" draggable="true" data-id="temp">🌡️ Temperature (°F)</div>
-            <div class="drag-item" draggable="true" data-id="icecream">🍦 Ice Cream Units Sold</div>
-            <div class="drag-item" draggable="true" data-id="adspend">📣 Ad Spend ($)</div>
-            <div class="drag-item" draggable="true" data-id="clicks">🖱️ Website Clicks</div>
+            <div class="drag-item" draggable="true" data-id="months" ondragstart="dragStart(event)">📅 Months (1–12)</div>
+            <div class="drag-item" draggable="true" data-id="sales" ondragstart="dragStart(event)">💰 Monthly Sales Revenue</div>
+            <div class="drag-item" draggable="true" data-id="temp" ondragstart="dragStart(event)">🌡️ Temperature (°F)</div>
+            <div class="drag-item" draggable="true" data-id="icecream" ondragstart="dragStart(event)">🍦 Ice Cream Units Sold</div>
+            <div class="drag-item" draggable="true" data-id="adspend" ondragstart="dragStart(event)">📣 Ad Spend ($)</div>
+            <div class="drag-item" draggable="true" data-id="clicks" ondragstart="dragStart(event)">🖱️ Website Clicks</div>
           </div>
         </div>
         <div class="dnd-column">
           <h4>📊 X-Axis (Independent Variable)</h4>
-          <div class="drop-zone" id="drop-x-1" data-accepts="months" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+          <div class="drop-zone" id="drop-x-1" data-accepts="months" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)" ondragenter="event.preventDefault()">
             <span class="drop-zone-label">Chart 1: Time Series</span>
           </div>
-          <div class="drop-zone" id="drop-x-2" data-accepts="temp" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+          <div class="drop-zone" id="drop-x-2" data-accepts="temp" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)" ondragenter="event.preventDefault()">
             <span class="drop-zone-label">Chart 2: Weather Study</span>
           </div>
-          <div class="drop-zone" id="drop-x-3" data-accepts="adspend" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+          <div class="drop-zone" id="drop-x-3" data-accepts="adspend" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)" ondragenter="event.preventDefault()">
             <span class="drop-zone-label">Chart 3: Marketing ROI</span>
           </div>
         </div>
         <div class="dnd-column">
           <h4>📈 Y-Axis (Dependent Variable)</h4>
-          <div class="drop-zone" id="drop-y-1" data-accepts="sales" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+          <div class="drop-zone" id="drop-y-1" data-accepts="sales" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)" ondragenter="event.preventDefault()">
             <span class="drop-zone-label">Chart 1: Time Series</span>
           </div>
-          <div class="drop-zone" id="drop-y-2" data-accepts="icecream" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+          <div class="drop-zone" id="drop-y-2" data-accepts="icecream" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)" ondragenter="event.preventDefault()">
             <span class="drop-zone-label">Chart 2: Weather Study</span>
           </div>
-          <div class="drop-zone" id="drop-y-3" data-accepts="clicks" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)">
+          <div class="drop-zone" id="drop-y-3" data-accepts="clicks" ondragover="dragOver(event)" ondrop="dropItem(event)" ondragleave="dragLeave(event)" ondragenter="event.preventDefault()">
             <span class="drop-zone-label">Chart 3: Marketing ROI</span>
           </div>
         </div>
@@ -1228,17 +1228,25 @@ const ZONE_LABELS = {
   'drop-y-3': 'Chart 3: Marketing ROI'
 };
 
+// currentDragId and currentDragSource track the active drag globally
+// (avoids relying on multiple dataTransfer keys which some browsers block)
+let currentDragId = null;
+let currentDragSource = null;
+
 function dragStart(e) {
-  const itemId = e.target.getAttribute('data-id');
-  e.dataTransfer.setData('text/plain', itemId);
+  const item = e.target.closest('[data-id]');
+  if (!item) return;
+  currentDragId = item.getAttribute('data-id');
+  const parentZone = item.closest('.drop-zone');
+  currentDragSource = parentZone ? parentZone.id : 'drag-bank';
+  // Also set dataTransfer as a fallback
+  e.dataTransfer.setData('text/plain', currentDragId);
   e.dataTransfer.effectAllowed = 'move';
-  // Store source info
-  e.dataTransfer.setData('source-zone', e.target.closest('.drop-zone') ? e.target.closest('.drop-zone').id : 'drag-bank');
-  setTimeout(() => e.target.classList.add('dragging'), 0);
+  setTimeout(() => item.classList.add('dragging'), 0);
 }
 
 document.addEventListener('dragend', (e) => {
-  if (e.target.classList) e.target.classList.remove('dragging');
+  if (e.target && e.target.classList) e.target.classList.remove('dragging');
 });
 
 function dragOver(e) {
@@ -1248,7 +1256,10 @@ function dragOver(e) {
 }
 
 function dragLeave(e) {
-  e.currentTarget.classList.remove('drag-over');
+  // Only remove highlight if we're truly leaving the zone (not entering a child)
+  if (!e.currentTarget.contains(e.relatedTarget)) {
+    e.currentTarget.classList.remove('drag-over');
+  }
 }
 
 function dropItem(e) {
@@ -1256,16 +1267,16 @@ function dropItem(e) {
   const zone = e.currentTarget;
   zone.classList.remove('drag-over');
 
-  const itemId = e.dataTransfer.getData('text/plain');
-  const sourceZoneId = e.dataTransfer.getData('source-zone');
+  const itemId = currentDragId || e.dataTransfer.getData('text/plain');
+  const sourceZoneId = currentDragSource || 'drag-bank';
 
   if (!itemId) return;
 
   // If dropping onto the same zone, do nothing
   if (sourceZoneId === zone.id) return;
 
-  // If item came from another drop zone, clear that zone
-  if (sourceZoneId && sourceZoneId !== 'drag-bank') {
+  // If item came from another drop zone, clear that zone and update state
+  if (sourceZoneId !== 'drag-bank') {
     const sourceZone = document.getElementById(sourceZoneId);
     if (sourceZone) {
       sourceZone.innerHTML = '<span class="drop-zone-label">' + (ZONE_LABELS[sourceZoneId] || '') + '</span>';
@@ -1281,7 +1292,6 @@ function dropItem(e) {
   if (m1Drops[zone.id]) {
     const oldId = m1Drops[zone.id];
     const bank = document.getElementById('drag-bank');
-    // Only add back if not already in bank
     if (!document.querySelector('#drag-bank [data-id="' + oldId + '"]')) {
       const restored = createDragItem(oldId);
       bank.appendChild(restored);
@@ -1294,6 +1304,10 @@ function dropItem(e) {
   placed.classList.add('placed');
   zone.appendChild(placed);
   m1Drops[zone.id] = itemId;
+
+  // Reset drag tracking
+  currentDragId = null;
+  currentDragSource = null;
 
   // Enable check button if all 6 zones filled
   const filled = Object.keys(m1Drops).length;
