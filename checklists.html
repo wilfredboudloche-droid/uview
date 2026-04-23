@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UVA Lesson Production Tracker</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1a202c;}
+    header{background:linear-gradient(135deg,#1a3a5c,#2d6a9f);color:white;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+    header h1{font-size:1.2rem;font-weight:700;}
+    header p{font-size:0.75rem;opacity:0.85;}
+    .btn{padding:7px 13px;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;}
+    .btn-primary{background:#2d6a9f;color:white;}.btn-primary:hover{background:#1a3a5c;}
+    .btn-danger{background:#e53e3e;color:white;}.btn-danger:hover{background:#c53030;}
+    .btn-success{background:#38a169;color:white;}.btn-success:hover{background:#276749;}
+    .btn-outline{background:white;color:#2d6a9f;border:1.5px solid #2d6a9f;}.btn-outline:hover{background:#ebf4ff;}
+    .btn-white{background:transparent;color:white;border:1.5px solid white;}.btn-white:hover{background:rgba(255,255,255,0.15);}
+    .controls{background:white;padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:2px solid #e2e8f0;}
+    .controls label{font-size:0.82rem;font-weight:600;color:#4a5568;}
+    .controls input[type="text"]{padding:6px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:0.82rem;}
+    .week-tabs{display:flex;gap:6px;padding:12px 20px 0;flex-wrap:wrap;background:#f0f4f8;}
+    .week-tab{padding:7px 16px;border-radius:8px 8px 0 0;cursor:pointer;font-size:0.8rem;font-weight:600;background:#cbd5e0;color:#4a5568;border:none;transition:all 0.2s;}
+    .week-tab.active{background:white;color:#1a3a5c;}
+    .week-tab:hover:not(.active){background:#b2bec3;}
+    .week-panel{background:white;margin:0 0 20px;border-radius:0 8px 8px 8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+    .week-header{background:#ebf4ff;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-bottom:1px solid #bee3f8;}
+    .week-header h2{font-size:0.95rem;color:#1a3a5c;}
+    .progress-bar-wrap{background:#e2e8f0;border-radius:20px;height:8px;width:150px;overflow:hidden;}
+    .progress-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#38a169,#68d391);transition:width 0.4s;}
+    .table-scroll{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;min-width:800px;}
+    thead th{background:#1a3a5c;color:white;padding:9px 10px;font-size:0.75rem;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:2;}
+    thead th:first-child{text-align:left;min-width:200px;position:sticky;left:0;z-index:3;}
+    tbody tr:nth-child(even){background:#f7fafc;}
+    tbody tr:hover{background:#ebf4ff;}
+    tbody td{padding:7px 8px;font-size:0.78rem;border-bottom:1px solid #e2e8f0;text-align:center;vertical-align:middle;}
+    tbody td:first-child{text-align:left;font-weight:600;color:#2d3748;padding-left:14px;position:sticky;left:0;background:inherit;z-index:1;}
+    .section-divider td{background:#1a3a5c !important;color:white !important;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;padding:6px 14px;}
+    .subsection-divider td{background:#ebf4ff !important;color:#2d6a9f !important;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;padding:4px 14px 4px 24px;}
+    .step-label{display:flex;flex-direction:column;}
+    .step-main{font-weight:700;font-size:0.78rem;color:#1a3a5c;}
+    .step-sub{font-weight:400;font-size:0.7rem;color:#718096;margin-top:1px;}
+    .stage-row td:first-child{font-weight:400;color:#4a5568;padding-left:28px;font-size:0.74rem;}
+    .stage-row td:first-child::before{content:"↳ ";color:#a0aec0;}
+
+    /* Status selects */
+    select.status-sel{padding:3px 5px;border-radius:5px;font-size:0.72rem;border:1.5px solid #cbd5e0;cursor:pointer;width:108px;}
+    select.status-sel.ns{background:#fff5f5;color:#c53030;border-color:#fc8181;}
+    select.status-sel.ip{background:#fffbeb;color:#b7791f;border-color:#f6ad55;}
+    select.status-sel.done{background:#f0fff4;color:#276749;border-color:#68d391;}
+    select.status-sel.pub{background:#ebf4ff;color:#2b6cb0;border-color:#63b3ed;}
+
+    /* Stage checkboxes */
+    .stage-check-wrap{display:flex;align-items:center;justify-content:center;gap:5px;}
+    input[type="checkbox"].stage-cb{width:16px;height:16px;cursor:pointer;accent-color:#2d6a9f;}
+    .cb-done-label{font-size:0.68rem;color:#276749;font-weight:600;}
+    .cb-pending-label{font-size:0.68rem;color:#a0aec0;}
+
+    .lesson-name-input{background:transparent;border:none;color:white;font-weight:700;font-size:0.75rem;text-align:center;width:100%;cursor:pointer;}
+    .lesson-name-input:focus{outline:1px dashed #90cdf4;background:rgba(255,255,255,0.1);border-radius:4px;}
+    .day-label{font-size:0.65rem;opacity:0.75;display:block;margin-top:2px;}
+    .notes-input{width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:4px 6px;font-size:0.72rem;resize:vertical;min-height:34px;font-family:inherit;}
+    .notes-input:focus{outline:none;border-color:#90cdf4;}
+    .legend{display:flex;gap:12px;padding:8px 20px;font-size:0.72rem;flex-wrap:wrap;border-top:1px solid #e2e8f0;align-items:center;}
+    .legend-dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:3px;}
+    .dot-ns{background:#fc8181;}.dot-ip{background:#f6ad55;}.dot-done{background:#68d391;}.dot-pub{background:#63b3ed;}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:100;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:white;border-radius:10px;padding:22px;width:320px;box-shadow:0 8px 30px rgba(0,0,0,0.2);}
+    .modal h3{margin-bottom:12px;color:#1a3a5c;font-size:1rem;}
+    .modal input{width:100%;padding:7px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:0.88rem;margin-bottom:12px;}
+    .modal-btns{display:flex;gap:8px;justify-content:flex-end;}
+    #weekPanels{padding:0 20px 20px;}
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📚 UVA Lesson Production Tracker</h1>
+    <p>University View Academy — Online High School, Louisiana</p>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="btn btn-success" onclick="saveData()">💾 Save</button>
+    <button class="btn btn-white" onclick="exportHTML()">⬇ Export HTML</button>
+    <button class="btn btn-white" onclick="clearAll()">🗑 Clear All</button>
+  </div>
+</header>
+
+<div class="controls">
+  <label>Add Week:</label>
+  <input type="text" id="newWeekName" placeholder="e.g. Week 3 (May 5–9)" style="width:210px;"/>
+  <button class="btn btn-primary" onclick="addWeek()">+ Add Week</button>
+  <span style="margin-left:auto;font-size:0.75rem;color:#718096;">Click any lesson name in the header to rename it</span>
+</div>
+
+<div id="weekTabs" class="week-tabs"></div>
+<div id="weekPanels"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Rename</h3>
+    <input type="text" id="modalInput" placeholder="Enter name..."/>
+    <div class="modal-btns">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── WORKFLOW DEFINITION ───────────────────────────────────────────────
+const WORKFLOW = [
+  {
+    section: "📁 Content Prep",
+    items: [
+      { id:"pdf",          label:"PDF",                type:"single", note:true },
+      { id:"lessonforge",  label:"LessonForge Lesson", type:"single" },
+    ]
+  },
+  {
+    section: "🎬 Media",
+    items: [
+      { id:"podcast", label:"Podcast (Coach Will's Deep Dive)", tool:"NotebookLM", type:"stages", stages:[
+        "AI Prompt from LessonForge",
+        "Prompt → NotebookLM (audio produced)",
+        "Upload to Podbean → Get embed code → Paste into LessonForge"
+      ]},
+      { id:"explainer", label:"Explainer", tool:"NotebookLM", type:"stages", stages:[
+        "Prompt from LessonForge",
+        "Prompt → NotebookLM (video created)",
+        "Download from NotebookLM",
+        "Upload & host on YouTube",
+        "Embed YouTube URL into LessonForge"
+      ]},
+      { id:"slides", label:"Slides", tool:"NotebookLM → Google Slides", type:"stages", stages:[
+        "Prompt from LessonForge",
+        "Paste prompt into NotebookLM",
+        "NotebookLM produces Slide Deck",
+        "Export to PowerPoint",
+        "Import into Google Slides",
+        "Post Google Slides share link into LessonForge"
+      ]},
+      { id:"interactive", label:"Interactive", tool:"Abacus.ai → GitHub", type:"stages", stages:[
+        "Prompt created in LessonForge",
+        "Prompt → Abacus.ai → HTML page produced",
+        "HTML hosted on GitHub",
+        "GitHub URL → LessonForge embed"
+      ]},
+      { id:"studyguide", label:"Study Guide", tool:"NotebookLM", type:"stages", stages:[
+        "Prompt created in LessonForge",
+        "Paste prompt into NotebookLM",
+        "Download PDF from NotebookLM",
+        "Attach PDF into LessonForge Lesson"
+      ]},
+    ]
+  },
+  {
+    section: "📝 Assessment",
+    items: [
+      { id:"assignment",   label:"Assignment",   type:"single" },
+      { id:"assignvideo",  label:"Assign. Video", type:"single" },
+      { id:"resources",    label:"Resources",    type:"custom4" },
+      { id:"successlooks", label:"Success Looks", type:"custom4" },
+    ]
+  },
+  {
+    section: "🎥 Video Production",
+    items: [
+      { id:"introvideo", label:"Intro Video", tool:"HeyGen → YouTube", type:"stages", stages:[
+        "Prompt from LessonForge",
+        "Upload Lesson PDF into HeyGen",
+        "Paste AI Prompt into HeyGen",
+        "Download from HeyGen",
+        "Upload & host on YouTube",
+        "Paste embed code into LessonForge"
+      ]},
+      { id:"summaryvideo", label:"Summary Video", tool:"HeyGen → YouTube", type:"stages", stages:[
+        "Prompt from LessonForge",
+        "Upload Lesson PDF into HeyGen",
+        "Paste AI Prompt into HeyGen",
+        "Download from HeyGen",
+        "Upload & host on YouTube",
+        "Paste embed code into LessonForge"
+      ]},
+    ]
+  },
+  {
+    section: "🏁 Final",
+    items: [
+      { id:"blueprint", label:"Blueprint", type:"single" },
+    ]
+  }
+];
+
+const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
+const SINGLE_OPTS = ["ns","ip","done"];
+const SINGLE_LABELS = {ns:"Not Started", ip:"In Progress", done:"Done"};
+const CUSTOM4_OPTS = ["ns","ip","done","pub"];
+const CUSTOM4_LABELS = {ns:"Not Started", ip:"In Progress", done:"Finished", pub:"Published"};
+
+let data = [];
+let activeWeekIdx = 0;
+let modalCallback = null;
+
+// ─── DATA HELPERS ──────────────────────────────────────────────────────
+function defaultLesson(day, num) {
+  const steps = {};
+  WORKFLOW.forEach(sec => sec.items.forEach(item => {
+    if (item.type === "stages") {
+      steps[item.id] = item.stages.map(() => false);
+    } else {
+      steps[item.id] = "ns";
+    }
+  }));
+  return { day, name:`Lesson ${num}`, steps, notes:"" };
+}
+
+function defaultWeek(name) {
+  return { name, lessons: DAYS.map((d,i) => defaultLesson(d, i+1)) };
+}
+
+function loadData() {
+  const saved = localStorage.getItem("uva_tracker_v3");
+  if (saved) { try { data = JSON.parse(saved); } catch(e) { data = [defaultWeek("Week 1")]; } }
+  else { data = [defaultWeek("Week 1")]; }
+}
+
+function saveData() {
+  localStorage.setItem("uva_tracker_v3", JSON.stringify(data));
+  showToast("💾 Saved!");
+}
+
+function addWeek() {
+  const inp = document.getElementById("newWeekName");
+  const name = inp.value.trim() || `Week ${data.length+1}`;
+  data.push(defaultWeek(name));
+  activeWeekIdx = data.length - 1;
+  inp.value = "";
+  render(); saveData();
+}
+
+function removeWeek(idx) {
+  if (!confirm(`Remove "${data[idx].name}"?`)) return;
+  data.splice(idx,1);
+  if (activeWeekIdx >= data.length) activeWeekIdx = Math.max(0, data.length-1);
+  render(); saveData();
+}
+
+function setActiveWeek(idx) { activeWeekIdx = idx; render(); }
+
+function clearAll() {
+  if (!confirm("Clear ALL data? This cannot be undone.")) return;
+  data = [defaultWeek("Week 1")]; activeWeekIdx = 0; render(); saveData();
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────
+function calcProgress(week) {
+  let total = 0, done = 0;
+  week.lessons.forEach(l => {
+    WORKFLOW.forEach(sec => sec.items.forEach(item => {
+      if (item.type === "stages") {
+        item.stages.forEach((_,si) => { total++; if(l.steps[item.id][si]) done++; });
+      } else {
+        total++;
+        if (l.steps[item.id] === "done" || l.steps[item.id] === "pub") done++;
+      }
+    }));
+  });
+  return total ? Math.round((done/total)*100) : 0;
+}
+
+// ─── STATUS UPDATES ───────────────────────────────────────────────────
+function updateSingle(wi, li, id, val) {
+  data[wi].lessons[li].steps[id] = val;
+  refreshProgress(wi); saveData();
+}
+
+function updateStage(wi, li, id, si, checked) {
+  data[wi].lessons[li].steps[id][si] = checked;
+  refreshProgress(wi); saveData();
+}
+
+function updateNotes(wi, li, val) {
+  data[wi].lessons[li].notes = val; saveData();
+}
+
+function refreshProgress(wi) {
+  const pct = calcProgress(data[wi]);
+  const bar = document.getElementById(`pfill-${wi}`);
+  const lbl = document.getElementById(`plbl-${wi}`);
+  if (bar) bar.style.width = pct+"%";
+  if (lbl) lbl.textContent = pct+"% complete";
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────
+function openModal(title, def, cb) {
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalInput").value = def;
+  document.getElementById("modalOverlay").classList.add("open");
+  modalCallback = cb;
+  setTimeout(()=>document.getElementById("modalInput").focus(),80);
+}
+function closeModal() { document.getElementById("modalOverlay").classList.remove("open"); modalCallback=null; }
+function confirmModal() {
+  const v = document.getElementById("modalInput").value.trim();
+  if (modalCallback && v) modalCallback(v);
+  closeModal();
+}
+document.getElementById("modalInput").addEventListener("keydown", e => {
+  if(e.key==="Enter") confirmModal();
+  if(e.key==="Escape") closeModal();
+});
+
+// ─── EXPORT ───────────────────────────────────────────────────────────
+function exportHTML() {
+  const blob = new Blob([document.documentElement.outerHTML],{type:"text/html"});
+  const a = document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download="uva_lesson_tracker.html"; a.click();
+  showToast("⬇ Exported!");
+}
+
+function showToast(msg) {
+  const t = document.createElement("div");
+  t.textContent = msg;
+  Object.assign(t.style,{position:"fixed",bottom:"22px",right:"22px",background:"#2d6a9f",color:"white",
+    padding:"9px 16px",borderRadius:"8px",fontWeight:"600",fontSize:"0.82rem",zIndex:"999",
+    boxShadow:"0 4px 12px rgba(0,0,0,0.2)"});
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2200);
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────
+function render() { renderTabs(); renderPanel(); }
+
+function renderTabs() {
+  document.getElementById("weekTabs").innerHTML = data.map((w,i)=>`
+    <button class="week-tab ${i===activeWeekIdx?'active':''}" onclick="setActiveWeek(${i})">${w.name}</button>
+  `).join("");
+}
+
+function renderPanel() {
+  const container = document.getElementById("weekPanels");
+  if (!data.length) {
+    container.innerHTML=`<div style="padding:40px;text-align:center;color:#718096;">No weeks yet. Add a week above.</div>`;
+    return;
+  }
+  const w = data[activeWeekIdx]; const wi = activeWeekIdx;
+  const pct = calcProgress(w);
+
+  let html = `
+  <div class="week-panel">
+    <div class="week-header">
+      <h2>📅 ${w.name}</h2>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:0.7rem;color:#4a5568;margin-bottom:3px;" id="plbl-${wi}">${pct}% complete</div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="pfill-${wi}" style="width:${pct}%"></div></div>
+        </div>
+        <button class="btn btn-outline" style="font-size:0.72rem;" onclick="openModal('Rename Week','${w.name}',val=>{data[${wi}].name=val;render();saveData();})">✏️ Rename</button>
+        <button class="btn btn-danger" style="font-size:0.72rem;" onclick="removeWeek(${wi})">🗑 Remove</button>
+      </div>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr>
+        <th>Production Step</th>
+        ${w.lessons.map((l,li)=>`
+          <th style="min-width:130px;">
+            <input class="lesson-name-input" value="${l.name}"
+              onchange="data[${wi}].lessons[${li}].name=this.value;saveData();"
+              onclick="this.select()" title="Click to rename"/>
+            <span class="day-label">${l.day}</span>
+          </th>`).join("")}
+      </tr></thead>
+      <tbody>`;
+
+  WORKFLOW.forEach(sec => {
+    // Section header
+    html += `<tr class="section-divider"><td colspan="${w.lessons.length+1}">${sec.section}</td></tr>`;
+
+    sec.items.forEach(item => {
+      if (item.type === "stages") {
+        // Parent row (label only, no cells)
+        html += `<tr>
+          <td>
+            <div class="step-label">
+              <span class="step-main">⚙️ ${item.label}</span>
+              ${item.tool ? `<span class="step-sub">🔧 ${item.tool}</span>` : ""}
+            </div>
+          </td>
+          ${w.lessons.map(l => {
+            const done = l.steps[item.id].filter(Boolean).length;
+            const total = item.stages.length;
+            const pctS = Math.round((done/total)*100);
+            return `<td>
+              <div style="font-size:0.68rem;color:${done===total?'#276749':'#b7791f'};font-weight:600;">
+                ${done}/${total} stages ${done===total?'✅':''}
+              </div>
+              <div style="background:#e2e8f0;border-radius:10px;height:5px;margin-top:3px;">
+                <div style="width:${pctS}%;height:5px;border-radius:10px;background:${done===total?'#68d391':'#f6ad55'};"></div>
+              </div>
+            </td>`;
+          }).join("")}
+        </tr>`;
+
+        // Stage rows
+        item.stages.forEach((stage, si) => {
+          html += `<tr class="stage-row">
+            <td>${stage}</td>
+            ${w.lessons.map((l,li) => {
+              const checked = l.steps[item.id][si];
+              return `<td>
+                <div class="stage-check-wrap">
+                  <input type="checkbox" class="stage-cb" ${checked?'checked':''}
+                    onchange="updateStage(${wi},${li},'${item.id}',${si},this.checked)"/>
+                  <span class="${checked?'cb-done-label':'cb-pending-label'}">${checked?'Done':'Pending'}</span>
+                </div>
+              </td>`;
+            }).join("")}
+          </tr>`;
+        });
+
+      } else if (item.type === "single") {
+        html += `<tr>
+          <td><div class="step-label"><span class="step-main">${item.label}</span></div></td>
+          ${w.lessons.map((l,li) => {
+            const val = l.steps[item.id];
+            return `<td>
+              <select class="status-sel ${val}" onchange="this.className='status-sel '+this.value;updateSingle(${wi},${li},'${item.id}',this.value)">
+                ${SINGLE_OPTS.map(o=>`<option value="${o}" ${val===o?'selected':''}>${SINGLE_LABELS[o]}</option>`).join("")}
+              </select>
+            </td>`;
+          }).join("")}
+        </tr>`;
+
+      } else if (item.type === "custom4") {
+        html += `<tr>
+          <td><div class="step-label"><span class="step-main">${item.label}</span><span class="step-sub">Optional</span></div></td>
+          ${w.lessons.map((l,li) => {
+            const val = l.steps[item.id];
+            return `<td>
+              <select class="status-sel ${val}" onchange="this.className='status-sel '+this.value;updateSingle(${wi},${li},'${item.id}',this.value)">
+                ${CUSTOM4_OPTS.map(o=>`<option value="${o}" ${val===o?'selected':''}>${CUSTOM4_LABELS[o]}</option>`).join("")}
+              </select>
+            </td>`;
+          }).join("")}
+        </tr>`;
+      }
+    });
+  });
+
+  // Notes row
+  html += `<tr class="section-divider"><td colspan="${w.lessons.length+1}">📝 Notes / Page Range</td></tr>`;
+  html += `<tr>
+    <td style="font-weight:600;color:#4a5568;">Notes</td>
+    ${w.lessons.map((l,li)=>`
+      <td><textarea class="notes-input" placeholder="e.g. pp. 546–594, reminders..."
+        onchange="updateNotes(${wi},${li},this.value)">${l.notes}</textarea></td>
+    `).join("")}
+  </tr>`;
+
+  html += `</tbody></table></div>
+    <div class="legend">
+      <strong style="color:#4a5568;">Legend:</strong>
+      <span><span class="legend-dot dot-ns"></span>Not Started</span>
+      <span><span class="legend-dot dot-ip"></span>In Progress</span>
+      <span><span class="legend-dot dot-done"></span>Done / Finished</span>
+      <span><span class="legend-dot dot-pub"></span>Published</span>
+      <span style="margin-left:8px;">☑ Stage checkboxes = sequential workflow steps</span>
+    </div>
+  </div>`;
+
+  container.innerHTML = html;
+}
+
+loadData();
+render();
+</script>
+</body>
+</html>
