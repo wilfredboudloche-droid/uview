@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UVA | Supporting Other Operating Systems – Mission Activity</title>
+<style>
+  :root {
+    --blue:#1B5EAF; --green:#1E7A3E; --gold:#F5A623;
+    --light:#EEF4FF; --white:#fff; --dark:#0D1B2A;
+    --gray:#6B7280; --lightgray:#F3F4F6; --red:#DC2626;
+    --streak:#F59E0B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--light);color:var(--dark);min-height:100vh;}
+
+  /* HEADER */
+  .header{background:var(--blue);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  .header-left{display:flex;align-items:center;gap:12px;}
+  .logo-shield{width:44px;height:44px;flex-shrink:0;}
+  .school-name{font-size:1.1rem;font-weight:700;line-height:1.2;}
+  .school-sub{font-size:.75rem;opacity:.85;letter-spacing:.5px;}
+  .motto-ribbon{background:var(--green);color:#fff;font-size:.7rem;font-weight:700;letter-spacing:1.5px;padding:4px 14px;border-radius:20px;text-transform:uppercase;}
+  .hud{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .hud-box{background:rgba(255,255,255,.15);border-radius:8px;padding:5px 12px;text-align:center;min-width:64px;}
+  .hud-val{font-size:1.2rem;font-weight:800;}
+  .hud-lbl{font-size:.6rem;opacity:.8;text-transform:uppercase;letter-spacing:.5px;}
+  .rank-badge{background:var(--gold);color:var(--dark);border-radius:8px;padding:5px 12px;font-weight:800;font-size:.85rem;text-align:center;}
+  .rank-lbl{font-size:.6rem;font-weight:600;display:block;text-transform:uppercase;letter-spacing:.5px;}
+
+  /* STREAK BANNER */
+  .streak-banner{display:none;background:linear-gradient(90deg,var(--streak),#FBBF24);color:#fff;text-align:center;padding:8px;font-weight:800;font-size:1rem;letter-spacing:.5px;animation:slideDown .4s ease;}
+  @keyframes slideDown{from{transform:translateY(-40px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+  /* PROGRESS BAR */
+  .progress-wrap{background:#fff;padding:10px 20px;border-bottom:2px solid #dde6f5;display:flex;align-items:center;gap:12px;}
+  .progress-label{font-size:.8rem;font-weight:600;color:var(--blue);white-space:nowrap;}
+  .progress-bar-bg{flex:1;height:10px;background:#dde6f5;border-radius:10px;overflow:hidden;}
+  .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));border-radius:10px;transition:width .5s ease;}
+  .progress-pct{font-size:.8rem;font-weight:700;color:var(--green);white-space:nowrap;}
+
+  /* MAIN */
+  .main{max-width:860px;margin:0 auto;padding:20px 16px 60px;}
+
+  /* MISSION CARD */
+  .mission-card{background:#fff;border-radius:14px;box-shadow:0 4px 18px rgba(27,94,175,.12);padding:24px;margin-bottom:22px;border-left:5px solid var(--blue);}
+  .mission-tag{display:inline-block;background:var(--blue);color:#fff;font-size:.68rem;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:20px;text-transform:uppercase;margin-bottom:10px;}
+  .mission-title{font-size:1.15rem;font-weight:800;color:var(--blue);margin-bottom:6px;}
+  .mission-desc{font-size:.9rem;color:var(--gray);margin-bottom:16px;line-height:1.5;}
+
+  /* DRAG & DROP */
+  .dd-container{display:flex;gap:16px;flex-wrap:wrap;}
+  .dd-bank{flex:1;min-width:200px;}
+  .dd-zones{flex:2;min-width:260px;}
+  .dd-bank-title,.dd-zone-title{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:8px;}
+  .drag-item{background:var(--light);border:2px solid var(--blue);border-radius:8px;padding:8px 12px;margin-bottom:8px;cursor:grab;font-size:.85rem;font-weight:600;color:var(--blue);transition:transform .15s,box-shadow .15s;user-select:none;}
+  .drag-item:active{cursor:grabbing;transform:scale(1.04);box-shadow:0 4px 14px rgba(27,94,175,.25);}
+  .drag-item.dragging{opacity:.45;}
+  .drop-zone{background:var(--lightgray);border:2px dashed #9CA3AF;border-radius:10px;padding:10px;margin-bottom:10px;min-height:52px;transition:background .2s,border-color .2s;}
+  .drop-zone.drag-over{background:#dde6f5;border-color:var(--blue);}
+  .drop-zone.correct{background:#D1FAE5;border-color:var(--green);}
+  .drop-zone.incorrect{background:#FEE2E2;border-color:var(--red);}
+  .drop-zone-label{font-size:.78rem;font-weight:700;color:var(--dark);margin-bottom:6px;}
+  .drop-zone-hint{font-size:.7rem;color:#9CA3AF;font-style:italic;}
+  .dropped-item{background:var(--blue);color:#fff;border-radius:6px;padding:6px 10px;font-size:.82rem;font-weight:600;display:inline-block;margin:2px;}
+
+  /* SCENARIO / MCQ */
+  .scenario-box{background:var(--lightgray);border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:.9rem;line-height:1.6;border-left:4px solid var(--green);}
+  .scenario-box code{background:#e0e7ff;color:var(--blue);padding:1px 5px;border-radius:4px;font-family:monospace;font-size:.88rem;}
+  .choices{display:flex;flex-direction:column;gap:8px;}
+  .choice-btn{background:#fff;border:2px solid #CBD5E1;border-radius:10px;padding:11px 16px;text-align:left;cursor:pointer;font-size:.88rem;font-weight:500;transition:border-color .2s,background .2s;color:var(--dark);}
+  .choice-btn:hover:not(:disabled){border-color:var(--blue);background:var(--light);}
+  .choice-btn.correct{border-color:var(--green);background:#D1FAE5;color:var(--green);font-weight:700;}
+  .choice-btn.incorrect{border-color:var(--red);background:#FEE2E2;color:var(--red);}
+  .choice-btn:disabled{cursor:default;}
+
+  /* LABELING */
+  .label-wrap{position:relative;display:inline-block;width:100%;}
+  .label-diagram{width:100%;max-width:560px;display:block;margin:0 auto 14px;}
+  .label-targets{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+  .label-target{background:var(--lightgray);border:2px dashed #9CA3AF;border-radius:8px;padding:10px 12px;font-size:.82rem;}
+  .label-target .lt-name{font-weight:700;color:var(--dark);margin-bottom:4px;}
+  .label-target select{width:100%;padding:6px 8px;border-radius:6px;border:1.5px solid #CBD5E1;font-size:.82rem;background:#fff;color:var(--dark);}
+  .label-target.correct select{border-color:var(--green);background:#D1FAE5;}
+  .label-target.incorrect select{border-color:var(--red);background:#FEE2E2;}
+
+  /* FEEDBACK */
+  .feedback{margin-top:12px;padding:10px 14px;border-radius:8px;font-size:.88rem;font-weight:600;display:none;}
+  .feedback.show{display:block;}
+  .feedback.ok{background:#D1FAE5;color:var(--green);}
+  .feedback.bad{background:#FEE2E2;color:var(--red);}
+  .feedback.info{background:#DBEAFE;color:var(--blue);}
+
+  /* BUTTONS */
+  .btn{display:inline-block;padding:10px 22px;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;border:none;transition:opacity .2s,transform .15s;}
+  .btn:hover{opacity:.88;transform:translateY(-1px);}
+  .btn-primary{background:var(--blue);color:#fff;}
+  .btn-green{background:var(--green);color:#fff;}
+  .btn-gold{background:var(--gold);color:var(--dark);}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+
+  /* SECTION HEADERS */
+  .section-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
+  .section-num{background:var(--blue);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.95rem;flex-shrink:0;}
+  .section-title{font-size:1.05rem;font-weight:800;color:var(--blue);}
+
+  /* COMPLETION SCREEN */
+  #completion{display:none;text-align:center;padding:30px 20px;}
+  .completion-card{background:#fff;border-radius:18px;box-shadow:0 8px 32px rgba(27,94,175,.18);padding:36px 28px;max-width:520px;margin:0 auto;}
+  .completion-icon{font-size:4rem;margin-bottom:10px;}
+  .completion-title{font-size:1.6rem;font-weight:900;color:var(--blue);margin-bottom:6px;}
+  .completion-rank{font-size:1.1rem;font-weight:700;color:var(--green);margin-bottom:16px;}
+  .score-circle{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 18px;color:#fff;}
+  .score-num{font-size:2rem;font-weight:900;line-height:1;}
+  .score-sub{font-size:.7rem;opacity:.85;text-transform:uppercase;letter-spacing:.5px;}
+  .badges-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+  .badge{background:var(--lightgray);border-radius:10px;padding:8px 14px;font-size:.8rem;font-weight:700;color:var(--dark);border:2px solid #CBD5E1;}
+  .badge.earned{background:var(--gold);border-color:var(--gold);color:var(--dark);}
+  .obj-list{text-align:left;background:var(--lightgray);border-radius:10px;padding:14px 18px;margin-bottom:18px;}
+  .obj-list li{font-size:.85rem;margin-bottom:6px;color:var(--dark);list-style:none;padding-left:20px;position:relative;}
+  .obj-list li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700;}
+
+  /* CONFETTI */
+  .confetti-piece{position:fixed;width:10px;height:10px;border-radius:2px;animation:confettiFall linear forwards;pointer-events:none;z-index:9999;}
+  @keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1;}100%{transform:translateY(110vh) rotate(720deg);opacity:0;}}
+
+  /* TERMINAL STYLE */
+  .terminal{background:#1a1a2e;color:#00FF88;font-family:monospace;font-size:.82rem;border-radius:10px;padding:14px 16px;margin:10px 0;line-height:1.7;}
+  .terminal .prompt{color:#F5A623;}
+  .terminal .comment{color:#6B7280;}
+
+  /* PERMISSION TABLE */
+  .perm-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0;}
+  .perm-table th{background:var(--blue);color:#fff;padding:7px 10px;text-align:left;}
+  .perm-table td{padding:7px 10px;border-bottom:1px solid #e5e7eb;}
+  .perm-table tr:nth-child(even) td{background:var(--lightgray);}
+
+  /* RESPONSIVE */
+  @media(max-width:600px){
+    .dd-container{flex-direction:column;}
+    .label-targets{grid-template-columns:1fr;}
+    .hud{gap:8px;}
+    .hud-box{min-width:50px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <svg class="logo-shield" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22 2L4 10v14c0 10 8 17 18 20 10-3 18-10 18-20V10L22 2z" fill="#fff" fill-opacity=".15" stroke="#fff" stroke-width="2"/>
+      <text x="22" y="28" text-anchor="middle" font-size="16" font-weight="900" fill="#fff" font-family="Arial">U</text>
+    </svg>
+    <div>
+      <div class="school-name">University View Academy</div>
+      <div class="school-sub">Computer Architecture · A+ Core 2</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+  <div class="hud">
+    <div class="hud-box"><div class="hud-val" id="hud-score">0</div><div class="hud-lbl">Score</div></div>
+    <div class="hud-box"><div class="hud-val" id="hud-streak">0🔥</div><div class="hud-lbl">Streak</div></div>
+    <div class="rank-badge"><span class="rank-lbl">Rank</span><span id="hud-rank">Trainee</span></div>
+  </div>
+</div>
+
+<!-- STREAK BANNER -->
+<div class="streak-banner" id="streak-banner"></div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap">
+  <span class="progress-label">Mission Progress</span>
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+  <span class="progress-pct" id="prog-pct">0%</span>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="activity-main">
+
+  <!-- INTRO -->
+  <div class="mission-card" id="intro-card">
+    <span class="mission-tag">🛡️ Briefing</span>
+    <div class="mission-title">Operation: OS Mastery — Linux & macOS</div>
+    <div class="mission-desc">
+      Welcome, UVA Cadet! Your mission is to demonstrate mastery of Linux and macOS features covered in <strong>A+ Core 2 Domains 1.9 & 1.10</strong>. Complete all 5 missions to earn your rank and unlock the <strong>OS Master</strong> badge. Each correct answer builds your streak — aim for combos to maximize your score!
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;">
+      <div style="background:var(--lightgray);border-radius:8px;padding:10px 14px;font-size:.82rem;flex:1;min-width:160px;">
+        <strong style="color:var(--blue);">🎯 Objectives</strong><br/>
+        Linux filesystem · Permissions · macOS tools · Security · Troubleshooting
+      </div>
+      <div style="background:var(--lightgray);border-radius:8px;padding:10px 14px;font-size:.82rem;flex:1;min-width:160px;">
+        <strong style="color:var(--green);">🏆 Ranks</strong><br/>
+        Trainee → Apprentice → Expert → Master
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startActivity()">🚀 Begin Missions</button>
+  </div>
+
+  <!-- MISSIONS WRAPPER (hidden until start) -->
+  <div id="missions-wrap" style="display:none;">
+
+    <!-- ══════════════════════════════════════════
+         MISSION 1: Drag & Drop – Linux Filesystem
+    ══════════════════════════════════════════ -->
+    <div class="mission-card" id="m1">
+      <div class="section-header">
+        <div class="section-num">1</div>
+        <div class="section-title">Mission 1 — Map the Linux Filesystem</div>
+      </div>
+      <span class="mission-tag">🗂️ Drag & Drop</span>
+      <div class="mission-desc">Drag each Linux directory to its correct description. Every correct placement earns points — wrong drops cost your streak!</div>
+
+      <div class="dd-container">
+        <div class="dd-bank">
+          <div class="dd-bank-title">📦 Directories</div>
+          <div id="bank1">
+            <div class="drag-item" draggable="true" data-val="/etc">/etc</div>
+            <div class="drag-item" draggable="true" data-val="/var">/var</div>
+            <div class="drag-item" draggable="true" data-val="/home">/home</div>
+            <div class="drag-item" draggable="true" data-val="/bin">/bin</div>
+            <div class="drag-item" draggable="true" data-val="/tmp">/tmp</div>
+            <div class="drag-item" draggable="true" data-val="/dev">/dev</div>
+          </div>
+        </div>
+        <div class="dd-zones">
+          <div class="dd-zone-title">🎯 Drop Zones</div>
+          <div class="drop-zone" data-answer="/home">
+            <div class="drop-zone-label">User home directories</div>
+            <div class="drop-zone-hint">Drop here…</div>
+          </div>
+          <div class="drop-zone" data-answer="/etc">
+            <div class="drop-zone-label">System-wide configuration files</div>
+            <div class="drop-zone-hint">Drop here…</div>
+          </div>
+          <div class="drop-zone" data-answer="/bin">
+            <div class="drop-zone-label">Essential user command binaries</div>
+            <div class="drop-zone-hint">Drop here…</div>
+          </div>
+          <div class="drop-zone" data-answer="/var">
+            <div class="drop-zone-label">Variable data (logs, spool, mail)</div>
+            <div class="drop-zone-hint">Drop here…</div>
+          </div>
+          <div class="drop-zone" data-answer="/tmp">
+            <div class="drop-zone-label">Temporary files (cleared on reboot)</div>
+            <div class="drop-zone-hint">Drop here…</div>
+          </div>
+          <div class="drop-zone" data-answer="/dev">
+            <div class="drop-zone-label">Device files (disks, terminals, etc.)</div>
+            <div class="drop-zone-hint">Drop here…</div>
+          </div>
+        </div>
+      </div>
+      <div class="feedback" id="fb1"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="checkM1()">✅ Check Matches</button>
+        <button class="btn btn-green" id="next1" style="display:none" onclick="showMission(2)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         MISSION 2: Scenario MCQ – File Permissions
+    ══════════════════════════════════════════ -->
+    <div class="mission-card" id="m2" style="display:none;">
+      <div class="section-header">
+        <div class="section-num">2</div>
+        <div class="section-title">Mission 2 — Decode File Permissions</div>
+      </div>
+      <span class="mission-tag">🔐 Scenario Challenge</span>
+      <div class="mission-desc">Answer each scenario about Linux file permissions. Read the terminal output carefully!</div>
+      <div id="m2-questions"></div>
+      <div class="feedback" id="fb2"></div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="next2" style="display:none" onclick="showMission(3)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         MISSION 3: Labeling – Linux Commands
+    ══════════════════════════════════════════ -->
+    <div class="mission-card" id="m3" style="display:none;">
+      <div class="section-header">
+        <div class="section-num">3</div>
+        <div class="section-title">Mission 3 — Command Identification</div>
+      </div>
+      <span class="mission-tag">💻 Terminal Labeling</span>
+      <div class="mission-desc">Match each Linux command to its correct function using the dropdowns below.</div>
+
+      <div class="terminal">
+        <div><span class="prompt">$</span> <span style="color:#fff">ls -la /home/cadet</span></div>
+        <div><span class="prompt">$</span> <span style="color:#fff">chmod 755 script.sh</span></div>
+        <div><span class="prompt">$</span> <span style="color:#fff">chown cadet:staff report.txt</span></div>
+        <div><span class="prompt">$</span> <span style="color:#fff">passwd cadet</span></div>
+        <div><span class="prompt">$</span> <span style="color:#fff">sudo useradd -m newuser</span></div>
+        <div><span class="prompt">$</span> <span style="color:#fff">grep -r "error" /var/log/</span></div>
+      </div>
+
+      <div class="label-targets" id="m3-labels"></div>
+      <div class="feedback" id="fb3"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="checkM3()">✅ Check Labels</button>
+        <button class="btn btn-green" id="next3" style="display:none" onclick="showMission(4)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         MISSION 4: Scenario MCQ – macOS Features
+    ══════════════════════════════════════════ -->
+    <div class="mission-card" id="m4" style="display:none;">
+      <div class="section-header">
+        <div class="section-num">4</div>
+        <div class="section-title">Mission 4 — macOS Feature Identification</div>
+      </div>
+      <span class="mission-tag">🍎 macOS Scenarios</span>
+      <div class="mission-desc">A UVA tech support cadet receives help tickets. Choose the correct macOS tool or feature for each situation.</div>
+      <div id="m4-questions"></div>
+      <div class="feedback" id="fb4"></div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="next4" style="display:none" onclick="showMission(5)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         MISSION 5: Drag & Drop – Octal Permissions
+    ══════════════════════════════════════════ -->
+    <div class="mission-card" id="m5" style="display:none;">
+      <div class="section-header">
+        <div class="section-num">5</div>
+        <div class="section-title">Mission 5 — Octal Permission Decoder</div>
+      </div>
+      <span class="mission-tag">🔢 Final Boss</span>
+      <div class="mission-desc">Match each <strong>octal permission value</strong> to its symbolic notation and meaning. This is the Final Boss — no mistakes allowed for full marks!</div>
+
+      <table class="perm-table">
+        <thead><tr><th>Octal</th><th>Symbolic</th><th>Meaning</th></tr></thead>
+        <tbody id="perm-table-body"></tbody>
+      </table>
+
+      <div style="margin-top:14px;">
+        <div class="dd-bank-title">🎯 Match the Octal Values</div>
+        <div id="m5-questions"></div>
+      </div>
+      <div class="feedback" id="fb5"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="checkM5()">✅ Submit Final Mission</button>
+        <button class="btn btn-gold" id="next5" style="display:none" onclick="showCompletion()">🏆 View Results</button>
+      </div>
+    </div>
+
+  </div><!-- /missions-wrap -->
+
+  <!-- COMPLETION SCREEN -->
+  <div id="completion">
+    <div class="completion-card">
+      <div class="completion-icon" id="comp-icon">🏆</div>
+      <div class="completion-title">Mission Complete!</div>
+      <div class="completion-rank" id="comp-rank">Rank: Master</div>
+      <div class="score-circle">
+        <div class="score-num" id="comp-score">0</div>
+        <div class="score-sub">Points</div>
+      </div>
+      <div class="badges-row" id="badges-row">
+        <div class="badge" id="b-streak">🔥 Streak Master</div>
+        <div class="badge" id="b-perfect">⭐ Perfect Score</div>
+        <div class="badge" id="b-speed">⚡ OS Expert</div>
+        <div class="badge earned">🛡️ UVA Cadet</div>
+      </div>
+      <ul class="obj-list">
+        <li>Identified Linux filesystem directories and their purposes</li>
+        <li>Interpreted symbolic and octal file permission notation</li>
+        <li>Matched Linux CLI commands to their functions</li>
+        <li>Identified macOS tools: Time Machine, Recovery, Gatekeeper</li>
+        <li>Applied A+ Core 2 Domain 1.9 & 1.10 knowledge</li>
+      </ul>
+      <div style="font-size:.8rem;color:var(--gray);margin-bottom:16px;">
+        <strong>Virtue · Vigor · Vision</strong> — University View Academy
+      </div>
+      <button class="btn btn-primary" onclick="restartActivity()">🔄 Restart Missions</button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════
+let score = 0, streak = 0, maxStreak = 0, totalCorrect = 0, totalQ = 0;
+const RANKS = ['Trainee','Apprentice','Expert','Master'];
+const RANK_THRESHOLDS = [0, 150, 350, 600];
+
+function getrank(s){
+  let r = 'Trainee';
+  for(let i=0;i<RANK_THRESHOLDS.length;i++) if(s>=RANK_THRESHOLDS[i]) r=RANKS[i];
+  return r;
+}
+function updateHUD(){
+  document.getElementById('hud-score').textContent = score;
+  document.getElementById('hud-streak').textContent = streak+'🔥';
+  document.getElementById('hud-rank').textContent = getrank(score);
+}
+function addScore(pts, correct){
+  if(correct){
+    streak++;
+    if(streak>maxStreak) maxStreak=streak;
+    let bonus = streak>=5?3:streak>=3?2:1;
+    score += pts * bonus;
+    totalCorrect++;
+    if(streak===3||streak===5||streak===10) showStreakBanner(streak);
+  } else {
+    streak=0;
+  }
+  totalQ++;
+  updateHUD();
+}
+function showStreakBanner(n){
+  const b = document.getElementById('streak-banner');
+  b.textContent = `🔥 ${n} IN A ROW! STREAK BONUS ACTIVE! +${n>=5?'3x':n>=3?'2x':'1x'} Points!`;
+  b.style.display='block';
+  setTimeout(()=>{ b.style.display='none'; },2800);
+}
+function updateProgress(missionNum){
+  const pct = Math.round((missionNum/5)*100);
+  document.getElementById('prog-fill').style.width = pct+'%';
+  document.getElementById('prog-pct').textContent = pct+'%';
+}
+
+// ═══════════════════════════════════════════
+//  START
+// ═══════════════════════════════════════════
+function startActivity(){
+  document.getElementById('intro-card').style.display='none';
+  document.getElementById('missions-wrap').style.display='block';
+  buildM2(); buildM3(); buildM4(); buildM5();
+  initDragDrop();
+  updateProgress(0);
+}
+
+// ═══════════════════════════════════════════
+//  MISSION 1 – Drag & Drop Filesystem
+// ═══════════════════════════════════════════
+let dragSrc = null;
+function initDragDrop(){
+  document.querySelectorAll('.drag-item').forEach(item=>{
+    item.addEventListener('dragstart', e=>{
+      dragSrc = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed='move';
+      e.dataTransfer.setData('text/plain', item.dataset.val);
+    });
+    item.addEventListener('dragend', ()=>item.classList.remove('dragging'));
+  });
+  document.querySelectorAll('.drop-zone').forEach(zone=>{
+    zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', ()=>zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e=>{
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if(zone.querySelector('.dropped-item')) return; // already filled
+      const val = e.dataTransfer.getData('text/plain');
+      const span = document.createElement('span');
+      span.className='dropped-item';
+      span.textContent=val;
+      span.dataset.val=val;
+      zone.querySelector('.drop-zone-hint').style.display='none';
+      zone.appendChild(span);
+      if(dragSrc) dragSrc.style.display='none';
+    });
+  });
+}
+
+function checkM1(){
+  let correct=0, total=0;
+  document.querySelectorAll('#m1 .drop-zone').forEach(zone=>{
+    const dropped = zone.querySelector('.dropped-item');
+    if(!dropped) return;
+    total++;
+    if(dropped.dataset.val === zone.dataset.answer){
+      zone.classList.add('correct'); correct++;
+      addScore(20, true);
+    } else {
+      zone.classList.add('incorrect');
+      addScore(0, false);
+    }
+  });
+  const fb = document.getElementById('fb1');
+  fb.className='feedback show '+(correct===6?'ok':'bad');
+  fb.innerHTML = correct===6
+    ? `🎉 Perfect! All 6 directories matched correctly! +${correct*20} pts`
+    : `✅ ${correct}/6 correct. Review: /etc=config, /var=logs, /home=users, /bin=binaries, /tmp=temp, /dev=devices`;
+  document.getElementById('next1').style.display='inline-block';
+  updateProgress(1);
+}
+
+// ═══════════════════════════════════════════
+//  MISSION 2 – Permissions MCQ
+// ═══════════════════════════════════════════
+const m2data = [
+  {
+    q: `A file shows permissions <code>-rwxr-xr--</code>. What can the <strong>group</strong> do?`,
+    choices:['Read and execute only','Read, write, and execute','Read only','Write only'],
+    answer:0,
+    explain:'Group permissions are the middle triplet: r-x = read + execute (no write).'
+  },
+  {
+    q: `You run <code>chmod 644 report.txt</code>. What is the symbolic equivalent?`,
+    choices:['-rw-r--r--','-rwxr-xr-x','-rw-rw-rw-','-r--r--r--'],
+    answer:0,
+    explain:'6=rw- (owner), 4=r-- (group), 4=r-- (others) → -rw-r--r--'
+  },
+  {
+    q: `Which command changes the <strong>owner</strong> of a file to <em>cadet</em> and group to <em>staff</em>?`,
+    choices:['chown cadet:staff file.txt','chmod cadet:staff file.txt','usermod cadet staff file.txt','chgrp cadet:staff file.txt'],
+    answer:0,
+    explain:'chown [owner]:[group] [file] is the correct syntax for changing ownership.'
+  }
+];
+let m2answered = 0;
+function buildM2(){
+  const wrap = document.getElementById('m2-questions');
+  m2data.forEach((q,i)=>{
+    const div = document.createElement('div');
+    div.style.marginBottom='18px';
+    div.innerHTML=`
+      <div class="scenario-box">${q.q}</div>
+      <div class="choices" id="m2c${i}">
+        ${q.choices.map((c,j)=>`<button class="choice-btn" onclick="answerM2(${i},${j})" id="m2b${i}_${j}">${c}</button>`).join('')}
+      </div>
+      <div class="feedback" id="m2fb${i}"></div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+function answerM2(qi, ci){
+  const q = m2data[qi];
+  document.querySelectorAll(`#m2c${qi} .choice-btn`).forEach(b=>b.disabled=true);
+  const btn = document.getElementById(`m2b${qi}_${ci}`);
+  const fb = document.getElementById(`m2fb${qi}`);
+  if(ci===q.answer){
+    btn.classList.add('correct');
+    fb.className='feedback show ok'; fb.textContent='✅ Correct! '+q.explain;
+    addScore(30, true);
+  } else {
+    btn.classList.add('incorrect');
+    document.getElementById(`m2b${qi}_${q.answer}`).classList.add('correct');
+    fb.className='feedback show bad'; fb.textContent='❌ Incorrect. '+q.explain;
+    addScore(0, false);
+  }
+  m2answered++;
+  if(m2answered===m2data.length){
+    document.getElementById('next2').style.display='inline-block';
+    updateProgress(2);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  MISSION 3 – Command Labeling
+// ═══════════════════════════════════════════
+const m3data = [
+  {cmd:'ls -la /home/cadet', answer:'List all files with permissions in a directory'},
+  {cmd:'chmod 755 script.sh', answer:'Set file permissions using octal notation'},
+  {cmd:'chown cadet:staff report.txt', answer:'Change file owner and group'},
+  {cmd:'passwd cadet', answer:'Change a user account password'},
+  {cmd:'sudo useradd -m newuser', answer:'Create a new user with a home directory'},
+  {cmd:'grep -r "error" /var/log/', answer:'Search recursively for text in files'},
+];
+const m3options = [
+  'List all files with permissions in a directory',
+  'Set file permissions using octal notation',
+  'Change file owner and group',
+  'Change a user account password',
+  'Create a new user with a home directory',
+  'Search recursively for text in files',
+  'Mount a filesystem',
+  'Display running processes'
+];
+function buildM3(){
+  const wrap = document.getElementById('m3-labels');
+  m3data.forEach((item,i)=>{
+    const div = document.createElement('div');
+    div.className='label-target';
+    div.id=`lt${i}`;
+    div.innerHTML=`
+      <div class="lt-name"><code>${item.cmd}</code></div>
+      <select id="m3sel${i}">
+        <option value="">— Select function —</option>
+        ${m3options.map(o=>`<option value="${o}">${o}</option>`).join('')}
+      </select>
+    `;
+    wrap.appendChild(div);
+  });
+}
+function checkM3(){
+  let correct=0;
+  m3data.forEach((item,i)=>{
+    const sel = document.getElementById(`m3sel${i}`);
+    const lt = document.getElementById(`lt${i}`);
+    sel.disabled=true;
+    if(sel.value===item.answer){
+      lt.classList.add('correct'); correct++;
+      addScore(20, true);
+    } else {
+      lt.classList.add('incorrect');
+      addScore(0, false);
+      sel.value=item.answer; // show correct
+    }
+  });
+  const fb = document.getElementById('fb3');
+  fb.className='feedback show '+(correct===6?'ok':'bad');
+  fb.innerHTML = correct===6
+    ? `🎉 All 6 commands identified correctly! You know your Linux CLI!`
+    : `✅ ${correct}/6 correct. Review the terminal commands and their functions.`;
+  document.getElementById('next3').style.display='inline-block';
+  updateProgress(3);
+}
+
+// ═══════════════════════════════════════════
+//  MISSION 4 – macOS Scenarios MCQ
+// ═══════════════════════════════════════════
+const m4data = [
+  {
+    q:`A student's MacBook won't boot normally. They need to reinstall macOS without losing their files. Which tool should they use?`,
+    choices:['Time Machine','macOS Recovery Menu','Disk Utility','Activity Monitor'],
+    answer:1,
+    explain:'macOS Recovery (⌘+R at boot) allows reinstalling macOS, accessing Disk Utility, and restoring from Time Machine.'
+  },
+  {
+    q:`A UVA cadet wants to automatically back up their entire Mac to an external drive every hour. Which built-in macOS feature does this?`,
+    choices:['iCloud Drive','Time Machine','Migration Assistant','FileVault'],
+    answer:1,
+    explain:'Time Machine creates hourly backups to an external drive and keeps daily/weekly snapshots.'
+  },
+  {
+    q:`A downloaded app from the internet is blocked from opening. The student sees "App cannot be opened because it is from an unidentified developer." Which macOS security feature caused this?`,
+    choices:['FileVault','System Integrity Protection (SIP)','Gatekeeper','Keychain Access'],
+    answer:2,
+    explain:'Gatekeeper checks apps against Apple\'s notarization and blocks unverified developers by default.'
+  },
+  {
+    q:`Which macOS system folder stores application support files, preferences, and caches for the current user?`,
+    choices:['/Library','/System/Library','~/Library (User Library)','~/Applications'],
+    answer:2,
+    explain:'~/Library is the hidden user-level Library folder containing preferences, caches, and app support data.'
+  }
+];
+let m4answered=0;
+function buildM4(){
+  const wrap = document.getElementById('m4-questions');
+  m4data.forEach((q,i)=>{
+    const div = document.createElement('div');
+    div.style.marginBottom='18px';
+    div.innerHTML=`
+      <div class="scenario-box">${q.q}</div>
+      <div class="choices" id="m4c${i}">
+        ${q.choices.map((c,j)=>`<button class="choice-btn" onclick="answerM4(${i},${j})" id="m4b${i}_${j}">${c}</button>`).join('')}
+      </div>
+      <div class="feedback" id="m4fb${i}"></div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+function answerM4(qi, ci){
+  const q = m4data[qi];
+  document.querySelectorAll(`#m4c${qi} .choice-btn`).forEach(b=>b.disabled=true);
+  const btn = document.getElementById(`m4b${qi}_${ci}`);
+  const fb = document.getElementById(`m4fb${qi}`);
+  if(ci===q.answer){
+    btn.classList.add('correct');
+    fb.className='feedback show ok'; fb.textContent='✅ Correct! '+q.explain;
+    addScore(30, true);
+  } else {
+    btn.classList.add('incorrect');
+    document.getElementById(`m4b${qi}_${q.answer}`).classList.add('correct');
+    fb.className='feedback show bad'; fb.textContent='❌ Incorrect. '+q.explain;
+    addScore(0, false);
+  }
+  m4answered++;
+  if(m4answered===m4data.length){
+    document.getElementById('next4').style.display='inline-block';
+    updateProgress(4);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  MISSION 5 – Octal Permissions
+// ═══════════════════════════════════════════
+const permRef = [
+  {octal:'777', sym:'rwxrwxrwx', meaning:'Full access for everyone'},
+  {octal:'755', sym:'rwxr-xr-x', meaning:'Owner full; group/others read+execute'},
+  {octal:'644', sym:'rw-r--r--', meaning:'Owner read/write; others read only'},
+  {octal:'600', sym:'rw-------', meaning:'Owner read/write only; no others'},
+  {octal:'400', sym:'r--------', meaning:'Owner read only; no others'},
+];
+const m5q = [
+  {q:'A web server script needs to be executable by all users but only writable by the owner.', answer:'755'},
+  {q:'A private SSH key file should only be readable and writable by the owner — no group or other access.', answer:'600'},
+  {q:'A public HTML file should be readable by everyone but only editable by the owner.', answer:'644'},
+];
+let m5answered=[];
+function buildM5(){
+  // Reference table
+  const tbody = document.getElementById('perm-table-body');
+  permRef.forEach(p=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML=`<td><strong>${p.octal}</strong></td><td><code>${p.sym}</code></td><td>${p.meaning}</td>`;
+    tbody.appendChild(tr);
+  });
+  // Questions
+  const wrap = document.getElementById('m5-questions');
+  m5q.forEach((q,i)=>{
+    const div = document.createElement('div');
+    div.style.marginBottom='14px';
+    div.innerHTML=`
+      <div class="scenario-box">${q.q}</div>
+      <div class="choices" id="m5c${i}">
+        ${permRef.map(p=>`<button class="choice-btn" onclick="answerM5(${i},'${p.octal}')" id="m5b${i}_${p.octal}">${p.octal} (${p.sym})</button>`).join('')}
+      </div>
+      <div class="feedback" id="m5fb${i}"></div>
+    `;
+    wrap.appendChild(div);
+  });
+}
+function answerM5(qi, val){
+  if(m5answered.includes(qi)) return;
+  m5answered.push(qi);
+  const q = m5q[qi];
+  document.querySelectorAll(`#m5c${qi} .choice-btn`).forEach(b=>b.disabled=true);
+  const btn = document.getElementById(`m5b${qi}_${val}`);
+  const fb = document.getElementById(`m5fb${qi}`);
+  const ref = permRef.find(p=>p.octal===q.answer);
+  if(val===q.answer){
+    btn.classList.add('correct');
+    fb.className='feedback show ok'; fb.textContent=`✅ Correct! ${q.answer} = ${ref.sym} — ${ref.meaning}`;
+    addScore(40, true);
+  } else {
+    btn.classList.add('incorrect');
+    document.getElementById(`m5b${qi}_${q.answer}`).classList.add('correct');
+    fb.className='feedback show bad'; fb.textContent=`❌ Incorrect. Correct: ${q.answer} = ${ref.sym} — ${ref.meaning}`;
+    addScore(0, false);
+  }
+}
+function checkM5(){
+  // auto-answer any unanswered
+  m5q.forEach((q,i)=>{
+    if(!m5answered.includes(i)){
+      const fb = document.getElementById(`m5fb${i}`);
+      const ref = permRef.find(p=>p.octal===q.answer);
+      document.querySelectorAll(`#m5c${i} .choice-btn`).forEach(b=>b.disabled=true);
+      document.getElementById(`m5b${i}_${q.answer}`).classList.add('correct');
+      fb.className='feedback show bad'; fb.textContent=`❌ Not answered. Correct: ${q.answer} = ${ref.sym}`;
+      addScore(0, false);
+      m5answered.push(i);
+    }
+  });
+  document.getElementById('fb5').className='feedback show info';
+  document.getElementById('fb5').textContent='Mission 5 complete! Click "View Results" to see your final score.';
+  document.getElementById('next5').style.display='inline-block';
+  updateProgress(5);
+}
+
+// ═══════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════
+function showMission(n){
+  document.getElementById('m'+n).style.display='block';
+  document.getElementById('m'+n).scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ═══════════════════════════════════════════
+//  COMPLETION
+// ═══════════════════════════════════════════
+function showCompletion(){
+  document.getElementById('missions-wrap').style.display='none';
+  document.getElementById('completion').style.display='block';
+  document.getElementById('comp-score').textContent=score;
+  const rank = getrank(score);
+  document.getElementById('comp-rank').textContent='Rank Achieved: '+rank;
+  const icons = {Trainee:'🎖️',Apprentice:'🥈',Expert:'🥇',Master:'🏆'};
+  document.getElementById('comp-icon').textContent=icons[rank]||'🏆';
+  // Badges
+  if(maxStreak>=3) document.getElementById('b-streak').classList.add('earned');
+  if(score>=500) document.getElementById('b-perfect').classList.add('earned');
+  document.getElementById('b-speed').classList.add('earned');
+  document.getElementById('completion').scrollIntoView({behavior:'smooth'});
+  launchConfetti();
+}
+
+function restartActivity(){
+  location.reload();
+}
+
+// ═══════════════════════════════════════════
+//  CONFETTI
+// ═══════════════════════════════════════════
+function launchConfetti(){
+  const colors=['#1B5EAF','#1E7A3E','#F5A623','#fff','#60A5FA','#34D399'];
+  for(let i=0;i<80;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.left=Math.random()*100+'vw';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.width=(8+Math.random()*8)+'px';
+    el.style.height=(8+Math.random()*8)+'px';
+    el.style.animationDuration=(2+Math.random()*2)+'s';
+    el.style.animationDelay=(Math.random()*1.5)+'s';
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 5000);
+  }
+}
+</script>
+</body>
+</html>
