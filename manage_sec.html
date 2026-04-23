@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UVA - Managing Security Settings Mission</title>
+    <style>
+        :root {
+            --uva-blue: #1B5EAF;
+            --uva-green: #1E7A3E;
+            --uva-light-blue: #E3F2FD;
+            --uva-dark-blue: #0D47A1;
+            --uva-gold: #FFC107;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            background-image: linear-gradient(to bottom, var(--uva-light-blue), #ffffff);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--uva-blue), var(--uva-dark-blue));
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .ribbon-banner {
+            background: var(--uva-green);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+            margin-top: 10px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .mission-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--uva-gold);
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background: var(--uva-light-blue);
+            padding: 15px 25px;
+            border-bottom: 2px solid var(--uva-blue);
+        }
+
+        .info-item {
+            text-align: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            min-width: 120px;
+        }
+
+        .info-label {
+            font-size: 0.9rem;
+            color: var(--uva-dark-blue);
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--uva-blue);
+        }
+
+        .rank-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            background: var(--uva-gold);
+            color: #333;
+            margin-left: 10px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .instructions {
+            background: #e8f4fc;
+            border-left: 4px solid var(--uva-blue);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .instructions h2 {
+            color: var(--uva-dark-blue);
+            margin-bottom: 10px;
+        }
+
+        .mission-area {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .mission-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px dashed #ddd;
+        }
+
+        .mission-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--uva-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .mission-text h3 {
+            color: var(--uva-dark-blue);
+            font-size: 1.4rem;
+        }
+
+        .mission-text p {
+            color: #666;
+        }
+
+        .drag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .draggables, .drop-targets {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .section-title {
+            text-align: center;
+            padding: 12px;
+            background: var(--uva-blue);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .draggable-list, .drop-list {
+            min-height: 300px;
+        }
+
+        .draggable-item {
+            background: white;
+            border: 2px solid var(--uva-blue);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .draggable-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            background: #f0f8ff;
+        }
+
+        .draggable-item:active {
+            cursor: grabbing;
+        }
+
+        .drop-zone {
+            background: #f9f9f9;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            min-height: 80px;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.drag-over {
+            background: #e3f2fd;
+            border-color: var(--uva-blue);
+            transform: scale(1.02);
+        }
+
+        .drop-zone.correct {
+            background: #e8f5e9;
+            border-color: var(--success);
+        }
+
+        .drop-zone.incorrect {
+            background: #ffebee;
+            border-color: var(--danger);
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.success {
+            background: #e8f5e9;
+            color: var(--success);
+            border: 1px solid var(--success);
+            display: block;
+        }
+
+        .feedback.error {
+            background: #ffebee;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            display: block;
+        }
+
+        .streak-indicator {
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            color: var(--uva-gold);
+            font-size: 1.2rem;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary {
+            background: var(--uva-blue);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--uva-green);
+            color: white;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .completion-message {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--uva-blue), var(--uva-dark-blue));
+            color: white;
+            border-radius: 10px;
+            margin-top: 30px;
+            display: none;
+        }
+
+        .completion-message h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .completion-message p {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+        }
+
+        .badge {
+            width: 120px;
+            height: 120px;
+            background: gold;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0.7;
+            animation: confetti-fall 5s linear forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 0.7; }
+            100% { transform: translateY(1000px) rotate(720deg); opacity: 0; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--uva-dark-blue);
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .drag-container {
+                flex-direction: column;
+            }
+
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .info-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>University View Academy</h1>
+            <div class="mission-title">MISSION: Managing Security Settings</div>
+            <div class="ribbon-banner">Virtue, Vigor, Vision</div>
+        </header>
+
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">CURRENT RANK</div>
+                <div class="info-value">Trainee<span class="rank-badge">1</span></div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">SCORE</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">STREAK</div>
+                <div class="info-value" id="streak">0</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">COMPLETED</div>
+                <div class="info-value" id="completed">0/5</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="instructions">
+                <h2>Mission Briefing</h2>
+                <p>As a cybersecurity specialist at UVA, you must correctly configure security settings to protect our systems. Match each security feature to its correct description to demonstrate your expertise. Complete all 5 matches to advance in rank!</p>
+            </div>
+
+            <div class="mission-area">
+                <div class="mission-header">
+                    <div class="mission-icon">🔒</div>
+                    <div class="mission-text">
+                        <h3>Security Configuration Challenge</h3>
+                        <p>Drag each security feature to its correct description</p>
+                    </div>
+                </div>
+
+                <div class="streak-indicator" id="streak-display">
+                    🔥 3 in a row! Keep going!
+                </div>
+
+                <div class="drag-container">
+                    <div class="draggables">
+                        <div class="section-title">Security Features</div>
+                        <div class="draggable-list" id="draggables">
+                            <!-- Draggable items will be populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="drop-targets">
+                        <div class="section-title">Descriptions</div>
+                        <div class="drop-list" id="drop-targets">
+                            <!-- Drop zones will be populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+
+                <div class="controls">
+                    <button class="btn-secondary" id="reset-btn">Reset Mission</button>
+                    <button class="btn-primary" id="check-btn">Verify Configuration</button>
+                </div>
+            </div>
+
+            <div class="completion-message" id="completion">
+                <div class="badge">MASTER</div>
+                <h2>Mission Accomplished!</h2>
+                <p>You've successfully configured all security settings.</p>
+                <p>Your expertise has earned you the rank of <strong>Master</strong>!</p>
+                <button class="btn-primary" id="restart-btn">Start New Mission</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>University View Academy | Computer Architecture Course | A+ Core 2 Certification Prep</p>
+        </footer>
+    </div>
+
+    <script>
+        // Game data
+        const securityData = [
+            {
+                id: 1,
+                term: "Windows Defender Antivirus",
+                definition: "Scans and removes malware, viruses, and other malicious software from the system",
+                matched: false
+            },
+            {
+                id: 2,
+                term: "BitLocker",
+                definition: "Full disk encryption technology that protects data by providing encryption for entire volumes",
+                matched: false
+            },
+            {
+                id: 3,
+                term: "Windows Firewall",
+                definition: "Monitors and filters incoming and outgoing network traffic based on security rules",
+                matched: false
+            },
+            {
+                id: 4,
+                term: "Account Password Policies",
+                definition: "Rules that enforce password complexity, expiration, and lockout after failed attempts",
+                matched: false
+            },
+            {
+                id: 5,
+                term: "Encrypting File System (EFS)",
+                definition: "Feature that enables transparent encryption of individual files and folders on NTFS volumes",
+                matched: false
+            }
+        ];
+
+        // Game state
+        let gameState = {
+            score: 0,
+            streak: 0,
+            completed: 0,
+            rank: "Trainee",
+            rankLevel: 1,
+            draggedItem: null,
+            matches: 0
+        };
+
+        // DOM Elements
+        const draggablesList = document.getElementById('draggables');
+        const dropTargetsList = document.getElementById('drop-targets');
+        const scoreElement = document.getElementById('score');
+        const streakElement = document.getElementById('streak');
+        const completedElement = document.getElementById('completed');
+        const feedbackElement = document.getElementById('feedback');
+        const streakDisplay = document.getElementById('streak-display');
+        const resetBtn = document.getElementById('reset-btn');
+        const checkBtn = document.getElementById('check-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const completionMessage = document.getElementById('completion');
+
+        // Initialize game
+        function initGame() {
+            renderDraggables();
+            renderDropTargets();
+            updateGameInfo();
+        }
+
+        // Render draggable items
+        function renderDraggables() {
+            draggablesList.innerHTML = '';
+            const shuffled = [...securityData].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'draggable-item';
+                div.draggable = true;
+                div.dataset.id = item.id;
+                div.textContent = item.term;
+
+                // Drag events
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragend', handleDragEnd);
+
+                draggablesList.appendChild(div);
+            });
+        }
+
+        // Render drop targets
+        function renderDropTargets() {
+            dropTargetsList.innerHTML = '';
+            const shuffled = [...securityData].sort(() => Math.random() - 0.5);
+
+            shuffled.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'drop-zone';
+                div.dataset.id = item.id;
+                div.innerHTML = `<p>${item.definition}</p><div class="match-result"></div>`;
+
+                // Drop events
+                div.addEventListener('dragover', handleDragOver);
+                div.addEventListener('dragenter', handleDragEnter);
+                div.addEventListener('dragleave', handleDragLeave);
+                div.addEventListener('drop', handleDrop);
+
+                dropTargetsList.appendChild(div);
+            });
+        }
+
+        // Update game info display
+        function updateGameInfo() {
+            scoreElement.textContent = gameState.score;
+            streakElement.textContent = gameState.streak;
+            completedElement.textContent = `${gameState.completed}/5`;
+
+            // Update rank based on completed matches
+            if (gameState.completed >= 5) {
+                gameState.rank = "Master";
+                gameState.rankLevel = 4;
+            } else if (gameState.completed >= 3) {
+                gameState.rank = "Expert";
+                gameState.rankLevel = 3;
+            } else if (gameState.completed >= 1) {
+                gameState.rank = "Apprentice";
+                gameState.rankLevel = 2;
+            } else {
+                gameState.rank = "Trainee";
+                gameState.rankLevel = 1;
+            }
+
+            document.querySelector('.info-value:first-child').innerHTML = 
+                `${gameState.rank}<span class="rank-badge">${gameState.rankLevel}</span>`;
+        }
+
+        // Drag functions
+        function handleDragStart(e) {
+            gameState.draggedItem = this;
+            setTimeout(() => this.classList.add('dragging'), 0);
+        }
+
+        function handleDragEnd() {
+            this.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave() {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+
+            if (gameState.draggedItem) {
+                const draggedId = parseInt(gameState.draggedItem.dataset.id);
+                const targetId = parseInt(this.dataset.id);
+
+                // Check if match is correct
+                if (draggedId === targetId) {
+                    // Correct match
+                    this.classList.add('correct');
+                    gameState.draggedItem.classList.add('matched');
+                    gameState.draggedItem.setAttribute('draggable', 'false');
+
+                    // Update game state
+                    gameState.score += 100;
+                    gameState.streak++;
+                    gameState.completed++;
+                    gameState.matches++;
+
+                    // Show feedback
+                    showFeedback("Correct match! Well done.", "success");
+
+                    // Check for streak bonus
+                    if (gameState.streak >= 3) {
+                        streakDisplay.textContent = `🔥 ${gameState.streak} in a row! Keep going!`;
+                        streakDisplay.style.display = 'block';
+                        gameState.score += 50; // Streak bonus
+                    } else {
+                        streakDisplay.style.display = 'none';
+                    }
+
+                    // Check for completion
+                    if (gameState.completed >= 5) {
+                        showCompletion();
+                    }
+                } else {
+                    // Incorrect match
+                    this.classList.add('incorrect');
+                    gameState.streak = 0;
+                    streakDisplay.style.display = 'none';
+                    showFeedback("Incorrect match. Try again!", "error");
+                }
+
+                updateGameInfo();
+            }
+        }
+
+        // Show feedback message
+        function showFeedback(message, type) {
+            feedbackElement.textContent = message;
+            feedbackElement.className = `feedback ${type}`;
+            setTimeout(() => {
+                feedbackElement.className = 'feedback';
+            }, 3000);
+        }
+
+        // Show completion message
+        function showCompletion() {
+            completionMessage.style.display = 'block';
+            createConfetti();
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#f0f', '#0ff'];
+            const container = document.querySelector('.container');
+
+            for (let i = 0; i < 150; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                container.appendChild(confetti);
+
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+
+        // Reset game
+        function resetGame() {
+            gameState = {
+                score: 0,
+                streak: 0,
+                completed: 0,
+                rank: "Trainee",
+                rankLevel: 1,
+                draggedItem: null,
+                matches: 0
+            };
+
+            completionMessage.style.display = 'none';
+            streakDisplay.style.display = 'none';
+            feedbackElement.className = 'feedback';
+
+            initGame();
+        }
+
+        // Event listeners
+        resetBtn.addEventListener('click', resetGame);
+        checkBtn.addEventListener('click', () => {
+            showFeedback(`You've completed ${gameState.completed} out of 5 matches. Keep going!`, "success");
+        });
+        restartBtn.addEventListener('click', resetGame);
+
+        // Initialize the game
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
