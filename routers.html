@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UVA - SOHO Router Security Challenge</title>
+  <style>
+    :root {
+      --uva-blue: #1B5EAF;
+      --uva-green: #1E7A3E;
+      --uva-light-blue: #E3F2FD;
+      --uva-dark-blue: #0D47A1;
+      --uva-accent: #FFC107;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--uva-light-blue), #f5f9ff);
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(to right, var(--uva-blue), var(--uva-dark-blue));
+      color: white;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+
+    .motto-banner {
+      background: var(--uva-green);
+      padding: 8px;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: space-between;
+      background: var(--uva-light-blue);
+      padding: 15px 20px;
+      border-bottom: 2px solid var(--uva-blue);
+    }
+
+    .score-container, .rank-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .score-value, .rank-value {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: var(--uva-dark-blue);
+    }
+
+    .mission-container {
+      padding: 20px;
+      min-height: 400px;
+    }
+
+    .mission {
+      display: none;
+    }
+
+    .mission.active {
+      display: block;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: var(--uva-blue);
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--uva-accent);
+    }
+
+    .mission-content {
+      margin-bottom: 20px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .option {
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .option:hover {
+      border-color: var(--uva-blue);
+      background: var(--uva-light-blue);
+      transform: translateY(-2px);
+    }
+
+    .option.correct {
+      border-color: #4CAF50;
+      background: #E8F5E9;
+    }
+
+    .option.incorrect {
+      border-color: #f44336;
+      background: #FFEBEE;
+    }
+
+    .feedback {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+      display: none;
+    }
+
+    .feedback.correct {
+      background: #E8F5E9;
+      border-left: 5px solid #4CAF50;
+      display: block;
+    }
+
+    .feedback.incorrect {
+      background: #FFEBEE;
+      border-left: 5px solid #f44336;
+      display: block;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    button {
+      background: var(--uva-blue);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    button:hover {
+      background: var(--uva-dark-blue);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .progress-bar {
+      height: 10px;
+      background: #eee;
+      border-radius: 5px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress {
+      height: 100%;
+      background: var(--uva-green);
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+
+    .streak {
+      text-align: center;
+      font-weight: bold;
+      color: var(--uva-accent);
+      margin: 10px 0;
+      min-height: 24px;
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: var(--uva-accent);
+      opacity: 0.7;
+      z-index: 1000;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--uva-green);
+      color: white;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .router-diagram {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .router-image {
+      width: 300px;
+      height: 200px;
+      background: #eee;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      color: var(--uva-blue);
+      border: 2px dashed var(--uva-blue);
+    }
+
+    .label-area {
+      margin: 15px 0;
+      padding: 15px;
+      background: var(--uva-light-blue);
+      border-radius: 8px;
+    }
+
+    .label-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .label-option {
+      background: white;
+      border: 2px solid var(--uva-blue);
+      border-radius: 20px;
+      padding: 8px 15px;
+      cursor: move;
+    }
+
+    .drop-zone {
+      min-height: 50px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 10px 0;
+      text-align: center;
+      background: #f9f9f9;
+    }
+
+    .drop-zone.filled {
+      border-color: var(--uva-green);
+      background: #E8F5E9;
+    }
+
+    .scenario-options {
+      display: grid;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .scenario-option {
+      background: white;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .scenario-option:hover {
+      border-color: var(--uva-blue);
+      background: var(--uva-light-blue);
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background: var(--uva-blue);
+      color: white;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .game-info {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      .options, .scenario-options {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>University View Academy</h1>
+      <div class="motto-banner">Virtue, Vigor, Vision</div>
+      <p>SOHO Router Security Challenge</p>
+    </header>
+
+    <div class="game-info">
+      <div class="score-container">
+        <span>Score:</span>
+        <span class="score-value" id="score">0</span>
+      </div>
+      <div class="rank-container">
+        <span>Rank:</span>
+        <span class="rank-value" id="rank">Trainee</span>
+      </div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="streak" id="streak"></div>
+
+    <div class="mission-container">
+      <!-- Mission 1: Physical Security -->
+      <div class="mission active" id="mission1">
+        <h2>Mission 1: Secure Router Placement</h2>
+        <div class="mission-content">
+          <p>You're setting up a new SOHO router for a client. Where is the BEST location to place the router for physical security?</p>
+
+          <div class="options">
+            <div class="option" data-correct="false">
+              On a shelf in the entrance hallway for easy access
+            </div>
+            <div class="option" data-correct="true">
+              In a locked closet away from public areas
+            </div>
+            <div class="option" data-correct="false">
+              Near the window to improve signal strength
+            </div>
+            <div class="option" data-correct="false">
+              On top of the refrigerator in the kitchen
+            </div>
+          </div>
+
+          <div class="feedback" id="feedback1"></div>
+        </div>
+
+        <div class="actions">
+          <button id="hint1">Hint</button>
+          <button id="next1" disabled>Next Mission</button>
+        </div>
+      </div>
+
+      <!-- Mission 2: Management Settings -->
+      <div class="mission" id="mission2">
+        <h2>Mission 2: Secure Admin Access</h2>
+        <div class="mission-content">
+          <p>Which TWO actions are essential for securing router management settings?</p>
+
+          <div class="options">
+            <div class="option" data-correct="true">
+              Change the default administrator username and password
+            </div>
+            <div class="option" data-correct="true">
+              Enable HTTPS access instead of HTTP for the admin panel
+            </div>
+            <div class="option" data-correct="false">
+              Disable Wi-Fi completely for maximum security
+            </div>
+            <div class="option" data-correct="false">
+              Share the admin password with all employees for convenience
+            </div>
+          </div>
+
+          <div class="feedback" id="feedback2"></div>
+        </div>
+
+        <div class="actions">
+          <button id="hint2">Hint</button>
+          <button id="next2" disabled>Next Mission</button>
+        </div>
+      </div>
+
+      <!-- Mission 3: Wireless Security -->
+      <div class="mission" id="mission3">
+        <h2>Mission 3: Wireless Encryption</h2>
+        <div class="mission-content">
+          <p>As a network security specialist, which encryption protocol provides the BEST security for a modern SOHO network?</p>
+
+          <div class="options">
+            <div class="option" data-correct="false">
+              WEP (Wired Equivalent Privacy)
+            </div>
+            <div class="option" data-correct="false">
+              WPA (Wi-Fi Protected Access)
+            </div>
+            <div class="option" data-correct="true">
+              WPA3 (Wi-Fi Protected Access 3)
+            </div>
+            <div class="option" data-correct="false">
+              Open Network (No Password)
+            </div>
+          </div>
+
+          <div class="feedback" id="feedback3"></div>
+        </div>
+
+        <div class="actions">
+          <button id="hint3">Hint</button>
+          <button id="next3" disabled>Next Mission</button>
+        </div>
+      </div>
+
+      <!-- Mission 4: Labeling Diagram -->
+      <div class="mission" id="mission4">
+        <h2>Mission 4: Router Security Features</h2>
+        <div class="mission-content">
+          <p>Match the security features to the correct descriptions:</p>
+
+          <div class="router-diagram">
+            <div class="router-image">📡</div>
+          </div>
+
+          <div class="label-area">
+            <h3>Drag the terms to their correct definitions:</h3>
+
+            <div class="label-options">
+              <div class="label-option" draggable="true" data-term="firewall">Firewall</div>
+              <div class="label-option" draggable="true" data-term="dmz">DMZ</div>
+              <div class="label-option" draggable="true" data-term="port-forwarding">Port Forwarding</div>
+            </div>
+
+            <div class="drop-zone" id="zone1" data-answer="firewall">
+              Blocks unauthorized access to the network
+            </div>
+
+            <div class="drop-zone" id="zone2" data-answer="dmz">
+              Isolates public-facing servers from the internal network
+            </div>
+
+            <div class="drop-zone" id="zone3" data-answer="port-forwarding">
+              Directs incoming traffic to specific devices on the network
+            </div>
+          </div>
+
+          <div class="feedback" id="feedback4"></div>
+        </div>
+
+        <div class="actions">
+          <button id="hint4">Hint</button>
+          <button id="next4" disabled>Complete Challenge</button>
+        </div>
+      </div>
+
+      <!-- Completion Screen -->
+      <div class="mission" id="completion">
+        <h2>Mission Complete!</h2>
+        <div class="mission-content">
+          <div class="router-diagram">
+            <div class="router-image" style="background:#1E7A3E;color:white;font-size:3rem;">🔒</div>
+          </div>
+
+          <p>Congratulations, UVA Cybersecurity Specialist!</p>
+          <p>You've successfully completed the SOHO Router Security Challenge.</p>
+
+          <div style="margin: 20px 0;">
+            <h3>Your Final Score: <span id="final-score">0</span></h3>
+            <h3>Achieved Rank: <span id="final-rank">Trainee</span></h3>
+          </div>
+
+          <div id="badges-container">
+            <h3>Earned Badges:</h3>
+            <div id="badges"></div>
+          </div>
+
+          <button id="restart" style="margin-top: 20px;">Restart Challenge</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>University View Academy - A+ Core 1 Certification Prep | Virtue, Vigor, Vision</p>
+    </footer>
+  </div>
+
+  <script>
+    // Game state
+    const gameState = {
+      score: 0,
+      streak: 0,
+      currentMission: 1,
+      rank: 'Trainee',
+      badges: [],
+      completedMissions: []
+    };
+
+    // Rank thresholds
+    const ranks = [
+      { name: 'Trainee', minScore: 0 },
+      { name: 'Apprentice', minScore: 50 },
+      { name: 'Expert', minScore: 100 },
+      { name: 'Master', minScore: 150 }
+    ];
+
+    // Badge definitions
+    const badges = [
+      { id: 'first-mission', name: 'First Mission', description: 'Complete your first mission' },
+      { id: 'streak-3', name: 'Combo Master', description: 'Get 3 answers correct in a row' },
+      { id: 'perfect-score', name: 'Security Guru', description: 'Achieve a perfect score' },
+      { id: 'completed-all', name: 'Network Guardian', description: 'Complete all missions' }
+    ];
+
+    // Initialize game
+    document.addEventListener('DOMContentLoaded', () => {
+      setupEventListeners();
+      updateProgress();
+      updateRank();
+    });
+
+    // Set up event listeners
+    function setupEventListeners() {
+      // Mission 1
+      document.querySelectorAll('#mission1 .option').forEach(option => {
+        option.addEventListener('click', () => handleOptionClick(option, 1));
+      });
+      document.getElementById('hint1').addEventListener('click', () => showHint(1));
+      document.getElementById('next1').addEventListener('click', () => goToMission(2));
+
+      // Mission 2
+      document.querySelectorAll('#mission2 .option').forEach(option => {
+        option.addEventListener('click', () => handleOptionClick(option, 2));
+      });
+      document.getElementById('hint2').addEventListener('click', () => showHint(2));
+      document.getElementById('next2').addEventListener('click', () => goToMission(3));
+
+      // Mission 3
+      document.querySelectorAll('#mission3 .option').forEach(option => {
+        option.addEventListener('click', () => handleOptionClick(option, 3));
+      });
+      document.getElementById('hint3').addEventListener('click', () => showHint(3));
+      document.getElementById('next3').addEventListener('click', () => goToMission(4));
+
+      // Mission 4
+      setupDragAndDrop();
+      document.getElementById('hint4').addEventListener('click', () => showHint(4));
+      document.getElementById('next4').addEventListener('click', () => completeChallenge());
+
+      // Restart button
+      document.getElementById('restart').addEventListener('click', restartChallenge);
+    }
+
+    // Handle option clicks
+    function handleOptionClick(option, missionNum) {
+      // Prevent multiple selections
+      if (gameState.completedMissions.includes(missionNum)) return;
+
+      const isCorrect = option.dataset.correct === 'true';
+      const feedback = document.getElementById(`feedback${missionNum}`);
+
+      // Show feedback
+      if (isCorrect) {
+        option.classList.add('correct');
+        feedback.innerHTML = '<p><strong>Correct!</strong> Great job securing that aspect of the router.</p>';
+        feedback.className = 'feedback correct';
+        addToScore(25);
+        gameState.streak++;
+
+        // Check for streak badge
+        if (gameState.streak === 3) {
+          awardBadge('streak-3');
+        }
+      } else {
+        option.classList.add('incorrect');
+        feedback.innerHTML = '<p><strong>Not quite!</strong> Consider the physical security implications of router placement.</p>';
+        feedback.className = 'feedback incorrect';
+        gameState.streak = 0;
+      }
+
+      // Disable options after selection
+      const options = document.querySelectorAll(`#mission${missionNum} .option`);
+      options.forEach(opt => opt.style.pointerEvents = 'none');
+
+      // Enable next button
+      document.getElementById(`next${missionNum}`).disabled = false;
+
+      // Mark mission as completed
+      if (!gameState.completedMissions.includes(missionNum)) {
+        gameState.completedMissions.push(missionNum);
+        if (gameState.completedMissions.length === 1) {
+          awardBadge('first-mission');
+        }
+      }
+
+      // Update streak display
+      updateStreak();
+
+      // Update progress
+      updateProgress();
+    }
+
+    // Setup drag and drop for mission 4
+    function setupDragAndDrop() {
+      const labelOptions = document.querySelectorAll('.label-option');
+      const dropZones = document.querySelectorAll('.drop-zone');
+
+      labelOptions.forEach(option => {
+        option.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', option.dataset.term);
+        });
+      });
+
+      dropZones.forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+        });
+
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          const term = e.dataTransfer.getData('text/plain');
+          const correctAnswer = zone.dataset.answer;
+
+          if (term === correctAnswer) {
+            zone.textContent = `${zone.textContent} ✓`;
+            zone.classList.add('filled');
+            zone.setAttribute('data-correct', 'true');
+
+            // Check if all are correct
+            const allCorrect = Array.from(dropZones).every(z => z.dataset.correct === 'true');
+            if (allCorrect && !gameState.completedMissions.includes(4)) {
+              const feedback = document.getElementById('feedback4');
+              feedback.innerHTML = '<p><strong>Perfect!</strong> You matched all security features correctly.</p>';
+              feedback.className = 'feedback correct';
+              addToScore(25);
+              gameState.streak++;
+              updateStreak();
+
+              document.getElementById('next4').disabled = false;
+
+              gameState.completedMissions.push(4);
+              if (gameState.completedMissions.length === 4) {
+                awardBadge('completed-all');
+              }
+
+              updateProgress();
+            }
+          } else {
+            const feedback = document.getElementById('feedback4');
+            feedback.innerHTML = `<p><strong>Try again!</strong> ${term} doesn't match this definition.</p>`;
+            feedback.className = 'feedback incorrect';
+            gameState.streak = 0;
+            updateStreak();
+          }
+        });
+      });
+    }
+
+    // Add to score
+    function addToScore(points) {
+      gameState.score += points;
+      document.getElementById('score').textContent = gameState.score;
+      updateRank();
+
+      // Check for perfect score badge
+      if (gameState.score === 100 && gameState.completedMissions.length >= 4) {
+        awardBadge('perfect-score');
+      }
+    }
+
+    // Update rank display
+    function updateRank() {
+      let newRank = 'Trainee';
+      for (let i = ranks.length - 1; i >= 0; i--) {
+        if (gameState.score >= ranks[i].minScore) {
+          newRank = ranks[i].name;
+          break;
+        }
+      }
+
+      if (newRank !== gameState.rank) {
+        gameState.rank = newRank;
+        document.getElementById('rank').textContent = gameState.rank;
+
+        // Celebrate rank upgrade
+        if (gameState.rank !== 'Trainee') {
+          createConfetti();
+        }
+      }
+    }
+
+    // Update streak display
+    function updateStreak() {
+      const streakElement = document.getElementById('streak');
+      if (gameState.streak >= 2) {
+        streakElement.textContent = `${gameState.streak} in a row! Keep it up!`;
+      } else {
+        streakElement.textContent = '';
+      }
+    }
+
+    // Update progress bar
+    function updateProgress() {
+      const progress = (gameState.completedMissions.length / 4) * 100;
+      document.getElementById('progress').style.width = `${progress}%`;
+    }
+
+    // Show hint
+    function showHint(missionNum) {
+      const hints = {
+        1: "Physical security prevents unauthorized individuals from tampering with the device.",
+        2: "Default credentials are widely known and easily exploited by attackers.",
+        3: "Newer protocols provide stronger encryption and better protection against attacks.",
+        4: "Think about how each feature protects or isolates parts of the network."
+      };
+
+      const feedback = document.getElementById(`feedback${missionNum}`);
+      feedback.innerHTML = `<p><strong>Hint:</strong> ${hints[missionNum]}</p>`;
+      feedback.className = 'feedback';
+      feedback.style.display = 'block';
+    }
+
+    // Navigate to mission
+    function goToMission(missionNum) {
+      // Hide current mission
+      document.querySelector('.mission.active').classList.remove('active');
+
+      // Show next mission
+      document.getElementById(`mission${missionNum}`).classList.add('active');
+
+      // Update current mission
+      gameState.currentMission = missionNum;
+    }
+
+    // Complete challenge
+    function completeChallenge() {
+      document.querySelector('.mission.active').classList.remove('active');
+      document.getElementById('completion').classList.add('active');
+
+      document.getElementById('final-score').textContent = gameState.score;
+      document.getElementById('final-rank').textContent = gameState.rank;
+
+      // Show badges
+      const badgesContainer = document.getElementById('badges');
+      if (gameState.badges.length > 0) {
+        badgesContainer.innerHTML = gameState.badges.map(badgeId => {
+          const badge = badges.find(b => b.id === badgeId);
+          return `<div class="badge">${badge.name}</div><p>${badge.description}</p>`;
+        }).join('');
+      } else {
+        badgesContainer.innerHTML = '<p>No badges earned this time. Try again to earn badges!</p>';
+      }
+
+      // Final celebration
+      createConfetti();
+    }
+
+    // Award badge
+    function awardBadge(badgeId) {
+      if (!gameState.badges.includes(badgeId)) {
+        gameState.badges.push(badgeId);
+        createConfetti();
+      }
+    }
+
+    // Restart challenge
+    function restartChallenge() {
+      // Reset game state
+      gameState.score = 0;
+      gameState.streak = 0;
+      gameState.currentMission = 1;
+      gameState.rank = 'Trainee';
+      gameState.badges = [];
+      gameState.completedMissions = [];
+
+      // Reset UI
+      document.getElementById('score').textContent = '0';
+      document.getElementById('rank').textContent = 'Trainee';
+      document.getElementById('streak').textContent = '';
+      document.getElementById('progress').style.width = '0%';
+
+      // Reset options
+      document.querySelectorAll('.option').forEach(option => {
+        option.classList.remove('correct', 'incorrect');
+        option.style.pointerEvents = 'auto';
+      });
+
+      // Reset buttons
+      document.getElementById('next1').disabled = true;
+      document.getElementById('next2').disabled = true;
+      document.getElementById('next3').disabled = true;
+      document.getElementById('next4').disabled = true;
+
+      // Reset feedback
+      document.querySelectorAll('.feedback').forEach(feedback => {
+        feedback.className = 'feedback';
+        feedback.style.display = 'none';
+      });
+
+      // Reset drag and drop
+      document.querySelectorAll('.drop-zone').forEach(zone => {
+        zone.className = 'drop-zone';
+        zone.removeAttribute('data-correct');
+        // Restore original text
+        if (zone.id === 'zone1') zone.textContent = 'Blocks unauthorized access to the network';
+        if (zone.id === 'zone2') zone.textContent = 'Isolates public-facing servers from the internal network';
+        if (zone.id === 'zone3') zone.textContent = 'Directs incoming traffic to specific devices on the network';
+      });
+
+      // Show first mission
+      document.querySelector('.mission.active').classList.remove('active');
+      document.getElementById('mission1').classList.add('active');
+    }
+
+    // Create confetti effect
+    function createConfetti() {
+      const container = document.querySelector('.container');
+      const colors = ['#1B5EAF', '#1E7A3E', '#FFC107', '#E91E63', '#9C27B0'];
+
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.top = '-10px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.width = Math.random() * 10 + 5 + 'px';
+        confetti.style.height = Math.random() * 10 + 5 + 'px';
+        container.appendChild(confetti);
+
+        // Animate confetti
+        const animation = confetti.animate([
+          { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+          { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+        ], {
+          duration: Math.random() * 3000 + 2000,
+          easing: 'cubic-bezier(0,0.9,0.57,1)'
+        });
+
+        // Remove confetti after animation
+        animation.onfinish = () => {
+          confetti.remove();
+        };
+      }
+    }
+  </script>
+</body>
+</html>
