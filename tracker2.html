@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UVA Lesson Production Tracker (Simple)</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Segoe UI',sans-serif;background:#f0f4f8;color:#1a202c;}
+    header{background:linear-gradient(135deg,#1a3a5c,#2d6a9f);color:white;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+    header h1{font-size:1.2rem;font-weight:700;}
+    header p{font-size:0.75rem;opacity:0.85;}
+    .btn{padding:7px 13px;border:none;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;}
+    .btn-primary{background:#2d6a9f;color:white;}.btn-primary:hover{background:#1a3a5c;}
+    .btn-danger{background:#e53e3e;color:white;}.btn-danger:hover{background:#c53030;}
+    .btn-success{background:#38a169;color:white;}.btn-success:hover{background:#276749;}
+    .btn-white{background:transparent;color:white;border:1.5px solid white;}.btn-white:hover{background:rgba(255,255,255,0.15);}
+    .controls{background:white;padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:2px solid #e2e8f0;}
+    .controls label{font-size:0.82rem;font-weight:600;color:#4a5568;}
+    .controls input[type="text"]{padding:6px 10px;border:1px solid #cbd5e0;border-radius:6px;font-size:0.82rem;}
+    .week-tabs{display:flex;gap:6px;padding:12px 20px 0;flex-wrap:wrap;background:#f0f4f8;}
+    .week-tab{padding:7px 16px;border-radius:8px 8px 0 0;cursor:pointer;font-size:0.8rem;font-weight:600;background:#cbd5e0;color:#4a5568;border:none;transition:all 0.2s;}
+    .week-tab.active{background:white;color:#1a3a5c;}
+    .week-tab:hover:not(.active){background:#b2bec3;}
+    .week-panel{background:white;margin:0 0 20px;border-radius:0 8px 8px 8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+    .week-header{background:#ebf4ff;padding:10px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #bee3f8;}
+    .progress-bar-wrap{background:#e2e8f0;border-radius:20px;height:8px;width:150px;overflow:hidden;}
+    .progress-bar-fill{height:100%;border-radius:20px;background:#38a169;transition:width 0.4s;}
+    .table-scroll{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;min-width:800px;}
+    thead th{background:#1a3a5c;color:white;padding:10px;font-size:0.75rem;position:sticky;top:0;z-index:2;}
+    thead th:first-child{text-align:left;min-width:200px;position:sticky;left:0;z-index:3;}
+    tbody tr:nth-child(even){background:#f7fafc;}
+    tbody td{padding:8px 10px;font-size:0.8rem;border-bottom:1px solid #e2e8f0;text-align:center;}
+    tbody td:first-child{text-align:left;font-weight:600;color:#2d3748;padding-left:14px;position:sticky;left:0;background:inherit;}
+    .section-divider td{background:#1a3a5c !important;color:white !important;font-size:0.7rem;font-weight:700;text-transform:uppercase;padding:6px 14px;}
+    select.status-sel{padding:4px 6px;border-radius:5px;font-size:0.75rem;border:1.5px solid #cbd5e0;cursor:pointer;width:115px;}
+    select.status-sel.ns{background:#fff5f5;color:#c53030;border-color:#fc8181;}
+    select.status-sel.ip{background:#fffbeb;color:#b7791f;border-color:#f6ad55;}
+    select.status-sel.done{background:#f0fff4;color:#276749;border-color:#68d391;}
+    select.status-sel.pub{background:#ebf4ff;color:#2b6cb0;border-color:#63b3ed;}
+    .lesson-name-input{background:transparent;border:none;color:white;font-weight:700;font-size:0.78rem;text-align:center;width:100%;}
+    .notes-input{width:100%;border:1px solid #e2e8f0;border-radius:5px;padding:5px;font-size:0.75rem;resize:vertical;min-height:36px;}
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>📚 UVA Production Tracker</h1>
+    <p>University View Academy — Simple Dropdown Edition</p>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-success" onclick="saveData()">💾 Save</button>
+    <button class="btn btn-white" onclick="exportHTML()">⬇ Export HTML</button>
+  </div>
+</header>
+
+<div class="controls">
+  <label>Add Week:</label>
+  <input type="text" id="newWeekName" placeholder="e.g. Week 4"/>
+  <button class="btn btn-primary" onclick="addWeek()">+ Add Week</button>
+</div>
+
+<div id="weekTabs" class="week-tabs"></div>
+<div id="weekPanels" style="padding:0 20px 20px;"></div>
+
+<script>
+const WORKFLOW = [
+  { section: "📁 Content Prep", items: ["PDF", "LessonForge Lesson"] },
+  { section: "🎬 Media", items: ["Podcast", "Explainer", "Slides", "Interactive", "Study Guide"] },
+  { section: "📝 Assessment", items: ["Assignment", "Assign. Video", "Resources", "Success Looks"] },
+  { section: "🎥 Video", items: ["Intro Video", "Summary Video"] },
+  { section: "🏁 Final", items: ["Blueprint"] }
+];
+
+const OPTS = {
+  standard: { ns:"Not Started", ip:"In Progress", done:"Done" },
+  custom: { ns:"Not Started", ip:"In Progress", done:"Finished", pub:"Published" }
+};
+
+let data = JSON.parse(localStorage.getItem("uva_tracker_simple") || "[]");
+if(!data.length) data = [{ name:"Week 1", lessons: ["Mon","Tue","Wed","Thu","Fri"].map((d,i)=>({day:d, name:"Lesson "+(i+1), steps:{}, notes:""})) }];
+let activeIdx = 0;
+
+function saveData(){ localStorage.setItem("uva_tracker_simple", JSON.stringify(data)); }
+function addWeek(){
+  const n = document.getElementById("newWeekName").value || "Week "+(data.length+1);
+  data.push({ name:n, lessons: ["Mon","Tue","Wed","Thu","Fri"].map((d,i)=>({day:d, name:"Lesson "+(i+1), steps:{}, notes:""})) });
+  activeIdx = data.length-1; render(); saveData();
+}
+function deleteCurrentWeek(){
+  if(data.length <= 1) {
+    if(confirm("This is your only week. Clear all data in it instead?")) {
+      data[0].lessons.forEach(l => { l.steps = {}; l.notes = ""; });
+      render(); saveData();
+    }
+    return;
+  }
+  if(confirm(`Are you sure you want to delete ${data[activeIdx].name}?`)){
+    data.splice(activeIdx, 1);
+    activeIdx = Math.max(0, activeIdx - 1);
+    render(); saveData();
+  }
+}
+function exportHTML(){
+  const b = new Blob([document.documentElement.outerHTML],{type:"text/html"});
+  const a = document.createElement("a"); a.href=URL.createObjectURL(b); a.download="uva_tracker_simple.html"; a.click();
+}
+
+function render(){
+  document.getElementById("weekTabs").innerHTML = data.map((w,i)=>`<button class="week-tab ${i===activeIdx?'active':''}" onclick="activeIdx=${i};render()">${w.name}</button>`).join("");
+  const w = data[activeIdx];
+  let done = 0, total = 0;
+  w.lessons.forEach(l => WORKFLOW.forEach(s => s.items.forEach(it => { total++; if(l.steps[it]==="done"||l.steps[it]==="pub") done++; })));
+  const pct = Math.round((done/total)*100) || 0;
+
+  let h = `
+  <div class="week-panel">
+    <div class="week-header">
+      <div style="display:flex; align-items:center; gap:15px;">
+        <h2>📅 ${w.name}</h2>
+        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.7rem;" onclick="deleteCurrentWeek()">🗑 Delete Week</button>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Step</th>${w.lessons.map((l,li)=>`<th><input class="lesson-name-input" value="${l.name}" onchange="data[${activeIdx}].lessons[${li}].name=this.value;saveData()"/><br/><small style="opacity:0.7">${l.day}</small></th>`).join("")}</tr></thead>
+      <tbody>`;
+
+  WORKFLOW.forEach(sec => {
+    h += `<tr class="section-divider"><td colspan="6">${sec.section}</td></tr>`;
+    sec.items.forEach(it => {
+      const isCustom = ["Resources", "Success Looks"].includes(it);
+      const optSet = isCustom ? OPTS.custom : OPTS.standard;
+      h += `<tr><td>${it}</td>${w.lessons.map((l,li)=>{
+        const v = l.steps[it] || "ns";
+        return `<td><select class="status-sel ${v}" onchange="data[${activeIdx}].lessons[${li}].steps['${it}']=this.value;render();saveData()">
+          ${Object.keys(optSet).map(k=>`<option value="${k}" ${v===k?'selected':''}>${optSet[k]}</option>`).join("")}
+        </select></td>`;
+      }).join("")}</tr>`;
+    });
+  });
+
+  h += `<tr class="section-divider"><td colspan="6">Notes</td></tr><tr><td>Notes</td>${w.lessons.map((l,li)=>`<td><textarea class="notes-input" onchange="data[${activeIdx}].lessons[${li}].notes=this.value;saveData()">${l.notes}</textarea></td>`).join("")}</tr>
+  </tbody></table></div></div>`;
+  document.getElementById("weekPanels").innerHTML = h;
+}
+render();
+</script>
+</body>
+</html>
