@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UVA - Google Slides Images Integration</title>
+    <style>
+        :root {
+            --uva-blue: #1B5EAF;
+            --uva-green: #1E7A3E;
+            --uva-light-blue: #E3F2FD;
+            --uva-dark-blue: #0D47A1;
+            --success: #4CAF50;
+            --warning: #FF9800;
+            --danger: #F44336;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #757575;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--uva-light-blue);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--uva-blue), var(--uva-dark-blue));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .motto-banner {
+            background: var(--uva-green);
+            padding: 8px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+
+        .mission-title {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background: var(--uva-light-blue);
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--uva-blue);
+        }
+
+        .rank-display {
+            font-weight: bold;
+            color: var(--uva-dark-blue);
+            font-size: 1.2rem;
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .score, .streak {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-weight: bold;
+        }
+
+        .streak.active {
+            background: #FFF9C4;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .content-area {
+            padding: 25px;
+            min-height: 500px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .active-screen {
+            display: block;
+        }
+
+        .intro-content {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .intro-content h2 {
+            color: var(--uva-blue);
+            margin-bottom: 20px;
+        }
+
+        .intro-content p {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .learning-objectives {
+            background: var(--uva-light-blue);
+            border-left: 4px solid var(--uva-green);
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .objective-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .objective-list li {
+            margin: 10px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .objective-list li:before {
+            content: "✓";
+            color: var(--uva-green);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .btn {
+            background: var(--uva-blue);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            margin: 10px 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn:hover {
+            background: var(--uva-dark-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-large {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+        }
+
+        .mission-section {
+            margin: 25px 0;
+            padding: 20px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--medium-gray);
+        }
+
+        .mission-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--uva-dark-blue);
+        }
+
+        .mission-number {
+            background: var(--uva-blue);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .mission-title-text {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+
+        .mission-content {
+            margin-left: 50px;
+        }
+
+        .mission-description {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .activity-container {
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #E8F5E9;
+            color: var(--success);
+            border: 1px solid var(--success);
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background: #FFEBEE;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            display: block;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+
+        .matching-board {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .matching-column {
+            background: white;
+            border: 1px solid var(--medium-gray);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 240px;
+        }
+
+        .matching-column h4 {
+            color: var(--uva-dark-blue);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .matching-bank {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .match-card {
+            background: #ffffff;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .match-card.term {
+            border-color: var(--uva-blue);
+            background: #eef5ff;
+        }
+
+        .match-card.definition {
+            border-color: var(--uva-green);
+            background: #eef8f1;
+        }
+
+        .match-card.selected {
+            outline: 3px solid #ffb300;
+            transform: translateY(-2px);
+        }
+
+        .match-card.matched {
+            opacity: 0.65;
+            cursor: default;
+            border-style: solid;
+            box-shadow: none;
+        }
+
+        .mission-progress {
+            font-size: 0.98rem;
+            margin-top: 8px;
+            color: var(--dark-gray);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .matching-board {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .option-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: var(--uva-blue);
+        }
+
+        .option-card.selected {
+            border-color: var(--uva-blue);
+            background: #E3F2FD;
+            transform: translateY(-3px);
+        }
+
+        .option-card.correct {
+            border-color: var(--success);
+            background: #E8F5E9;
+        }
+
+        .option-card.incorrect {
+            border-color: var(--danger);
+            background: #FFEBEE;
+        }
+
+        .drag-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .drop-zone {
+            width: 45%;
+            min-height: 150px;
+            border: 2px dashed var(--uva-blue);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: var(--uva-light-blue);
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .drop-zone.active {
+            background: #BBDEFB;
+            border-style: solid;
+        }
+
+        .draggable-item {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 1px solid var(--dark-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px;
+            cursor: grab;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .step-indicator:before {
+            content: "";
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--medium-gray);
+            z-index: 1;
+        }
+
+        .step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid var(--medium-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            z-index: 2;
+            position: relative;
+        }
+
+        .step.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .step.current {
+            background: var(--uva-blue);
+            border-color: var(--uva-blue);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .ui-simulation {
+            background: white;
+            border: 1px solid var(--dark-gray);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .toolbar {
+            display: flex;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tool-button {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid var(--dark-gray);
+            border-radius: 4px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        .tool-button.active {
+            background: var(--uva-blue);
+            color: white;
+        }
+
+        .canvas-area {
+            height: 200px;
+            border: 1px dashed var(--dark-gray);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            background: #fafafa;
+        }
+
+        .image-placeholder {
+            width: 150px;
+            height: 100px;
+            background: #e0e0e0;
+            border: 1px solid var(--dark-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .resize-handle {
+            width: 10px;
+            height: 10px;
+            background: var(--uva-blue);
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            cursor: nwse-resize;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .badge {
+            width: 120px;
+            height: 120px;
+            background: var(--uva-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            .drop-zone {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .game-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="mission-title">University View Academy - Digital Media Mission</h1>
+            <div class="motto-banner">Virtue, Vigor, Vision</div>
+        </header>
+
+        <div class="game-info">
+            <div class="rank-display">Current Rank: <span id="current-rank">Trainee</span></div>
+            <div class="score-container">
+                <div class="score">Score: <span id="score-value">0</span></div>
+                <div class="streak" id="streak-display">Streak: 0</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Introduction Screen -->
+            <div id="intro-screen" class="screen active-screen">
+                <div class="intro-content">
+                    <h2>Mission Briefing: Google Slides Images Integration</h2>
+                    <p>Welcome, UVA Cadet! As a Creative Communicator, your mission is to master the art of visual communication in Google Slides. You'll learn essential skills for inserting, editing, and managing images ethically and effectively.</p>
+
+                    <div class="learning-objectives">
+                        <h3>Your Learning Objectives:</h3>
+                        <ul class="objective-list">
+                            <li>Identify various methods for inserting images into Google Slides</li>
+                            <li>Execute basic image editing including resizing, rotating, and cropping</li>
+                            <li>Apply advanced formatting techniques like transparency and masking</li>
+                            <li>Analyze ethical implications of copyright and fair use</li>
+                            <li>Implement accessibility features like Alt Text for inclusive design</li>
+                        </ul>
+                    </div>
+
+                    <button id="start-mission" class="btn btn-large">Begin Mission</button>
+                </div>
+            </div>
+
+            <!-- Mission 1: Image Insertion Methods -->
+            <div id="mission-1" class="screen">
+                <div class="mission-section">
+                    <div class="mission-header">
+                        <div class="mission-number">1</div>
+                        <div class="mission-title-text">Image Insertion Mastery</div>
+                    </div>
+                    <div class="mission-content">
+                        <p class="mission-description">As a digital communicator, you must know all methods for inserting images into Google Slides. Match each insertion method with its correct description.</p>
+
+                        <div class="activity-container">
+                            <p class="mission-progress"><strong>Mission Guide:</strong> Click one blue insertion method card and one green description card to create a match. Build all 4 matches, then tap Verify Answers.</p>
+                            <div class="mission-progress" id="mission1-progress">Matches secured: 0/4</div>
+                            <div class="matching-board">
+                                <div class="matching-column">
+                                    <h4>Term Bank</h4>
+                                    <div class="matching-bank" id="term-bank"></div>
+                                </div>
+                                <div class="matching-column">
+                                    <h4>Description Bank</h4>
+                                    <div class="matching-bank" id="definition-bank"></div>
+                                </div>
+                            </div>
+
+                            <div class="feedback" id="mission1-feedback"></div>
+
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button id="check-mission1" class="btn">Verify Answers</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mission 2: Image Editing Techniques -->
+            <div id="mission-2" class="screen">
+                <div class="mission-section">
+                    <div class="mission-header">
+                        <div class="mission-number">2</div>
+                        <div class="mission-title-text">Image Editing Proficiency</div>
+                    </div>
+                    <div class="mission-content">
+                        <p class="mission-description">Select the correct editing technique for each scenario. Apply your knowledge of resizing, rotating, and cropping.</p>
+
+                        <div class="activity-container">
+                            <div class="ui-simulation">
+                                <div class="toolbar">
+                                    <div class="tool-button" data-tool="crop">Crop</div>
+                                    <div class="tool-button" data-tool="rotate">Rotate</div>
+                                    <div class="tool-button" data-tool="resize">Resize</div>
+                                    <div class="tool-button" data-tool="transparency">Transparency</div>
+                                </div>
+
+                                <div class="canvas-area">
+                                    <div class="image-placeholder">
+                                        Sample Image
+                                        <div class="resize-handle"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p><strong>Scenario:</strong> Your image is too large and extends beyond the slide boundaries. What tool should you use?</p>
+
+                            <div class="options-grid">
+                                <div class="option-card" data-answer="resize">Resize</div>
+                                <div class="option-card" data-answer="rotate">Rotate</div>
+                                <div class="option-card" data-answer="crop">Crop</div>
+                                <div class="option-card" data-answer="transparency">Transparency</div>
+                            </div>
+
+                            <div class="feedback" id="mission2-feedback"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mission 3: Ethical Image Use -->
+            <div id="mission-3" class="screen">
+                <div class="mission-section">
+                    <div class="mission-header">
+                        <div class="mission-number">3</div>
+                        <div class="mission-title-text">Ethical Image Usage</div>
+                    </div>
+                    <div class="mission-content">
+                        <p class="mission-description">Drag and drop the correct license type to each image source to demonstrate your understanding of copyright and fair use.</p>
+
+                        <div class="activity-container">
+                            <div class="drag-container">
+                                <div class="drop-zone" id="zone1" data-correct="fair-use">
+                                    <h3>Fair Use</h3>
+                                    <p>For educational purposes</p>
+                                </div>
+
+                                <div class="drop-zone" id="zone2" data-correct="creative-commons">
+                                    <h3>Creative Commons</h3>
+                                    <p>Free to use with attribution</p>
+                                </div>
+
+                                <div class="drop-zone" id="zone3" data-correct="royalty-free">
+                                    <h3>Royalty-Free</h3>
+                                    <p>Purchased license</p>
+                                </div>
+
+                                <div class="drop-zone" id="zone4" data-correct="copyright">
+                                    <h3>Copyright</h3>
+                                    <p>All rights reserved</p>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; justify-content: center; flex-wrap: wrap;">
+                                <div class="draggable-item" draggable="true" data-type="copyright">Personal Photo</div>
+                                <div class="draggable-item" draggable="true" data-type="creative-commons">Wikimedia Image</div>
+                                <div class="draggable-item" draggable="true" data-type="fair-use">News Screenshot</div>
+                                <div class="draggable-item" draggable="true" data-type="royalty-free">Shutterstock</div>
+                            </div>
+
+                            <div class="feedback" id="mission3-feedback"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mission 4: Accessibility Features -->
+            <div id="mission-4" class="screen">
+                <div class="mission-section">
+                    <div class="mission-header">
+                        <div class="mission-number">4</div>
+                        <div class="mission-title-text">Accessibility Implementation</div>
+                    </div>
+                    <div class="mission-content">
+                        <p class="mission-description">Complete the step-by-step process to add alternative text to an image in Google Slides.</p>
+
+                        <div class="activity-container">
+                            <div class="step-indicator">
+                                <div class="step completed">1</div>
+                                <div class="step completed">2</div>
+                                <div class="step current">3</div>
+                                <div class="step">4</div>
+                            </div>
+
+                            <div class="ui-simulation">
+                                <h3>Step 3: Add Alternative Text</h3>
+                                <p>Right-click on the image and select "Alt text" from the menu. Then enter a description of the image in the text box provided.</p>
+
+                                <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 5px;">
+                                    <label for="alt-text-input" style="display: block; margin-bottom: 10px; font-weight: bold;">Alt Text:</label>
+                                    <textarea id="alt-text-input" rows="3" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc;" placeholder="Describe the image for visually impaired users...">A group of diverse students collaborating on a technology project in a modern classroom setting</textarea>
+                                </div>
+                            </div>
+
+                            <p><strong>Question:</strong> Why is alternative text important for accessibility?</p>
+
+                            <div class="options-grid">
+                                <div class="option-card" data-answer="wrong1">It makes images load faster</div>
+                                <div class="option-card" data-answer="correct">It helps visually impaired users understand image content</div>
+                                <div class="option-card" data-answer="wrong2">It reduces file size</div>
+                                <div class="option-card" data-answer="wrong3">It improves search engine optimization</div>
+                            </div>
+
+                            <div class="feedback" id="mission4-feedback"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completion Screen -->
+            <div id="completion-screen" class="screen">
+                <div class="completion-screen">
+                    <h2>Mission Complete!</h2>
+                    <div class="badge">Master</div>
+                    <p>Congratulations, UVA Cadet! You've demonstrated mastery of Google Slides image integration.</p>
+                    <p>Final Score: <span id="final-score">0</span></p>
+                    <p>You've earned the rank of <strong>Master</strong> in Visual Communication!</p>
+
+                    <button id="restart-mission" class="btn">Restart Mission</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            currentScreen: 'intro-screen',
+            score: 0,
+            streak: 0,
+            rank: 'Trainee',
+            missionsCompleted: 0,
+            mission1Answers: {},
+            mission1Selection: null,
+            mission1Matches: 0,
+            mission2Answer: null,
+            mission3Correct: 0,
+            mission4Answer: null
+        };
+
+        // Matching pairs for Mission 1
+        const matchingPairs = [
+            { term: "Upload", definition: "Insert an image from your device", correct: "upload" },
+            { term: "URL", definition: "Insert an image from a web address", correct: "url" },
+            { term: "Stock Photos", definition: "Browse curated images from Google", correct: "stock" },
+            { term: "Camera", definition: "Take a photo directly from your webcam", correct: "camera" }
+        ];
+
+        // DOM Elements
+        const screens = {
+            intro: document.getElementById('intro-screen'),
+            mission1: document.getElementById('mission-1'),
+            mission2: document.getElementById('mission-2'),
+            mission3: document.getElementById('mission-3'),
+            mission4: document.getElementById('mission-4'),
+            completion: document.getElementById('completion-screen')
+        };
+
+        // Initialize the game
+        function initGame() {
+            // Event listeners
+            document.getElementById('start-mission').addEventListener('click', () => navigateTo('mission-1'));
+            document.getElementById('check-mission1').addEventListener('click', checkMission1);
+            document.getElementById('restart-mission').addEventListener('click', restartMission);
+
+            // Setup Mission 1
+            setupMatchingActivity();
+
+            // Setup Mission 2
+            setupMission2();
+
+            // Setup Mission 3
+            setupMission3();
+
+            // Setup Mission 4
+            setupMission4();
+
+            updateScoreDisplay();
+        }
+
+        // Navigation between screens
+        function navigateTo(screenId) {
+            // Hide all screens
+            Object.values(screens).forEach(screen => screen.classList.remove('active-screen'));
+
+            // Show target screen
+            document.getElementById(screenId).classList.add('active-screen');
+            gameState.currentScreen = screenId;
+        }
+
+        // Update score display
+        function updateScoreDisplay() {
+            document.getElementById('score-value').textContent = gameState.score;
+            document.getElementById('current-rank').textContent = gameState.rank;
+
+            const streakDisplay = document.getElementById('streak-display');
+            streakDisplay.textContent = `Streak: ${gameState.streak}`;
+            streakDisplay.className = gameState.streak >= 3 ? 'streak active' : 'streak';
+        }
+
+        // Update rank based on score
+        function updateRank() {
+            if (gameState.score >= 400) {
+                gameState.rank = 'Master';
+            } else if (gameState.score >= 300) {
+                gameState.rank = 'Expert';
+            } else if (gameState.score >= 200) {
+                gameState.rank = 'Apprentice';
+            } else {
+                gameState.rank = 'Trainee';
+            }
+        }
+
+        // Award points with streak bonus
+        function awardPoints(points) {
+            const basePoints = points;
+            const streakBonus = gameState.streak >= 3 ? Math.floor(basePoints * 0.5) : 0;
+            const totalPoints = basePoints + streakBonus;
+
+            gameState.score += totalPoints;
+            gameState.streak++;
+
+            updateRank();
+            updateScoreDisplay();
+
+            return totalPoints;
+        }
+
+        // Reset streak
+        function resetStreak() {
+            gameState.streak = 0;
+            updateScoreDisplay();
+        }
+
+        // Setup matching activity for Mission 1
+        function setupMatchingActivity() {
+            const termBank = document.getElementById('term-bank');
+            const definitionBank = document.getElementById('definition-bank');
+            const feedback = document.getElementById('mission1-feedback');
+            const progress = document.getElementById('mission1-progress');
+
+            if (!termBank || !definitionBank) return;
+
+            termBank.innerHTML = '';
+            definitionBank.innerHTML = '';
+            feedback.className = 'feedback';
+            feedback.textContent = '';
+            progress.textContent = 'Matches secured: 0/4';
+
+            gameState.mission1Selection = null;
+            gameState.mission1Matches = 0;
+            gameState.mission1Answers = {};
+
+            const shuffledTerms = [...matchingPairs].sort(() => Math.random() - 0.5);
+            const shuffledDefs = [...matchingPairs].sort(() => Math.random() - 0.5);
+
+            shuffledTerms.forEach((pair) => {
+                const card = document.createElement('div');
+                card.className = 'match-card term';
+                card.textContent = pair.term;
+                card.dataset.type = 'term';
+                card.dataset.value = pair.correct;
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.addEventListener('click', handleMission1CardClick);
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleMission1CardClick({ currentTarget: card });
+                    }
+                });
+                termBank.appendChild(card);
+            });
+
+            shuffledDefs.forEach((pair) => {
+                const card = document.createElement('div');
+                card.className = 'match-card definition';
+                card.textContent = pair.definition;
+                card.dataset.type = 'definition';
+                card.dataset.value = pair.correct;
+                card.setAttribute('role', 'button');
+                card.setAttribute('tabindex', '0');
+                card.addEventListener('click', handleMission1CardClick);
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleMission1CardClick({ currentTarget: card });
+                    }
+                });
+                definitionBank.appendChild(card);
+            });
+        }
+
+        function updateMission1Progress() {
+            const progress = document.getElementById('mission1-progress');
+            if (progress) {
+                progress.textContent = `Matches secured: ${gameState.mission1Matches}/${matchingPairs.length}`;
+            }
+        }
+
+        function clearMission1Selection() {
+            document.querySelectorAll('#mission-1 .match-card.selected').forEach(card => card.classList.remove('selected'));
+            gameState.mission1Selection = null;
+        }
+
+        function handleMission1CardClick(e) {
+            const card = e.currentTarget;
+            const feedback = document.getElementById('mission1-feedback');
+
+            if (card.classList.contains('matched')) return;
+
+            if (!gameState.mission1Selection) {
+                clearMission1Selection();
+                card.classList.add('selected');
+                gameState.mission1Selection = {
+                    type: card.dataset.type,
+                    value: card.dataset.value,
+                    card
+                };
+                feedback.className = 'feedback';
+                feedback.textContent = `Selected ${card.dataset.type === 'term' ? 'an insertion method' : 'a description'}. Now choose the matching card.`;
+                return;
+            }
+
+            const first = gameState.mission1Selection;
+            const second = card;
+
+            if (first.card === second) {
+                return;
+            }
+
+            if (first.type === second.dataset.type) {
+                clearMission1Selection();
+                first.card.classList.add('selected');
+                gameState.mission1Selection = {
+                    type: second.dataset.type,
+                    value: second.dataset.value,
+                    card: second
+                };
+                second.classList.add('selected');
+                feedback.className = 'feedback';
+                feedback.textContent = 'Pick one blue card and one green card to make a match.';
+                return;
+            }
+
+            const isCorrectMatch = first.value === second.dataset.value;
+            if (isCorrectMatch) {
+                first.card.classList.remove('selected');
+                second.classList.remove('selected');
+                first.card.classList.add('matched');
+                second.classList.add('matched');
+                gameState.mission1Answers[first.value] = second.dataset.value;
+                gameState.mission1Matches += 1;
+                updateMission1Progress();
+                clearMission1Selection();
+                feedback.className = 'feedback correct';
+                feedback.textContent = 'Match secured! Great mission work.';
+                if (gameState.mission1Matches === matchingPairs.length) {
+                    feedback.innerHTML = 'All four matches secured! Tap Verify Answers to advance.';
+                }
+            } else {
+                resetStreak();
+                clearMission1Selection();
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = 'Mission mismatch. Try another pairing.';
+                setTimeout(() => {
+                    if (feedback.classList.contains('incorrect')) {
+                        feedback.className = 'feedback';
+                        feedback.textContent = '';
+                    }
+                }, 1800);
+            }
+        }
+
+        // Check Mission 1 answers
+        function checkMission1() {
+            const feedback = document.getElementById('mission1-feedback');
+            if (gameState.mission1Matches === matchingPairs.length) {
+                const points = awardPoints(100);
+                feedback.className = 'feedback correct';
+                feedback.innerHTML = `Mission complete! All four insertion method pairs are correct. +${points} points`;
+                setTimeout(() => navigateTo('mission-2'), 1800);
+            } else {
+                resetStreak();
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = `You have ${gameState.mission1Matches}/${matchingPairs.length} matches secured. Complete every pair before verifying.`;
+            }
+        }
+
+        // Handle drag start
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.value);
+            e.target.classList.add('dragging');
+        }
+
+        // Handle drag end
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        // Setup Mission 2
+        function setupMission2() {
+            const optionCards = document.querySelectorAll('#mission-2 .option-card');
+            optionCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // Remove selected class from all cards
+                    optionCards.forEach(c => c.classList.remove('selected'));
+                    // Add selected class to clicked card
+                    card.classList.add('selected');
+                    gameState.mission2Answer = card.dataset.answer;
+                });
+            });
+
+            // Add click event to check button
+            const feedback = document.getElementById('mission2-feedback');
+            const checkButton = document.createElement('button');
+            checkButton.className = 'btn';
+            checkButton.textContent = 'Check Answer';
+            checkButton.addEventListener('click', () => {
+                if (gameState.mission2Answer === 'resize') {
+                    const points = awardPoints(100);
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = `Perfect! Resizing adjusts the dimensions of an image. +${points} points`;
+                    setTimeout(() => navigateTo('mission-3'), 2000);
+                } else if (gameState.mission2Answer) {
+                    resetStreak();
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = 'Not quite right. Try again!';
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = 'Please select an answer!';
+                }
+            });
+
+            // Add button to container if not already present
+            const container = feedback.parentElement;
+            if (!container.querySelector('button')) {
+                container.appendChild(checkButton);
+            }
+        }
+
+        // Setup Mission 3
+        function setupMission3() {
+            const draggables = document.querySelectorAll('.draggable-item');
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            draggables.forEach(draggable => {
+                draggable.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', draggable.dataset.type);
+                });
+            });
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('active');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('active');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('active');
+
+                    const dataType = e.dataTransfer.getData('text/plain');
+                    const correctType = zone.dataset.correct;
+
+                    if (dataType === correctType) {
+                        gameState.mission3Correct++;
+                        zone.innerHTML = `<h3>${zone.querySelector('h3').textContent}</h3><p>✓ Correct!</p>`;
+                        zone.style.borderColor = '#4CAF50';
+
+                        if (gameState.mission3Correct === 4) {
+                            const points = awardPoints(100);
+                            const feedback = document.getElementById('mission3-feedback');
+                            feedback.className = 'feedback correct';
+                            feedback.innerHTML = `Outstanding! All matches correct. +${points} points`;
+                            setTimeout(() => navigateTo('mission-4'), 2000);
+                        }
+                    } else {
+                        resetStreak();
+                        zone.innerHTML = `<h3>${zone.querySelector('h3').textContent}</h3><p>✗ Incorrect. Try again!</p>`;
+                        zone.style.borderColor = '#F44336';
+                        setTimeout(() => {
+                            zone.innerHTML = `<h3>${zone.querySelector('h3').textContent}</h3><p>${zone.querySelector('p').textContent}</p>`;
+                            zone.style.borderColor = '';
+                        }, 2000);
+                    }
+                });
+            });
+        }
+
+        // Setup Mission 4
+        function setupMission4() {
+            const optionCards = document.querySelectorAll('#mission-4 .option-card');
+            optionCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    // Remove selected class from all cards
+                    optionCards.forEach(c => c.classList.remove('selected'));
+                    // Add selected class to clicked card
+                    card.classList.add('selected');
+                    gameState.mission4Answer = card.dataset.answer;
+                });
+            });
+
+            // Add click event to check button
+            const feedback = document.getElementById('mission4-feedback');
+            const checkButton = document.createElement('button');
+            checkButton.className = 'btn';
+            checkButton.textContent = 'Submit Answer';
+            checkButton.addEventListener('click', () => {
+                if (gameState.mission4Answer === 'correct') {
+                    const points = awardPoints(100);
+                    feedback.className = 'feedback correct';
+                    feedback.innerHTML = `Absolutely right! Alt text is essential for accessibility. +${points} points`;
+                    setTimeout(showCompletionScreen, 2000);
+                } else if (gameState.mission4Answer) {
+                    resetStreak();
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = 'That\'s not the primary purpose. Try again!';
+                } else {
+                    feedback.className = 'feedback incorrect';
+                    feedback.textContent = 'Please select an answer!';
+                }
+            });
+
+            // Add button to container if not already present
+            const container = feedback.parentElement;
+            if (!container.querySelector('button')) {
+                container.appendChild(checkButton);
+            }
+        }
+
+        // Show completion screen
+        function showCompletionScreen() {
+            document.getElementById('final-score').textContent = gameState.score;
+            navigateTo('completion-screen');
+            createConfetti();
+        }
+
+        // Restart mission
+        function restartMission() {
+            // Reset game state
+            gameState.score = 0;
+            gameState.streak = 0;
+            gameState.rank = 'Trainee';
+            gameState.missionsCompleted = 0;
+            gameState.mission1Answers = {};
+            gameState.mission2Answer = null;
+            gameState.mission3Correct = 0;
+            gameState.mission4Answer = null;
+
+            // Reset UI
+            updateScoreDisplay();
+            setupMatchingActivity();
+
+            // Navigate to intro
+            navigateTo('intro-screen');
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#1B5EAF', '#1E7A3E', '#FF9800', '#F44336', '#4CAF50'];
+            const container = document.querySelector('.container');
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.opacity = '1';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(confetti);
+
+                // Animate confetti
+                setTimeout(() => {
+                    confetti.style.transition = 'all 3s ease-out';
+                    confetti.style.top = '100%';
+                    confetti.style.opacity = '0';
+                }, 10);
+
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 3000);
+            }
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
