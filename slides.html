@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UVA - Google Slides Master Slides Mission</title>
+    <style>
+        :root {
+            --uva-blue: #1B5EAF;
+            --uva-green: #1E7A3E;
+            --uva-light-blue: #E3F2FD;
+            --uva-dark-blue: #0D47A1;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --danger: #F44336;
+            --light-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #757575;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(to right, var(--uva-blue), var(--uva-dark-blue));
+            color: white;
+            padding: 20px;
+            position: relative;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .motto-banner {
+            background: var(--uva-green);
+            padding: 8px;
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .mission-title {
+            font-size: 28px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        /* Game Info Bar */
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            background: var(--uva-light-blue);
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--uva-blue);
+        }
+
+        .rank-display {
+            font-weight: bold;
+            color: var(--uva-dark-blue);
+            font-size: 18px;
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .streak {
+            background: var(--warning);
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .score {
+            background: var(--uva-green);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .content {
+            display: flex;
+            min-height: 500px;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 250px;
+            background: var(--light-gray);
+            padding: 20px;
+            border-right: 1px solid var(--medium-gray);
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: var(--uva-light-blue);
+        }
+
+        .nav-item.active {
+            background: var(--uva-blue);
+            color: white;
+        }
+
+        /* Main Activity Area */
+        .activity-area {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            color: var(--uva-dark-blue);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--uva-light-blue);
+        }
+
+        .instructions {
+            background: var(--uva-light-blue);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* Google Slides Interface Simulation */
+        .slides-interface {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .toolbar {
+            background: #f5f5f5;
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+
+        .toolbar-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .toolbar-btn:hover {
+            background: #eee;
+        }
+
+        .toolbar-btn.active {
+            background: var(--uva-blue);
+            color: white;
+            border-color: var(--uva-blue);
+        }
+
+        .slides-content {
+            min-height: 300px;
+            padding: 20px;
+            background: white;
+        }
+
+        .slide-preview {
+            width: 100%;
+            height: 200px;
+            background: #f9f9f9;
+            border: 1px dashed #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            position: relative;
+        }
+
+        .placeholder {
+            border: 2px dashed var(--uva-blue);
+            padding: 10px;
+            margin: 10px;
+            text-align: center;
+            color: var(--uva-dark-blue);
+            font-weight: 500;
+        }
+
+        /* Interactive Elements */
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .option-card {
+            border: 2px solid var(--medium-gray);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .option-card.selected {
+            border-color: var(--uva-blue);
+            background: var(--uva-light-blue);
+        }
+
+        .option-card.correct {
+            border-color: var(--success);
+            background: #e8f5e9;
+        }
+
+        .option-card.incorrect {
+            border-color: var(--danger);
+            background: #ffebee;
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            border-left: 5px solid var(--success);
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            border-left: 5px solid var(--danger);
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--uva-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--uva-dark-blue);
+        }
+
+        .btn-secondary {
+            background: var(--medium-gray);
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #ccc;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Confetti Animation */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+            z-index: 9999;
+        }
+
+        /* Completion Screen */
+        .completion-screen {
+            text-align: center;
+            padding: 40px 20px;
+            display: none;
+        }
+
+        .completion-screen h2 {
+            color: var(--uva-green);
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            width: 150px;
+            height: 150px;
+            background: var(--uva-green);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 60px;
+        }
+
+        .final-score {
+            font-size: 24px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .rank-badge {
+            display: inline-block;
+            background: var(--uva-blue);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--medium-gray);
+            }
+
+            .game-info {
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header with UVA Branding -->
+        <div class="header">
+            <div class="logo">University View Academy</div>
+            <div class="motto-banner">Virtue, Vigor, Vision</div>
+            <h1 class="mission-title">Master Slides Mission: Design Excellence in Google Slides</h1>
+        </div>
+
+        <!-- Game Info Bar -->
+        <div class="game-info">
+            <div class="rank-display">Current Rank: <span id="current-rank">Trainee</span></div>
+            <div class="score-container">
+                <div class="streak">Streak: <span id="streak-count">0</span></div>
+                <div class="score">Score: <span id="score-value">0</span></div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="content">
+            <!-- Sidebar Navigation -->
+            <div class="sidebar">
+                <div class="nav-item active" data-step="1">Mission Briefing</div>
+                <div class="nav-item" data-step="2">Theme Builder Access</div>
+                <div class="nav-item" data-step="3">Parent Slide Rules</div>
+                <div class="nav-item" data-step="4">Layout Creation</div>
+                <div class="nav-item" data-step="5">Design Principles</div>
+                <div class="nav-item" data-step="6">Mission Complete</div>
+            </div>
+
+            <!-- Activity Area -->
+            <div class="activity-area">
+                <!-- Step 1: Mission Briefing -->
+                <div class="step active" id="step-1">
+                    <h2 class="step-title">Mission Briefing: Master Slides Mastery</h2>
+
+                    <div class="instructions">
+                        <p>Welcome to your Master Slides Mission, Cadet! Your objective is to master the Google Slides Theme Builder and understand how to create consistent, professional presentations using Master Slides.</p>
+                        <p>In this mission, you'll learn:</p>
+                        <ul>
+                            <li>How to access and navigate the Theme Builder</li>
+                            <li>How to define global rules for fonts, colors, and backgrounds</li>
+                            <li>How to create custom layouts with placeholders</li>
+                            <li>Core design principles for effective presentations</li>
+                        </ul>
+                        <p>Complete all objectives to earn your Master rank!</p>
+                    </div>
+
+                    <div class="slides-interface">
+                        <div class="toolbar">
+                            <div class="toolbar-btn">File</div>
+                            <div class="toolbar-btn">Edit</div>
+                            <div class="toolbar-btn">View</div>
+                            <div class="toolbar-btn">Insert</div>
+                            <div class="toolbar-btn">Format</div>
+                            <div class="toolbar-btn active">Slide</div>
+                            <div class="toolbar-btn">Tools</div>
+                        </div>
+                        <div class="slides-content">
+                            <h3>Google Slides Presentation</h3>
+                            <p>This is a simulation of the Google Slides interface. Throughout this mission, you'll interact with elements that mirror the actual software.</p>
+                            <div class="slide-preview">
+                                <div>
+                                    <h4>Title Slide</h4>
+                                    <p>Presentation Title</p>
+                                    <p>Subtitle Text</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-container">
+                        <button class="btn btn-secondary" disabled>Previous</button>
+                        <button class="btn btn-primary" onclick="nextStep(1)">Begin Mission</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Theme Builder Access -->
+                <div class="step" id="step-2">
+                    <h2 class="step-title">Objective 1: Accessing the Theme Builder</h2>
+
+                    <div class="instructions">
+                        <p>Your first task is to locate the Theme Builder in Google Slides. This is where you'll establish global design rules for your presentation.</p>
+                        <p>Which menu path correctly leads to the Theme Builder?</p>
+                    </div>
+
+                    <div class="option-grid">
+                        <div class="option-card" onclick="selectOption(this, 'incorrect')">Format > Theme Builder</div>
+                        <div class="option-card" onclick="selectOption(this, 'correct')">View > Theme Builder</div>
+                        <div class="option-card" onclick="selectOption(this, 'incorrect')">Insert > Theme Options</div>
+                        <div class="option-card" onclick="selectOption(this, 'incorrect')">Tools > Presentation Designer</div>
+                    </div>
+
+                    <div class="feedback" id="feedback-2">
+                        <p id="feedback-text-2"></p>
+                    </div>
+
+                    <div class="btn-container">
+                        <button class="btn btn-secondary" onclick="prevStep(2)">Previous</button>
+                        <button class="btn btn-primary" id="next-2" disabled onclick="nextStep(2)">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Parent Slide Rules -->
+                <div class="step" id="step-3">
+                    <h2 class="step-title">Objective 2: Defining Global Rules</h2>
+
+                    <div class="instructions">
+                        <p>In the Theme Builder, the Parent Slide establishes global rules. Which of these properties can be controlled globally from the Parent Slide?</p>
+                    </div>
+
+                    <div class="option-grid">
+                        <div class="option-card" onclick="selectOption(this, 'correct')">Fonts and Typography</div>
+                        <div class="option-card" onclick="selectOption(this, 'correct')">Color Schemes</div>
+                        <div class="option-card" onclick="selectOption(this, 'incorrect')">Individual slide transitions</div>
+                        <div class="option-card" onclick="selectOption(this, 'correct')">Background designs</div>
+                    </div>
+
+                    <div class="feedback" id="feedback-3">
+                        <p id="feedback-text-3"></p>
+                    </div>
+
+                    <div class="btn-container">
+                        <button class="btn btn-secondary" onclick="prevStep(3)">Previous</button>
+                        <button class="btn btn-primary" id="next-3" disabled onclick="nextStep(3)">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Layout Creation -->
+                <div class="step" id="step-4">
+                    <h2 class="step-title">Objective 3: Creating Custom Layouts</h2>
+
+                    <div class="instructions">
+                        <p>Custom layouts allow you to create slide templates with specific placeholders. What types of placeholders can you add to a custom layout?</p>
+                    </div>
+
+                    <div class="option-grid">
+                        <div class="option-card" onclick="selectOption(this, 'correct')">Text boxes</div>
+                        <div class="option-card" onclick="selectOption(this, 'correct')">Image containers</div>
+                        <div class="option-card" onclick="selectOption(this, 'correct')">Chart areas</div>
+                        <div class="option-card" onclick="selectOption(this, 'incorrect')">Video players</div>
+                    </div>
+
+                    <div class="feedback" id="feedback-4">
+                        <p id="feedback-text-4"></p>
+                    </div>
+
+                    <div class="btn-container">
+                        <button class="btn btn-secondary" onclick="prevStep(4)">Previous</button>
+                        <button class="btn btn-primary" id="next-4" disabled onclick="nextStep(4)">Continue</button>
+                    </div>
+                </div>
+
+                <!-- Step 5: Design Principles -->
+                <div class="step" id="step-5">
+                    <h2 class="step-title">Objective 4: Applying Design Principles</h2>
+
+                    <div class="instructions">
+                        <p>Effective presentations follow core design principles. Match each principle to its correct definition.</p>
+                    </div>
+
+                    <div class="slides-interface">
+                        <div class="slides-content">
+                            <h3>Design Principle Matching</h3>
+                            <p>Drag and drop to match each term with its definition:</p>
+
+                            <div class="option-grid">
+                                <div class="option-card" onclick="selectOption(this, 'correct')">Visual Hierarchy<br><small>(Organizes elements to show importance)</small></div>
+                                <div class="option-card" onclick="selectOption(this, 'incorrect')">High Contrast Rule<br><small>(Uses subtle color variations for elegance)</small></div>
+                                <div class="option-card" onclick="selectOption(this, 'incorrect')">Visual Hierarchy<br><small>(Ensures all text is the same size)</small></div>
+                                <div class="option-card" onclick="selectOption(this, 'correct')">High Contrast Rule<br><small>(Creates distinction between foreground and background)</small></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feedback" id="feedback-5">
+                        <p id="feedback-text-5"></p>
+                    </div>
+
+                    <div class="btn-container">
+                        <button class="btn btn-secondary" onclick="prevStep(5)">Previous</button>
+                        <button class="btn btn-primary" id="next-5" disabled onclick="completeMission()">Complete Mission</button>
+                    </div>
+                </div>
+
+                <!-- Completion Screen -->
+                <div class="completion-screen" id="completion-screen">
+                    <div class="badge">✓</div>
+                    <h2>Mission Accomplished!</h2>
+                    <p>You've successfully mastered Google Slides Master Slides!</p>
+                    <div class="final-score">Final Score: <span id="final-score">0</span></div>
+                    <div class="rank-badge" id="final-rank">Trainee</div>
+                    <p>Congratulations on achieving your rank!</p>
+                    <button class="btn btn-primary" onclick="restartMission()">Restart Mission</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let currentStep = 1;
+        let score = 0;
+        let streak = 0;
+        let rank = "Trainee";
+        let selectedOptions = {};
+
+        // DOM Elements
+        const streakElement = document.getElementById('streak-count');
+        const scoreElement = document.getElementById('score-value');
+        const rankElement = document.getElementById('current-rank');
+        const finalScoreElement = document.getElementById('final-score');
+        const finalRankElement = document.getElementById('final-rank');
+
+        // Initialize
+        updateGameInfo();
+
+        // Navigation Functions
+        function nextStep(step) {
+            if (step < 5) {
+                document.getElementById(`step-${step}`).classList.remove('active');
+                document.getElementById(`step-${step + 1}`).classList.add('active');
+                updateSidebar(step + 1);
+                currentStep = step + 1;
+            }
+        }
+
+        function prevStep(step) {
+            if (step > 1) {
+                document.getElementById(`step-${step}`).classList.remove('active');
+                document.getElementById(`step-${step - 1}`).classList.add('active');
+                updateSidebar(step - 1);
+                currentStep = step - 1;
+            }
+        }
+
+        function updateSidebar(step) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.nav-item[data-step="${step}"]`).classList.add('active');
+        }
+
+        // Option Selection
+        function selectOption(element, correctness) {
+            // Remove previous selections in this step
+            const parent = element.parentElement;
+            parent.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected', 'correct', 'incorrect');
+            });
+
+            // Mark selected option
+            element.classList.add('selected');
+
+            // Store selection
+            const stepId = element.closest('.step').id;
+            selectedOptions[stepId] = correctness;
+
+            // Show feedback
+            const feedbackId = `feedback-${stepId.split('-')[1]}`;
+            const feedbackTextId = `feedback-text-${stepId.split('-')[1]}`;
+            const feedbackElement = document.getElementById(feedbackId);
+            const feedbackTextElement = document.getElementById(feedTextId);
+
+            if (correctness === 'correct') {
+                element.classList.add('correct');
+                feedbackElement.className = 'feedback correct';
+                feedbackTextElement.textContent = "Correct! Well done.";
+                incrementScore();
+            } else {
+                element.classList.add('incorrect');
+                feedbackElement.className = 'feedback incorrect';
+                feedbackTextElement.textContent = "Not quite. Review the material and try again.";
+                resetStreak();
+            }
+
+            feedbackElement.style.display = 'block';
+
+            // Enable next button
+            const nextButtonId = `next-${stepId.split('-')[1]}`;
+            const nextButton = document.getElementById(nextButtonId);
+            if (nextButton) {
+                nextButton.disabled = false;
+            }
+        }
+
+        // Score Management
+        function incrementScore() {
+            streak++;
+            score += 10 * streak;
+            updateGameInfo();
+
+            // Check for streak celebration
+            if (streak >= 3) {
+                showStreakCelebration();
+            }
+
+            // Update rank
+            updateRank();
+        }
+
+        function resetStreak() {
+            streak = 0;
+            updateGameInfo();
+        }
+
+        function updateGameInfo() {
+            streakElement.textContent = streak;
+            scoreElement.textContent = score;
+            rankElement.textContent = rank;
+        }
+
+        function updateRank() {
+            if (score >= 150) {
+                rank = "Master";
+            } else if (score >= 100) {
+                rank = "Expert";
+            } else if (score >= 50) {
+                rank = "Apprentice";
+            } else {
+                rank = "Trainee";
+            }
+            rankElement.textContent = rank;
+        }
+
+        // Celebrations
+        function showStreakCelebration() {
+            // Create confetti effect
+            createConfetti();
+
+            // Show streak notification
+            const streakNotification = document.createElement('div');
+            streakNotification.textContent = `${streak} in a row!`;
+            streakNotification.style.position = 'fixed';
+            streakNotification.style.top = '20px';
+            streakNotification.style.right = '20px';
+            streakNotification.style.backgroundColor = '#FFC107';
+            streakNotification.style.color = '#333';
+            streakNotification.style.padding = '10px 20px';
+            streakNotification.style.borderRadius = '30px';
+            streakNotification.style.fontWeight = 'bold';
+            streakNotification.style.zIndex = '1000';
+            streakNotification.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+
+            document.body.appendChild(streakNotification);
+
+            // Remove after 2 seconds
+            setTimeout(() => {
+                streakNotification.remove();
+            }, 2000);
+        }
+
+        function createConfetti() {
+            const colors = ['#1B5EAF', '#1E7A3E', '#FFC107', '#4CAF50', '#F44336'];
+            const container = document.body;
+
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                container.appendChild(confetti);
+
+                // Animate confetti
+                const animation = confetti.animate([
+                    { top: '-10px', opacity: 1 },
+                    { top: '100vh', opacity: 0.5 }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+                });
+
+                // Remove confetti after animation
+                animation.onfinish = () => {
+                    confetti.remove();
+                };
+            }
+        }
+
+        // Mission Completion
+        function completeMission() {
+            // Hide last step
+            document.getElementById('step-5').classList.remove('active');
+
+            // Show completion screen
+            document.getElementById('completion-screen').style.display = 'block';
+
+            // Update final score and rank
+            finalScoreElement.textContent = score;
+            finalRankElement.textContent = rank;
+
+            // Celebrate completion
+            createConfetti();
+        }
+
+        // Restart Mission
+        function restartMission() {
+            // Reset game state
+            currentStep = 1;
+            score = 0;
+            streak = 0;
+            rank = "Trainee";
+            selectedOptions = {};
+
+            // Hide completion screen
+            document.getElementById('completion-screen').style.display = 'none';
+
+            // Reset all steps
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // Show first step
+            document.getElementById('step-1').classList.add('active');
+
+            // Reset sidebar
+            updateSidebar(1);
+
+            // Reset options
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected', 'correct', 'incorrect');
+            });
+
+            // Hide all feedback
+            document.querySelectorAll('.feedback').forEach(feedback => {
+                feedback.style.display = 'none';
+            });
+
+            // Disable next buttons
+            document.querySelectorAll('.btn-primary:not(:first-child)').forEach(button => {
+                button.disabled = true;
+            });
+
+            // Update game info
+            updateGameInfo();
+        }
+
+        // Add click event to sidebar items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const step = parseInt(this.getAttribute('data-step'));
+                if (step <= currentStep) {
+                    document.querySelectorAll('.step').forEach(s => {
+                        s.classList.remove('active');
+                    });
+                    document.getElementById(`step-${step}`).classList.add('active');
+                    updateSidebar(step);
+                    currentStep = step;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
