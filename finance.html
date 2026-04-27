@@ -1471,9 +1471,10 @@ function answerM3(clickedViolation, scenarioId, isViolation) {
 // MISSION 4: PMT FORMULA BUILDER
 // ============================================================
 function addToken(btn, token) {
-  if (btn.classList.contains('used')) return;
+  // Comma can be used multiple times (e.g., =PMT(rate,nper,pv) needs 2 commas)
+  if (token !== ',' && btn.classList.contains('used')) return;
   formulaTokens.push(token);
-  btn.classList.add('used');
+  if (token !== ',') btn.classList.add('used');
   renderFormula();
 }
 
@@ -1554,7 +1555,10 @@ function answerPMTBonus(idx, correct) {
 // Month 3: Interest = 375.84 * 0.01 = 3.76, Principal = 422.03 - 3.76 = 418.27, Balance = 375.84 - 418.27 ≈ 0 (rounding)
 
 function parseVal(str) {
-  return parseFloat(str.replace(/[$,]/g, ''));
+  // Accept currency formatting with any number of commas (e.g., 1,000,000)
+  const cleaned = String(str ?? '').replace(/[$,\s]/g, '');
+  if (!cleaned || cleaned === '-' || cleaned === '.') return NaN;
+  return parseFloat(cleaned);
 }
 
 function isClose(a, b, tol) {
