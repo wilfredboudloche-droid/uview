@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lesson 20: Mobile OS Security | University View Academy</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #C0392B;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-bg: #f4f6fb;
+    --gray-border: #d0d7e3;
+    --text: #1a1a2e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gray-bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--blue);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .school-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .uva-shield {
+    width: 52px; height: 60px;
+    flex-shrink: 0;
+  }
+  .school-name { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+  .school-sub { font-size: 0.78rem; opacity: 0.85; }
+  .header-right { text-align: right; }
+  .lesson-tag { font-size: 0.75rem; background: rgba(255,255,255,0.18); border-radius: 20px; padding: 3px 12px; display: inline-block; margin-bottom: 4px; }
+  .lesson-title { font-size: 1.05rem; font-weight: 700; }
+
+  /* MOTTO RIBBON */
+  .motto-ribbon {
+    background: var(--green);
+    color: white;
+    text-align: center;
+    padding: 6px 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+
+  /* RANK BAR */
+  .rank-bar {
+    background: var(--blue-dark);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 28px;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+  .rank-display { display: flex; align-items: center; gap: 8px; }
+  .rank-badge {
+    background: var(--gold);
+    color: #333;
+    font-weight: 800;
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-size: 0.82rem;
+    letter-spacing: 0.5px;
+  }
+  .score-display { display: flex; align-items: center; gap: 16px; }
+  .score-box { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 4px 14px; font-weight: 700; }
+  .streak-box { display: flex; align-items: center; gap: 5px; }
+  .streak-fire { font-size: 1.1rem; }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 3px 18px rgba(27,94,175,0.10);
+    overflow: hidden;
+    margin-bottom: 22px;
+  }
+  .mission-header {
+    background: linear-gradient(135deg, var(--blue) 60%, var(--green) 100%);
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .mission-icon { font-size: 2rem; }
+  .mission-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; opacity: 0.85; }
+  .mission-name { font-size: 1.12rem; font-weight: 700; }
+  .mission-body { padding: 22px 24px; }
+
+  /* PROGRESS BAR */
+  .progress-wrap { margin-bottom: 18px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 0.8rem; color: #555; margin-bottom: 5px; }
+  .progress-track { background: var(--gray-border); border-radius: 20px; height: 10px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, var(--blue), var(--green)); height: 100%; border-radius: 20px; transition: width 0.5s ease; }
+
+  /* SCENARIO SECTION */
+  .scenario-box {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .scenario-box strong { color: var(--blue-dark); }
+
+  /* QUESTION */
+  .question-text {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .question-num {
+    display: inline-block;
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    width: 26px; height: 26px;
+    text-align: center;
+    line-height: 26px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+
+  /* OPTIONS */
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: white;
+    border: 2px solid var(--gray-border);
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.93rem;
+    transition: all 0.18s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.45;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-light); transform: translateX(3px); }
+  .option-btn.correct { border-color: var(--green); background: var(--green-light); color: var(--green); font-weight: 600; }
+  .option-btn.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 6px;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.82rem;
+    flex-shrink: 0;
+  }
+  .option-btn.correct .option-letter { background: var(--green); color: white; }
+  .option-btn.wrong .option-letter { background: var(--red); color: white; }
+
+  /* DRAG & DROP */
+  .drag-area { display: flex; gap: 20px; flex-wrap: wrap; }
+  .drag-col { flex: 1; min-width: 200px; }
+  .drag-col-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--blue); margin-bottom: 10px; }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 40px; }
+  .drag-item {
+    background: var(--blue-light);
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    padding: 9px 14px;
+    cursor: grab;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--blue-dark);
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .drag-item:active { cursor: grabbing; opacity: 0.7; }
+  .drag-item.dragging { opacity: 0.4; }
+  .drop-zone {
+    background: #f9fbff;
+    border: 2px dashed var(--gray-border);
+    border-radius: 10px;
+    padding: 10px;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.2s;
+  }
+  .drop-zone.drag-over { border-color: var(--blue); background: var(--blue-light); }
+  .drop-zone-label { font-size: 0.78rem; color: #888; text-align: center; padding: 6px 0; }
+  .drop-zone .drag-item { background: white; border-color: var(--green); color: var(--green); }
+  .drop-zone .drag-item.wrong-drop { border-color: var(--red); color: var(--red); background: var(--red-light); }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct { background: var(--green-light); border: 1.5px solid var(--green); color: #145a2e; }
+  .feedback-box.wrong { background: var(--red-light); border: 1.5px solid var(--red); color: #7b1a1a; }
+  .feedback-icon { font-size: 1.2rem; margin-right: 6px; }
+
+  /* NEXT BTN */
+  .next-btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    display: none;
+    transition: background 0.2s;
+  }
+  .next-btn:hover { background: var(--blue-dark); }
+  .next-btn.show { display: inline-block; }
+
+  .check-btn {
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 11px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background 0.2s;
+  }
+  .check-btn:hover { background: #155c2e; }
+  .check-btn:disabled { background: #aaa; cursor: default; }
+
+  /* STREAK POPUP */
+  .streak-popup {
+    position: fixed;
+    top: 80px; right: 20px;
+    background: var(--gold);
+    color: #333;
+    border-radius: 14px;
+    padding: 12px 22px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.4s;
+    pointer-events: none;
+  }
+  .streak-popup.show { opacity: 1; transform: translateY(0); }
+
+  /* RANK UP POPUP */
+  .rankup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .rankup-overlay.show { display: flex; }
+  .rankup-card {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 44px;
+    text-align: center;
+    max-width: 360px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    animation: popIn 0.4s ease;
+  }
+  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .rankup-icon { font-size: 3.5rem; margin-bottom: 10px; }
+  .rankup-title { font-size: 1.5rem; font-weight: 800; color: var(--blue); margin-bottom: 6px; }
+  .rankup-sub { color: #555; font-size: 0.95rem; margin-bottom: 20px; }
+  .rankup-btn { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 10px 28px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+
+  /* FINAL SCREEN */
+  .final-screen { display: none; text-align: center; padding: 30px 20px; }
+  .final-screen.show { display: block; }
+  .final-trophy { font-size: 4rem; margin-bottom: 10px; }
+  .final-title { font-size: 1.6rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+  .final-score { font-size: 2.5rem; font-weight: 900; color: var(--green); margin: 10px 0; }
+  .final-rank { display: inline-block; background: var(--gold); color: #333; border-radius: 20px; padding: 6px 22px; font-weight: 800; font-size: 1.1rem; margin-bottom: 16px; }
+  .final-msg { color: #555; font-size: 0.95rem; margin-bottom: 22px; line-height: 1.6; }
+  .restart-btn { background: var(--blue); color: white; border: none; border-radius: 10px; padding: 12px 32px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+  .restart-btn:hover { background: var(--blue-dark); }
+
+  /* CONFETTI */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99999;
+    animation: confettiFall 2.5s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg); }
+    100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+  }
+
+  /* DOMAIN TAG */
+  .domain-tag {
+    display: inline-block;
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    display: flex; align-items: center; gap: 10px;
+    margin: 20px 0 16px;
+    color: #888; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--gray-border);
+  }
+
+  /* RANK PROGRESS */
+  .rank-progress-row {
+    display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .rank-step {
+    flex: 1; min-width: 80px;
+    background: var(--gray-border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #888;
+    transition: all 0.3s;
+  }
+  .rank-step.active { background: var(--blue); color: white; }
+  .rank-step.done { background: var(--green); color: white; }
+
+  @media (max-width: 600px) {
+    .header-top { padding: 12px 14px 8px; }
+    .rank-bar { padding: 8px 14px; }
+    .main { padding: 14px 8px 30px; }
+    .mission-body { padding: 16px 14px; }
+    .drag-area { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="school-brand">
+      <svg class="uva-shield" viewBox="0 0 52 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M26 2L4 12V32C4 44 14 54 26 58C38 54 48 44 48 32V12L26 2Z" fill="#1E7A3E" stroke="white" stroke-width="2"/>
+        <path d="M26 8L10 16V32C10 41 17 49 26 53C35 49 42 41 42 32V16L26 8Z" fill="#1B5EAF"/>
+        <text x="26" y="36" text-anchor="middle" fill="white" font-size="14" font-weight="900" font-family="Arial">UVA</text>
+      </svg>
+      <div>
+        <div class="school-name">University View Academy</div>
+        <div class="school-sub">Computer Architecture · High School</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="lesson-tag">A+ Core 2 · Domain 2.1 & 2.8</div>
+      <div class="lesson-title">Lesson 20: Mobile OS Security</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+</div>
+
+<!-- RANK BAR -->
+<div class="rank-bar">
+  <div class="rank-display">
+    <span>🎖️ Rank:</span>
+    <span class="rank-badge" id="rankBadge">Trainee</span>
+  </div>
+  <div class="score-display">
+    <div class="score-box">⭐ Score: <span id="scoreDisplay">0</span></div>
+    <div class="streak-box">
+      <span class="streak-fire">🔥</span>
+      <span id="streakDisplay">0</span> streak
+    </div>
+  </div>
+</div>
+
+<!-- STREAK POPUP -->
+<div class="streak-popup" id="streakPopup">🔥 3 in a row! Keep going!</div>
+
+<!-- RANK UP OVERLAY -->
+<div class="rankup-overlay" id="rankupOverlay">
+  <div class="rankup-card">
+    <div class="rankup-icon" id="rankupIcon">🏅</div>
+    <div class="rankup-title" id="rankupTitle">Rank Up!</div>
+    <div class="rankup-sub" id="rankupSub">You've reached a new rank!</div>
+    <button class="rankup-btn" onclick="closeRankup()">Continue Mission →</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- RANK PROGRESS -->
+  <div class="rank-progress-row" id="rankProgressRow">
+    <div class="rank-step active" id="rs0">🔰 Trainee</div>
+    <div class="rank-step" id="rs1">🥉 Apprentice</div>
+    <div class="rank-step" id="rs2">🥈 Expert</div>
+    <div class="rank-step" id="rs3">🥇 Master</div>
+  </div>
+
+  <!-- PROGRESS BAR -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Mission Progress</span>
+      <span id="progressText">0 / 12 completed</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- MISSION CONTAINER -->
+  <div id="missionContainer"></div>
+
+  <!-- FINAL SCREEN -->
+  <div class="final-screen" id="finalScreen">
+    <div class="final-trophy" id="finalTrophy">🏆</div>
+    <div class="final-title">Mission Complete!</div>
+    <div class="final-score" id="finalScore">0 / 120</div>
+    <div class="final-rank" id="finalRank">Trainee</div>
+    <div class="final-msg" id="finalMsg">Great effort, UVA Cadet!</div>
+    <button class="restart-btn" onclick="restartActivity()">🔄 Restart Mission</button>
+  </div>
+
+</div>
+
+<script>
+// ===================== DATA =====================
+const RANKS = [
+  { name: "Trainee",    icon: "🔰", min: 0,   color: "#888" },
+  { name: "Apprentice", icon: "🥉", min: 30,  color: "#cd7f32" },
+  { name: "Expert",     icon: "🥈", min: 60,  color: "#aaa" },
+  { name: "Master",     icon: "🥇", min: 90,  color: "#f5a623" },
+];
+
+const TOTAL_QUESTIONS = 12;
+const POINTS_PER_Q = 10;
+
+// All 12 questions across 4 missions
+const MISSIONS = [
+  {
+    id: 1,
+    icon: "🔐",
+    label: "Mission 1 of 4",
+    name: "Screen Lock Security Clearance",
+    domain: "A+ Core 2 – Domain 2.1",
+    scenario: "You're the IT security officer at UVA. A student just lost their phone on campus. Your job: assess which screen lock methods would have protected their data — and which wouldn't.",
+    questions: [
+      {
+        type: "mcq",
+        text: "A student uses a simple 4-digit PIN on their phone. Which statement BEST describes the security level of this method?",
+        options: [
+          "It is the most secure method because it requires memorization.",
+          "It offers low-to-moderate security; easily brute-forced with 10,000 possible combinations.",
+          "It is equivalent to biometric authentication in security strength.",
+          "It cannot be bypassed under any circumstances."
+        ],
+        correct: 1,
+        feedback: "✅ Correct! A 4-digit PIN has only 10,000 combinations and can be brute-forced quickly. It's better than no lock, but far weaker than a strong alphanumeric password or biometrics."
+      },
+      {
+        type: "mcq",
+        text: "Rank these screen lock methods from LEAST secure to MOST secure:",
+        options: [
+          "Swipe → PIN → Pattern → Fingerprint → Strong Password",
+          "Strong Password → Fingerprint → Pattern → PIN → Swipe",
+          "Fingerprint → Strong Password → PIN → Pattern → Swipe",
+          "PIN → Swipe → Pattern → Fingerprint → Strong Password"
+        ],
+        correct: 0,
+        feedback: "✅ Correct! Swipe offers zero security. PIN is weak. Pattern can be guessed from smudges. Fingerprint is strong biometric. A long alphanumeric password is generally the strongest."
+      },
+      {
+        type: "mcq",
+        text: "A student uses facial recognition to unlock their phone. What is a known WEAKNESS of this method?",
+        options: [
+          "It requires an internet connection to work.",
+          "It can sometimes be fooled by a photo of the owner's face on older devices.",
+          "It permanently locks the device after 3 failed attempts.",
+          "It drains the battery 10x faster than a PIN."
+        ],
+        correct: 1,
+        feedback: "✅ Correct! Older or less sophisticated facial recognition systems can be spoofed using a photograph. Modern 3D facial recognition (like Face ID) is much more resistant to this attack."
+      }
+    ]
+  },
+  {
+    id: 2,
+    icon: "🛡️",
+    label: "Mission 2 of 4",
+    name: "Device Health Defense Protocol",
+    domain: "A+ Core 2 – Domain 2.1",
+    scenario: "UVA's IT department is reviewing device health policies. You must advise on the role of antivirus software, OS patching, and mobile firewalls to keep student and staff devices secure.",
+    questions: [
+      {
+        type: "mcq",
+        text: "A student's Android phone hasn't received an OS update in 18 months. What is the PRIMARY security risk?",
+        options: [
+          "The phone will run slower due to outdated drivers.",
+          "Known vulnerabilities remain unpatched, leaving the device open to exploits.",
+          "The phone's warranty will be voided.",
+          "The device will automatically reset to factory settings."
+        ],
+        correct: 1,
+        feedback: "✅ Correct! Unpatched devices are vulnerable to known exploits. Attackers actively target devices running outdated OS versions because the vulnerabilities are publicly documented."
+      },
+      {
+        type: "mcq",
+        text: "Which of the following BEST describes the role of a mobile firewall?",
+        options: [
+          "It scans apps for malware before they are installed.",
+          "It monitors and controls incoming/outgoing network traffic based on security rules.",
+          "It encrypts all data stored on the device.",
+          "It prevents the device from connecting to public Wi-Fi."
+        ],
+        correct: 1,
+        feedback: "✅ Correct! A firewall monitors network traffic and enforces rules about what connections are allowed. It's a network-layer defense, not a file scanner or encryption tool."
+      },
+      {
+        type: "mcq",
+        text: "A student downloads an app from a third-party website (not the official app store). What security tool would MOST directly help detect if the app is malicious?",
+        options: [
+          "A mobile firewall",
+          "OS patching",
+          "Mobile antivirus / anti-malware software",
+          "Screen lock enforcement"
+        ],
+        correct: 2,
+        feedback: "✅ Correct! Antivirus/anti-malware software scans apps and files for known malicious signatures and behaviors. Sideloaded apps bypass app store vetting, making antivirus especially important."
+      }
+    ]
+  },
+  {
+    id: 3,
+    icon: "🏢",
+    label: "Mission 3 of 4",
+    name: "Enterprise Deployment Decoder",
+    domain: "A+ Core 2 – Domain 2.8",
+    scenario: "UVA is expanding its 1:1 device program. The IT director needs to choose a deployment model. You must identify the correct model for each scenario and explain the trade-offs.",
+    questions: [
+      {
+        type: "mcq",
+        text: "A teacher wants to use their personal iPhone for school email and the gradebook app. The school allows this but requires MDM enrollment. Which deployment model is this?",
+        options: [
+          "COPE – Corporate-Owned, Personally Enabled",
+          "CYOD – Choose Your Own Device",
+          "BYOD – Bring Your Own Device",
+          "VDI – Virtual Desktop Infrastructure"
+        ],
+        correct: 2,
+        feedback: "✅ Correct! BYOD (Bring Your Own Device) means the employee uses their personal device for work. The school's MDM enrollment requirement is a common BYOD policy control."
+      },
+      {
+        type: "mcq",
+        text: "UVA purchases a fleet of iPads and allows students to also use them for personal apps and social media. What deployment model is this?",
+        options: [
+          "BYOD – Bring Your Own Device",
+          "COPE – Corporate-Owned, Personally Enabled",
+          "CYOD – Choose Your Own Device",
+          "MDM – Mobile Device Management"
+        ],
+        correct: 1,
+        feedback: "✅ Correct! COPE means the organization owns the device but allows personal use. The school owns the iPads, but students can use them personally — that's COPE."
+      },
+      {
+        type: "mcq",
+        text: "UVA gives staff a list of 3 approved laptop models and lets each person pick which one they want. The school then purchases and owns the chosen device. This is:",
+        options: [
+          "BYOD – Bring Your Own Device",
+          "COPE – Corporate-Owned, Personally Enabled",
+          "CYOD – Choose Your Own Device",
+          "COBO – Corporate-Owned, Business Only"
+        ],
+        correct: 2,
+        feedback: "✅ Correct! CYOD (Choose Your Own Device) lets users select from an approved list of devices, which the organization then purchases. Users get choice; IT maintains control over approved hardware."
+      }
+    ]
+  },
+  {
+    id: 4,
+    icon: "🔒",
+    label: "Mission 4 of 4",
+    name: "Data Protection Final Ops",
+    domain: "A+ Core 2 – Domain 2.1 & 2.8",
+    scenario: "A UVA staff member's laptop containing sensitive student records has been reported stolen. You are the incident response lead. Deploy the correct data protection features to contain the breach.",
+    questions: [
+      {
+        type: "mcq",
+        text: "The stolen laptop contains unencrypted student records. The thief removes the hard drive and connects it to another computer. What would PREVENT the data from being read?",
+        options: [
+          "A strong screen lock password on the laptop.",
+          "Full-disk encryption (e.g., BitLocker or FileVault).",
+          "An active antivirus subscription.",
+          "A mobile firewall configured on the device."
+        ],
+        correct: 1,
+        feedback: "✅ Correct! Full-disk encryption (FDE) encrypts all data on the drive. Even if the drive is removed and connected to another machine, the data is unreadable without the encryption key."
+      },
+      {
+        type: "mcq",
+        text: "The stolen device is still powered on and connected to cellular data. What action should IT take IMMEDIATELY to protect the data?",
+        options: [
+          "Change the user's email password.",
+          "Issue a remote wipe command via MDM to erase all data on the device.",
+          "Disable the user's VPN access.",
+          "Update the device's OS remotely."
+        ],
+        correct: 1,
+        feedback: "✅ Correct! Remote wipe via MDM (Mobile Device Management) erases all data on the device remotely. This is the fastest way to prevent unauthorized access to sensitive data on a stolen device."
+      },
+      {
+        type: "drag",
+        text: "Match each data protection feature to its correct description by dragging items to the right column.",
+        items: [
+          { id: "rw", label: "Remote Wipe", category: "action" },
+          { id: "enc", label: "Device Encryption", category: "storage" },
+          { id: "mdm", label: "MDM Enrollment", category: "management" },
+          { id: "vpn", label: "VPN", category: "network" },
+        ],
+        categories: [
+          { id: "action",     label: "🗑️ Erases device data over-the-air when lost/stolen" },
+          { id: "storage",    label: "🔐 Scrambles stored data so it's unreadable without a key" },
+          { id: "management", label: "📋 Allows IT to enforce policies and manage devices remotely" },
+          { id: "network",    label: "🌐 Encrypts network traffic between device and server" },
+        ],
+        feedback: "✅ All matched correctly! Remote Wipe erases data remotely. Encryption protects stored data. MDM manages devices. VPN secures network traffic."
+      }
+    ]
+  }
+];
+
+// ===================== STATE =====================
+let score = 0;
+let streak = 0;
+let currentMission = 0;
+let currentQuestion = 0;
+let totalAnswered = 0;
+let rankIndex = 0;
+let dragData = {};
+
+// ===================== INIT =====================
+function init() {
+  score = 0; streak = 0; currentMission = 0; currentQuestion = 0; totalAnswered = 0; rankIndex = 0;
+  updateUI();
+  renderMission();
+}
+
+function updateUI() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('streakDisplay').textContent = streak;
+  document.getElementById('progressText').textContent = `${totalAnswered} / ${TOTAL_QUESTIONS} completed`;
+  document.getElementById('progressFill').style.width = `${(totalAnswered / TOTAL_QUESTIONS) * 100}%`;
+
+  // Rank
+  let newRank = 0;
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (score >= RANKS[i].min) { newRank = i; break; }
+  }
+  if (newRank > rankIndex) {
+    rankIndex = newRank;
+    showRankup(RANKS[rankIndex]);
+  }
+  document.getElementById('rankBadge').textContent = `${RANKS[rankIndex].icon} ${RANKS[rankIndex].name}`;
+
+  // Rank steps
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById(`rs${i}`);
+    el.className = 'rank-step';
+    if (i < rankIndex) el.classList.add('done');
+    else if (i === rankIndex) el.classList.add('active');
+  }
+}
+
+// ===================== RENDER MISSION =====================
+function renderMission() {
+  const container = document.getElementById('missionContainer');
+  if (currentMission >= MISSIONS.length) {
+    showFinal();
+    return;
+  }
+  const m = MISSIONS[currentMission];
+  const q = m.questions[currentQuestion];
+  const globalQ = MISSIONS.slice(0, currentMission).reduce((a, x) => a + x.questions.length, 0) + currentQuestion + 1;
+
+  container.innerHTML = `
+    <div class="mission-card">
+      <div class="mission-header">
+        <div class="mission-icon">${m.icon}</div>
+        <div>
+          <div class="mission-label">${m.label}</div>
+          <div class="mission-name">${m.name}</div>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="domain-tag">📌 ${m.domain}</div>
+        <div class="scenario-box">
+          <strong>📋 Scenario:</strong> ${m.scenario}
+        </div>
+        <div class="section-divider">Question ${globalQ} of ${TOTAL_QUESTIONS}</div>
+        ${q.type === 'mcq' ? renderMCQ(q, globalQ) : renderDrag(q, globalQ)}
+      </div>
+    </div>
+  `;
+
+  if (q.type === 'drag') initDrag();
+}
+
+function renderMCQ(q, num) {
+  const letters = ['A','B','C','D'];
+  return `
+    <div class="question-text"><span class="question-num">${num}</span>${q.text}</div>
+    <div class="options-grid" id="optionsGrid">
+      ${q.options.map((opt, i) => `
+        <button class="option-btn" onclick="selectOption(${i})" id="opt${i}">
+          <span class="option-letter">${letters[i]}</span>
+          <span>${opt}</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="feedback-box" id="feedbackBox"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+  `;
+}
+
+function renderDrag(q, num) {
+  return `
+    <div class="question-text"><span class="question-num">${num}</span>${q.text}</div>
+    <div class="drag-area">
+      <div class="drag-col">
+        <div class="drag-col-title">🃏 Drag These</div>
+        <div class="drag-items" id="dragSource">
+          ${q.items.map(item => `
+            <div class="drag-item" draggable="true" id="di_${item.id}" data-id="${item.id}" data-cat="${item.category}"
+              ondragstart="onDragStart(event)" ontouchstart="onTouchStart(event)" ontouchmove="onTouchMove(event)" ontouchend="onTouchEnd(event)">
+              ${item.label}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      <div class="drag-col">
+        <div class="drag-col-title">📂 Drop Zones</div>
+        ${q.categories.map(cat => `
+          <div style="margin-bottom:10px;">
+            <div style="font-size:0.82rem;font-weight:600;color:#444;margin-bottom:4px;">${cat.label}</div>
+            <div class="drop-zone" id="dz_${cat.id}" data-cat="${cat.id}"
+              ondragover="onDragOver(event)" ondrop="onDrop(event)" ondragleave="onDragLeave(event)">
+              <div class="drop-zone-label">Drop here</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="feedback-box" id="feedbackBox"></div>
+    <button class="check-btn" id="checkBtn" onclick="checkDrag()">✅ Check Matches</button>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+  `;
+}
+
+// ===================== MCQ LOGIC =====================
+function selectOption(idx) {
+  const m = MISSIONS[currentMission];
+  const q = m.questions[currentQuestion];
+  const opts = document.querySelectorAll('.option-btn');
+  opts.forEach(o => o.disabled = true);
+
+  const fb = document.getElementById('feedbackBox');
+  const nextBtn = document.getElementById('nextBtn');
+
+  if (idx === q.correct) {
+    opts[idx].classList.add('correct');
+    score += POINTS_PER_Q;
+    streak++;
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `<span class="feedback-icon">✅</span>${q.feedback}`;
+    if (streak >= 3) showStreakPopup(streak);
+  } else {
+    opts[idx].classList.add('wrong');
+    opts[q.correct].classList.add('correct');
+    streak = 0;
+    fb.className = 'feedback-box wrong show';
+    fb.innerHTML = `<span class="feedback-icon">❌</span>The correct answer is <strong>${['A','B','C','D'][q.correct]}</strong>. ${q.feedback}`;
+  }
+
+  totalAnswered++;
+  updateUI();
+  nextBtn.classList.add('show');
+}
+
+// ===================== DRAG LOGIC =====================
+let draggingId = null;
+let touchEl = null;
+let touchClone = null;
+
+function initDrag() {
+  dragData = {};
+}
+
+function onDragStart(e) {
+  draggingId = e.target.dataset.id;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  const zone = e.currentTarget;
+  zone.classList.remove('drag-over');
+  const cat = zone.dataset.cat;
+  const item = document.getElementById(`di_${draggingId}`);
+  if (!item) return;
+
+  // Remove from previous zone if any
+  const prev = item.parentElement;
+  if (prev && prev.classList.contains('drop-zone')) {
+    delete dragData[draggingId];
+    const placeholder = document.createElement('div');
+    placeholder.className = 'drop-zone-label';
+    placeholder.textContent = 'Drop here';
+    if (prev.querySelectorAll('.drag-item').length === 1) prev.appendChild(placeholder);
+  }
+
+  // Remove placeholder
+  zone.querySelectorAll('.drop-zone-label').forEach(p => p.remove());
+  zone.appendChild(item);
+  item.classList.remove('dragging');
+  dragData[draggingId] = cat;
+}
+
+// Touch support
+function onTouchStart(e) {
+  touchEl = e.currentTarget;
+  draggingId = touchEl.dataset.id;
+  const rect = touchEl.getBoundingClientRect();
+  touchClone = touchEl.cloneNode(true);
+  touchClone.style.cssText = `position:fixed;opacity:0.8;pointer-events:none;z-index:99999;width:${rect.width}px;left:${rect.left}px;top:${rect.top}px;`;
+  document.body.appendChild(touchClone);
+}
+
+function onTouchMove(e) {
+  e.preventDefault();
+  const t = e.touches[0];
+  if (touchClone) {
+    touchClone.style.left = (t.clientX - 60) + 'px';
+    touchClone.style.top = (t.clientY - 20) + 'px';
+  }
+  document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const zone = el && el.closest('.drop-zone');
+  if (zone) zone.classList.add('drag-over');
+}
+
+function onTouchEnd(e) {
+  if (touchClone) { touchClone.remove(); touchClone = null; }
+  const t = e.changedTouches[0];
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const zone = el && el.closest('.drop-zone');
+  document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('drag-over'));
+  if (zone && touchEl) {
+    const cat = zone.dataset.cat;
+    const prev = touchEl.parentElement;
+    if (prev && prev.classList.contains('drop-zone')) {
+      delete dragData[draggingId];
+      if (prev.querySelectorAll('.drag-item').length === 1) {
+        const ph = document.createElement('div');
+        ph.className = 'drop-zone-label';
+        ph.textContent = 'Drop here';
+        prev.appendChild(ph);
+      }
+    }
+    zone.querySelectorAll('.drop-zone-label').forEach(p => p.remove());
+    zone.appendChild(touchEl);
+    dragData[draggingId] = cat;
+  }
+  touchEl = null;
+}
+
+function checkDrag() {
+  const m = MISSIONS[currentMission];
+  const q = m.questions[currentQuestion];
+  let allCorrect = true;
+
+  q.items.forEach(item => {
+    const el = document.getElementById(`di_${item.id}`);
+    if (dragData[item.id] === item.category) {
+      el.classList.remove('wrong-drop');
+      el.style.borderColor = 'var(--green)';
+      el.style.color = 'var(--green)';
+    } else {
+      el.classList.add('wrong-drop');
+      allCorrect = false;
+    }
+  });
+
+  const fb = document.getElementById('feedbackBox');
+  const checkBtn = document.getElementById('checkBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  checkBtn.disabled = true;
+
+  if (allCorrect) {
+    score += POINTS_PER_Q;
+    streak++;
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `<span class="feedback-icon">✅</span>${q.feedback}`;
+    if (streak >= 3) showStreakPopup(streak);
+    launchConfetti();
+  } else {
+    streak = 0;
+    fb.className = 'feedback-box wrong show';
+    fb.innerHTML = `<span class="feedback-icon">❌</span>Some matches are incorrect (shown in red). Review the descriptions and try again — but for now, let's see the correct answers above.`;
+    // Show correct positions
+    q.items.forEach(item => {
+      const el = document.getElementById(`di_${item.id}`);
+      const correctZone = document.getElementById(`dz_${item.category}`);
+      if (dragData[item.id] !== item.category && correctZone) {
+        correctZone.querySelectorAll('.drop-zone-label').forEach(p => p.remove());
+        correctZone.appendChild(el);
+        el.style.borderColor = 'var(--green)';
+        el.style.color = 'var(--green)';
+        el.classList.remove('wrong-drop');
+      }
+    });
+  }
+
+  totalAnswered++;
+  updateUI();
+  nextBtn.classList.add('show');
+}
+
+// ===================== NAVIGATION =====================
+function nextQuestion() {
+  const m = MISSIONS[currentMission];
+  currentQuestion++;
+  if (currentQuestion >= m.questions.length) {
+    currentMission++;
+    currentQuestion = 0;
+    if (currentMission >= MISSIONS.length) {
+      showFinal();
+      return;
+    }
+    // Mission complete celebration
+    if (currentMission < MISSIONS.length) launchConfetti();
+  }
+  renderMission();
+}
+
+// ===================== FINAL =====================
+function showFinal() {
+  document.getElementById('missionContainer').innerHTML = '';
+  document.getElementById('rankProgressRow').style.display = 'none';
+  document.querySelector('.progress-wrap').style.display = 'none';
+  const fs = document.getElementById('finalScreen');
+  fs.classList.add('show');
+
+  const pct = Math.round((score / (TOTAL_QUESTIONS * POINTS_PER_Q)) * 100);
+  document.getElementById('finalScore').textContent = `${score} / ${TOTAL_QUESTIONS * POINTS_PER_Q} pts`;
+  document.getElementById('finalRank').textContent = `${RANKS[rankIndex].icon} ${RANKS[rankIndex].name}`;
+
+  let msg = '', trophy = '🏆';
+  if (pct >= 90) { msg = "Outstanding, UVA Master! You've demonstrated elite-level Mobile OS Security knowledge. You're ready for the A+ Core 2 exam!"; trophy = '🏆'; launchConfetti(); launchConfetti(); }
+  else if (pct >= 70) { msg = "Great work, UVA Expert! You have a solid grasp of mobile security concepts. Review any missed questions before your exam."; trophy = '🥈'; }
+  else if (pct >= 50) { msg = "Good effort, UVA Apprentice! You're building your skills. Review Domains 2.1 & 2.8 and try again to reach Expert rank."; trophy = '🥉'; }
+  else { msg = "Keep training, UVA Trainee! Mobile OS Security takes practice. Review the lesson notes and retry the mission."; trophy = '📚'; }
+
+  document.getElementById('finalTrophy').textContent = trophy;
+  document.getElementById('finalMsg').textContent = msg;
+}
+
+// ===================== STREAK POPUP =====================
+function showStreakPopup(n) {
+  const el = document.getElementById('streakPopup');
+  const msgs = { 3: "🔥 3 in a row! You're on fire!", 5: "⚡ 5 streak! Unstoppable!", 7: "🌟 7 streak! UVA Legend!", 10: "💥 PERFECT STREAK! Master-level!" };
+  el.textContent = msgs[n] || `🔥 ${n} in a row! Keep going!`;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ===================== RANK UP =====================
+function showRankup(rank) {
+  document.getElementById('rankupIcon').textContent = rank.icon;
+  document.getElementById('rankupTitle').textContent = `Rank Up: ${rank.name}!`;
+  document.getElementById('rankupSub').textContent = `Congratulations, UVA Cadet! You've earned the rank of ${rank.name}. Keep pushing forward — Virtue, Vigor, Vision!`;
+  document.getElementById('rankupOverlay').classList.add('show');
+  launchConfetti();
+}
+
+function closeRankup() {
+  document.getElementById('rankupOverlay').classList.remove('show');
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti() {
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#e74c3c','#9b59b6','#3498db','#2ecc71'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti-piece';
+      c.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -10px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        width: ${6 + Math.random() * 8}px;
+        height: ${6 + Math.random() * 8}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        animation-duration: ${1.5 + Math.random() * 2}s;
+        animation-delay: ${Math.random() * 0.5}s;
+      `;
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 3500);
+    }, i * 20);
+  }
+}
+
+// ===================== RESTART =====================
+function restartActivity() {
+  document.getElementById('finalScreen').classList.remove('show');
+  document.getElementById('rankProgressRow').style.display = 'flex';
+  document.querySelector('.progress-wrap').style.display = 'block';
+  init();
+}
+
+// ===================== START =====================
+init();
+</script>
+</body>
+</html>
