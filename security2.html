@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browser Security Mission | UVA Computer Architecture</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-green: #1E7A3E;
+    --uva-light-blue: #2e7dd4;
+    --uva-gold: #F5A623;
+    --uva-dark: #0d2d54;
+    --uva-bg: #f0f4fb;
+    --success: #1E7A3E;
+    --danger: #c0392b;
+    --white: #ffffff;
+    --gray: #6c757d;
+    --light-gray: #e9ecef;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--uva-bg);
+    color: #222;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--uva-dark) 0%, var(--uva-blue) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px 8px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .uva-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .uva-shield {
+    width: 48px; height: 56px;
+  }
+  .uva-name { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+  .uva-sub { font-size: 0.75rem; opacity: 0.85; }
+  .rank-display {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 8px 18px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .rank-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-name { font-size: 1.1rem; font-weight: 800; color: var(--uva-gold); }
+  .rank-icon { font-size: 1.4rem; }
+  .score-display {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 8px 18px;
+    text-align: center;
+    min-width: 100px;
+  }
+  .score-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .score-value { font-size: 1.5rem; font-weight: 800; color: var(--uva-gold); }
+
+  /* MOTTO RIBBON */
+  .motto-ribbon {
+    background: var(--uva-green);
+    text-align: center;
+    padding: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: white;
+  }
+  .motto-ribbon span { opacity: 0.7; margin: 0 10px; }
+
+  /* MISSION TITLE */
+  .mission-header {
+    text-align: center;
+    padding: 12px 24px 16px;
+  }
+  .mission-tag {
+    display: inline-block;
+    background: var(--uva-gold);
+    color: var(--uva-dark);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .mission-title { font-size: 1.5rem; font-weight: 800; }
+  .mission-subtitle { font-size: 0.85rem; opacity: 0.8; margin-top: 2px; }
+
+  /* PROGRESS BAR */
+  .progress-section {
+    background: var(--uva-dark);
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .progress-label { color: white; font-size: 0.75rem; white-space: nowrap; min-width: 80px; }
+  .progress-bar-bg {
+    flex: 1;
+    height: 10px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--uva-green), var(--uva-gold));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-count { color: white; font-size: 0.75rem; white-space: nowrap; min-width: 50px; text-align: right; }
+
+  /* STREAK */
+  .streak-banner {
+    display: none;
+    background: linear-gradient(90deg, var(--uva-gold), #f39c12);
+    color: var(--uva-dark);
+    text-align: center;
+    padding: 8px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    animation: slideDown 0.4s ease;
+  }
+  @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  /* MISSION INTRO */
+  .mission-intro {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    border-left: 6px solid var(--uva-blue);
+    box-shadow: 0 2px 12px rgba(27,94,175,0.1);
+  }
+  .mission-intro h2 { color: var(--uva-blue); font-size: 1.2rem; margin-bottom: 10px; }
+  .mission-intro p { color: #444; line-height: 1.6; font-size: 0.95rem; }
+  .objectives-list { margin-top: 12px; padding-left: 0; list-style: none; }
+  .objectives-list li { padding: 4px 0 4px 24px; position: relative; font-size: 0.88rem; color: #555; }
+  .objectives-list li::before { content: "🎯"; position: absolute; left: 0; }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 16px rgba(27,94,175,0.1);
+    margin-bottom: 20px;
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .question-card.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .q-mission-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--uva-blue);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .q-number { font-size: 0.75rem; color: var(--gray); margin-bottom: 6px; }
+  .q-text { font-size: 1.05rem; font-weight: 600; color: #1a1a1a; margin-bottom: 18px; line-height: 1.5; }
+  .q-context {
+    background: #f8f9ff;
+    border: 1px solid #d0dff5;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 18px;
+    font-size: 0.88rem;
+    color: #444;
+    line-height: 1.6;
+  }
+  .q-context strong { color: var(--uva-blue); }
+
+  /* OPTIONS */
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: #f8f9ff;
+    border: 2px solid #d0dff5;
+    border-radius: 12px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.92rem;
+    color: #333;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--uva-blue);
+    background: #e8f0fb;
+    transform: translateX(4px);
+  }
+  .option-btn.correct {
+    border-color: var(--success);
+    background: #e8f5ee;
+    color: #1a4a2a;
+  }
+  .option-btn.incorrect {
+    border-color: var(--danger);
+    background: #fdecea;
+    color: #7a1a1a;
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    background: var(--uva-blue);
+    color: white;
+    font-weight: 700;
+    font-size: 0.8rem;
+  }
+  .option-btn.correct .option-letter { background: var(--success); }
+  .option-btn.incorrect .option-letter { background: var(--danger); }
+
+  /* DRAG AND DROP */
+  .drag-container { display: flex; gap: 20px; flex-wrap: wrap; }
+  .drag-items { flex: 1; min-width: 200px; }
+  .drag-zones { flex: 1.5; min-width: 260px; }
+  .drag-item {
+    background: var(--uva-blue);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: grab;
+    font-size: 0.88rem;
+    font-weight: 600;
+    user-select: none;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .drag-item:hover { background: var(--uva-light-blue); transform: scale(1.02); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drag-item.placed { display: none; }
+  .drop-zone {
+    border: 2px dashed #aac4e8;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    min-height: 48px;
+    background: #f0f6ff;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+  }
+  .drop-zone.drag-over { border-color: var(--uva-blue); background: #ddeeff; }
+  .drop-zone.correct-drop { border-color: var(--success); background: #e8f5ee; }
+  .drop-zone.incorrect-drop { border-color: var(--danger); background: #fdecea; }
+  .drop-zone-label { font-size: 0.75rem; font-weight: 700; color: var(--uva-blue); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .drop-zone-content { min-height: 28px; display: flex; align-items: center; }
+  .dropped-item {
+    background: var(--uva-blue);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dropped-item .remove-btn { font-size: 0.75rem; opacity: 0.7; }
+
+  /* SCENARIO */
+  .scenario-box {
+    background: linear-gradient(135deg, #1a2a4a, #1B5EAF);
+    color: white;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 18px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+  .scenario-box .scenario-title { font-weight: 800; font-size: 1rem; margin-bottom: 8px; color: var(--uva-gold); }
+
+  /* FEEDBACK */
+  .feedback-box {
+    display: none;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 16px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback-box.correct-fb { background: #e8f5ee; border: 2px solid var(--success); color: #1a4a2a; }
+  .feedback-box.incorrect-fb { background: #fdecea; border: 2px solid var(--danger); color: #7a1a1a; }
+  .feedback-title { font-weight: 800; font-size: 1rem; margin-bottom: 6px; }
+  .feedback-explanation { font-size: 0.88rem; }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: var(--uva-blue);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--uva-dark); transform: translateY(-1px); }
+  .btn-success {
+    background: var(--uva-green);
+    color: white;
+  }
+  .btn-success:hover { background: #155c2e; transform: translateY(-1px); }
+  .btn-gold {
+    background: var(--uva-gold);
+    color: var(--uva-dark);
+  }
+  .btn-gold:hover { background: #e09510; transform: translateY(-1px); }
+  .btn-actions { margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* CHECK BUTTON */
+  .check-btn {
+    background: var(--uva-green);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.2s;
+    display: none;
+  }
+  .check-btn:hover { background: #155c2e; }
+  .check-btn.visible { display: inline-flex; align-items: center; gap: 8px; }
+
+  /* RESULTS SCREEN */
+  #results-screen {
+    display: none;
+    background: white;
+    border-radius: 20px;
+    padding: 40px 28px;
+    text-align: center;
+    box-shadow: 0 4px 24px rgba(27,94,175,0.15);
+    animation: fadeIn 0.5s ease;
+  }
+  .results-badge {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-green));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 20px;
+    box-shadow: 0 4px 20px rgba(27,94,175,0.3);
+  }
+  .results-rank { font-size: 1.8rem; font-weight: 800; color: var(--uva-blue); margin-bottom: 6px; }
+  .results-score { font-size: 3rem; font-weight: 900; color: var(--uva-gold); margin-bottom: 4px; }
+  .results-label { color: var(--gray); font-size: 0.9rem; margin-bottom: 20px; }
+  .results-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .breakdown-item {
+    background: var(--uva-bg);
+    border-radius: 12px;
+    padding: 14px 20px;
+    min-width: 100px;
+  }
+  .breakdown-num { font-size: 1.6rem; font-weight: 800; color: var(--uva-blue); }
+  .breakdown-lbl { font-size: 0.75rem; color: var(--gray); }
+  .results-message { font-size: 1rem; color: #444; line-height: 1.6; max-width: 500px; margin: 0 auto 24px; }
+  .a-plus-note {
+    background: linear-gradient(135deg, var(--uva-dark), var(--uva-blue));
+    color: white;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 0.88rem;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+  .a-plus-note strong { color: var(--uva-gold); }
+
+  /* INTRO SCREEN */
+  #intro-screen {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 28px;
+    box-shadow: 0 4px 24px rgba(27,94,175,0.12);
+    text-align: center;
+  }
+  .intro-icon { font-size: 4rem; margin-bottom: 16px; }
+  .intro-title { font-size: 1.6rem; font-weight: 800; color: var(--uva-blue); margin-bottom: 10px; }
+  .intro-desc { color: #555; font-size: 0.95rem; line-height: 1.6; max-width: 560px; margin: 0 auto 20px; }
+  .mission-cards {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .mission-card {
+    background: var(--uva-bg);
+    border: 2px solid #d0dff5;
+    border-radius: 12px;
+    padding: 14px 16px;
+    min-width: 130px;
+    text-align: center;
+  }
+  .mission-card-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .mission-card-title { font-size: 0.8rem; font-weight: 700; color: var(--uva-blue); }
+  .mission-card-desc { font-size: 0.72rem; color: var(--gray); margin-top: 2px; }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* BADGE POPUP */
+  .badge-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white;
+    border-radius: 20px;
+    padding: 32px 40px;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    z-index: 10000;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-width: 320px;
+    width: 90%;
+  }
+  .badge-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .badge-popup-icon { font-size: 4rem; margin-bottom: 12px; }
+  .badge-popup-title { font-size: 1.3rem; font-weight: 800; color: var(--uva-blue); margin-bottom: 6px; }
+  .badge-popup-desc { font-size: 0.9rem; color: #555; margin-bottom: 16px; }
+  .badge-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 9999;
+    display: none;
+  }
+  .badge-popup-overlay.show { display: block; }
+
+  /* SIMULATION */
+  .sim-browser {
+    background: #f5f5f5;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #ddd;
+    margin-bottom: 16px;
+  }
+  .sim-browser-bar {
+    background: #e0e0e0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sim-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .sim-dot.red { background: #ff5f57; }
+  .sim-dot.yellow { background: #febc2e; }
+  .sim-dot.green { background: #28c840; }
+  .sim-url-bar {
+    flex: 1;
+    background: white;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 0.82rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #ccc;
+  }
+  .sim-lock { color: var(--success); font-size: 0.85rem; }
+  .sim-lock.warning { color: var(--danger); }
+  .sim-content { padding: 16px; background: white; }
+
+  /* CERT VIEWER */
+  .cert-box {
+    background: #f8f9ff;
+    border: 2px solid #d0dff5;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: #333;
+    line-height: 1.7;
+  }
+  .cert-field { display: flex; gap: 8px; }
+  .cert-key { color: var(--uva-blue); font-weight: 700; min-width: 140px; }
+  .cert-val { color: #333; }
+  .cert-val.valid { color: var(--success); font-weight: 700; }
+  .cert-val.invalid { color: var(--danger); font-weight: 700; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-top { flex-direction: column; align-items: flex-start; }
+    .drag-container { flex-direction: column; }
+    .mission-cards { flex-direction: column; align-items: center; }
+    .results-breakdown { gap: 10px; }
+    .q-text { font-size: 0.97rem; }
+  }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0 16px;
+    color: var(--uva-blue);
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #d0dff5);
+  }
+  .section-divider::before { background: linear-gradient(90deg, #d0dff5, transparent); }
+
+  .hint-text { font-size: 0.8rem; color: var(--gray); font-style: italic; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<!-- BADGE OVERLAY -->
+<div class="badge-popup-overlay" id="badge-overlay" onclick="closeBadge()"></div>
+<div class="badge-popup" id="badge-popup">
+  <div class="badge-popup-icon" id="badge-icon">🏅</div>
+  <div class="badge-popup-title" id="badge-title">Achievement Unlocked!</div>
+  <div class="badge-popup-desc" id="badge-desc">You earned a new badge!</div>
+  <button class="btn btn-primary" onclick="closeBadge()">Claim Badge ✓</button>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="uva-logo">
+      <svg class="uva-shield" viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 2L4 10V28C4 40 14 50 24 54C34 50 44 40 44 28V10L24 2Z" fill="#1E7A3E" stroke="white" stroke-width="1.5"/>
+        <path d="M24 8L10 14V28C10 37 17 45 24 48C31 45 38 37 38 28V14L24 8Z" fill="#1B5EAF"/>
+        <text x="24" y="34" text-anchor="middle" fill="white" font-size="16" font-weight="900" font-family="Arial">U</text>
+      </svg>
+      <div>
+        <div class="uva-name">University View Academy</div>
+        <div class="uva-sub">Computer Architecture · A+ Core 2</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <div class="rank-display">
+        <div class="rank-label">Current Rank</div>
+        <div class="rank-icon" id="rank-icon">🎖️</div>
+        <div class="rank-name" id="rank-name">Trainee</div>
+      </div>
+      <div class="score-display">
+        <div class="score-label">Score</div>
+        <div class="score-value" id="score-display">0</div>
+      </div>
+    </div>
+  </div>
+  <div class="motto-ribbon">
+    ✦ <span>Virtue</span> ✦ <span>Vigor</span> ✦ <span>Vision</span> ✦
+  </div>
+  <div class="mission-header">
+    <div class="mission-tag">🛡️ Domain 2.11 Mission</div>
+    <div class="mission-title">Operation: Browser Security</div>
+    <div class="mission-subtitle">Managing Security Settings · CompTIA A+ Core 2</div>
+  </div>
+  <div class="progress-section">
+    <div class="progress-label" id="progress-label">Mission 0/10</div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
+    <div class="progress-count" id="streak-count">🔥 0 streak</div>
+  </div>
+</div>
+
+<div class="streak-banner" id="streak-banner"></div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen">
+    <div class="intro-icon">🛡️</div>
+    <div class="intro-title">Welcome, Security Cadet!</div>
+    <div class="intro-desc">
+      Your mission: Defend the UVA network by mastering browser security. You'll verify certificates, identify threats, manage extensions, and configure secure settings. Complete all 10 missions to earn your rank!
+    </div>
+    <div class="mission-cards">
+      <div class="mission-card">
+        <div class="mission-card-icon">🔐</div>
+        <div class="mission-card-title">Certificates & TLS</div>
+        <div class="mission-card-desc">Verify digital trust</div>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card-icon">⚠️</div>
+        <div class="mission-card-title">PUAs & Threats</div>
+        <div class="mission-card-desc">Identify risks</div>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card-icon">🧩</div>
+        <div class="mission-card-title">Extensions</div>
+        <div class="mission-card-desc">Manage safely</div>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card-icon">⚙️</div>
+        <div class="mission-card-title">Settings</div>
+        <div class="mission-card-desc">Configure security</div>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card-icon">🔏</div>
+        <div class="mission-card-title">Code Signing</div>
+        <div class="mission-card-desc">Verify integrity</div>
+      </div>
+    </div>
+    <div style="background:#f0f4fb;border-radius:12px;padding:14px;margin-bottom:20px;font-size:0.85rem;color:#555;max-width:500px;margin-left:auto;margin-right:auto;">
+      <strong style="color:var(--uva-blue);">📋 Mission Briefing:</strong> 10 challenges · Multiple formats · ~12 minutes<br>
+      Earn points, build streaks, and rise through the ranks: <strong>Trainee → Apprentice → Expert → Master</strong>
+    </div>
+    <button class="btn btn-primary" onclick="startMission()" style="font-size:1.05rem;padding:14px 36px;">
+      🚀 Begin Mission
+    </button>
+  </div>
+
+  <!-- QUESTIONS CONTAINER -->
+  <div id="questions-container"></div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen">
+    <div class="results-badge" id="results-badge">🏆</div>
+    <div class="results-rank" id="results-rank">Security Master</div>
+    <div class="results-score" id="results-score">0</div>
+    <div class="results-label">points earned</div>
+    <div class="results-breakdown">
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="res-correct">0</div>
+        <div class="breakdown-lbl">Correct</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="res-total">10</div>
+        <div class="breakdown-lbl">Total</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="res-streak">0</div>
+        <div class="breakdown-lbl">Best Streak</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="breakdown-num" id="res-pct">0%</div>
+        <div class="breakdown-lbl">Accuracy</div>
+      </div>
+    </div>
+    <div class="results-message" id="results-message"></div>
+    <div class="a-plus-note">
+      <strong>📚 A+ Core 2 – Domain 2.11 Connection:</strong><br>
+      This mission covered: browser integrity verification, code-signing certificates, SHA hashes, PUAs, browser extensions, private browsing, cache management, TLS/SSL, and digital certificates — all key topics for the CompTIA A+ Core 2 exam.
+    </div>
+    <button class="btn btn-gold" onclick="restartMission()" style="font-size:1rem;padding:14px 32px;">
+      🔄 Retry Mission
+    </button>
+  </div>
+
+</div>
+
+<script>
+// ===================== DATA =====================
+const questions = [
+  {
+    id: 1,
+    type: "mcq",
+    missionTag: "🔐 Mission 1: Certificate Verification",
+    topic: "Digital Certificates & TLS",
+    text: "A student at UVA visits a banking website and notices the padlock icon is missing from the browser's address bar. What does this indicate about the connection?",
+    context: null,
+    options: [
+      "The website is using HTTP instead of HTTPS, meaning data is transmitted unencrypted and the site lacks a valid TLS certificate.",
+      "The website's TLS certificate has expired but the connection is still encrypted.",
+      "The browser's certificate store is corrupted and needs to be reinstalled.",
+      "The website is using a self-signed certificate which is equally secure."
+    ],
+    correct: 0,
+    explanation: "A missing padlock icon means the site is using plain HTTP — no TLS/SSL encryption. Data sent to/from the site is in plaintext and vulnerable to interception. HTTPS with a valid certificate is required for secure connections. This is a core A+ Core 2 Domain 2.11 concept."
+  },
+  {
+    id: 2,
+    type: "mcq",
+    missionTag: "🔏 Mission 2: Code-Signing Certificates",
+    topic: "Browser Integrity & Code Signing",
+    text: "You download a browser installer from a third-party site. Before running it, you right-click the file and check its digital signature. The signature shows 'The digital signature is not valid.' What is the BEST course of action?",
+    context: null,
+    options: [
+      "Run the installer anyway — the signature check is optional and the file is probably fine.",
+      "Delete the file immediately and download the browser only from the official vendor website, then re-verify the signature.",
+      "Disable Windows SmartScreen and run the installer to bypass the warning.",
+      "Run the installer in a virtual machine to be safe, then copy it to the main system."
+    ],
+    correct: 1,
+    explanation: "An invalid digital signature means the file may have been tampered with or is not from the legitimate publisher. You should NEVER run it. Always download software from official sources and verify the code-signing certificate is valid and issued to the correct organization (e.g., 'Google LLC' for Chrome). This verifies browser integrity."
+  },
+  {
+    id: 3,
+    type: "mcq",
+    missionTag: "🔍 Mission 3: Hash Verification",
+    topic: "File Integrity with Hashes",
+    text: "A UVA IT technician downloads Firefox from Mozilla's website. The site lists the SHA-256 hash as: <code style='background:#eee;padding:2px 6px;border-radius:4px;font-size:0.85em;'>a3f9c2...8b1d</code>. After downloading, the technician runs <code style='background:#eee;padding:2px 6px;border-radius:4px;font-size:0.85em;'>Get-FileHash firefox.exe</code> in PowerShell and gets a DIFFERENT hash. What does this mean?",
+    context: null,
+    options: [
+      "The hash algorithm used by PowerShell is different — this is expected behavior.",
+      "The file was corrupted during download or has been tampered with; it should not be installed.",
+      "Mozilla's website hash is outdated and can be ignored.",
+      "The file needs to be extracted from a ZIP archive before the hash will match."
+    ],
+    correct: 1,
+    explanation: "A SHA-256 hash is a cryptographic fingerprint. If the computed hash doesn't match the published hash, the file is either corrupted or has been modified (possibly by malware). NEVER install software with a mismatched hash. Re-download from the official source and verify again. Hash verification is a key method for confirming browser integrity."
+  },
+  {
+    id: 4,
+    type: "drag",
+    missionTag: "⚠️ Mission 4: Threat Classification",
+    topic: "PUAs & Untrusted Software",
+    text: "Classify each software behavior as either a PUA (Potentially Unwanted Application) or Legitimate Software.",
+    items: [
+      { id: "d1", text: "Browser toolbar installed silently during a free PDF converter install" },
+      { id: "d2", text: "Chrome extension from Google Web Store with 2M+ users and verified publisher" },
+      { id: "d3", text: "Adware that redirects search results to sponsored pages" },
+      { id: "d4", text: "Software that changes your homepage without asking" },
+      { id: "d5", text: "Adobe Acrobat Reader downloaded from adobe.com" },
+      { id: "d6", text: "Free 'system optimizer' that shows constant pop-up alerts" }
+    ],
+    zones: [
+      { id: "z1", label: "⚠️ PUA / Unwanted", accepts: ["d1","d3","d4","d6"] },
+      { id: "z2", label: "✅ Legitimate Software", accepts: ["d2","d5"] }
+    ],
+    explanation: "PUAs include software that installs without clear consent, changes browser settings without permission, shows excessive ads, or uses deceptive tactics. Legitimate software comes from verified publishers, is downloaded from official sources, and behaves transparently. PUAs are a major browser security risk covered in A+ Core 2."
+  },
+  {
+    id: 5,
+    type: "mcq",
+    missionTag: "🧩 Mission 5: Extension Safety",
+    topic: "Managing Browser Extensions",
+    text: "A UVA student installs a free 'Dark Mode' Chrome extension. After installation, they notice it requests permission to 'Read and change all your data on all websites.' What is the MOST appropriate response?",
+    context: null,
+    options: [
+      "Accept the permissions — all extensions need broad access to function properly.",
+      "Remove the extension immediately; a dark mode tool has no legitimate need to read all website data.",
+      "Keep the extension but run antivirus software weekly to compensate.",
+      "Only use the extension on non-sensitive websites to minimize risk."
+    ],
+    correct: 1,
+    explanation: "Excessive permissions are a major red flag. A dark mode extension only needs to modify page appearance — it has NO legitimate reason to read all your data on all websites. This permission could allow the extension to steal passwords, banking info, and session cookies. Always review permissions and remove extensions that request more access than their function requires. This is a key browser security management principle."
+  },
+  {
+    id: 6,
+    type: "scenario",
+    missionTag: "🌐 Mission 6: TLS Certificate Inspection",
+    topic: "Digital Certificates & TLS",
+    text: "You're helping a UVA student verify a website's TLS certificate. Examine the certificate details below and identify the security concern.",
+    certData: {
+      subject: "www.uva-studentportal.edu",
+      issuer: "Let's Encrypt Authority X3",
+      validFrom: "2024-01-15",
+      validTo: "2023-04-15",
+      sha256: "4A:F2:...:9C:1B",
+      keySize: "2048-bit RSA",
+      status: "EXPIRED"
+    },
+    options: [
+      "The certificate is from Let's Encrypt, which is not a trusted Certificate Authority.",
+      "The certificate has expired — the Valid To date is in the past, meaning TLS protection may be compromised.",
+      "The 2048-bit RSA key size is too small and makes the certificate insecure.",
+      "The SHA-256 fingerprint format is incorrect and indicates a forged certificate."
+    ],
+    correct: 1,
+    explanation: "The certificate's expiration date (2023-04-15) is before the issue date (2024-01-15) — indicating it's expired. Browsers will show a security warning for expired certificates. Let's Encrypt IS a trusted CA. 2048-bit RSA is currently acceptable. Always check: Subject (matches domain?), Issuer (trusted CA?), Validity dates, and that the connection uses TLS 1.2 or higher."
+  },
+  {
+    id: 7,
+    type: "mcq",
+    missionTag: "🕵️ Mission 7: Private Browsing",
+    topic: "Private Browsing & Cache Management",
+    text: "A UVA student uses Chrome's Incognito mode to log into their school account on a shared library computer. Which statement ACCURATELY describes what Incognito mode does and does NOT protect against?",
+    context: null,
+    options: [
+      "Incognito mode encrypts all traffic and hides your activity from your school's network administrator.",
+      "Incognito mode prevents the browser from saving history, cookies, and form data locally, but your activity is still visible to the network, ISP, and websites you visit.",
+      "Incognito mode is completely private — no one, including the website, can track your session.",
+      "Incognito mode automatically clears all previously stored passwords and cookies from the browser."
+    ],
+    correct: 1,
+    explanation: "Incognito/Private browsing ONLY prevents local storage of browsing history, cookies, and form data on that device. It does NOT hide your activity from: the network administrator, your ISP, websites you visit, or employer/school monitoring tools. It's useful for shared computers but is NOT a privacy or security tool for network-level threats. This is a common misconception tested on A+ Core 2."
+  },
+  {
+    id: 8,
+    type: "mcq",
+    missionTag: "🗑️ Mission 8: Cache & Data Management",
+    topic: "Browser Cache & Security Settings",
+    text: "After a UVA student clears their browser cache and cookies, they notice they are logged out of all websites and some sites load more slowly initially. Which explanation is CORRECT?",
+    context: null,
+    options: [
+      "Clearing cache is dangerous and should only be done by IT professionals.",
+      "Cookies store session authentication tokens, so clearing them logs you out. Cache stores temporary files that speed up page loads — clearing it forces fresh downloads, causing initial slowness.",
+      "The browser has a virus that is deleting login credentials.",
+      "Clearing cache only affects images; the logout was caused by a separate browser bug."
+    ],
+    correct: 1,
+    explanation: "Cookies store session tokens (authentication data) — clearing them ends all active sessions. Browser cache stores temporary copies of web resources (images, scripts, CSS) to speed up repeat visits. Clearing cache forces the browser to re-download everything fresh. Regularly clearing cache and cookies is a security best practice: it removes tracking cookies, stale session data, and potentially malicious cached content."
+  },
+  {
+    id: 9,
+    type: "drag",
+    missionTag: "⚙️ Mission 9: Security Settings",
+    topic: "Browser Security Configuration",
+    text: "Match each browser security action to its PRIMARY security benefit.",
+    items: [
+      { id: "s1", text: "Enable pop-up blocker" },
+      { id: "s2", text: "Set browser to HTTPS-Only mode" },
+      { id: "s3", text: "Disable third-party cookies" },
+      { id: "s4", text: "Enable Safe Browsing / SmartScreen" }
+    ],
+    zones: [
+      { id: "sz1", label: "🚫 Blocks malvertising & drive-by downloads", accepts: ["s1"] },
+      { id: "sz2", label: "🔒 Forces encrypted connections", accepts: ["s2"] },
+      { id: "sz3", label: "👁️ Reduces cross-site tracking", accepts: ["s3"] },
+      { id: "sz4", label: "⚠️ Warns about phishing & malware sites", accepts: ["s4"] }
+    ],
+    explanation: "Each browser security setting has a specific purpose: Pop-up blockers prevent malvertising. HTTPS-Only mode ensures all connections are encrypted. Disabling third-party cookies reduces tracking. Safe Browsing/SmartScreen uses threat intelligence to warn about dangerous sites. Configuring all of these is part of a defense-in-depth browser security strategy."
+  },
+  {
+    id: 10,
+    type: "mcq",
+    missionTag: "🏆 Mission 10: Final Challenge",
+    topic: "Comprehensive Browser Security",
+    text: "A UVA IT technician receives a report that a staff member's browser was hijacked — the homepage changed, search engine was replaced, and ads appear on every page. The staff member recently installed a free video downloader. What is the CORRECT sequence of remediation steps?",
+    context: null,
+    options: [
+      "1) Reset browser settings to default → 2) Remove suspicious extensions → 3) Uninstall the video downloader via Control Panel → 4) Run a malware scan → 5) Clear cache/cookies → 6) Verify no unauthorized startup programs",
+      "1) Reinstall the operating system → 2) Restore from backup → 3) Reinstall the browser",
+      "1) Install a second antivirus → 2) Change all passwords → 3) Ignore the homepage change as it's cosmetic",
+      "1) Disable JavaScript in the browser → 2) Use Incognito mode for all browsing → 3) Report to the ISP"
+    ],
+    correct: 0,
+    explanation: "Browser hijacking from a PUA requires a systematic approach: Reset browser settings (removes hijacked settings), remove malicious extensions, uninstall the PUA via Control Panel/Apps, run a full malware scan (the PUA may have dropped additional malware), clear cache/cookies (removes tracking scripts), and check startup programs (PUAs often add persistence). This comprehensive approach is what A+ Core 2 Domain 2.11 expects technicians to know."
+  }
+];
+
+// ===================== STATE =====================
+let currentQ = 0;
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let correctCount = 0;
+let answered = new Array(questions.length).fill(false);
+let dragState = {};
+let gameStarted = false;
+
+const ranks = [
+  { name: "Trainee", icon: "🎖️", min: 0 },
+  { name: "Apprentice", icon: "🥈", min: 3 },
+  { name: "Expert", icon: "🥇", min: 6 },
+  { name: "Master", icon: "🏆", min: 9 }
+];
+
+// ===================== INIT =====================
+function startMission() {
+  document.getElementById('intro-screen').style.display = 'none';
+  gameStarted = true;
+  renderAllQuestions();
+  showQuestion(0);
+  updateProgress();
+}
+
+function renderAllQuestions() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = `q-card-${i}`;
+    if (q.type === 'mcq' || q.type === 'scenario') {
+      card.innerHTML = renderMCQ(q, i);
+    } else if (q.type === 'drag') {
+      card.innerHTML = renderDrag(q, i);
+      dragState[i] = { placed: {} };
+    }
+    container.appendChild(card);
+  });
+  // Attach drag events after render
+  questions.forEach((q, i) => {
+    if (q.type === 'drag') attachDragEvents(i);
+  });
+}
+
+// ===================== RENDER MCQ =====================
+function renderMCQ(q, i) {
+  let contextHTML = '';
+  if (q.type === 'scenario' && q.certData) {
+    const cd = q.certData;
+    contextHTML = `
+      <div class="sim-browser">
+        <div class="sim-browser-bar">
+          <div class="sim-dot red"></div><div class="sim-dot yellow"></div><div class="sim-dot green"></div>
+          <div class="sim-url-bar">
+            <span class="sim-lock warning">⚠️</span>
+            <span>${cd.subject}</span>
+          </div>
+        </div>
+        <div class="sim-content">
+          <div style="font-size:0.82rem;color:#c0392b;font-weight:700;margin-bottom:10px;">⚠️ Certificate Warning — Click to inspect certificate</div>
+          <div class="cert-box">
+            <div class="cert-field"><span class="cert-key">Subject:</span><span class="cert-val">${cd.subject}</span></div>
+            <div class="cert-field"><span class="cert-key">Issuer:</span><span class="cert-val">${cd.issuer}</span></div>
+            <div class="cert-field"><span class="cert-key">Valid From:</span><span class="cert-val">${cd.validFrom}</span></div>
+            <div class="cert-field"><span class="cert-key">Valid To:</span><span class="cert-val invalid">${cd.validTo} ← EXPIRED</span></div>
+            <div class="cert-field"><span class="cert-key">SHA-256:</span><span class="cert-val">${cd.sha256}</span></div>
+            <div class="cert-field"><span class="cert-key">Key:</span><span class="cert-val">${cd.keySize}</span></div>
+            <div class="cert-field"><span class="cert-key">Status:</span><span class="cert-val invalid">${cd.status}</span></div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  const optionsHTML = q.options.map((opt, oi) => `
+    <button class="option-btn" id="opt-${i}-${oi}" onclick="selectOption(${i}, ${oi})">
+      <span class="option-letter">${String.fromCharCode(65+oi)}</span>
+      <span>${opt}</span>
+    </button>`).join('');
+
+  return `
+    <div class="q-mission-tag">${q.missionTag}</div>
+    <div class="q-number">Question ${i+1} of ${questions.length} · ${q.topic}</div>
+    <div class="q-text">${q.text}</div>
+    ${contextHTML}
+    <div class="options-grid">${optionsHTML}</div>
+    <div class="feedback-box" id="fb-${i}"></div>
+    <div class="btn-actions" id="actions-${i}" style="display:none;">
+      <button class="btn btn-primary" onclick="nextQuestion(${i})">
+        ${i < questions.length-1 ? 'Next Mission →' : '🏁 View Results'}
+      </button>
+    </div>`;
+}
+
+// ===================== RENDER DRAG =====================
+function renderDrag(q, i) {
+  const itemsHTML = q.items.map(item => `
+    <div class="drag-item" id="di-${i}-${item.id}" draggable="true" data-id="${item.id}" data-qi="${i}">
+      ☰ ${item.text}
+    </div>`).join('');
+
+  const zonesHTML = q.zones.map(zone => `
+    <div class="drop-zone" id="dz-${i}-${zone.id}" data-zone="${zone.id}" data-qi="${i}">
+      <div class="drop-zone-label">${zone.label}</div>
+      <div class="drop-zone-content" id="dzc-${i}-${zone.id}">
+        <span style="color:#aaa;font-size:0.8rem;">Drop items here</span>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="q-mission-tag">${q.missionTag}</div>
+    <div class="q-number">Question ${i+1} of ${questions.length} · ${q.topic}</div>
+    <div class="q-text">${q.text}</div>
+    <div class="hint-text">💡 Drag each item to the correct category. Click a placed item to return it.</div>
+    <div class="drag-container">
+      <div class="drag-items" id="drag-items-${i}">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--uva-blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Items to Sort</div>
+        ${itemsHTML}
+      </div>
+      <div class="drag-zones">${zonesHTML}</div>
+    </div>
+    <div class="feedback-box" id="fb-${i}"></div>
+    <button class="check-btn" id="check-${i}" onclick="checkDrag(${i})">✓ Check Answers</button>
+    <div class="btn-actions" id="actions-${i}" style="display:none;">
+      <button class="btn btn-primary" onclick="nextQuestion(${i})">
+        ${i < questions.length-1 ? 'Next Mission →' : '🏁 View Results'}
+      </button>
+    </div>`;
+}
+
+// ===================== DRAG EVENTS =====================
+function attachDragEvents(qi) {
+  const items = document.querySelectorAll(`[data-qi="${qi}"].drag-item`);
+  const zones = document.querySelectorAll(`[data-qi="${qi}"].drop-zone`);
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', item.dataset.id);
+      item.classList.add('dragging');
+    });
+    item.addEventListener('dragend', () => item.classList.remove('dragging'));
+  });
+
+  zones.forEach(zone => {
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      const itemId = e.dataTransfer.getData('text/plain');
+      placeItem(qi, itemId, zone.dataset.zone);
+    });
+  });
+}
+
+function placeItem(qi, itemId, zoneId) {
+  if (answered[qi]) return;
+  // Remove from previous zone if placed
+  const prev = dragState[qi].placed[itemId];
+  if (prev) {
+    const prevContent = document.getElementById(`dzc-${qi}-${prev}`);
+    const existing = prevContent.querySelector(`[data-placed="${itemId}"]`);
+    if (existing) existing.remove();
+    if (!prevContent.querySelector('.dropped-item')) {
+      prevContent.innerHTML = '<span style="color:#aaa;font-size:0.8rem;">Drop items here</span>';
+    }
+  }
+
+  dragState[qi].placed[itemId] = zoneId;
+  const item = document.getElementById(`di-${qi}-${itemId}`);
+  if (item) item.classList.add('placed');
+
+  const zoneContent = document.getElementById(`dzc-${qi}-${zoneId}`);
+  const placeholder = zoneContent.querySelector('span');
+  if (placeholder) placeholder.remove();
+
+  const dropped = document.createElement('div');
+  dropped.className = 'dropped-item';
+  dropped.dataset.placed = itemId;
+  dropped.innerHTML = `${item ? item.textContent.replace('☰ ','') : itemId} <span class="remove-btn" onclick="returnItem(${qi},'${itemId}','${zoneId}')">✕</span>`;
+  zoneContent.appendChild(dropped);
+
+  // Show check button if all items placed
+  const q = questions[qi];
+  const allPlaced = q.items.every(it => dragState[qi].placed[it.id]);
+  const checkBtn = document.getElementById(`check-${qi}`);
+  if (allPlaced) checkBtn.classList.add('visible');
+}
+
+function returnItem(qi, itemId, zoneId) {
+  if (answered[qi]) return;
+  delete dragState[qi].placed[itemId];
+  const item = document.getElementById(`di-${qi}-${itemId}`);
+  if (item) item.classList.remove('placed');
+  const zoneContent = document.getElementById(`dzc-${qi}-${zoneId}`);
+  const dropped = zoneContent.querySelector(`[data-placed="${itemId}"]`);
+  if (dropped) dropped.remove();
+  if (!zoneContent.querySelector('.dropped-item')) {
+    zoneContent.innerHTML = '<span style="color:#aaa;font-size:0.8rem;">Drop items here</span>';
+  }
+  const checkBtn = document.getElementById(`check-${qi}`);
+  checkBtn.classList.remove('visible');
+}
+
+function checkDrag(qi) {
+  if (answered[qi]) return;
+  const q = questions[qi];
+  let allCorrect = true;
+  let correctItems = 0;
+
+  q.items.forEach(item => {
+    const placedZone = dragState[qi].placed[item.id];
+    const correctZone = q.zones.find(z => z.accepts.includes(item.id));
+    const isCorrect = placedZone === correctZone.id;
+    if (isCorrect) correctItems++;
+    else allCorrect = false;
+
+    // Visual feedback on zones
+    const zoneEl = document.getElementById(`dz-${qi}-${placedZone}`);
+    if (zoneEl) {
+      zoneEl.classList.add(isCorrect ? 'correct-drop' : 'incorrect-drop');
+    }
+  });
+
+  answered[qi] = true;
+  const checkBtn = document.getElementById(`check-${qi}`);
+  checkBtn.style.display = 'none';
+
+  const isFullyCorrect = allCorrect;
+  if (isFullyCorrect) {
+    score += 100;
+    streak++;
+    correctCount++;
+    if (streak > bestStreak) bestStreak = streak;
+    showFeedback(qi, true, q.explanation);
+    checkStreakReward();
+  } else {
+    score += correctItems * 10;
+    streak = 0;
+    showFeedback(qi, false, `${correctItems}/${q.items.length} items correctly placed. ${q.explanation}`);
+  }
+
+  updateScore();
+  updateRank();
+  document.getElementById(`actions-${qi}`).style.display = 'flex';
+}
+
+// ===================== MCQ SELECT =====================
+function selectOption(qi, oi) {
+  if (answered[qi]) return;
+  answered[qi] = true;
+  const q = questions[qi];
+  const isCorrect = oi === q.correct;
+
+  q.options.forEach((_, idx) => {
+    const btn = document.getElementById(`opt-${qi}-${idx}`);
+    btn.disabled = true;
+    if (idx === q.correct) btn.classList.add('correct');
+    else if (idx === oi && !isCorrect) btn.classList.add('incorrect');
+  });
+
+  if (isCorrect) {
+    score += 100;
+    streak++;
+    correctCount++;
+    if (streak > bestStreak) bestStreak = streak;
+    showFeedback(qi, true, q.explanation);
+    checkStreakReward();
+  } else {
+    score += 0;
+    streak = 0;
+    showFeedback(qi, false, q.explanation);
+  }
+
+  updateScore();
+  updateRank();
+  document.getElementById(`actions-${qi}`).style.display = 'flex';
+}
+
+// ===================== FEEDBACK =====================
+function showFeedback(qi, correct, explanation) {
+  const fb = document.getElementById(`fb-${qi}`);
+  fb.className = `feedback-box ${correct ? 'correct-fb' : 'incorrect-fb'}`;
+  fb.style.display = 'block';
+  fb.innerHTML = `
+    <div class="feedback-title">${correct ? '✅ Excellent work, Cadet!' : '❌ Not quite right.'}</div>
+    <div class="feedback-explanation">${explanation}</div>`;
+}
+
+// ===================== NAVIGATION =====================
+function showQuestion(i) {
+  document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById(`q-card-${i}`);
+  if (card) {
+    card.classList.add('active');
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  currentQ = i;
+  updateProgress();
+}
+
+function nextQuestion(qi) {
+  if (qi + 1 < questions.length) {
+    showQuestion(qi + 1);
+  } else {
+    showResults();
+  }
+}
+
+// ===================== PROGRESS =====================
+function updateProgress() {
+  const answeredCount = answered.filter(Boolean).length;
+  const pct = (answeredCount / questions.length) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Mission ${answeredCount}/${questions.length}`;
+  document.getElementById('streak-count').textContent = `🔥 ${streak} streak`;
+}
+
+function updateScore() {
+  document.getElementById('score-display').textContent = score;
+  updateProgress();
+}
+
+function updateRank() {
+  const rank = getRank();
+  document.getElementById('rank-name').textContent = rank.name;
+  document.getElementById('rank-icon').textContent = rank.icon;
+}
+
+function getRank() {
+  for (let i = ranks.length - 1; i >= 0; i--) {
+    if (correctCount >= ranks[i].min) return ranks[i];
+  }
+  return ranks[0];
+}
+
+// ===================== STREAK REWARDS =====================
+function checkStreakReward() {
+  const banner = document.getElementById('streak-banner');
+  if (streak === 3) {
+    showStreakBanner('🔥 3 in a Row! You\'re on fire, Cadet!');
+    showBadge('🔥', 'Hot Streak!', 'You answered 3 questions correctly in a row!');
+  } else if (streak === 5) {
+    showStreakBanner('⚡ 5 in a Row! Incredible focus!');
+    launchConfetti();
+    showBadge('⚡', 'Unstoppable!', 'You answered 5 questions correctly in a row!');
+  } else if (streak === 7) {
+    showStreakBanner('🌟 7 in a Row! Security Expert status!');
+    launchConfetti();
+    showBadge('🌟', 'Security Expert!', 'You answered 7 questions correctly in a row!');
+  } else if (streak >= 2) {
+    showStreakBanner(`🔥 ${streak} in a Row! Keep it up!`);
+  }
+}
+
+function showStreakBanner(msg) {
+  const banner = document.getElementById('streak-banner');
+  banner.textContent = msg;
+  banner.style.display = 'block';
+  setTimeout(() => { banner.style.display = 'none'; }, 3000);
+}
+
+// ===================== BADGE =====================
+function showBadge(icon, title, desc) {
+  document.getElementById('badge-icon').textContent = icon;
+  document.getElementById('badge-title').textContent = title;
+  document.getElementById('badge-desc').textContent = desc;
+  document.getElementById('badge-overlay').classList.add('show');
+  document.getElementById('badge-popup').classList.add('show');
+}
+
+function closeBadge() {
+  document.getElementById('badge-overlay').classList.remove('show');
+  document.getElementById('badge-popup').classList.remove('show');
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti() {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#e74c3c','#9b59b6','#3498db'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = Math.random() * 1 + 's';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+  document.querySelectorAll('.question-card').forEach(c => c.classList.remove('active'));
+  const resultsScreen = document.getElementById('results-screen');
+  resultsScreen.style.display = 'block';
+  resultsScreen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const pct = Math.round((correctCount / questions.length) * 100);
+  const rank = getRank();
+
+  document.getElementById('results-score').textContent = score;
+  document.getElementById('results-rank').textContent = rank.name + ' ' + rank.icon;
+  document.getElementById('results-badge').textContent = rank.icon;
+  document.getElementById('res-correct').textContent = correctCount;
+  document.getElementById('res-total').textContent = questions.length;
+  document.getElementById('res-streak').textContent = bestStreak;
+  document.getElementById('res-pct').textContent = pct + '%';
+
+  let msg = '';
+  if (pct >= 90) {
+    msg = "Outstanding performance, Security Master! You've demonstrated expert-level knowledge of browser security. You're fully prepared for the A+ Core 2 Domain 2.11 exam objectives. UVA is proud of your achievement!";
+    launchConfetti();
+    showBadge('🏆', 'Security Master!', 'You scored 90%+ on the Browser Security Mission!');
+  } else if (pct >= 70) {
+    msg = "Great work, Security Expert! You have a solid understanding of browser security concepts. Review the questions you missed and you'll be fully ready for the A+ Core 2 exam.";
+  } else if (pct >= 50) {
+    msg = "Good effort, Apprentice! You're building your browser security knowledge. Focus on certificate verification, PUA identification, and browser settings configuration before your exam.";
+  } else {
+    msg = "Keep training, Cadet! Browser security is a critical skill. Review the lesson materials on TLS certificates, code signing, PUAs, and browser settings, then try the mission again.";
+  }
+  document.getElementById('results-message').textContent = msg;
+}
+
+function restartMission() {
+  currentQ = 0;
+  score = 0;
+  streak = 0;
+  bestStreak = 0;
+  correctCount = 0;
+  answered = new Array(questions.length).fill(false);
+  dragState = {};
+  document.getElementById('score-display').textContent = '0';
+  document.getElementById('rank-name').textContent = 'Trainee';
+  document.getElementById('rank-icon').textContent = '🎖️';
+  document.getElementById('progress-bar').style.width = '0%';
+  document.getElementById('results-screen').style.display = 'none';
+  renderAllQuestions();
+  showQuestion(0);
+  updateProgress();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
