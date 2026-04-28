@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA | Implementing Operational Procedures</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #C0392B;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-light: #f4f6fb;
+    --gray: #e0e6ef;
+    --text: #1a2340;
+    --shadow: 0 4px 18px rgba(27,94,175,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gray-light);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--blue) 70%, var(--green) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+  .logo-shield {
+    width: 54px; height: 62px;
+    background: white;
+    clip-path: polygon(50% 0%, 100% 15%, 100% 60%, 50% 100%, 0% 60%, 0% 15%);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-shield span { font-size: 22px; }
+  .school-name { font-size: 1.25rem; font-weight: 800; letter-spacing: 1px; }
+  .school-sub { font-size: 0.78rem; opacity: 0.85; letter-spacing: 2px; text-transform: uppercase; }
+  .rank-display {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 12px;
+    padding: 8px 18px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .rank-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-name { font-size: 1.1rem; font-weight: 800; }
+  .rank-icon { font-size: 1.4rem; }
+  .motto-ribbon {
+    background: var(--gold);
+    color: var(--blue-dark);
+    text-align: center;
+    padding: 6px 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .header-title {
+    padding: 10px 32px 18px;
+    text-align: center;
+  }
+  .header-title h1 { font-size: 1.45rem; font-weight: 800; }
+  .header-title p { font-size: 0.85rem; opacity: 0.85; margin-top: 3px; }
+
+  /* SCORE BAR */
+  .score-bar {
+    background: white;
+    border-bottom: 3px solid var(--blue-light);
+    padding: 10px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  .score-item { display: flex; align-items: center; gap: 8px; }
+  .score-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+  .score-value { font-size: 1.2rem; font-weight: 800; color: var(--blue); }
+  .streak-badge {
+    background: var(--gold);
+    color: white;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: none;
+    animation: pulse 0.5s ease;
+  }
+  .streak-badge.show { display: inline-block; }
+  .progress-wrap { flex: 1; min-width: 160px; max-width: 260px; }
+  .progress-bar-bg {
+    background: var(--gray);
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-text { font-size: 0.72rem; color: #888; margin-top: 2px; text-align: right; }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    transition: border 0.3s;
+  }
+  .mission-card.active { border-color: var(--blue); }
+  .mission-card.completed { border-color: var(--green); }
+  .mission-card.failed { border-color: var(--red); }
+
+  .mission-header {
+    background: linear-gradient(90deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: white;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mission-num {
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .mission-title-wrap { flex: 1; }
+  .mission-tag { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .mission-title { font-size: 1rem; font-weight: 700; }
+  .mission-status-icon { font-size: 1.4rem; }
+
+  .mission-body { padding: 22px; }
+  .scenario-box {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+  .scenario-box strong { color: var(--blue-dark); }
+
+  /* DRAG AND DROP */
+  .dnd-container { display: flex; gap: 20px; flex-wrap: wrap; }
+  .dnd-items {
+    flex: 1; min-width: 200px;
+  }
+  .dnd-zones { flex: 1.4; min-width: 220px; }
+  .dnd-item {
+    background: var(--blue-light);
+    border: 2px solid var(--blue);
+    border-radius: 8px;
+    padding: 9px 14px;
+    margin-bottom: 8px;
+    cursor: grab;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--blue-dark);
+    transition: transform 0.15s, box-shadow 0.15s;
+    user-select: none;
+  }
+  .dnd-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(27,94,175,0.2); }
+  .dnd-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .dnd-item.placed { display: none; }
+  .drop-zone {
+    background: var(--gray-light);
+    border: 2px dashed var(--gray);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+    min-height: 48px;
+    font-size: 0.85rem;
+    transition: background 0.2s, border-color 0.2s;
+    position: relative;
+  }
+  .drop-zone.drag-over { background: var(--blue-light); border-color: var(--blue); }
+  .drop-zone .zone-label { font-weight: 700; color: var(--text); font-size: 0.82rem; margin-bottom: 4px; }
+  .drop-zone .zone-content {
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .drop-zone .placed-item {
+    background: var(--blue);
+    color: white;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .drop-zone .placed-item .remove-btn { opacity: 0.7; font-size: 0.75rem; }
+  .drop-zone.correct { background: var(--green-light); border-color: var(--green); border-style: solid; }
+  .drop-zone.incorrect { background: var(--red-light); border-color: var(--red); border-style: solid; }
+
+  /* MULTIPLE CHOICE */
+  .choices { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+  .choice-btn {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 12px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .choice-btn:hover:not(:disabled) { background: var(--blue-light); border-color: var(--blue); color: var(--blue-dark); }
+  .choice-btn.selected { background: var(--blue-light); border-color: var(--blue); color: var(--blue-dark); }
+  .choice-btn.correct { background: var(--green-light); border-color: var(--green); color: var(--green); }
+  .choice-btn.incorrect { background: var(--red-light); border-color: var(--red); color: var(--red); }
+  .choice-btn:disabled { cursor: default; }
+  .choice-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .choice-btn.correct .choice-letter { background: var(--green); }
+  .choice-btn.incorrect .choice-letter { background: var(--red); }
+
+  /* ORDERING */
+  .order-list { list-style: none; }
+  .order-item {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    cursor: grab;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: box-shadow 0.15s;
+    user-select: none;
+  }
+  .order-item:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+  .order-item.dragging { opacity: 0.4; }
+  .order-item.drag-over-top { border-top: 3px solid var(--blue); }
+  .order-item.drag-over-bottom { border-bottom: 3px solid var(--blue); }
+  .order-handle { color: #aaa; font-size: 1.1rem; cursor: grab; }
+  .order-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-top: 14px;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct { background: var(--green-light); border-left: 4px solid var(--green); color: #145a2e; }
+  .feedback-box.incorrect { background: var(--red-light); border-left: 4px solid var(--red); color: #7b1a1a; }
+  .feedback-box .fb-title { font-weight: 800; font-size: 0.95rem; margin-bottom: 4px; }
+
+  /* BUTTONS */
+  .btn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn-primary { background: var(--blue); color: white; }
+  .btn-primary:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .btn-success { background: var(--green); color: white; }
+  .btn-success:hover { background: #155c2e; }
+  .btn-gold { background: var(--gold); color: white; }
+  .btn-gold:hover { background: #d4891a; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+  /* SCENARIO / BRANCHING */
+  .scenario-choices { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+  .scenario-choice {
+    background: white;
+    border: 2px solid var(--blue-light);
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .scenario-choice:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-light); }
+  .scenario-choice .sc-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+  .scenario-choice .sc-text strong { display: block; font-weight: 700; margin-bottom: 2px; }
+  .scenario-choice .sc-text span { font-size: 0.82rem; color: #666; }
+  .scenario-choice.correct { border-color: var(--green); background: var(--green-light); }
+  .scenario-choice.incorrect { border-color: var(--red); background: var(--red-light); }
+  .scenario-choice:disabled { cursor: default; }
+
+  /* COMPLETION SCREEN */
+  .completion-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .completion-screen.show { display: block; }
+  .completion-badge {
+    width: 120px; height: 120px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--gold), #e8920a);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3.5rem;
+    box-shadow: 0 8px 30px rgba(245,166,35,0.4);
+    animation: badgePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .completion-title { font-size: 2rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+  .completion-sub { font-size: 1rem; color: #555; margin-bottom: 24px; }
+  .final-stats {
+    display: flex; justify-content: center; gap: 24px; flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .stat-box {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 24px;
+    box-shadow: var(--shadow);
+    min-width: 110px;
+  }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--blue); }
+  .stat-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-earned {
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    color: white;
+    border-radius: 16px;
+    padding: 20px 32px;
+    display: inline-block;
+    margin-bottom: 24px;
+  }
+  .rank-earned-label { font-size: 0.8rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 2px; }
+  .rank-earned-name { font-size: 1.8rem; font-weight: 800; }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+    border-radius: 2px;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 80px; right: 20px;
+    background: var(--blue);
+    color: white;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    z-index: 1000;
+    transform: translateX(200px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-width: 260px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  }
+  .toast.show { transform: translateX(0); opacity: 1; }
+  .toast.gold { background: var(--gold); }
+  .toast.green { background: var(--green); }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    text-align: center;
+    margin: 10px 0 24px;
+    position: relative;
+  }
+  .section-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%; left: 0; right: 0;
+    height: 2px;
+    background: var(--gray);
+  }
+  .section-divider span {
+    background: var(--gray-light);
+    padding: 0 14px;
+    position: relative;
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+
+  /* INTRO SCREEN */
+  .intro-screen { text-align: center; padding: 10px 0 20px; }
+  .intro-screen h2 { font-size: 1.5rem; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
+  .intro-screen p { color: #555; font-size: 0.92rem; line-height: 1.7; max-width: 600px; margin: 0 auto 20px; }
+  .objectives-list {
+    background: var(--blue-light);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: left;
+    max-width: 600px;
+    margin: 0 auto 24px;
+  }
+  .objectives-list h4 { color: var(--blue-dark); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .objectives-list li { font-size: 0.88rem; margin-bottom: 6px; padding-left: 4px; color: var(--text); }
+  .objectives-list li::before { content: "✦ "; color: var(--blue); font-size: 0.7rem; }
+
+  /* ANIMATIONS */
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+  @keyframes badgePop { 0%{transform:scale(0) rotate(-20deg)} 100%{transform:scale(1) rotate(0)} }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  @keyframes slideIn { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+  .mission-card { animation: slideIn 0.4s ease; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-top { padding: 14px 16px 8px; }
+    .header-title { padding: 8px 16px 14px; }
+    .score-bar { padding: 8px 16px; }
+    .main { padding: 16px 10px 40px; }
+    .mission-body { padding: 16px; }
+    .dnd-container { flex-direction: column; }
+    .final-stats { gap: 14px; }
+  }
+
+  .hidden { display: none !important; }
+  .tag-pill {
+    display: inline-block;
+    background: var(--blue-light);
+    color: var(--blue-dark);
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+  .tag-pill.green { background: var(--green-light); color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="logo-area">
+      <div class="logo-shield"><span>🎓</span></div>
+      <div>
+        <div class="school-name">University View Academy</div>
+        <div class="school-sub">Computer Architecture</div>
+      </div>
+    </div>
+    <div class="rank-display">
+      <div class="rank-icon" id="rankIcon">🔰</div>
+      <div class="rank-label">Current Rank</div>
+      <div class="rank-name" id="rankName">Trainee</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue  ·  Vigor  ·  Vision ✦</div>
+  <div class="header-title">
+    <h1>⚙️ Operation: IT Procedures Command</h1>
+    <p>CompTIA A+ Core 2 · Domains 4.1, 4.2, 4.4, 4.5, 4.8</p>
+  </div>
+</div>
+
+<!-- SCORE BAR -->
+<div class="score-bar">
+  <div class="score-item">
+    <div>
+      <div class="score-label">Score</div>
+      <div class="score-value" id="scoreDisplay">0</div>
+    </div>
+  </div>
+  <div class="score-item">
+    <span class="streak-badge" id="streakBadge">🔥 Streak!</span>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-text" id="progressText">Mission 0 of 6</div>
+  </div>
+  <div class="score-item">
+    <div>
+      <div class="score-label">Missions</div>
+      <div class="score-value" id="missionCount">0/6</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainContent">
+
+  <!-- INTRO -->
+  <div class="mission-card active" id="introCard">
+    <div class="mission-header">
+      <div class="mission-num">🎯</div>
+      <div class="mission-title-wrap">
+        <div class="mission-tag">UVA Operations Division</div>
+        <div class="mission-title">Mission Briefing: Operational Procedures Command</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="intro-screen">
+        <h2>Welcome, Cadet!</h2>
+        <p>You've been assigned to the <strong>UVA IT Operations Division</strong>. Your mission: master the operational procedures that keep enterprise IT environments running safely, efficiently, and compliantly. Complete all 6 missions to earn your rank!</p>
+        <div class="objectives-list">
+          <h4>🎯 Mission Objectives</h4>
+          <ul style="list-style:none;padding:0">
+            <li>Implement documentation & inventory management best practices</li>
+            <li>Apply change management procedures to reduce operational risk</li>
+            <li>Identify safety hazards and mitigation techniques</li>
+            <li>Summarize environmental impacts and IT asset disposal</li>
+            <li>Identify scripting constructs and automation use cases</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:16px">
+          <span class="tag-pill">A+ Core 2</span>
+          <span class="tag-pill">Domain 4.1</span>
+          <span class="tag-pill">Domain 4.2</span>
+          <span class="tag-pill">Domain 4.4</span>
+          <span class="tag-pill">Domain 4.5</span>
+          <span class="tag-pill">Domain 4.8</span>
+        </div>
+        <p style="font-size:0.82rem;color:#888">⏱ Estimated time: 10–15 minutes  |  6 Missions  |  600 Points Possible</p>
+        <div class="btn-row" style="justify-content:center;margin-top:20px">
+          <button class="btn btn-primary" onclick="startMissions()">🚀 Begin Missions</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSIONS CONTAINER -->
+  <div id="missionsContainer" class="hidden"></div>
+
+  <!-- COMPLETION SCREEN -->
+  <div class="mission-card" id="completionCard" style="display:none">
+    <div class="mission-header" style="background:linear-gradient(135deg,var(--green),#145a2e)">
+      <div class="mission-num">🏆</div>
+      <div class="mission-title-wrap">
+        <div class="mission-tag">Mission Complete</div>
+        <div class="mission-title">Operation: IT Procedures Command — Debrief</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="completion-screen show">
+        <div class="completion-badge" id="completionBadge">🏆</div>
+        <div class="completion-title" id="completionTitle">Mission Accomplished!</div>
+        <div class="completion-sub" id="completionSub">You've completed all operational procedure missions.</div>
+        <div class="rank-earned" id="rankEarned">
+          <div class="rank-earned-label">Final Rank Achieved</div>
+          <div class="rank-earned-name" id="finalRankName">Trainee</div>
+        </div>
+        <div class="final-stats">
+          <div class="stat-box">
+            <div class="stat-num" id="finalScore">0</div>
+            <div class="stat-label">Total Score</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="finalCorrect">0</div>
+            <div class="stat-label">Correct</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="finalPct">0%</div>
+            <div class="stat-label">Accuracy</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="finalStreak">0</div>
+            <div class="stat-label">Best Streak</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="restartActivity()">🔄 Restart Missions</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===================== STATE =====================
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let completedMissions = 0;
+let correctAnswers = 0;
+let totalMissions = 6;
+let missionResults = [];
+let draggedItem = null;
+let draggedOrderItem = null;
+
+const RANKS = [
+  { name: 'Trainee', icon: '🔰', min: 0 },
+  { name: 'Apprentice', icon: '⚙️', min: 150 },
+  { name: 'Expert', icon: '🛡️', min: 350 },
+  { name: 'Master', icon: '🏆', min: 500 }
+];
+
+// ===================== MISSIONS DATA =====================
+const missions = [
+  // MISSION 1: Drag & Drop — Documentation & Inventory
+  {
+    id: 1,
+    type: 'dragdrop',
+    domain: 'Domain 4.1',
+    tag: 'Documentation & Inventory',
+    title: 'Mission 1: Classify the Documentation',
+    scenario: '📋 <strong>Situation:</strong> The UVA IT department is reorganizing its documentation library. Your task is to drag each document type into the correct category. Proper documentation is the backbone of IT operations!',
+    items: [
+      { id: 'i1', text: '📄 Network Topology Diagram' },
+      { id: 'i2', text: '🏷️ Asset Tag #UVA-PC-0042' },
+      { id: 'i3', text: '📝 Change Request Form CR-2024-11' },
+      { id: 'i4', text: '🔑 Password Policy v3.2' },
+      { id: 'i5', text: '📦 Hardware Inventory Spreadsheet' },
+      { id: 'i6', text: '⚠️ Acceptable Use Policy (AUP)' },
+    ],
+    zones: [
+      { id: 'z1', label: '🗺️ Network Documentation', accepts: ['i1'] },
+      { id: 'z2', label: '📦 Inventory Management', accepts: ['i2', 'i5'] },
+      { id: 'z3', label: '🔄 Change Management', accepts: ['i3'] },
+      { id: 'z4', label: '📜 Policies & Procedures', accepts: ['i4', 'i6'] },
+    ],
+    points: 100,
+    feedback: {
+      correct: '✅ Outstanding! You correctly classified all documentation types. Network diagrams guide infrastructure, asset tags and spreadsheets track inventory, change request forms manage modifications, and policies govern user behavior.',
+      incorrect: '❌ Not quite. Remember: Network docs describe infrastructure, inventory tracks physical assets, change management controls modifications, and policies define rules and acceptable behavior.'
+    }
+  },
+
+  // MISSION 2: Multiple Choice — Change Management
+  {
+    id: 2,
+    type: 'multichoice',
+    domain: 'Domain 4.2',
+    tag: 'Change Management',
+    title: 'Mission 2: Change Management Decision',
+    scenario: '🔄 <strong>Situation:</strong> A critical security patch needs to be deployed to 200 workstations at UVA. The patch fixes a zero-day vulnerability. As the IT lead, you must follow proper change management procedures. What is the CORRECT order of steps?',
+    question: 'Which change management process correctly mitigates operational risk when deploying a critical patch?',
+    choices: [
+      { letter: 'A', text: 'Deploy immediately to all systems → Document afterward → Notify users', correct: false, explanation: 'Deploying without approval or testing first violates change management and could cause widespread outages.' },
+      { letter: 'B', text: 'Submit change request → Get approval → Test in sandbox → Schedule maintenance window → Deploy → Document results', correct: true, explanation: 'This is the correct change management workflow: request → approval → test → schedule → deploy → document.' },
+      { letter: 'C', text: 'Notify users → Deploy to all systems → Submit change request', correct: false, explanation: 'Notifying users before approval and testing skips critical risk mitigation steps.' },
+      { letter: 'D', text: 'Test in sandbox → Deploy immediately → Submit change request → Get approval', correct: false, explanation: 'Approval must come BEFORE deployment, not after. This bypasses the authorization process.' },
+    ],
+    points: 100,
+    feedback: {
+      correct: '✅ Excellent decision-making! The proper change management flow always includes: formal request → management approval → sandbox testing → scheduled maintenance window → deployment → post-change documentation. This minimizes risk and ensures accountability.',
+      incorrect: '❌ Incorrect. Change management requires approval BEFORE deployment. Always: Request → Approve → Test → Schedule → Deploy → Document. Skipping steps creates operational risk and compliance violations.'
+    }
+  },
+
+  // MISSION 3: Scenario/Branching — Safety Hazards
+  {
+    id: 3,
+    type: 'scenario',
+    domain: 'Domain 4.4',
+    tag: 'Safety Hazards',
+    title: 'Mission 3: Safety Hazard Response',
+    scenario: '⚠️ <strong>Situation:</strong> You\'re working in the UVA server room when you notice a colleague about to open a server PSU (Power Supply Unit) without any precautions. The PSU has been powered off for 2 minutes. What is the MOST appropriate safety response?',
+    question: 'What should you do to ensure safe handling of the PSU?',
+    choices: [
+      {
+        icon: '⚡',
+        title: 'Warn about capacitor discharge risk',
+        detail: 'Tell them to wait at least 30 minutes and use an ESD wrist strap before opening the PSU',
+        correct: true,
+        explanation: 'PSU capacitors can hold lethal charges for 30+ minutes after power-off. ESD straps protect components. This is the correct safety protocol.'
+      },
+      {
+        icon: '👍',
+        title: 'Say nothing — it\'s been 2 minutes',
+        detail: 'The PSU has been off for 2 minutes, so it should be safe to open',
+        correct: false,
+        explanation: 'WRONG! PSU capacitors retain dangerous voltage for 30+ minutes. 2 minutes is NOT safe. This could cause serious injury or death.'
+      },
+      {
+        icon: '🔌',
+        title: 'Just unplug the power cord',
+        detail: 'Unplugging the power cord is sufficient safety precaution',
+        correct: false,
+        explanation: 'Unplugging alone is insufficient. Capacitors inside the PSU still hold charge. You must wait 30+ minutes AND use ESD protection.'
+      },
+      {
+        icon: '📞',
+        title: 'Call facilities management',
+        detail: 'This is a facilities issue, not an IT issue',
+        correct: false,
+        explanation: 'IT technicians are responsible for safe hardware handling. Calling facilities wastes time and doesn\'t address the immediate safety risk.'
+      }
+    ],
+    points: 100,
+    feedback: {
+      correct: '✅ Safety first! PSU capacitors store lethal electrical charges for 30+ minutes after power-off. Always: (1) Wait 30+ min, (2) Use ESD wrist strap, (3) Work on anti-static mat. Never rush hardware safety procedures!',
+      incorrect: '❌ Safety violation! PSU capacitors can hold dangerous charges for 30+ minutes. Always wait the full discharge time and use proper ESD equipment. This is a CompTIA A+ safety fundamental!'
+    }
+  },
+
+  // MISSION 4: Multiple Choice — Environmental & Disposal
+  {
+    id: 4,
+    type: 'multichoice',
+    domain: 'Domain 4.5',
+    tag: 'Environmental & Disposal',
+    title: 'Mission 4: IT Asset Disposal Protocol',
+    scenario: '♻️ <strong>Situation:</strong> UVA is retiring 50 old laptops, 10 CRT monitors, and a batch of used toner cartridges. The IT department must dispose of these assets properly to comply with environmental regulations and protect data security.',
+    question: 'Which disposal method correctly addresses BOTH data security AND environmental compliance?',
+    choices: [
+      { letter: 'A', text: 'Throw everything in the regular trash — it\'s old equipment', correct: false, explanation: 'Illegal! CRT monitors contain lead and mercury (hazardous waste). Laptops may contain sensitive data. Regular trash violates EPA regulations and data protection laws.' },
+      { letter: 'B', text: 'Wipe drives with DBAN → Donate laptops to charity; Send CRTs & toner to certified e-waste recycler; Document all disposals with asset tags', correct: true, explanation: 'This correctly addresses data destruction (DBAN wipe), environmental compliance (certified e-waste for hazardous materials), and documentation requirements.' },
+      { letter: 'C', text: 'Physically destroy all equipment with a hammer → Put in dumpster', correct: false, explanation: 'Physical destruction alone doesn\'t address environmental compliance. CRT glass and toner chemicals are still hazardous waste even when broken.' },
+      { letter: 'D', text: 'Sell all equipment as-is on eBay without wiping drives', correct: false, explanation: 'Selling without data wiping is a massive data breach risk and likely violates FERPA, HIPAA, or other regulations depending on the data stored.' },
+    ],
+    points: 100,
+    feedback: {
+      correct: '✅ Perfect compliance! Key disposal rules: (1) Data destruction before any transfer (DBAN, degaussing, or shredding), (2) Certified e-waste recyclers for hazardous materials (CRTs, batteries, toner), (3) Document everything with asset tags for audit trails.',
+      incorrect: '❌ Compliance failure! Remember: CRTs contain lead/mercury (hazardous waste), drives must be wiped before disposal, and all disposals must be documented. Violations can result in heavy fines and data breaches.'
+    }
+  },
+
+  // MISSION 5: Ordering — Change Management Steps
+  {
+    id: 5,
+    type: 'ordering',
+    domain: 'Domain 4.2',
+    tag: 'Change Management Process',
+    title: 'Mission 5: Order the Change Management Steps',
+    scenario: '📋 <strong>Situation:</strong> UVA\'s IT director has asked you to train new staff on the change management process. Arrange the following steps in the correct order to create a proper change management workflow.',
+    items: [
+      { id: 'o1', text: '📝 Submit formal Change Request (CR) with scope and impact analysis', order: 1 },
+      { id: 'o2', text: '✅ Obtain approval from Change Advisory Board (CAB)', order: 2 },
+      { id: 'o3', text: '🧪 Test changes in isolated sandbox/test environment', order: 3 },
+      { id: 'o4', text: '📅 Schedule maintenance window and notify affected users', order: 4 },
+      { id: 'o5', text: '🚀 Implement change in production environment', order: 5 },
+      { id: 'o6', text: '📊 Document results and close the change request', order: 6 },
+    ],
+    points: 100,
+    feedback: {
+      correct: '✅ Perfect sequence! This is the industry-standard change management workflow used in ITIL and CompTIA A+ frameworks. Each step builds on the previous to minimize risk and ensure accountability.',
+      incorrect: '❌ Incorrect order. The correct sequence is: Submit CR → CAB Approval → Test → Schedule/Notify → Implement → Document. Remember: approval always comes before implementation!'
+    }
+  },
+
+  // MISSION 6: Multiple Choice — Scripting & Automation
+  {
+    id: 6,
+    type: 'multichoice',
+    domain: 'Domain 4.8',
+    tag: 'Scripting & Automation',
+    title: 'Mission 6: Scripting Constructs & Automation',
+    scenario: '💻 <strong>Situation:</strong> The UVA IT team wants to automate routine tasks. A junior technician shows you this PowerShell script snippet and asks what scripting constructs are being used:\n\n<code style="display:block;background:#1a2340;color:#7ec8e3;padding:12px;border-radius:8px;margin:10px 0;font-size:0.85rem;line-height:1.6">$computers = Get-Content "computers.txt"\nforeach ($pc in $computers) {\n  if (Test-Connection $pc -Quiet) {\n    Write-Host "$pc is online"\n  } else {\n    Write-Host "$pc is offline"\n  }\n}</code>',
+    question: 'Which scripting constructs are demonstrated in this script, and what is its automation use case?',
+    choices: [
+      { letter: 'A', text: 'Variables, loop (foreach), conditional (if/else) — Use case: Batch ping/connectivity check across multiple computers', correct: true, explanation: '$computers = variable, foreach = loop/iteration, if/else = conditional logic. This automates checking connectivity for many PCs at once.' },
+      { letter: 'B', text: 'Functions and recursion only — Use case: Mathematical calculations', correct: false, explanation: 'No functions or recursion are present. The script uses variables, a foreach loop, and if/else conditionals.' },
+      { letter: 'C', text: 'Arrays and sorting algorithms — Use case: Database management', correct: false, explanation: 'While $computers acts like an array, the primary constructs shown are a foreach loop and if/else conditional, not sorting algorithms.' },
+      { letter: 'D', text: 'Classes and objects — Use case: Object-oriented programming', correct: false, explanation: 'This is a procedural script, not OOP. No classes are defined. The constructs are variables, loops, and conditionals.' },
+    ],
+    points: 100,
+    feedback: {
+      correct: '✅ Excellent scripting knowledge! Key constructs: Variables ($) store data, Loops (foreach/for/while) iterate over collections, Conditionals (if/else) make decisions. Automation use cases include: batch operations, scheduled tasks, system monitoring, and user provisioning.',
+      incorrect: '❌ Review scripting basics! The three fundamental constructs here are: (1) Variables — store values, (2) Loops — repeat actions (foreach, for, while), (3) Conditionals — branch logic (if/else). These are the building blocks of all automation scripts.'
+    }
+  }
+];
+
+// ===================== RENDER MISSIONS =====================
+function startMissions() {
+  document.getElementById('introCard').classList.add('hidden');
+  document.getElementById('missionsContainer').classList.remove('hidden');
+  renderAllMissions();
+  updateProgress();
+}
+
+function renderAllMissions() {
+  const container = document.getElementById('missionsContainer');
+  container.innerHTML = '';
+  missions.forEach((m, idx) => {
+    const card = document.createElement('div');
+    card.className = 'mission-card';
+    card.id = 'mission-card-' + m.id;
+    card.innerHTML = buildMissionHTML(m, idx);
+    container.appendChild(card);
+    if (m.type === 'dragdrop') initDragDrop(m);
+    if (m.type === 'ordering') initOrdering(m);
+  });
+}
+
+function buildMissionHTML(m, idx) {
+  let bodyHTML = '';
+
+  if (m.type === 'dragdrop') {
+    bodyHTML = buildDragDropHTML(m);
+  } else if (m.type === 'multichoice') {
+    bodyHTML = buildMultiChoiceHTML(m);
+  } else if (m.type === 'scenario') {
+    bodyHTML = buildScenarioHTML(m);
+  } else if (m.type === 'ordering') {
+    bodyHTML = buildOrderingHTML(m);
+  }
+
+  return `
+    <div class="mission-header">
+      <div class="mission-num">${idx + 1}</div>
+      <div class="mission-title-wrap">
+        <div class="mission-tag"><span class="tag-pill">${m.domain}</span><span class="tag-pill green">${m.tag}</span></div>
+        <div class="mission-title">${m.title}</div>
+      </div>
+      <div class="mission-status-icon" id="status-icon-${m.id}">⬜</div>
+    </div>
+    <div class="mission-body">
+      <div class="scenario-box">${m.scenario}</div>
+      ${bodyHTML}
+      <div class="feedback-box" id="feedback-${m.id}"></div>
+    </div>
+  `;
+}
+
+// ---- DRAG & DROP ----
+function buildDragDropHTML(m) {
+  const itemsHTML = m.items.map(item =>
+    `<div class="dnd-item" id="dnd-item-${item.id}" draggable="true" data-id="${item.id}" data-mission="${m.id}">${item.text}</div>`
+  ).join('');
+
+  const zonesHTML = m.zones.map(zone =>
+    `<div class="drop-zone" id="zone-${zone.id}" data-zone="${zone.id}" data-mission="${m.id}">
+      <div class="zone-label">${zone.label}</div>
+      <div class="zone-content" id="zone-content-${zone.id}"></div>
+    </div>`
+  ).join('');
+
+  return `
+    <p style="font-size:0.85rem;color:#666;margin-bottom:12px">🖱️ Drag each item to its correct category:</p>
+    <div class="dnd-container">
+      <div class="dnd-items" id="dnd-items-${m.id}">${itemsHTML}</div>
+      <div class="dnd-zones">${zonesHTML}</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="checkDragDrop(${m.id})" id="check-btn-${m.id}">🔍 Check Answers</button>
+      <button class="btn" style="background:var(--gray);color:var(--text)" onclick="resetDragDrop(${m.id})">↩️ Reset</button>
+    </div>
+  `;
+}
+
+function initDragDrop(m) {
+  setTimeout(() => {
+    const items = document.querySelectorAll(`[data-mission="${m.id}"].dnd-item`);
+    const zones = document.querySelectorAll(`[data-mission="${m.id}"].drop-zone`);
+
+    items.forEach(item => {
+      item.addEventListener('dragstart', e => {
+        draggedItem = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        draggedItem = null;
+      });
+    });
+
+    zones.forEach(zone => {
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('drag-over');
+      });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (draggedItem) {
+          const itemId = draggedItem.dataset.id;
+          const content = zone.querySelector('.zone-content');
+          // Remove from previous zone if any
+          document.querySelectorAll('.placed-item').forEach(pi => {
+            if (pi.dataset.itemid === itemId) pi.remove();
+          });
+          // Show item in zone
+          draggedItem.classList.add('placed');
+          const placed = document.createElement('div');
+          placed.className = 'placed-item';
+          placed.dataset.itemid = itemId;
+          placed.innerHTML = draggedItem.textContent + ' <span class="remove-btn">✕</span>';
+          placed.addEventListener('click', () => {
+            placed.remove();
+            draggedItem && draggedItem.classList.remove('placed');
+            document.getElementById('dnd-item-' + itemId).classList.remove('placed');
+          });
+          content.appendChild(placed);
+        }
+      });
+    });
+  }, 100);
+}
+
+function checkDragDrop(missionId) {
+  const m = missions.find(x => x.id === missionId);
+  let allCorrect = true;
+  let anyPlaced = false;
+
+  m.zones.forEach(zone => {
+    const content = document.getElementById('zone-content-' + zone.id);
+    const placedItems = content.querySelectorAll('.placed-item');
+    const placedIds = Array.from(placedItems).map(p => p.dataset.itemid);
+    const zoneEl = document.getElementById('zone-' + zone.id);
+
+    if (placedIds.length > 0) anyPlaced = true;
+
+    const correctForZone = zone.accepts.every(id => placedIds.includes(id)) &&
+                           placedIds.every(id => zone.accepts.includes(id));
+
+    zoneEl.classList.remove('correct', 'incorrect');
+    if (placedIds.length > 0) {
+      zoneEl.classList.add(correctForZone ? 'correct' : 'incorrect');
+      if (!correctForZone) allCorrect = false;
+    } else if (zone.accepts.length > 0) {
+      allCorrect = false;
+    }
+  });
+
+  if (!anyPlaced) { showToast('⚠️ Place at least one item first!'); return; }
+  completeMission(missionId, allCorrect);
+  document.getElementById('check-btn-' + missionId).disabled = true;
+}
+
+function resetDragDrop(missionId) {
+  const m = missions.find(x => x.id === missionId);
+  m.items.forEach(item => {
+    const el = document.getElementById('dnd-item-' + item.id);
+    if (el) el.classList.remove('placed');
+  });
+  m.zones.forEach(zone => {
+    const content = document.getElementById('zone-content-' + zone.id);
+    if (content) content.innerHTML = '';
+    const zoneEl = document.getElementById('zone-' + zone.id);
+    if (zoneEl) zoneEl.classList.remove('correct', 'incorrect');
+  });
+}
+
+// ---- MULTIPLE CHOICE ----
+function buildMultiChoiceHTML(m) {
+  const choicesHTML = m.choices.map((c, i) =>
+    `<button class="choice-btn" id="choice-${m.id}-${i}" onclick="selectChoice(${m.id}, ${i})" data-correct="${c.correct}">
+      <div class="choice-letter">${c.letter}</div>
+      <div>${c.text}</div>
+    </button>`
+  ).join('');
+
+  return `
+    <p style="font-weight:600;margin-bottom:12px;font-size:0.92rem">${m.question}</p>
+    <div class="choices">${choicesHTML}</div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="checkMultiChoice(${m.id})" id="check-btn-${m.id}" disabled>🔍 Submit Answer</button>
+    </div>
+  `;
+}
+
+let selectedChoices = {};
+function selectChoice(missionId, idx) {
+  selectedChoices[missionId] = idx;
+  const m = missions.find(x => x.id === missionId);
+  m.choices.forEach((c, i) => {
+    const btn = document.getElementById(`choice-${missionId}-${i}`);
+    btn.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('check-btn-' + missionId).disabled = false;
+}
+
+function checkMultiChoice(missionId) {
+  const m = missions.find(x => x.id === missionId);
+  const idx = selectedChoices[missionId];
+  if (idx === undefined) return;
+  const correct = m.choices[idx].correct;
+
+  m.choices.forEach((c, i) => {
+    const btn = document.getElementById(`choice-${missionId}-${i}`);
+    btn.disabled = true;
+    if (c.correct) btn.classList.add('correct');
+    else if (i === idx && !c.correct) btn.classList.add('incorrect');
+  });
+
+  // Show explanation
+  const explanation = m.choices[idx].explanation;
+  const fb = document.getElementById('feedback-' + missionId);
+  fb.innerHTML = `<div class="fb-title">${correct ? '✅ Correct!' : '❌ Incorrect'}</div>${m.feedback[correct ? 'correct' : 'incorrect']}<br><br><em>Your choice: "${m.choices[idx].text}" — ${explanation}</em>`;
+  fb.className = 'feedback-box show ' + (correct ? 'correct' : 'incorrect');
+
+  document.getElementById('check-btn-' + missionId).disabled = true;
+  completeMission(missionId, correct, true);
+}
+
+// ---- SCENARIO ----
+function buildScenarioHTML(m) {
+  const choicesHTML = m.choices.map((c, i) =>
+    `<button class="scenario-choice" id="sc-${m.id}-${i}" onclick="selectScenario(${m.id}, ${i})" data-correct="${c.correct}">
+      <div class="sc-icon">${c.icon}</div>
+      <div class="sc-text">
+        <strong>${c.title}</strong>
+        <span>${c.detail}</span>
+      </div>
+    </button>`
+  ).join('');
+
+  return `
+    <p style="font-weight:600;margin-bottom:12px;font-size:0.92rem">${m.question}</p>
+    <div class="scenario-choices">${choicesHTML}</div>
+  `;
+}
+
+function selectScenario(missionId, idx) {
+  const m = missions.find(x => x.id === missionId);
+  const correct = m.choices[idx].correct;
+
+  m.choices.forEach((c, i) => {
+    const btn = document.getElementById(`sc-${missionId}-${i}`);
+    btn.disabled = true;
+    if (c.correct) btn.classList.add('correct');
+    else if (i === idx && !c.correct) btn.classList.add('incorrect');
+  });
+
+  const explanation = m.choices[idx].explanation;
+  const fb = document.getElementById('feedback-' + missionId);
+  fb.innerHTML = `<div class="fb-title">${correct ? '✅ Correct!' : '❌ Incorrect'}</div>${m.feedback[correct ? 'correct' : 'incorrect']}<br><br><em>${explanation}</em>`;
+  fb.className = 'feedback-box show ' + (correct ? 'correct' : 'incorrect');
+
+  completeMission(missionId, correct, true);
+}
+
+// ---- ORDERING ----
+function buildOrderingHTML(m) {
+  // Shuffle items
+  const shuffled = [...m.items].sort(() => Math.random() - 0.5);
+  const itemsHTML = shuffled.map(item =>
+    `<li class="order-item" id="order-item-${item.id}" draggable="true" data-id="${item.id}" data-order="${item.order}" data-mission="${m.id}">
+      <span class="order-handle">⠿</span>
+      <span class="order-num" id="order-num-${item.id}">?</span>
+      <span>${item.text}</span>
+    </li>`
+  ).join('');
+
+  return `
+    <p style="font-size:0.85rem;color:#666;margin-bottom:12px">🖱️ Drag the steps into the correct order (1 = first, 6 = last):</p>
+    <ul class="order-list" id="order-list-${m.id}">${itemsHTML}</ul>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="checkOrdering(${m.id})" id="check-btn-${m.id}">🔍 Check Order</button>
+    </div>
+  `;
+}
+
+function initOrdering(m) {
+  setTimeout(() => {
+    const list = document.getElementById('order-list-' + m.id);
+    if (!list) return;
+    let dragSrc = null;
+
+    list.querySelectorAll('.order-item').forEach(item => {
+      item.addEventListener('dragstart', e => {
+        dragSrc = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        list.querySelectorAll('.order-item').forEach(i => {
+          i.classList.remove('drag-over-top', 'drag-over-bottom');
+        });
+        updateOrderNumbers(m.id);
+      });
+      item.addEventListener('dragover', e => {
+        e.preventDefault();
+        if (dragSrc === item) return;
+        const rect = item.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        item.classList.remove('drag-over-top', 'drag-over-bottom');
+        if (e.clientY < midY) item.classList.add('drag-over-top');
+        else item.classList.add('drag-over-bottom');
+      });
+      item.addEventListener('dragleave', () => {
+        item.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+      item.addEventListener('drop', e => {
+        e.preventDefault();
+        if (dragSrc === item) return;
+        const rect = item.getBoundingClientRect();
+        const midY = rect.top + rect.height / 2;
+        if (e.clientY < midY) list.insertBefore(dragSrc, item);
+        else list.insertBefore(dragSrc, item.nextSibling);
+        item.classList.remove('drag-over-top', 'drag-over-bottom');
+        updateOrderNumbers(m.id);
+      });
+    });
+    updateOrderNumbers(m.id);
+  }, 100);
+}
+
+function updateOrderNumbers(missionId) {
+  const list = document.getElementById('order-list-' + missionId);
+  if (!list) return;
+  list.querySelectorAll('.order-item').forEach((item, idx) => {
+    const numEl = item.querySelector('.order-num');
+    if (numEl) numEl.textContent = idx + 1;
+  });
+}
+
+function checkOrdering(missionId) {
+  const m = missions.find(x => x.id === missionId);
+  const list = document.getElementById('order-list-' + missionId);
+  const items = list.querySelectorAll('.order-item');
+  let correct = true;
+
+  items.forEach((item, idx) => {
+    const expectedOrder = parseInt(item.dataset.order);
+    if (expectedOrder !== idx + 1) correct = false;
+  });
+
+  completeMission(missionId, correct);
+  document.getElementById('check-btn-' + missionId).disabled = true;
+}
+
+// ===================== MISSION COMPLETION =====================
+function completeMission(missionId, isCorrect, skipFeedback = false) {
+  const m = missions.find(x => x.id === missionId);
+  const card = document.getElementById('mission-card-' + missionId);
+  const statusIcon = document.getElementById('status-icon-' + missionId);
+
+  if (isCorrect) {
+    score += m.points;
+    streak++;
+    correctAnswers++;
+    if (streak > bestStreak) bestStreak = streak;
+    card.classList.add('completed');
+    statusIcon.textContent = '✅';
+    if (!skipFeedback) {
+      const fb = document.getElementById('feedback-' + missionId);
+      fb.innerHTML = `<div class="fb-title">✅ Mission Complete!</div>${m.feedback.correct}`;
+      fb.className = 'feedback-box show correct';
+    }
+    if (streak >= 3) {
+      showStreakBadge();
+      if (streak === 3) launchConfetti(10);
+    }
+    showToast(`+${m.points} pts! 🎯`, 'green');
+  } else {
+    streak = 0;
+    card.classList.add('failed');
+    statusIcon.textContent = '❌';
+    if (!skipFeedback) {
+      const fb = document.getElementById('feedback-' + missionId);
+      fb.innerHTML = `<div class="fb-title">❌ Mission Failed</div>${m.feedback.incorrect}`;
+      fb.className = 'feedback-box show incorrect';
+    }
+    showToast('Keep going! Review the feedback 📚');
+  }
+
+  completedMissions++;
+  updateScore();
+  updateProgress();
+  updateRank();
+  updateStreakBadge();
+
+  if (completedMissions === totalMissions) {
+    setTimeout(showCompletion, 1200);
+  }
+}
+
+// ===================== UI UPDATES =====================
+function updateScore() {
+  document.getElementById('scoreDisplay').textContent = score;
+}
+
+function updateProgress() {
+  const pct = (completedMissions / totalMissions) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `Mission ${completedMissions} of ${totalMissions}`;
+  document.getElementById('missionCount').textContent = `${completedMissions}/${totalMissions}`;
+}
+
+function updateRank() {
+  let rank = RANKS[0];
+  for (let r of RANKS) {
+    if (score >= r.min) rank = r;
+  }
+  document.getElementById('rankName').textContent = rank.name;
+  document.getElementById('rankIcon').textContent = rank.icon;
+}
+
+function updateStreakBadge() {
+  const badge = document.getElementById('streakBadge');
+  if (streak >= 2) {
+    badge.textContent = `🔥 ${streak} in a row!`;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+function showStreakBadge() {
+  const badge = document.getElementById('streakBadge');
+  badge.textContent = `🔥 ${streak} in a row!`;
+  badge.classList.add('show');
+  badge.style.animation = 'none';
+  setTimeout(() => badge.style.animation = 'pulse 0.5s ease', 10);
+}
+
+function showToast(msg, type = '') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast show ' + type;
+  setTimeout(() => toast.className = 'toast', 2500);
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti(count = 30) {
+  const container = document.getElementById('confettiContainer');
+  const colors = ['#1B5EAF', '#1E7A3E', '#F5A623', '#e74c3c', '#9b59b6', '#3498db'];
+  for (let i = 0; i < count; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ===================== COMPLETION =====================
+function showCompletion() {
+  document.getElementById('missionsContainer').classList.add('hidden');
+  const card = document.getElementById('completionCard');
+  card.style.display = 'block';
+
+  const pct = Math.round((correctAnswers / totalMissions) * 100);
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('finalCorrect').textContent = correctAnswers + '/' + totalMissions;
+  document.getElementById('finalPct').textContent = pct + '%';
+  document.getElementById('finalStreak').textContent = bestStreak;
+
+  let rank = RANKS[0];
+  for (let r of RANKS) { if (score >= r.min) rank = r; }
+  document.getElementById('finalRankName').textContent = rank.icon + ' ' + rank.name;
+
+  let badge = '🏆', title = 'Mission Accomplished!', sub = '';
+  if (pct === 100) {
+    badge = '🌟'; title = 'Perfect Score! Outstanding Cadet!';
+    sub = 'You\'ve mastered all operational procedures. UVA is proud of you!';
+    launchConfetti(60);
+  } else if (pct >= 80) {
+    badge = '🏆'; title = 'Excellent Performance!';
+    sub = 'Strong understanding of IT operational procedures. Keep it up!';
+    launchConfetti(30);
+  } else if (pct >= 60) {
+    badge = '⚙️'; title = 'Good Effort, Cadet!';
+    sub = 'Review the missed missions and reinforce your knowledge.';
+  } else {
+    badge = '📚'; title = 'Keep Studying, Cadet!';
+    sub = 'Review the CompTIA A+ Core 2 Domain 4 materials and try again.';
+  }
+
+  document.getElementById('completionBadge').textContent = badge;
+  document.getElementById('completionTitle').textContent = title;
+  document.getElementById('completionSub').textContent = sub;
+
+  card.scrollIntoView({ behavior: 'smooth' });
+}
+
+function restartActivity() {
+  score = 0; streak = 0; bestStreak = 0;
+  completedMissions = 0; correctAnswers = 0;
+  selectedChoices = {};
+  updateScore(); updateProgress(); updateRank(); updateStreakBadge();
+  document.getElementById('completionCard').style.display = 'none';
+  document.getElementById('introCard').classList.remove('hidden');
+  document.getElementById('missionsContainer').classList.add('hidden');
+  document.getElementById('missionsContainer').innerHTML = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
