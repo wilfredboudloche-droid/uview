@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 21: Using Data Security | UVA</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #C0392B;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-light: #f4f6fb;
+    --gray: #e0e6ef;
+    --text: #1a2340;
+    --shadow: 0 4px 18px rgba(27,94,175,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gray-light);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--blue) 70%, var(--blue-dark) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .uva-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .uva-shield {
+    width: 54px; height: 60px;
+  }
+  .uva-name { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+  .uva-sub { font-size: 0.78rem; opacity: 0.85; }
+  .motto-ribbon {
+    background: var(--green);
+    text-align: center;
+    padding: 7px 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: white;
+  }
+  .header-title {
+    text-align: center;
+    padding: 14px 20px 18px;
+  }
+  .header-title h1 { font-size: 1.55rem; font-weight: 800; letter-spacing: 0.5px; }
+  .header-title p { font-size: 0.92rem; opacity: 0.85; margin-top: 4px; }
+
+  /* RANK BAR */
+  .rank-bar {
+    background: white;
+    border-bottom: 3px solid var(--blue-light);
+    padding: 10px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    box-shadow: 0 2px 8px rgba(27,94,175,0.07);
+  }
+  .rank-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .rank-badge {
+    background: var(--blue);
+    color: white;
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-weight: 700;
+    font-size: 0.92rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rank-icon { font-size: 1.1rem; }
+  .score-display {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .score-box {
+    text-align: center;
+  }
+  .score-box .val {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--blue);
+    line-height: 1;
+  }
+  .score-box .lbl {
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .streak-box {
+    background: var(--gold);
+    color: white;
+    border-radius: 12px;
+    padding: 5px 14px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: transform 0.2s;
+  }
+  .streak-box.pulse { animation: pulse 0.4s ease; }
+  @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.18)} 100%{transform:scale(1)} }
+
+  /* PROGRESS */
+  .progress-wrap {
+    padding: 10px 28px 6px;
+    background: white;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: #666;
+    margin-bottom: 4px;
+  }
+  .progress-bar-bg {
+    background: var(--gray);
+    border-radius: 8px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.5s ease;
+  }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    padding: 28px 30px;
+    margin-bottom: 22px;
+    border-left: 5px solid var(--blue);
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .mission-card.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  .mission-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .mission-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .mission-meta { flex: 1; }
+  .mission-tag {
+    background: var(--blue-light);
+    color: var(--blue);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 5px;
+  }
+  .mission-title { font-size: 1.18rem; font-weight: 800; color: var(--blue); }
+  .mission-desc { font-size: 0.92rem; color: #555; margin-top: 4px; line-height: 1.5; }
+
+  /* DRAG & DROP */
+  .drag-area {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .drag-col { flex: 1; min-width: 200px; }
+  .drag-col h3 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--gray);
+  }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+  .drag-item {
+    background: var(--blue-light);
+    border: 2px solid var(--blue);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    color: var(--blue-dark);
+  }
+  .drag-item:hover { background: var(--blue); color: white; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(27,94,175,0.2); }
+  .drag-item.dragging { opacity: 0.4; }
+  .drop-zone {
+    background: var(--gray-light);
+    border: 2px dashed var(--gray);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-height: 48px;
+    font-size: 0.85rem;
+    color: #aaa;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .drop-zone.drag-over { border-color: var(--blue); background: var(--blue-light); }
+  .drop-zone .drop-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .drop-zone .drag-item { margin: 0; }
+
+  /* SCENARIO / BRANCHING */
+  .scenario-box {
+    background: var(--gray-light);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    border-left: 4px solid var(--gold);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .scenario-box strong { color: var(--blue); }
+  .choices { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .choice-btn {
+    background: white;
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 13px 18px;
+    font-size: 0.92rem;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    font-family: inherit;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .choice-btn:hover:not(:disabled) { border-color: var(--blue); background: var(--blue-light); color: var(--blue); }
+  .choice-btn.correct { border-color: var(--green); background: var(--green-light); color: var(--green); }
+  .choice-btn.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); }
+  .choice-btn:disabled { cursor: default; }
+  .choice-letter {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--gray);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.82rem;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .choice-btn.correct .choice-letter { background: var(--green); color: white; }
+  .choice-btn.wrong .choice-letter { background: var(--red); color: white; }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 13px 16px;
+    margin-top: 14px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback-box.show { display: block; animation: fadeIn 0.3s ease; }
+  .feedback-box.correct { background: var(--green-light); border-left: 4px solid var(--green); color: #145a2e; }
+  .feedback-box.wrong { background: var(--red-light); border-left: 4px solid var(--red); color: #7b1a1a; }
+  .feedback-box .fb-title { font-weight: 700; margin-bottom: 4px; font-size: 0.95rem; }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .btn:hover { background: var(--blue-dark); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(27,94,175,0.25); }
+  .btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .btn-green { background: var(--green); }
+  .btn-green:hover { background: #155c2e; }
+  .btn-gold { background: var(--gold); color: #333; }
+  .btn-gold:hover { background: #d4891a; color: white; }
+
+  /* MATCHING TABLE */
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  .match-item {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 600;
+    text-align: center;
+  }
+  .match-item:hover { border-color: var(--blue); background: var(--blue-light); }
+  .match-item.selected { border-color: var(--blue); background: var(--blue); color: white; }
+  .match-item.matched-correct { border-color: var(--green); background: var(--green-light); color: var(--green); cursor: default; }
+  .match-item.matched-wrong { border-color: var(--red); background: var(--red-light); color: var(--red); }
+  .match-item.matched-wrong { animation: shake 0.4s ease; }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+  /* COMPLETION SCREEN */
+  #completion-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  #completion-screen.show { display: block; animation: fadeIn 0.5s ease; }
+  .completion-badge {
+    font-size: 5rem;
+    margin-bottom: 16px;
+    animation: bounce 0.6s ease;
+  }
+  @keyframes bounce { 0%{transform:scale(0)} 60%{transform:scale(1.2)} 100%{transform:scale(1)} }
+  .completion-title { font-size: 2rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+  .completion-rank { font-size: 1.1rem; color: var(--green); font-weight: 700; margin-bottom: 20px; }
+  .completion-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .stat-box {
+    background: white;
+    border-radius: 14px;
+    padding: 18px 28px;
+    box-shadow: var(--shadow);
+    min-width: 120px;
+  }
+  .stat-box .sv { font-size: 2rem; font-weight: 800; color: var(--blue); }
+  .stat-box .sl { font-size: 0.78rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+    border-radius: 2px;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 20px; right: 20px;
+    background: var(--blue);
+    color: white;
+    padding: 12px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+  }
+  .toast.show { transform: translateX(0); }
+  .toast.streak { background: var(--gold); color: #333; }
+  .toast.rank-up { background: var(--green); }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0 18px;
+    color: #aaa;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .section-divider::before, .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gray);
+  }
+
+  /* INTRO SCREEN */
+  #intro-screen {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .intro-icon { font-size: 4rem; margin-bottom: 16px; }
+  .intro-title { font-size: 1.6rem; font-weight: 800; color: var(--blue); margin-bottom: 10px; }
+  .intro-desc { font-size: 0.95rem; color: #555; max-width: 560px; margin: 0 auto 20px; line-height: 1.6; }
+  .mission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 500px;
+    margin: 0 auto 24px;
+    text-align: left;
+  }
+  .mission-list-item {
+    background: white;
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(27,94,175,0.08);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .mission-list-item .mi { font-size: 1.4rem; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-top { padding: 14px 16px 8px; }
+    .main { padding: 16px 10px 30px; }
+    .mission-card { padding: 18px 16px; }
+    .drag-area { flex-direction: column; }
+    .match-grid { grid-template-columns: 1fr; }
+    .rank-bar { padding: 10px 14px; }
+    .completion-stats { gap: 14px; }
+  }
+
+  /* CLASSIFICATION LABELS */
+  .classify-items { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .classify-chip {
+    background: var(--blue-light);
+    border: 2px solid var(--blue);
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--blue-dark);
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .classify-chip:hover { background: var(--blue); color: white; }
+  .classify-chip.selected-pii { background: #7b2ff7; border-color: #7b2ff7; color: white; }
+  .classify-chip.selected-phi { background: var(--red); border-color: var(--red); color: white; }
+  .classify-chip.selected-general { background: var(--green); border-color: var(--green); color: white; }
+  .classify-chip.locked { cursor: default; }
+  .classify-legend {
+    display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.82rem; font-weight: 600;
+  }
+  .legend-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+  }
+  .classify-targets {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
+  }
+  .classify-target {
+    flex: 1; min-width: 130px;
+    border-radius: 12px;
+    padding: 12px 14px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .classify-target.pii { background: #ede7ff; border-color: #7b2ff7; color: #7b2ff7; }
+  .classify-target.phi { background: var(--red-light); border-color: var(--red); color: var(--red); }
+  .classify-target.general { background: var(--green-light); border-color: var(--green); color: var(--green); }
+  .classify-target.active-target { transform: scale(1.04); box-shadow: 0 4px 14px rgba(0,0,0,0.12); }
+
+  /* AI BIAS SLIDER */
+  .slider-wrap { margin: 14px 0; }
+  .slider-wrap label { font-size: 0.88rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 6px; }
+  input[type=range] { width: 100%; accent-color: var(--blue); }
+  .slider-val { font-size: 1.1rem; font-weight: 800; color: var(--blue); }
+
+  /* PROCESS STEPS */
+  .process-steps { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+  .process-step {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: grab;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .process-step:hover { border-color: var(--blue); background: var(--blue-light); }
+  .process-step.dragging { opacity: 0.4; }
+  .step-num {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .process-step.correct-pos { border-color: var(--green); background: var(--green-light); }
+  .process-step.correct-pos .step-num { background: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="uva-logo">
+      <svg class="uva-shield" viewBox="0 0 54 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M27 2L4 12V32C4 44 14 54 27 58C40 54 50 44 50 32V12L27 2Z" fill="#1E7A3E" stroke="white" stroke-width="2"/>
+        <path d="M27 8L10 16V32C10 41 17 49 27 52C37 49 44 41 44 32V16L27 8Z" fill="#1B5EAF"/>
+        <text x="27" y="36" text-anchor="middle" fill="white" font-size="14" font-weight="800" font-family="Arial">UVA</text>
+      </svg>
+      <div>
+        <div class="uva-name">University View Academy</div>
+        <div class="uva-sub">Computer Architecture · Module 21</div>
+      </div>
+    </div>
+    <div style="text-align:right; color:rgba(255,255,255,0.8); font-size:0.78rem;">
+      CompTIA A+ Core 2<br>Domains 2.1, 2.9, 4.3, 4.6, 4.10
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+  <div class="header-title">
+    <h1>🔐 Data Security Operations Center</h1>
+    <p>Complete all missions to earn your Security Specialist certification</p>
+  </div>
+</div>
+
+<!-- RANK BAR -->
+<div class="rank-bar">
+  <div class="rank-display">
+    <div class="rank-badge"><span class="rank-icon" id="rank-icon">🎖️</span> <span id="rank-label">Trainee</span></div>
+    <div style="font-size:0.8rem; color:#888;">Rank Progress</div>
+  </div>
+  <div class="score-display">
+    <div class="score-box">
+      <div class="val" id="score-val">0</div>
+      <div class="lbl">Score</div>
+    </div>
+    <div class="score-box">
+      <div class="val" id="mission-val">0/5</div>
+      <div class="lbl">Missions</div>
+    </div>
+    <div class="streak-box" id="streak-box">🔥 0 Streak</div>
+  </div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span>Mission Progress</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-bar-bg">
+    <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen">
+    <div class="intro-icon">🛡️</div>
+    <div class="intro-title">Welcome, UVA Security Cadet!</div>
+    <div class="intro-desc">
+      You've been assigned to the <strong>UVA Data Security Operations Center</strong>. 
+      Complete 5 critical missions to protect sensitive data, master backup strategies, 
+      and earn your <strong>Security Specialist</strong> rank.
+    </div>
+    <div class="mission-list">
+      <div class="mission-list-item"><span class="mi">💾</span> Mission 1: Backup & Recovery Protocols</div>
+      <div class="mission-list-item"><span class="mi">🏷️</span> Mission 2: Classify Regulated Data (PII/PHI)</div>
+      <div class="mission-list-item"><span class="mi">🗑️</span> Mission 3: Data Destruction Methods</div>
+      <div class="mission-list-item"><span class="mi">🤖</span> Mission 4: AI Concepts — Bias & Hallucinations</div>
+      <div class="mission-list-item"><span class="mi">📜</span> Mission 5: Licensing & Acceptable Use Policies</div>
+    </div>
+    <button class="btn btn-green" onclick="startActivity()">🚀 Begin Missions</button>
+  </div>
+
+  <!-- MISSION 1: Backup & Recovery (Drag & Drop Ordering) -->
+  <div class="mission-card" id="mission-1">
+    <div class="mission-header">
+      <div class="mission-icon">💾</div>
+      <div class="mission-meta">
+        <div class="mission-tag">Mission 1 of 5 · Backup & Recovery</div>
+        <div class="mission-title">Operation: Restore Protocol</div>
+        <div class="mission-desc">A ransomware attack has hit UVA's network! You must arrange the correct backup recovery steps in order. Drag the steps into the correct sequence to restore operations.</div>
+      </div>
+    </div>
+
+    <div class="section-divider">Arrange Steps in Correct Order</div>
+
+    <div id="process-steps-container" class="process-steps">
+      <!-- Steps will be injected by JS -->
+    </div>
+
+    <div class="feedback-box" id="fb-m1"></div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+      <button class="btn" id="check-m1" onclick="checkMission1()">🔍 Verify Sequence</button>
+      <button class="btn btn-gold" id="next-m1" onclick="nextMission(2)" style="display:none">Next Mission →</button>
+    </div>
+  </div>
+
+  <!-- MISSION 2: Classify PII/PHI (Click to Classify) -->
+  <div class="mission-card" id="mission-2">
+    <div class="mission-header">
+      <div class="mission-icon">🏷️</div>
+      <div class="mission-meta">
+        <div class="mission-tag">Mission 2 of 5 · Data Classification</div>
+        <div class="mission-title">Operation: Data Triage</div>
+        <div class="mission-desc">UVA's database was breached. You must classify each data element as <strong>PII</strong> (Personally Identifiable Information), <strong>PHI</strong> (Protected Health Information), or <strong>General Data</strong> to determine breach notification requirements.</div>
+      </div>
+    </div>
+
+    <div class="classify-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#7b2ff7"></div> PII – Personally Identifiable</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> PHI – Protected Health Info</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> General Data</div>
+    </div>
+
+    <div class="section-divider">Click a data item, then click its category</div>
+
+    <div class="classify-items" id="classify-chips"></div>
+
+    <div class="classify-targets">
+      <div class="classify-target pii" onclick="setClassifyTarget('pii')">🔵 PII</div>
+      <div class="classify-target phi" onclick="setClassifyTarget('phi')">🔴 PHI</div>
+      <div class="classify-target general" onclick="setClassifyTarget('general')">🟢 General</div>
+    </div>
+
+    <div id="classify-score" style="font-size:0.88rem; color:#666; margin-bottom:8px;"></div>
+    <div class="feedback-box" id="fb-m2"></div>
+    <button class="btn btn-gold" id="next-m2" onclick="nextMission(3)" style="display:none">Next Mission →</button>
+  </div>
+
+  <!-- MISSION 3: Data Destruction Matching -->
+  <div class="mission-card" id="mission-3">
+    <div class="mission-header">
+      <div class="mission-icon">🗑️</div>
+      <div class="mission-meta">
+        <div class="mission-tag">Mission 3 of 5 · Data Destruction</div>
+        <div class="mission-title">Operation: Secure Disposal</div>
+        <div class="mission-desc">UVA is decommissioning old hardware. Match each storage media type to the correct data destruction method to ensure compliance with NIST 800-88 guidelines.</div>
+      </div>
+    </div>
+
+    <div class="section-divider">Match Media → Destruction Method</div>
+
+    <div class="match-grid" id="match-grid-m3"></div>
+
+    <div id="match-score-m3" style="font-size:0.88rem; color:#666; margin: 10px 0;"></div>
+    <div class="feedback-box" id="fb-m3"></div>
+    <button class="btn btn-gold" id="next-m3" onclick="nextMission(4)" style="display:none">Next Mission →</button>
+  </div>
+
+  <!-- MISSION 4: AI Concepts — Scenario Questions -->
+  <div class="mission-card" id="mission-4">
+    <div class="mission-header">
+      <div class="mission-icon">🤖</div>
+      <div class="mission-meta">
+        <div class="mission-tag">Mission 4 of 5 · Artificial Intelligence</div>
+        <div class="mission-title">Operation: AI Integrity Check</div>
+        <div class="mission-desc">UVA is evaluating AI tools for campus use. Answer scenario-based questions about AI bias and hallucinations to advise the administration.</div>
+      </div>
+    </div>
+
+    <div id="ai-questions-container"></div>
+
+    <div class="feedback-box" id="fb-m4"></div>
+    <button class="btn btn-gold" id="next-m4" onclick="nextMission(5)" style="display:none">Next Mission →</button>
+  </div>
+
+  <!-- MISSION 5: Licensing & AUP — Branching Scenario -->
+  <div class="mission-card" id="mission-5">
+    <div class="mission-header">
+      <div class="mission-icon">📜</div>
+      <div class="mission-meta">
+        <div class="mission-tag">Mission 5 of 5 · Licensing & AUP</div>
+        <div class="mission-title">Operation: Policy Enforcement</div>
+        <div class="mission-desc">As UVA's IT compliance officer, review each scenario and determine whether it violates the Acceptable Use Policy or licensing agreement.</div>
+      </div>
+    </div>
+
+    <div id="aup-questions-container"></div>
+
+    <div class="feedback-box" id="fb-m5"></div>
+    <button class="btn btn-green" id="finish-btn" onclick="showCompletion()" style="display:none">🏆 Complete All Missions!</button>
+  </div>
+
+  <!-- COMPLETION SCREEN -->
+  <div id="completion-screen">
+    <div class="completion-badge" id="completion-badge">🏆</div>
+    <div class="completion-title">Mission Complete, Cadet!</div>
+    <div class="completion-rank" id="completion-rank-text">You've earned the rank of: <strong>Security Specialist</strong></div>
+    <div class="completion-stats">
+      <div class="stat-box">
+        <div class="sv" id="final-score">0</div>
+        <div class="sl">Final Score</div>
+      </div>
+      <div class="stat-box">
+        <div class="sv" id="final-accuracy">0%</div>
+        <div class="sl">Accuracy</div>
+      </div>
+      <div class="stat-box">
+        <div class="sv" id="final-rank">🎖️</div>
+        <div class="sl">Final Rank</div>
+      </div>
+    </div>
+    <div style="background:white; border-radius:14px; padding:20px 24px; max-width:500px; margin:0 auto 24px; box-shadow:var(--shadow); text-align:left;">
+      <div style="font-weight:800; color:var(--blue); margin-bottom:12px; font-size:1rem;">📚 Key Takeaways — CompTIA A+ Core 2</div>
+      <ul style="font-size:0.88rem; line-height:1.8; color:#444; padding-left:18px;">
+        <li><strong>Domain 2.1:</strong> Backup schemes: Full, Incremental, Differential</li>
+        <li><strong>Domain 2.9:</strong> PII & PHI require strict data handling & breach notification</li>
+        <li><strong>Domain 4.3:</strong> NIST 800-88: Shredding, Degaussing, Overwriting, Incineration</li>
+        <li><strong>Domain 4.6:</strong> AI bias stems from training data; hallucinations are false outputs</li>
+        <li><strong>Domain 4.10:</strong> AUPs define acceptable use; licensing governs software rights</li>
+      </ul>
+    </div>
+    <button class="btn btn-green" onclick="restartActivity()">🔄 Restart Missions</button>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ===================== STATE =====================
+let score = 0;
+let streak = 0;
+let maxStreak = 0;
+let missionsCompleted = 0;
+let totalQuestions = 0;
+let correctAnswers = 0;
+const TOTAL_MISSIONS = 5;
+
+const RANKS = [
+  { min: 0,   label: 'Trainee',    icon: '🎖️' },
+  { min: 50,  label: 'Apprentice', icon: '🥉' },
+  { min: 120, label: 'Expert',     icon: '🥈' },
+  { min: 200, label: 'Master',     icon: '🥇' },
+];
+
+// ===================== RANK / SCORE =====================
+function updateRank() {
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (score >= r.min) rank = r; }
+  const prev = document.getElementById('rank-label').textContent;
+  document.getElementById('rank-label').textContent = rank.label;
+  document.getElementById('rank-icon').textContent = rank.icon;
+  if (rank.label !== prev && prev !== '') showToast(`🎉 Rank Up! You are now ${rank.icon} ${rank.label}!`, 'rank-up');
+}
+
+function addScore(pts) {
+  score += pts;
+  document.getElementById('score-val').textContent = score;
+  updateRank();
+}
+
+function updateStreak(correct) {
+  if (correct) {
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    if (streak >= 3) {
+      showToast(`🔥 ${streak} in a row! Incredible!`, 'streak');
+      launchConfetti(20);
+    }
+  } else {
+    streak = 0;
+  }
+  const sb = document.getElementById('streak-box');
+  sb.textContent = `🔥 ${streak} Streak`;
+  sb.classList.add('pulse');
+  setTimeout(() => sb.classList.remove('pulse'), 400);
+}
+
+function updateProgress() {
+  const pct = Math.round((missionsCompleted / TOTAL_MISSIONS) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('mission-val').textContent = missionsCompleted + '/' + TOTAL_MISSIONS;
+}
+
+// ===================== TOAST =====================
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti(count = 60) {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#e74c3c','#9b59b6','#3498db','#2ecc71'];
+  for (let i = 0; i < count; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (8 + Math.random() * 8) + 'px';
+    piece.style.height = (8 + Math.random() * 8) + 'px';
+    piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ===================== NAVIGATION =====================
+function startActivity() {
+  document.getElementById('intro-screen').style.display = 'none';
+  initMission1();
+  document.getElementById('mission-1').classList.add('active');
+}
+
+function nextMission(num) {
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('mission-' + i).classList.remove('active');
+  }
+  missionsCompleted = num - 1;
+  updateProgress();
+  if (num === 2) initMission2();
+  if (num === 3) initMission3();
+  if (num === 4) initMission4();
+  if (num === 5) initMission5();
+  document.getElementById('mission-' + num).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showCompletion() {
+  missionsCompleted = 5;
+  updateProgress();
+  for (let i = 1; i <= 5; i++) document.getElementById('mission-' + i).classList.remove('active');
+  const cs = document.getElementById('completion-screen');
+  cs.classList.add('show');
+  document.getElementById('final-score').textContent = score;
+  const acc = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0;
+  document.getElementById('final-accuracy').textContent = acc + '%';
+  let rank = RANKS[0];
+  for (const r of RANKS) { if (score >= r.min) rank = r; }
+  document.getElementById('final-rank').textContent = rank.icon;
+  document.getElementById('completion-rank-text').innerHTML = `You've earned the rank of: <strong>${rank.icon} ${rank.label}</strong>`;
+  launchConfetti(80);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartActivity() {
+  score = 0; streak = 0; maxStreak = 0; missionsCompleted = 0;
+  totalQuestions = 0; correctAnswers = 0;
+  document.getElementById('score-val').textContent = '0';
+  document.getElementById('streak-box').textContent = '🔥 0 Streak';
+  document.getElementById('rank-label').textContent = 'Trainee';
+  document.getElementById('rank-icon').textContent = '🎖️';
+  updateProgress();
+  document.getElementById('completion-screen').classList.remove('show');
+  document.getElementById('intro-screen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ===================== MISSION 1: BACKUP ORDERING =====================
+const backupSteps = [
+  { id: 'bs1', text: '🔍 Identify the scope of data loss and affected systems', correct: 1 },
+  { id: 'bs2', text: '📋 Locate the most recent verified backup (Full or Differential)', correct: 2 },
+  { id: 'bs3', text: '🔒 Isolate infected systems from the network', correct: 3 },
+  { id: 'bs4', text: '💿 Restore from Full backup first, then apply Incremental backups in order', correct: 4 },
+  { id: 'bs5', text: '✅ Verify data integrity and test restored systems before reconnecting', correct: 5 },
+];
+
+let m1Shuffled = [];
+let m1DragSrc = null;
+
+function initMission1() {
+  m1Shuffled = [...backupSteps].sort(() => Math.random() - 0.5);
+  const container = document.getElementById('process-steps-container');
+  container.innerHTML = '';
+  m1Shuffled.forEach((step, idx) => {
+    const el = document.createElement('div');
+    el.className = 'process-step';
+    el.draggable = true;
+    el.dataset.id = step.id;
+    el.innerHTML = `<div class="step-num">${idx + 1}</div><span>${step.text}</span>`;
+    el.addEventListener('dragstart', m1DragStart);
+    el.addEventListener('dragover', m1DragOver);
+    el.addEventListener('drop', m1Drop);
+    el.addEventListener('dragend', m1DragEnd);
+    container.appendChild(el);
+  });
+}
+
+function m1DragStart(e) {
+  m1DragSrc = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function m1DragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function m1Drop(e) {
+  e.preventDefault();
+  if (m1DragSrc !== this) {
+    const container = document.getElementById('process-steps-container');
+    const children = [...container.children];
+    const srcIdx = children.indexOf(m1DragSrc);
+    const tgtIdx = children.indexOf(this);
+    if (srcIdx < tgtIdx) container.insertBefore(m1DragSrc, this.nextSibling);
+    else container.insertBefore(m1DragSrc, this);
+    // Renumber
+    [...container.children].forEach((el, i) => { el.querySelector('.step-num').textContent = i + 1; });
+  }
+}
+function m1DragEnd() { this.classList.remove('dragging'); }
+
+function checkMission1() {
+  const container = document.getElementById('process-steps-container');
+  const children = [...container.children];
+  let allCorrect = true;
+  children.forEach((el, idx) => {
+    const step = backupSteps.find(s => s.id === el.dataset.id);
+    if (step.correct === idx + 1) {
+      el.classList.add('correct-pos');
+    } else {
+      allCorrect = false;
+    }
+  });
+  totalQuestions++;
+  const fb = document.getElementById('fb-m1');
+  if (allCorrect) {
+    correctAnswers++;
+    addScore(30);
+    updateStreak(true);
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = '<div class="fb-title">✅ Perfect Sequence! +30 pts</div>You correctly ordered the backup recovery protocol. Remember: <strong>Isolate → Identify → Locate Backup → Restore Full → Apply Incrementals → Verify</strong>. This follows NIST and CompTIA A+ Domain 2.1 best practices.';
+    document.getElementById('check-m1').disabled = true;
+    document.getElementById('next-m1').style.display = 'inline-flex';
+    launchConfetti(30);
+  } else {
+    updateStreak(false);
+    fb.className = 'feedback-box wrong show';
+    fb.innerHTML = '<div class="fb-title">❌ Not quite — try again!</div>Some steps are out of order. Hint: You must <strong>isolate the threat first</strong>, then identify scope, locate your backup, restore, and finally verify. Correct steps are highlighted in green.';
+    addScore(5);
+  }
+}
+
+// ===================== MISSION 2: CLASSIFY PII/PHI =====================
+const classifyData = [
+  { label: 'Social Security Number', correct: 'pii' },
+  { label: 'Patient Diagnosis Record', correct: 'phi' },
+  { label: 'School Mascot Name', correct: 'general' },
+  { label: 'Home Address', correct: 'pii' },
+  { label: 'Prescription Medication List', correct: 'phi' },
+  { label: 'Employee ID Number', correct: 'pii' },
+  { label: 'Cafeteria Menu', correct: 'general' },
+  { label: 'Medical Insurance ID', correct: 'phi' },
+  { label: 'Date of Birth', correct: 'pii' },
+  { label: 'School Calendar', correct: 'general' },
+];
+
+let classifySelected = null;
+let classifyTarget = null;
+let classifyResults = {};
+
+function initMission2() {
+  classifyResults = {};
+  classifySelected = null;
+  classifyTarget = null;
+  const container = document.getElementById('classify-chips');
+  container.innerHTML = '';
+  classifyData.forEach((item, idx) => {
+    const chip = document.createElement('div');
+    chip.className = 'classify-chip';
+    chip.textContent = item.label;
+    chip.dataset.idx = idx;
+    chip.onclick = () => selectClassifyChip(chip, idx);
+    container.appendChild(chip);
+  });
+  document.getElementById('classify-score').textContent = 'Classified: 0 / ' + classifyData.length;
+}
+
+function selectClassifyChip(chip, idx) {
+  if (chip.classList.contains('locked')) return;
+  document.querySelectorAll('.classify-chip').forEach(c => {
+    if (!c.classList.contains('locked')) c.classList.remove('selected-pii','selected-phi','selected-general');
+  });
+  classifySelected = { chip, idx };
+  chip.style.outline = '3px solid var(--gold)';
+  if (classifyTarget) applyClassify();
+}
+
+function setClassifyTarget(type) {
+  classifyTarget = type;
+  document.querySelectorAll('.classify-target').forEach(t => t.classList.remove('active-target'));
+  document.querySelector('.classify-target.' + type).classList.add('active-target');
+  if (classifySelected) applyClassify();
+}
+
+function applyClassify() {
+  const { chip, idx } = classifySelected;
+  const item = classifyData[idx];
+  chip.style.outline = '';
+  chip.classList.add('locked');
+  totalQuestions++;
+  if (classifyTarget === item.correct) {
+    correctAnswers++;
+    chip.classList.add('selected-' + classifyTarget);
+    addScore(10);
+    updateStreak(true);
+  } else {
+    chip.classList.add('selected-' + classifyTarget);
+    chip.style.textDecoration = 'line-through';
+    updateStreak(false);
+    // Show correct
+    setTimeout(() => {
+      chip.className = 'classify-chip locked selected-' + item.correct;
+      chip.style.textDecoration = '';
+    }, 800);
+  }
+  classifyResults[idx] = classifyTarget === item.correct;
+  classifySelected = null;
+  classifyTarget = null;
+  document.querySelectorAll('.classify-target').forEach(t => t.classList.remove('active-target'));
+
+  const done = Object.keys(classifyResults).length;
+  document.getElementById('classify-score').textContent = `Classified: ${done} / ${classifyData.length}`;
+
+  if (done === classifyData.length) {
+    const correct = Object.values(classifyResults).filter(Boolean).length;
+    const fb = document.getElementById('fb-m2');
+    if (correct >= 8) {
+      fb.className = 'feedback-box correct show';
+      fb.innerHTML = `<div class="fb-title">✅ Excellent Classification! ${correct}/${classifyData.length} correct</div><strong>PII</strong> includes SSN, address, DOB, employee ID — data that identifies a person. <strong>PHI</strong> includes medical records, prescriptions, insurance IDs — health data protected by HIPAA. This maps to CompTIA A+ Domain 2.9.`;
+      launchConfetti(25);
+    } else {
+      fb.className = 'feedback-box wrong show';
+      fb.innerHTML = `<div class="fb-title">⚠️ ${correct}/${classifyData.length} correct — Review needed</div>Remember: <strong>PHI</strong> is specifically health-related data (HIPAA). <strong>PII</strong> is any data that can identify a person. Items corrected to green above.`;
+    }
+    document.getElementById('next-m2').style.display = 'inline-flex';
+  }
+}
+
+// ===================== MISSION 3: DESTRUCTION MATCHING =====================
+const destructionPairs = [
+  { media: '💿 Optical Disc (CD/DVD)', method: '🔨 Physical Shredding' },
+  { media: '🖥️ HDD (Magnetic Drive)', method: '🧲 Degaussing' },
+  { media: '💾 SSD / Flash Drive', method: '🔥 Incineration / Shredding' },
+  { media: '📄 Paper Documents', method: '✂️ Cross-Cut Shredding' },
+  { media: '🖨️ Printer Hard Drive', method: '🔄 Secure Overwrite (NIST 800-88)' },
+  { media: '☁️ Cloud Storage', method: '🗑️ Cryptographic Erasure' },
+];
+
+let m3SelectedMedia = null;
+let m3SelectedMethod = null;
+let m3Matched = new Set();
+
+function initMission3() {
+  m3SelectedMedia = null;
+  m3SelectedMethod = null;
+  m3Matched = new Set();
+  const grid = document.getElementById('match-grid-m3');
+  grid.innerHTML = '';
+
+  const shuffledMethods = [...destructionPairs.map(p => p.method)].sort(() => Math.random() - 0.5);
+
+  destructionPairs.forEach((pair, idx) => {
+    const mediaEl = document.createElement('div');
+    mediaEl.className = 'match-item';
+    mediaEl.textContent = pair.media;
+    mediaEl.dataset.type = 'media';
+    mediaEl.dataset.idx = idx;
+    mediaEl.onclick = () => m3Select(mediaEl, 'media', idx);
+    grid.appendChild(mediaEl);
+
+    const methodEl = document.createElement('div');
+    methodEl.className = 'match-item';
+    methodEl.textContent = shuffledMethods[idx];
+    methodEl.dataset.type = 'method';
+    methodEl.dataset.val = shuffledMethods[idx];
+    methodEl.onclick = () => m3Select(methodEl, 'method', shuffledMethods[idx]);
+    grid.appendChild(methodEl);
+  });
+}
+
+function m3Select(el, type, val) {
+  if (el.classList.contains('matched-correct')) return;
+
+  if (type === 'media') {
+    document.querySelectorAll('.match-item[data-type="media"]').forEach(e => {
+      if (!e.classList.contains('matched-correct')) e.classList.remove('selected');
+    });
+    el.classList.add('selected');
+    m3SelectedMedia = { el, idx: parseInt(val) };
+  } else {
+    document.querySelectorAll('.match-item[data-type="method"]').forEach(e => {
+      if (!e.classList.contains('matched-correct')) e.classList.remove('selected');
+    });
+    el.classList.add('selected');
+    m3SelectedMethod = { el, val };
+  }
+
+  if (m3SelectedMedia && m3SelectedMethod) {
+    const correctMethod = destructionPairs[m3SelectedMedia.idx].method;
+    totalQuestions++;
+    if (m3SelectedMethod.val === correctMethod) {
+      correctAnswers++;
+      m3SelectedMedia.el.classList.remove('selected');
+      m3SelectedMethod.el.classList.remove('selected');
+      m3SelectedMedia.el.classList.add('matched-correct');
+      m3SelectedMethod.el.classList.add('matched-correct');
+      m3Matched.add(m3SelectedMedia.idx);
+      addScore(15);
+      updateStreak(true);
+    } else {
+      m3SelectedMedia.el.classList.add('matched-wrong');
+      m3SelectedMethod.el.classList.add('matched-wrong');
+      updateStreak(false);
+      setTimeout(() => {
+        m3SelectedMedia.el.classList.remove('selected','matched-wrong');
+        m3SelectedMethod.el.classList.remove('selected','matched-wrong');
+      }, 700);
+    }
+    m3SelectedMedia = null;
+    m3SelectedMethod = null;
+
+    const done = m3Matched.size;
+    document.getElementById('match-score-m3').textContent = `Matched: ${done} / ${destructionPairs.length}`;
+
+    if (done === destructionPairs.length) {
+      const fb = document.getElementById('fb-m3');
+      fb.className = 'feedback-box correct show';
+      fb.innerHTML = '<div class="fb-title">✅ All pairs matched! Outstanding work!</div>Key rule: <strong>HDDs → Degaussing</strong> (destroys magnetic fields). <strong>SSDs → Shredding/Incineration</strong> (degaussing doesn\'t work on flash). <strong>Cloud → Cryptographic Erasure</strong>. This follows <strong>NIST SP 800-88</strong> guidelines (CompTIA A+ Domain 4.3).';
+      document.getElementById('next-m3').style.display = 'inline-flex';
+      launchConfetti(30);
+    }
+  }
+}
+
+// ===================== MISSION 4: AI QUESTIONS =====================
+const aiQuestions = [
+  {
+    scenario: '🏫 UVA\'s new AI hiring tool consistently ranks male applicants higher than equally qualified female applicants. The training data came from 10 years of historical hiring records where 80% of hires were male.',
+    question: 'What AI problem does this represent?',
+    choices: ['AI Hallucination', 'Algorithmic Bias', 'Model Overfitting', 'Data Encryption Error'],
+    correct: 1,
+    explanation: '<strong>Algorithmic Bias</strong> occurs when AI training data reflects historical inequalities, causing the model to perpetuate discrimination. The fix involves auditing training data and using bias-mitigation techniques. (CompTIA A+ Domain 4.6)'
+  },
+  {
+    scenario: '📚 A student asks the school\'s AI chatbot: "Who won the 2024 UVA Science Fair?" The AI confidently responds with a student\'s name and project title — but that student never existed and the event never happened.',
+    question: 'What AI behavior is demonstrated here?',
+    choices: ['Bias', 'Hallucination', 'Overfitting', 'Data Poisoning'],
+    correct: 1,
+    explanation: '<strong>AI Hallucination</strong> is when a generative AI model produces confident but factually incorrect or fabricated information. Always verify AI outputs with authoritative sources. (CompTIA A+ Domain 4.6)'
+  },
+  {
+    scenario: '🔒 UVA wants to use an AI tool to help detect cybersecurity threats. The AI was trained only on data from small businesses, but UVA is a large institution with different network patterns.',
+    question: 'What is the PRIMARY concern with deploying this AI at UVA?',
+    choices: ['The AI will hallucinate threats', 'Training data bias may cause poor performance on UVA\'s network', 'The AI uses too much electricity', 'The AI cannot connect to the internet'],
+    correct: 1,
+    explanation: 'When AI training data doesn\'t match the deployment environment, <strong>bias from mismatched data</strong> causes poor real-world performance. The model learned patterns from small businesses that don\'t apply to UVA\'s infrastructure. (CompTIA A+ Domain 4.6)'
+  }
+];
+
+let m4Current = 0;
+let m4Score = 0;
+
+function initMission4() {
+  m4Current = 0;
+  m4Score = 0;
+  renderAIQuestion();
+}
+
+function renderAIQuestion() {
+  const container = document.getElementById('ai-questions-container');
+  if (m4Current >= aiQuestions.length) {
+    const fb = document.getElementById('fb-m4');
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `<div class="fb-title">✅ AI Module Complete! ${m4Score}/${aiQuestions.length} correct</div>You understand the critical differences between AI <strong>bias</strong> (systematic errors from training data) and <strong>hallucinations</strong> (fabricated confident outputs). These are key concerns for responsible AI deployment. (Domain 4.6)`;
+    document.getElementById('next-m4').style.display = 'inline-flex';
+    container.innerHTML = '';
+    return;
+  }
+  const q = aiQuestions[m4Current];
+  container.innerHTML = `
+    <div style="font-size:0.8rem; color:#888; margin-bottom:10px; font-weight:600;">Question ${m4Current + 1} of ${aiQuestions.length}</div>
+    <div class="scenario-box"><strong>Scenario:</strong> ${q.scenario}<br><br><strong>${q.question}</strong></div>
+    <div class="choices" id="ai-choices">
+      ${q.choices.map((c, i) => `
+        <button class="choice-btn" onclick="answerAI(${i})" id="ai-choice-${i}">
+          <div class="choice-letter">${String.fromCharCode(65+i)}</div>
+          <span>${c}</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="feedback-box" id="ai-fb-inline"></div>
+  `;
+}
+
+function answerAI(idx) {
+  const q = aiQuestions[m4Current];
+  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+  totalQuestions++;
+  const fb = document.getElementById('ai-fb-inline');
+  if (idx === q.correct) {
+    correctAnswers++;
+    m4Score++;
+    document.getElementById('ai-choice-' + idx).classList.add('correct');
+    addScore(20);
+    updateStreak(true);
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `<div class="fb-title">✅ Correct! +20 pts</div>${q.explanation}`;
+  } else {
+    document.getElementById('ai-choice-' + idx).classList.add('wrong');
+    document.getElementById('ai-choice-' + q.correct).classList.add('correct');
+    updateStreak(false);
+    fb.className = 'feedback-box wrong show';
+    fb.innerHTML = `<div class="fb-title">❌ Not quite</div>${q.explanation}`;
+  }
+  setTimeout(() => {
+    m4Current++;
+    renderAIQuestion();
+  }, 2200);
+}
+
+// ===================== MISSION 5: AUP QUESTIONS =====================
+const aupQuestions = [
+  {
+    scenario: '💻 A UVA student installs a single-user licensed copy of Adobe Photoshop on 3 school computers so their project group can all use it simultaneously.',
+    question: 'Does this violate a licensing agreement?',
+    choices: [
+      'No — educational institutions are exempt from licensing restrictions',
+      'Yes — a single-user license only permits installation on one device at a time',
+      'No — as long as only one person uses it at a time, it\'s fine',
+      'Yes — students are never allowed to install software on school computers'
+    ],
+    correct: 1,
+    explanation: '<strong>Single-user licenses</strong> restrict software to one device. Installing on multiple machines violates the End User License Agreement (EULA), even in educational settings. UVA would need a <strong>site license</strong> or <strong>volume license</strong> for multi-device use. (Domain 4.10)'
+  },
+  {
+    scenario: '📧 A UVA teacher uses their school-issued laptop to run a personal online tutoring business after hours, storing client payment information on the school\'s Google Drive.',
+    question: 'Which policy is MOST likely being violated?',
+    choices: [
+      'Copyright Law',
+      'FERPA Student Privacy Rules',
+      'Acceptable Use Policy (AUP)',
+      'HIPAA Health Privacy Rules'
+    ],
+    correct: 2,
+    explanation: 'The <strong>Acceptable Use Policy (AUP)</strong> governs how school-issued devices and resources may be used. Using school equipment for personal commercial activity and storing non-school data on school systems typically violates AUP. (Domain 4.10)'
+  },
+  {
+    scenario: '🔓 A UVA IT technician discovers that open-source software used on campus has a license requiring that any modifications be released publicly (GPL license). The school modified the software but kept the changes private.',
+    question: 'What type of license violation occurred?',
+    choices: [
+      'Freeware violation — freeware cannot be modified',
+      'GPL (Copyleft) violation — modifications must be open-sourced',
+      'Shareware violation — payment was not made',
+      'No violation — schools can modify any software freely'
+    ],
+    correct: 1,
+    explanation: 'The <strong>GNU General Public License (GPL)</strong> is a "copyleft" license requiring that any derivative works also be released under GPL. Keeping modifications private violates this license. This differs from <strong>MIT/BSD</strong> licenses which allow private modifications. (Domain 4.10)'
+  },
+  {
+    scenario: '🎮 During lunch, a student uses the school\'s Wi-Fi to download a pirated movie using a torrent client on their personal phone.',
+    question: 'Which TWO issues does this create? (Choose the BEST answer)',
+    choices: [
+      'Only a copyright violation — personal devices are not covered by AUP',
+      'AUP violation (school network misuse) AND copyright infringement',
+      'Only an AUP violation — copyright doesn\'t apply to streaming',
+      'No violation — personal devices on school Wi-Fi are not regulated'
+    ],
+    correct: 1,
+    explanation: 'Using school network resources for illegal downloads violates the <strong>AUP</strong> (network misuse). Downloading copyrighted content without authorization is also <strong>copyright infringement</strong> under the DMCA. Both apply regardless of device ownership. (Domain 4.10)'
+  }
+];
+
+let m5Current = 0;
+let m5Score = 0;
+
+function initMission5() {
+  m5Current = 0;
+  m5Score = 0;
+  renderAUPQuestion();
+}
+
+function renderAUPQuestion() {
+  const container = document.getElementById('aup-questions-container');
+  if (m5Current >= aupQuestions.length) {
+    const fb = document.getElementById('fb-m5');
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `<div class="fb-title">✅ Policy Module Complete! ${m5Score}/${aupQuestions.length} correct</div>You've mastered licensing types (EULA, GPL, Site License) and Acceptable Use Policies. These protect both users and institutions from legal liability. (Domain 4.10)`;
+    document.getElementById('finish-btn').style.display = 'inline-flex';
+    container.innerHTML = '';
+    return;
+  }
+  const q = aupQuestions[m5Current];
+  container.innerHTML = `
+    <div style="font-size:0.8rem; color:#888; margin-bottom:10px; font-weight:600;">Question ${m5Current + 1} of ${aupQuestions.length}</div>
+    <div class="scenario-box"><strong>Scenario:</strong> ${q.scenario}<br><br><strong>${q.question}</strong></div>
+    <div class="choices" id="aup-choices">
+      ${q.choices.map((c, i) => `
+        <button class="choice-btn" onclick="answerAUP(${i})" id="aup-choice-${i}">
+          <div class="choice-letter">${String.fromCharCode(65+i)}</div>
+          <span>${c}</span>
+        </button>
+      `).join('')}
+    </div>
+    <div class="feedback-box" id="aup-fb-inline"></div>
+  `;
+}
+
+function answerAUP(idx) {
+  const q = aupQuestions[m5Current];
+  document.querySelectorAll('#aup-choices .choice-btn').forEach(b => b.disabled = true);
+  totalQuestions++;
+  const fb = document.getElementById('aup-fb-inline');
+  if (idx === q.correct) {
+    correctAnswers++;
+    m5Score++;
+    document.getElementById('aup-choice-' + idx).classList.add('correct');
+    addScore(20);
+    updateStreak(true);
+    fb.className = 'feedback-box correct show';
+    fb.innerHTML = `<div class="fb-title">✅ Correct! +20 pts</div>${q.explanation}`;
+  } else {
+    document.getElementById('aup-choice-' + idx).classList.add('wrong');
+    document.getElementById('aup-choice-' + q.correct).classList.add('correct');
+    updateStreak(false);
+    fb.className = 'feedback-box wrong show';
+    fb.innerHTML = `<div class="fb-title">❌ Not quite</div>${q.explanation}`;
+  }
+  setTimeout(() => {
+    m5Current++;
+    renderAUPQuestion();
+  }, 2400);
+}
+</script>
+</body>
+</html>
