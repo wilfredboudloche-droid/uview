@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Slides Mastery | University View Academy</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #134080;
+    --uva-blue-light: #2a7fd4;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #28a052;
+    --gold: #F5C518;
+    --white: #ffffff;
+    --light-bg: #f0f4fb;
+    --card-bg: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #3a3a5c;
+    --border: #d0ddf0;
+    --success: #1E7A3E;
+    --error: #c0392b;
+    --streak-orange: #e67e22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--light-bg);
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--uva-blue) 0%, var(--uva-blue-dark) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .school-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .school-logo {
+    width: 52px; height: 52px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 18px; color: var(--uva-blue);
+    border: 3px solid var(--gold);
+    flex-shrink: 0;
+  }
+  .school-name { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+  .school-sub { font-size: 0.75rem; opacity: 0.85; }
+  .rank-display {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 12px;
+    padding: 8px 16px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .rank-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+  .rank-name { font-size: 1.1rem; font-weight: 800; color: var(--gold); }
+  .rank-icon { font-size: 1.4rem; }
+
+  /* MOTTO RIBBON */
+  .motto-ribbon {
+    background: var(--uva-green);
+    text-align: center;
+    padding: 7px 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: white;
+    position: relative;
+  }
+  .motto-ribbon::before, .motto-ribbon::after {
+    content: '✦';
+    margin: 0 12px;
+    color: var(--gold);
+  }
+
+  /* MISSION HEADER */
+  .mission-header {
+    padding: 14px 24px 18px;
+    text-align: center;
+  }
+  .mission-title { font-size: 1.5rem; font-weight: 900; letter-spacing: 1px; }
+  .mission-subtitle { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
+
+  /* SCORE BAR */
+  .score-bar {
+    background: white;
+    border-bottom: 3px solid var(--uva-blue);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .score-item {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 70px;
+  }
+  .score-val { font-size: 1.4rem; font-weight: 900; color: var(--uva-blue); }
+  .score-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-mid); }
+  .streak-badge {
+    background: var(--streak-orange);
+    color: white;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex; align-items: center; gap: 6px;
+    transition: all 0.3s;
+    min-width: 110px;
+    justify-content: center;
+  }
+  .streak-badge.hidden { opacity: 0; }
+  .progress-wrap { flex: 1; min-width: 120px; max-width: 220px; }
+  .progress-lbl { font-size: 0.65rem; color: var(--text-mid); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  .progress-bar { background: var(--border); border-radius: 10px; height: 10px; overflow: hidden; }
+  .progress-fill { background: linear-gradient(90deg, var(--uva-blue), var(--uva-green)); height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(27,94,175,0.1);
+    border: 2px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: none;
+    animation: slideIn 0.4s ease;
+  }
+  .mission-card.active { display: block; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .mission-card-header {
+    background: linear-gradient(135deg, var(--uva-blue) 0%, var(--uva-blue-light) 100%);
+    color: white;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .mission-num {
+    background: var(--gold);
+    color: var(--uva-blue-dark);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .mission-card-title { font-size: 1rem; font-weight: 700; }
+  .mission-card-type { font-size: 0.72rem; opacity: 0.8; margin-top: 2px; }
+  .mission-body { padding: 22px; }
+  .mission-scenario {
+    background: var(--light-bg);
+    border-left: 4px solid var(--uva-blue);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text-mid);
+  }
+  .mission-scenario strong { color: var(--uva-blue); }
+  .mission-question { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--text-dark); }
+
+  /* OPTIONS */
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--uva-blue);
+    background: #eef4ff;
+    transform: translateX(4px);
+  }
+  .option-btn.correct {
+    border-color: var(--success);
+    background: #e8f7ee;
+    color: var(--success);
+  }
+  .option-btn.incorrect {
+    border-color: var(--error);
+    background: #fdecea;
+    color: var(--error);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    background: var(--uva-blue);
+    color: white;
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-btn.correct .option-letter { background: var(--success); }
+  .option-btn.incorrect .option-letter { background: var(--error); }
+
+  /* DRAG AND DROP */
+  .dnd-container { display: flex; gap: 20px; flex-wrap: wrap; }
+  .dnd-items { flex: 1; min-width: 200px; }
+  .dnd-targets { flex: 1; min-width: 200px; }
+  .dnd-section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--uva-blue); margin-bottom: 10px; }
+  .drag-item {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    cursor: grab;
+    font-size: 0.85rem;
+    font-weight: 600;
+    user-select: none;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .drag-item:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(27,94,175,0.3); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drag-item.placed { display: none; }
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    min-height: 52px;
+    transition: all 0.2s;
+    background: var(--light-bg);
+    position: relative;
+  }
+  .drop-zone.drag-over { border-color: var(--uva-blue); background: #eef4ff; }
+  .drop-zone.correct { border-color: var(--success); background: #e8f7ee; }
+  .drop-zone.incorrect { border-color: var(--error); background: #fdecea; }
+  .drop-zone-label { font-size: 0.78rem; color: var(--text-mid); margin-bottom: 6px; font-weight: 600; }
+  .drop-zone-content { font-size: 0.82rem; color: var(--uva-blue); font-weight: 600; min-height: 20px; }
+  .drop-placeholder { color: #aaa; font-style: italic; font-size: 0.8rem; }
+
+  /* PROCESS STEPS */
+  .steps-container { display: flex; flex-direction: column; gap: 10px; }
+  .step-item {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: grab;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .step-item:hover { border-color: var(--uva-blue); box-shadow: 0 2px 8px rgba(27,94,175,0.15); }
+  .step-item.dragging { opacity: 0.4; }
+  .step-handle { color: #aaa; font-size: 1.2rem; cursor: grab; }
+  .step-num {
+    background: var(--uva-blue);
+    color: white;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .step-text { font-size: 0.88rem; line-height: 1.4; }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .feedback-box.correct { background: #e8f7ee; border: 2px solid var(--success); color: #145a2e; }
+  .feedback-box.incorrect { background: #fdecea; border: 2px solid var(--error); color: #7b1a1a; }
+  .feedback-icon { font-size: 1.2rem; margin-right: 8px; }
+
+  /* BUTTONS */
+  .btn {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(27,94,175,0.4); }
+  .btn-green {
+    background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light));
+    color: white;
+  }
+  .btn-green:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(30,122,62,0.4); }
+  .btn-check {
+    background: var(--gold);
+    color: var(--uva-blue-dark);
+  }
+  .btn-check:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(245,197,24,0.4); }
+  .btn-row { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+
+  /* INTRO SCREEN */
+  #intro-screen {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(27,94,175,0.1);
+    border: 2px solid var(--border);
+    padding: 36px 28px;
+    text-align: center;
+  }
+  .intro-icon { font-size: 4rem; margin-bottom: 16px; }
+  .intro-title { font-size: 1.6rem; font-weight: 900; color: var(--uva-blue); margin-bottom: 8px; }
+  .intro-desc { color: var(--text-mid); font-size: 0.95rem; line-height: 1.7; max-width: 560px; margin: 0 auto 24px; }
+  .mission-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 20px 0 28px;
+    text-align: left;
+  }
+  .mission-list-item {
+    background: var(--light-bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .mission-list-item .mi-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .mi-title { font-weight: 700; color: var(--uva-blue); font-size: 0.8rem; }
+  .mi-desc { color: var(--text-mid); font-size: 0.75rem; margin-top: 2px; }
+  .cert-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light));
+    color: white;
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+
+  /* RESULTS SCREEN */
+  #results-screen {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(27,94,175,0.1);
+    border: 2px solid var(--border);
+    padding: 36px 28px;
+    text-align: center;
+    display: none;
+  }
+  .results-rank {
+    font-size: 4rem;
+    margin-bottom: 10px;
+  }
+  .results-title { font-size: 1.8rem; font-weight: 900; color: var(--uva-blue); margin-bottom: 6px; }
+  .results-rank-name { font-size: 1.2rem; font-weight: 700; color: var(--gold); background: var(--uva-blue); display: inline-block; padding: 6px 20px; border-radius: 20px; margin-bottom: 16px; }
+  .results-score { font-size: 3rem; font-weight: 900; color: var(--uva-blue); }
+  .results-score-lbl { color: var(--text-mid); font-size: 0.9rem; margin-bottom: 20px; }
+  .results-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .rb-item {
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 14px;
+    border: 2px solid var(--border);
+  }
+  .rb-val { font-size: 1.5rem; font-weight: 900; color: var(--uva-blue); }
+  .rb-lbl { font-size: 0.72rem; color: var(--text-mid); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+  .achievement-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .ach-badge {
+    background: linear-gradient(135deg, var(--gold), #e6a800);
+    color: var(--uva-blue-dark);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* CONFETTI */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* STREAK POPUP */
+  .streak-popup {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    background: var(--streak-orange);
+    color: white;
+    border-radius: 20px;
+    padding: 12px 28px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    z-index: 1000;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .streak-popup.show { transform: translateX(-50%) scale(1); }
+
+  /* RANK UP POPUP */
+  .rankup-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-dark));
+    color: white;
+    border-radius: 20px;
+    padding: 30px 40px;
+    font-size: 1rem;
+    font-weight: 700;
+    z-index: 1001;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    text-align: center;
+    border: 3px solid var(--gold);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .rankup-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .rankup-popup .ru-icon { font-size: 3rem; margin-bottom: 10px; }
+  .rankup-popup .ru-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; }
+  .rankup-popup .ru-rank { font-size: 1.8rem; font-weight: 900; color: var(--gold); }
+
+  /* UI MOCKUP */
+  .ui-mockup {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .ui-toolbar {
+    background: white;
+    border-bottom: 1px solid #dee2e6;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ui-toolbar-btn {
+    background: #f1f3f4;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    cursor: default;
+    color: #3c4043;
+  }
+  .ui-toolbar-btn.highlighted {
+    background: #e8f0fe;
+    border-color: var(--uva-blue);
+    color: var(--uva-blue);
+    font-weight: 700;
+  }
+  .ui-slide-area {
+    background: #e8eaed;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .ui-slide-thumb {
+    background: white;
+    border: 2px solid #dadce0;
+    border-radius: 4px;
+    width: 80px;
+    height: 55px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: #aaa;
+  }
+  .ui-slide-main {
+    background: white;
+    border: 2px solid #dadce0;
+    border-radius: 4px;
+    flex: 1;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+    font-size: 0.8rem;
+  }
+
+  /* ORDERING ACTIVITY */
+  .order-list { list-style: none; }
+  .order-item {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+  }
+  .order-item:hover { border-color: var(--uva-blue); }
+  .order-item.drag-over-top { border-top: 3px solid var(--uva-blue); }
+  .order-item.drag-over-bottom { border-bottom: 3px solid var(--uva-blue); }
+  .order-handle { color: #bbb; font-size: 1.1rem; }
+  .order-text { font-size: 0.88rem; flex: 1; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-top { padding: 12px 14px 8px; }
+    .mission-body { padding: 16px; }
+    .dnd-container { flex-direction: column; }
+    .score-bar { padding: 8px 14px; }
+    .score-val { font-size: 1.1rem; }
+    .intro-title { font-size: 1.3rem; }
+    .results-score { font-size: 2.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="school-brand">
+      <div class="school-logo">UVA</div>
+      <div>
+        <div class="school-name">University View Academy</div>
+        <div class="school-sub">Computer Technology Literacy</div>
+      </div>
+    </div>
+    <div class="rank-display">
+      <div class="rank-icon" id="rank-icon">🎓</div>
+      <div class="rank-label">Current Rank</div>
+      <div class="rank-name" id="rank-name">Trainee</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">Virtue  ✦  Vigor  ✦  Vision</div>
+  <div class="mission-header">
+    <div class="mission-title">⚡ Google Slides Mastery: Mission Academy</div>
+    <div class="mission-subtitle">Google Workspace Certification Prep · 5 Missions · Earn Your Expert Badge</div>
+  </div>
+</div>
+
+<!-- SCORE BAR -->
+<div class="score-bar">
+  <div class="score-item">
+    <div class="score-val" id="score-display">0</div>
+    <div class="score-lbl">Score</div>
+  </div>
+  <div class="score-item">
+    <div class="score-val" id="mission-display">0/5</div>
+    <div class="score-lbl">Missions</div>
+  </div>
+  <div class="streak-badge" id="streak-badge">🔥 Streak: 0</div>
+  <div class="progress-wrap">
+    <div class="progress-lbl">Mission Progress</div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- STREAK POPUP -->
+<div class="streak-popup" id="streak-popup"></div>
+<!-- RANKUP POPUP -->
+<div class="rankup-popup" id="rankup-popup">
+  <div class="ru-icon">🏆</div>
+  <div class="ru-title">Rank Up!</div>
+  <div class="ru-rank" id="rankup-name"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen">
+    <div class="intro-icon">🖥️</div>
+    <div class="intro-title">Welcome, UVA Cadet!</div>
+    <div class="cert-badge">🏅 Google Workspace Certification Prep</div>
+    <div class="intro-desc">
+      You've been selected for <strong>Mission Academy: Google Slides Division</strong>. Complete all 5 missions to earn your <em>Digital Presentation Expert</em> badge and prepare for the Google Workspace Certification. Each mission tests real-world skills you'll use on the exam and in your career.
+    </div>
+    <div class="mission-list">
+      <div class="mission-list-item">
+        <div class="mi-icon">📁</div>
+        <div><div class="mi-title">Mission 1</div><div class="mi-desc">File Setup & Workflow Protocols</div></div>
+      </div>
+      <div class="mission-list-item">
+        <div class="mi-icon">🎨</div>
+        <div><div class="mi-title">Mission 2</div><div class="mi-desc">Themes, Layouts & Brand Consistency</div></div>
+      </div>
+      <div class="mission-list-item">
+        <div class="mi-icon">🖼️</div>
+        <div><div class="mi-title">Mission 3</div><div class="mi-desc">Multi-Modal Assets Integration</div></div>
+      </div>
+      <div class="mission-list-item">
+        <div class="mi-icon">✨</div>
+        <div><div class="mi-title">Mission 4</div><div class="mi-desc">Animations & Collaboration Security</div></div>
+      </div>
+      <div class="mission-list-item">
+        <div class="mi-icon">🎤</div>
+        <div><div class="mi-title">Mission 5</div><div class="mi-desc">Presenter View & Delivery</div></div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="startMissions()" style="font-size:1rem; padding:14px 36px;">
+      🚀 Begin Mission Academy
+    </button>
+  </div>
+
+  <!-- MISSION 1: Scenario / Multiple Choice -->
+  <div class="mission-card" id="mission-1">
+    <div class="mission-card-header">
+      <div class="mission-num">1</div>
+      <div>
+        <div class="mission-card-title">📁 Mission 1: File Setup & Professional Workflow</div>
+        <div class="mission-card-type">Clickable Scenario · Branching Decision</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>🎯 Scenario:</strong> You've just been assigned to create a professional presentation for UVA's annual Tech Showcase. You open Google Drive and need to set up your file correctly before building any slides. Your supervisor says: <em>"Make sure it's organized, named properly, and shared with the team before you start designing."</em>
+      </div>
+      <div class="mission-question">What is the CORRECT professional workflow sequence for starting a new Google Slides presentation in Google Drive?</div>
+      <div class="options-grid" id="m1-options">
+        <button class="option-btn" onclick="checkM1(this, false)">
+          <span class="option-letter">A</span>
+          <span>Open Google Slides directly → Start designing → Name the file later → Share when done</span>
+        </button>
+        <button class="option-btn" onclick="checkM1(this, true)">
+          <span class="option-letter">B</span>
+          <span>Navigate to Google Drive → Click "+ New" → Select "Google Slides" → Name the file immediately → Move to correct folder → Share with collaborators via "Share" button</span>
+        </button>
+        <button class="option-btn" onclick="checkM1(this, false)">
+          <span class="option-letter">C</span>
+          <span>Download PowerPoint → Convert to Slides → Upload to Drive → Share via email attachment</span>
+        </button>
+        <button class="option-btn" onclick="checkM1(this, false)">
+          <span class="option-letter">D</span>
+          <span>Create the file in any folder → Design all slides → Rename to "Final_v2" → Email the link</span>
+        </button>
+      </div>
+      <div class="feedback-box" id="m1-feedback"></div>
+      <div class="btn-row" id="m1-next" style="display:none;">
+        <button class="btn btn-green" onclick="nextMission(2)">Next Mission ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 2: Drag and Drop -->
+  <div class="mission-card" id="mission-2">
+    <div class="mission-card-header">
+      <div class="mission-num">2</div>
+      <div>
+        <div class="mission-card-title">🎨 Mission 2: Themes, Layouts & Brand Consistency</div>
+        <div class="mission-card-type">Drag-and-Drop Matching · UI Accuracy Challenge</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>🎯 Scenario:</strong> Your UVA Tech Showcase presentation needs to follow brand guidelines. You must apply the correct Google Slides tools to maintain visual consistency across all 12 slides. Match each Google Slides feature to its correct purpose.
+      </div>
+      <div class="mission-question">Drag each Google Slides feature to its correct function:</div>
+
+      <div class="dnd-container">
+        <div class="dnd-items">
+          <div class="dnd-section-title">📦 Features (Drag These)</div>
+          <div class="drag-item" draggable="true" data-id="theme" id="drag-theme">🎨 Theme</div>
+          <div class="drag-item" draggable="true" data-id="layout" id="drag-layout">📐 Slide Layout</div>
+          <div class="drag-item" draggable="true" data-id="master" id="drag-master">👑 Slide Master</div>
+          <div class="drag-item" draggable="true" data-id="transition" id="drag-transition">✨ Transition</div>
+        </div>
+        <div class="dnd-targets">
+          <div class="dnd-section-title">🎯 Functions (Drop Here)</div>
+          <div class="drop-zone" data-accept="master" id="drop-master">
+            <div class="drop-zone-label">Controls fonts, colors & logos across ALL slides globally</div>
+            <div class="drop-zone-content"><span class="drop-placeholder">Drop feature here...</span></div>
+          </div>
+          <div class="drop-zone" data-accept="theme" id="drop-theme">
+            <div class="drop-zone-label">Applies a pre-designed color palette & font set to the presentation</div>
+            <div class="drop-zone-content"><span class="drop-placeholder">Drop feature here...</span></div>
+          </div>
+          <div class="drop-zone" data-accept="layout" id="drop-layout">
+            <div class="drop-zone-label">Determines the arrangement of placeholders on a single slide</div>
+            <div class="drop-zone-content"><span class="drop-placeholder">Drop feature here...</span></div>
+          </div>
+          <div class="drop-zone" data-accept="transition" id="drop-transition">
+            <div class="drop-zone-label">Adds animated movement between slides during presentation</div>
+            <div class="drop-zone-content"><span class="drop-placeholder">Drop feature here...</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="feedback-box" id="m2-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-check" onclick="checkM2()">✅ Check Matches</button>
+        <button class="btn btn-primary" onclick="resetM2()">🔄 Reset</button>
+      </div>
+      <div class="btn-row" id="m2-next" style="display:none;">
+        <button class="btn btn-green" onclick="nextMission(3)">Next Mission ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 3: Multiple Choice with UI Mockup -->
+  <div class="mission-card" id="mission-3">
+    <div class="mission-card-header">
+      <div class="mission-num">3</div>
+      <div>
+        <div class="mission-card-title">🖼️ Mission 3: Multi-Modal Asset Integration</div>
+        <div class="mission-card-type">Scenario Decision · Real UI Context</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>🎯 Scenario:</strong> You need to embed a YouTube video into slide 5 of your UVA Tech Showcase. A classmate says "just paste the YouTube link into a text box." Your supervisor wants it to play directly inside the slide during the presentation without leaving Google Slides.
+      </div>
+
+      <div class="ui-mockup">
+        <div class="ui-toolbar">
+          <span style="font-size:0.75rem; color:#5f6368; font-weight:600;">Insert</span>
+          <div class="ui-toolbar-btn">Image ▾</div>
+          <div class="ui-toolbar-btn highlighted">Video ▾</div>
+          <div class="ui-toolbar-btn">Audio ▾</div>
+          <div class="ui-toolbar-btn">Table</div>
+          <div class="ui-toolbar-btn">Chart</div>
+          <div class="ui-toolbar-btn">Link</div>
+        </div>
+        <div class="ui-slide-area">
+          <div class="ui-slide-thumb">Slide 5</div>
+          <div class="ui-slide-main">▶ Video placeholder area</div>
+        </div>
+      </div>
+
+      <div class="mission-question">Which is the CORRECT method to embed a YouTube video so it plays inside Google Slides?</div>
+      <div class="options-grid" id="m3-options">
+        <button class="option-btn" onclick="checkM3(this, false)">
+          <span class="option-letter">A</span>
+          <span>Paste the YouTube URL into a text box on the slide</span>
+        </button>
+        <button class="option-btn" onclick="checkM3(this, false)">
+          <span class="option-letter">B</span>
+          <span>Download the video as MP4, then drag it onto the slide</span>
+        </button>
+        <button class="option-btn" onclick="checkM3(this, true)">
+          <span class="option-letter">C</span>
+          <span>Click Insert → Video → Search YouTube or paste URL → Select video → Click "Select" to embed it as a playable object on the slide</span>
+        </button>
+        <button class="option-btn" onclick="checkM3(this, false)">
+          <span class="option-letter">D</span>
+          <span>Insert a hyperlink button that opens YouTube in a new browser tab during the presentation</span>
+        </button>
+      </div>
+      <div class="feedback-box" id="m3-feedback"></div>
+      <div class="btn-row" id="m3-next" style="display:none;">
+        <button class="btn btn-green" onclick="nextMission(4)">Next Mission ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 4: Step Ordering -->
+  <div class="mission-card" id="mission-4">
+    <div class="mission-card-header">
+      <div class="mission-num">4</div>
+      <div>
+        <div class="mission-card-title">✨ Mission 4: Animations & Collaboration Security</div>
+        <div class="mission-card-type">Process Ordering · Drag to Sequence</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>🎯 Scenario:</strong> Your presentation is almost ready. Now you need to: (1) set up slide animations, and (2) configure sharing permissions so teammates can edit but external viewers can only view. Arrange the steps in the correct order.
+      </div>
+      <div class="mission-question">Drag to arrange these steps in the CORRECT order for setting sharing permissions in Google Slides:</div>
+
+      <ul class="order-list" id="order-list">
+        <li class="order-item" draggable="true" data-correct="3" data-id="step-a">
+          <span class="order-handle">⠿</span>
+          <span class="step-num" id="sn-a">?</span>
+          <span class="order-text">Choose "Restricted" or enter specific email addresses for collaborators</span>
+        </li>
+        <li class="order-item" draggable="true" data-correct="4" data-id="step-b">
+          <span class="order-handle">⠿</span>
+          <span class="step-num" id="sn-b">?</span>
+          <span class="order-text">Set each person's role: "Editor," "Commenter," or "Viewer"</span>
+        </li>
+        <li class="order-item" draggable="true" data-correct="1" data-id="step-c">
+          <span class="order-handle">⠿</span>
+          <span class="step-num" id="sn-c">?</span>
+          <span class="order-text">Click the blue "Share" button in the top-right corner of Google Slides</span>
+        </li>
+        <li class="order-item" draggable="true" data-correct="5" data-id="step-d">
+          <span class="order-handle">⠿</span>
+          <span class="step-num" id="sn-d">?</span>
+          <span class="order-text">Click "Done" or "Send" to apply the sharing settings</span>
+        </li>
+        <li class="order-item" draggable="true" data-correct="2" data-id="step-e">
+          <span class="order-handle">⠿</span>
+          <span class="step-num" id="sn-e">?</span>
+          <span class="order-text">In the Share dialog, click "Change to anyone with the link" or keep restricted</span>
+        </li>
+      </ul>
+
+      <div class="feedback-box" id="m4-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-check" onclick="checkM4()">✅ Check Order</button>
+        <button class="btn btn-primary" onclick="shuffleM4()">🔀 Shuffle</button>
+      </div>
+      <div class="btn-row" id="m4-next" style="display:none;">
+        <button class="btn btn-green" onclick="nextMission(5)">Next Mission ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 5: Multiple Choice -->
+  <div class="mission-card" id="mission-5">
+    <div class="mission-card-header">
+      <div class="mission-num">5</div>
+      <div>
+        <div class="mission-card-title">🎤 Mission 5: Presenter View & High-Performance Delivery</div>
+        <div class="mission-card-type">Scenario Decision · Certification Challenge</div>
+      </div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>🎯 Scenario:</strong> It's presentation day at the UVA Tech Showcase. You're connected to a projector. You want the audience to see only the slides, while YOU see your speaker notes, a timer, and the upcoming slide — all on your laptop screen. Suddenly, slide 7 won't advance. What do you do?
+      </div>
+      <div class="mission-question">Which combination of actions correctly describes using Presenter View AND troubleshooting a frozen slide?</div>
+      <div class="options-grid" id="m5-options">
+        <button class="option-btn" onclick="checkM5(this, false)">
+          <span class="option-letter">A</span>
+          <span>Click "Present" → Use arrow keys to advance → If frozen, close the tab and reopen the file</span>
+        </button>
+        <button class="option-btn" onclick="checkM5(this, false)">
+          <span class="option-letter">B</span>
+          <span>Click "Present" → Presenter View opens automatically on all screens → Use the mouse to click slides</span>
+        </button>
+        <button class="option-btn" onclick="checkM5(this, true)">
+          <span class="option-letter">C</span>
+          <span>Click the dropdown arrow next to "Slideshow" → Select "Presenter View" → Your laptop shows notes + timer + next slide; projector shows slides only → If frozen: press Escape, check internet connection, then re-enter Presenter View from the same slide</span>
+        </button>
+        <button class="option-btn" onclick="checkM5(this, false)">
+          <span class="option-letter">D</span>
+          <span>Use "Present" mode → Switch to PowerPoint for reliability → Use F5 to start the slideshow</span>
+        </button>
+      </div>
+      <div class="feedback-box" id="m5-feedback"></div>
+      <div class="btn-row" id="m5-next" style="display:none;">
+        <button class="btn btn-green" onclick="showResults()">🏆 View Final Results</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen">
+    <div class="results-rank" id="results-icon">🏆</div>
+    <div class="results-title">Mission Academy Complete!</div>
+    <div class="results-rank-name" id="results-rank-name">Expert</div>
+    <div class="results-score" id="results-score">0</div>
+    <div class="results-score-lbl">Total Points Earned</div>
+    <div class="results-breakdown">
+      <div class="rb-item"><div class="rb-val" id="rb-correct">0</div><div class="rb-lbl">Correct</div></div>
+      <div class="rb-item"><div class="rb-val" id="rb-missions">5</div><div class="rb-lbl">Missions</div></div>
+      <div class="rb-item"><div class="rb-val" id="rb-streak">0</div><div class="rb-lbl">Best Streak</div></div>
+      <div class="rb-item"><div class="rb-val" id="rb-pct">0%</div><div class="rb-lbl">Accuracy</div></div>
+    </div>
+    <div class="achievement-badges" id="achievement-badges"></div>
+    <div style="background:var(--light-bg); border-radius:12px; padding:16px; margin:16px 0; font-size:0.88rem; color:var(--text-mid); line-height:1.7;">
+      <strong style="color:var(--uva-blue);">📋 Google Workspace Certification Tip:</strong><br>
+      The skills tested in this Mission Academy directly align with the <em>Google Workspace Certification: Professional Collaboration and Design</em> exam. Focus on: file organization in Drive, Slide Master usage, Insert menu options, sharing permissions, and Presenter View navigation.
+    </div>
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:8px;">
+      <button class="btn btn-primary" onclick="restartActivity()">🔄 Restart Academy</button>
+      <button class="btn btn-green" onclick="printCert()">🏅 Print Certificate</button>
+    </div>
+    <div style="margin-top:20px; font-size:0.75rem; color:#aaa;">University View Academy · Computer Technology Literacy · Virtue, Vigor, Vision</div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let correctCount = 0;
+let currentMission = 0;
+let missionAnswered = [false, false, false, false, false];
+let rankThresholds = [
+  { name: 'Trainee', icon: '🎓', min: 0 },
+  { name: 'Apprentice', icon: '⭐', min: 1 },
+  { name: 'Expert', icon: '🏅', min: 3 },
+  { name: 'Master', icon: '🏆', min: 5 }
+];
+let currentRankIdx = 0;
+
+// DnD state
+let draggedItem = null;
+let m2Checked = false;
+
+// Order state
+let draggedOrder = null;
+let dragOverOrder = null;
+
+// ============================================================
+// INIT
+// ============================================================
+function startMissions() {
+  document.getElementById('intro-screen').style.display = 'none';
+  showMission(1);
+  updateScoreBar();
+}
+
+function showMission(n) {
+  currentMission = n;
+  document.getElementById('mission-' + n).classList.add('active');
+  updateProgress(n);
+  document.getElementById('mission-display').textContent = (n-1) + '/5';
+}
+
+function nextMission(n) {
+  document.getElementById('mission-' + (n-1)).classList.remove('active');
+  showMission(n);
+  document.getElementById('mission-display').textContent = (n-1) + '/5';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress(n) {
+  const pct = ((n - 1) / 5) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+// ============================================================
+// SCORE & RANK
+// ============================================================
+function addScore(pts, correct) {
+  if (correct) {
+    score += pts;
+    streak++;
+    correctCount++;
+    if (streak > bestStreak) bestStreak = streak;
+    checkStreak();
+  } else {
+    streak = 0;
+  }
+  updateScoreBar();
+  checkRankUp();
+}
+
+function updateScoreBar() {
+  document.getElementById('score-display').textContent = score;
+  const sb = document.getElementById('streak-badge');
+  sb.textContent = '🔥 Streak: ' + streak;
+  sb.classList.toggle('hidden', streak === 0);
+  const rank = getCurrentRank();
+  document.getElementById('rank-name').textContent = rank.name;
+  document.getElementById('rank-icon').textContent = rank.icon;
+}
+
+function getCurrentRank() {
+  let rank = rankThresholds[0];
+  for (let r of rankThresholds) {
+    if (correctCount >= r.min) rank = r;
+  }
+  return rank;
+}
+
+function checkRankUp() {
+  const rank = getCurrentRank();
+  const newIdx = rankThresholds.indexOf(rank);
+  if (newIdx > currentRankIdx) {
+    currentRankIdx = newIdx;
+    showRankUp(rank);
+  }
+}
+
+function checkStreak() {
+  if (streak === 3 || streak === 5) {
+    showStreakPopup('🔥 ' + streak + ' in a row! Incredible!');
+    if (streak === 3) launchConfetti(30);
+    if (streak === 5) launchConfetti(60);
+  }
+}
+
+function showStreakPopup(msg) {
+  const el = document.getElementById('streak-popup');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+function showRankUp(rank) {
+  const el = document.getElementById('rankup-popup');
+  document.getElementById('rankup-name').textContent = rank.icon + ' ' + rank.name;
+  el.classList.add('show');
+  launchConfetti(40);
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ============================================================
+// CONFETTI
+// ============================================================
+function launchConfetti(count) {
+  const colors = ['#1B5EAF','#1E7A3E','#F5C518','#e74c3c','#9b59b6','#2ecc71','#e67e22'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = '-20px';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.width = (8 + Math.random() * 8) + 'px';
+      el.style.height = (8 + Math.random() * 8) + 'px';
+      el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      el.style.animationDelay = (Math.random() * 0.5) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 30);
+  }
+}
+
+// ============================================================
+// MISSION 1
+// ============================================================
+function checkM1(btn, correct) {
+  if (missionAnswered[0]) return;
+  missionAnswered[0] = true;
+  const opts = document.querySelectorAll('#m1-options .option-btn');
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('m1-feedback');
+  if (correct) {
+    btn.classList.add('correct');
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Excellent work, Cadet!</strong> The correct workflow is: Drive → "+ New" → Google Slides → Name immediately → Organize in folder → Share. This professional protocol ensures version control, proper organization, and real-time collaboration from the start — all key Google Workspace Certification skills.';
+    addScore(200, true);
+    launchConfetti(20);
+  } else {
+    btn.classList.add('incorrect');
+    // highlight correct
+    opts[1].classList.add('correct');
+    fb.className = 'feedback-box incorrect';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Not quite.</strong> The correct answer is B. Always start in Google Drive, name your file immediately (avoid "Untitled Presentation"), organize it in the right folder, and share with collaborators before designing. This prevents lost work and version confusion.';
+    addScore(0, false);
+  }
+  fb.style.display = 'block';
+  document.getElementById('m1-next').style.display = 'flex';
+}
+
+// ============================================================
+// MISSION 2 — DRAG AND DROP
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  setupDragDrop();
+  setupOrderDrag();
+});
+
+function setupDragDrop() {
+  document.querySelectorAll('.drag-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      draggedItem = item;
+      setTimeout(() => item.classList.add('dragging'), 0);
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      draggedItem = null;
+    });
+  });
+
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!draggedItem || m2Checked) return;
+      // Remove from previous zone if any
+      document.querySelectorAll('.drop-zone').forEach(z => {
+        const content = z.querySelector('.drop-zone-content');
+        if (content.dataset.placed === draggedItem.dataset.id) {
+          content.innerHTML = '<span class="drop-placeholder">Drop feature here...</span>';
+          delete content.dataset.placed;
+          // Show drag item again
+          document.getElementById('drag-' + draggedItem.dataset.id).classList.remove('placed');
+        }
+      });
+      const content = zone.querySelector('.drop-zone-content');
+      // If zone already has something, swap back
+      if (content.dataset.placed) {
+        const prevId = content.dataset.placed;
+        document.getElementById('drag-' + prevId).classList.remove('placed');
+      }
+      content.innerHTML = draggedItem.textContent;
+      content.dataset.placed = draggedItem.dataset.id;
+      draggedItem.classList.add('placed');
+    });
+  });
+}
+
+function checkM2() {
+  if (m2Checked) return;
+  let allCorrect = true;
+  let allFilled = true;
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    const content = zone.querySelector('.drop-zone-content');
+    if (!content.dataset.placed) { allFilled = false; return; }
+    if (content.dataset.placed === zone.dataset.accept) {
+      zone.classList.add('correct');
+    } else {
+      zone.classList.add('incorrect');
+      allCorrect = false;
+    }
+  });
+  if (!allFilled) {
+    const fb = document.getElementById('m2-feedback');
+    fb.className = 'feedback-box incorrect';
+    fb.innerHTML = '<span class="feedback-icon">⚠️</span>Please fill all drop zones before checking!';
+    fb.style.display = 'block';
+    return;
+  }
+  m2Checked = true;
+  missionAnswered[1] = true;
+  const fb = document.getElementById('m2-feedback');
+  if (allCorrect) {
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Perfect matching, Cadet!</strong> Slide Master = global control; Theme = color/font palette; Slide Layout = single slide arrangement; Transition = between-slide animation. Mastering these distinctions is essential for the Google Workspace Certification exam!';
+    addScore(200, true);
+    launchConfetti(25);
+  } else {
+    fb.className = 'feedback-box incorrect';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Some matches were incorrect.</strong> Remember: <strong>Slide Master</strong> controls ALL slides globally (View → Slide Master). <strong>Theme</strong> applies a color/font palette. <strong>Slide Layout</strong> sets placeholder positions on ONE slide. <strong>Transition</strong> animates movement between slides.';
+    addScore(0, false);
+  }
+  fb.style.display = 'block';
+  document.getElementById('m2-next').style.display = 'flex';
+}
+
+function resetM2() {
+  if (m2Checked) return;
+  document.querySelectorAll('.drag-item').forEach(i => i.classList.remove('placed'));
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.classList.remove('correct', 'incorrect', 'drag-over');
+    const c = z.querySelector('.drop-zone-content');
+    c.innerHTML = '<span class="drop-placeholder">Drop feature here...</span>';
+    delete c.dataset.placed;
+  });
+  document.getElementById('m2-feedback').style.display = 'none';
+}
+
+// ============================================================
+// MISSION 3
+// ============================================================
+function checkM3(btn, correct) {
+  if (missionAnswered[2]) return;
+  missionAnswered[2] = true;
+  const opts = document.querySelectorAll('#m3-options .option-btn');
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('m3-feedback');
+  if (correct) {
+    btn.classList.add('correct');
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Spot on!</strong> Insert → Video is the only way to embed a video as a playable object directly on the slide. You can search YouTube, paste a URL, or use Google Drive. The video plays inside Slides without opening a browser tab — critical for professional presentations!';
+    addScore(200, true);
+    launchConfetti(20);
+  } else {
+    btn.classList.add('incorrect');
+    opts[2].classList.add('correct');
+    fb.className = 'feedback-box incorrect';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Incorrect.</strong> The correct method is C: Insert → Video. Pasting a URL in a text box just creates a clickable link (not embedded). Downloading MP4 files may violate copyright and won\'t always work. Always use the Insert menu for media embedding in Google Slides.';
+    addScore(0, false);
+  }
+  fb.style.display = 'block';
+  document.getElementById('m3-next').style.display = 'flex';
+}
+
+// ============================================================
+// MISSION 4 — ORDERING
+// ============================================================
+function setupOrderDrag() {
+  const list = document.getElementById('order-list');
+  let dragSrc = null;
+
+  list.querySelectorAll('.order-item').forEach(item => {
+    item.addEventListener('dragstart', e => {
+      dragSrc = item;
+      setTimeout(() => item.classList.add('dragging'), 0);
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      list.querySelectorAll('.order-item').forEach(i => {
+        i.classList.remove('drag-over-top', 'drag-over-bottom');
+      });
+      dragSrc = null;
+      updateOrderNumbers();
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!dragSrc || dragSrc === item) return;
+      const rect = item.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+      if (e.clientY < mid) item.classList.add('drag-over-top');
+      else item.classList.add('drag-over-bottom');
+    });
+    item.addEventListener('dragleave', () => {
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+    });
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!dragSrc || dragSrc === item) return;
+      const rect = item.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) {
+        list.insertBefore(dragSrc, item);
+      } else {
+        list.insertBefore(dragSrc, item.nextSibling);
+      }
+      item.classList.remove('drag-over-top', 'drag-over-bottom');
+      updateOrderNumbers();
+    });
+  });
+  updateOrderNumbers();
+}
+
+function updateOrderNumbers() {
+  const items = document.querySelectorAll('#order-list .order-item');
+  items.forEach((item, idx) => {
+    const id = item.dataset.id;
+    const letter = id.replace('step-', '').toUpperCase();
+    item.querySelector('.step-num').textContent = idx + 1;
+  });
+}
+
+function checkM4() {
+  if (missionAnswered[3]) return;
+  const items = document.querySelectorAll('#order-list .order-item');
+  const correctOrder = ['step-c', 'step-e', 'step-a', 'step-b', 'step-d'];
+  let allCorrect = true;
+  items.forEach((item, idx) => {
+    if (item.dataset.id !== correctOrder[idx]) allCorrect = false;
+  });
+  missionAnswered[3] = true;
+  const fb = document.getElementById('m4-feedback');
+  if (allCorrect) {
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Perfect sequence!</strong> The correct order is: (1) Click Share → (2) Set link access → (3) Enter emails/restrict → (4) Set roles (Editor/Commenter/Viewer) → (5) Click Done. This workflow ensures proper collaboration security — a key Google Workspace Certification topic!';
+    addScore(200, true);
+    launchConfetti(25);
+  } else {
+    fb.className = 'feedback-box incorrect';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Not quite right.</strong> Correct order: (1) Click "Share" button → (2) Set link access level → (3) Add specific emails → (4) Assign roles: Editor/Commenter/Viewer → (5) Click "Done." Remember: always set the most restrictive access first, then grant specific permissions.';
+    addScore(0, false);
+  }
+  fb.style.display = 'block';
+  document.getElementById('m4-next').style.display = 'flex';
+  document.querySelectorAll('#order-list .order-item').forEach(i => i.setAttribute('draggable', 'false'));
+}
+
+function shuffleM4() {
+  if (missionAnswered[3]) return;
+  const list = document.getElementById('order-list');
+  const items = Array.from(list.querySelectorAll('.order-item'));
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    list.appendChild(items[j]);
+    items.splice(j, 1);
+    items.splice(i, 0, items[j] || items[i]);
+  }
+  // Simple shuffle
+  for (let i = items.length - 1; i > 0; i--) {
+    list.appendChild(items[Math.floor(Math.random() * (i + 1))]);
+  }
+  updateOrderNumbers();
+}
+
+// ============================================================
+// MISSION 5
+// ============================================================
+function checkM5(btn, correct) {
+  if (missionAnswered[4]) return;
+  missionAnswered[4] = true;
+  const opts = document.querySelectorAll('#m5-options .option-btn');
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('m5-feedback');
+  if (correct) {
+    btn.classList.add('correct');
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Outstanding, Cadet!</strong> Presenter View is accessed via the dropdown arrow next to "Slideshow" — NOT the main button. It gives you notes, timer, and next-slide preview privately. For troubleshooting: Escape → check connection → re-enter from the same slide. You\'re ready for the Google Workspace Certification!';
+    addScore(200, true);
+    launchConfetti(50);
+  } else {
+    btn.classList.add('incorrect');
+    opts[2].classList.add('correct');
+    fb.className = 'feedback-box incorrect';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Not quite.</strong> The correct answer is C. Presenter View requires clicking the <strong>dropdown arrow (▾) next to "Slideshow"</strong> — not the main Slideshow button. The main button just starts a regular presentation. Presenter View is a separate, powerful mode for professional delivery.';
+    addScore(0, false);
+  }
+  fb.style.display = 'block';
+  document.getElementById('m5-next').style.display = 'flex';
+}
+
+// ============================================================
+// RESULTS
+// ============================================================
+function showResults() {
+  document.getElementById('mission-5').classList.remove('active');
+  document.getElementById('results-screen').style.display = 'block';
+  document.getElementById('mission-display').textContent = '5/5';
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const rank = getCurrentRank();
+  document.getElementById('results-icon').textContent = rank.icon;
+  document.getElementById('results-rank-name').textContent = rank.name;
+  document.getElementById('results-score').textContent = score;
+  document.getElementById('rb-correct').textContent = correctCount + '/5';
+  document.getElementById('rb-missions').textContent = '5';
+  document.getElementById('rb-streak').textContent = bestStreak;
+  document.getElementById('rb-pct').textContent = Math.round((correctCount / 5) * 100) + '%';
+
+  // Achievements
+  const badges = [];
+  if (correctCount === 5) badges.push({ icon: '🌟', label: 'Perfect Score' });
+  if (bestStreak >= 3) badges.push({ icon: '🔥', label: 'Hot Streak' });
+  if (bestStreak >= 5) badges.push({ icon: '⚡', label: 'Unstoppable' });
+  if (correctCount >= 4) badges.push({ icon: '🏅', label: 'Certification Ready' });
+  badges.push({ icon: '🎓', label: 'Mission Academy Graduate' });
+
+  const container = document.getElementById('achievement-badges');
+  container.innerHTML = badges.map(b => `<div class="ach-badge">${b.icon} ${b.label}</div>`).join('');
+
+  launchConfetti(correctCount >= 4 ? 80 : 30);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartActivity() {
+  score = 0; streak = 0; bestStreak = 0; correctCount = 0;
+  currentMission = 0; currentRankIdx = 0;
+  missionAnswered = [false, false, false, false, false];
+  m2Checked = false;
+
+  document.getElementById('results-screen').style.display = 'none';
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.feedback-box').forEach(f => { f.style.display = 'none'; f.className = 'feedback-box'; });
+  document.querySelectorAll('.option-btn').forEach(b => { b.disabled = false; b.className = 'option-btn'; });
+  document.querySelectorAll('[id$="-next"]').forEach(n => n.style.display = 'none');
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.classList.remove('correct','incorrect');
+    const c = z.querySelector('.drop-zone-content');
+    c.innerHTML = '<span class="drop-placeholder">Drop feature here...</span>';
+    delete c.dataset.placed;
+  });
+  document.querySelectorAll('.drag-item').forEach(i => i.classList.remove('placed'));
+
+  updateScoreBar();
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('mission-display').textContent = '0/5';
+  document.getElementById('intro-screen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function printCert() {
+  const rank = getCurrentRank();
+  const w = window.open('', '_blank');
+  w.document.write(`<!DOCTYPE html><html><head><title>UVA Certificate</title>
+  <style>body{font-family:Georgia,serif;text-align:center;padding:60px;background:#f0f4fb;}
+  .cert{border:8px solid #1B5EAF;border-radius:20px;padding:50px;background:white;max-width:700px;margin:0 auto;}
+  h1{color:#1B5EAF;font-size:2rem;} h2{color:#1E7A3E;} .motto{color:#1B5EAF;letter-spacing:3px;font-size:0.9rem;}
+  .score{font-size:3rem;font-weight:900;color:#1B5EAF;} .rank{font-size:1.5rem;color:#F5C518;background:#1B5EAF;display:inline-block;padding:8px 24px;border-radius:20px;}
+  </style></head><body><div class="cert">
+  <div style="font-size:3rem">${rank.icon}</div>
+  <h1>University View Academy</h1>
+  <p class="motto">✦ VIRTUE · VIGOR · VISION ✦</p>
+  <h2>Certificate of Achievement</h2>
+  <p style="font-size:1.1rem;margin:20px 0;">This certifies completion of</p>
+  <h2>Google Slides Mastery: Mission Academy</h2>
+  <p>Computer Technology Literacy</p>
+  <div class="score">${score} pts</div>
+  <p>${correctCount}/5 Missions Completed</p>
+  <div class="rank">${rank.icon} ${rank.name}</div>
+  <p style="margin-top:30px;color:#888;font-size:0.85rem;">Google Workspace Certification Prep · ${new Date().toLocaleDateString()}</p>
+  </div></body></html>`);
+  w.document.close();
+  w.print();
+}
+
+// Init order numbers on load
+window.addEventListener('load', () => {
+  updateOrderNumbers();
+});
+</script>
+</body>
+</html>
