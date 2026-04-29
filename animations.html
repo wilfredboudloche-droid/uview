@@ -1,0 +1,1859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Slides Motion Missions | UVA Computer Tech Literacy</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #134080;
+    --uva-blue-light: #2a7fd4;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #27a352;
+    --gold: #F5C518;
+    --gold-dark: #d4a800;
+    --white: #ffffff;
+    --light-bg: #f0f4fb;
+    --card-bg: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #3a3a5c;
+    --text-light: #6b7280;
+    --border: #d1ddf5;
+    --success: #16a34a;
+    --error: #dc2626;
+    --warning: #d97706;
+    --shadow: 0 4px 20px rgba(27,94,175,0.13);
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #e8f0fb 0%, #f0f7f2 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: linear-gradient(135deg, var(--uva-blue) 0%, var(--uva-blue-dark) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .header-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 28px 14px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+  .logo-shield {
+    width: 52px; height: 60px;
+    background: linear-gradient(160deg, var(--gold) 0%, var(--gold-dark) 100%);
+    clip-path: polygon(50% 0%, 100% 20%, 100% 70%, 50% 100%, 0% 70%, 0% 20%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900; color: var(--uva-blue-dark);
+    flex-shrink: 0;
+  }
+  .logo-text h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.5px; }
+  .logo-text p { font-size: 0.72rem; opacity: 0.8; letter-spacing: 1px; text-transform: uppercase; }
+
+  .hud {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .hud-card {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 6px 14px;
+    text-align: center;
+    min-width: 70px;
+  }
+  .hud-card .val { font-size: 1.3rem; font-weight: 800; color: var(--gold); }
+  .hud-card .lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+
+  /* ── MOTTO RIBBON ── */
+  .motto-ribbon {
+    background: linear-gradient(90deg, var(--uva-green) 0%, var(--uva-green-light) 50%, var(--uva-green) 100%);
+    text-align: center;
+    padding: 7px 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: white;
+    position: relative;
+  }
+  .motto-ribbon::before, .motto-ribbon::after {
+    content: '✦';
+    margin: 0 12px;
+    opacity: 0.7;
+  }
+
+  /* ── RANK BANNER ── */
+  .rank-banner {
+    background: linear-gradient(90deg, rgba(27,94,175,0.08), rgba(30,122,62,0.08));
+    border-bottom: 2px solid var(--border);
+    padding: 10px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .rank-display {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .rank-badge {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-dark));
+    color: white;
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 2px 8px rgba(27,94,175,0.3);
+    transition: all 0.4s;
+  }
+  .rank-badge.gold { background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: var(--uva-blue-dark); }
+  .rank-badge.green { background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light)); }
+  .rank-badge.master { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+
+  .xp-bar-wrap { flex: 1; max-width: 300px; }
+  .xp-bar-label { font-size: 0.7rem; color: var(--text-light); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .xp-bar-track {
+    height: 10px; background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+  .xp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--uva-blue), var(--uva-blue-light));
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+
+  .streak-display {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.82rem; font-weight: 700; color: var(--warning);
+  }
+  .streak-display .flame { font-size: 1.1rem; }
+
+  /* ── MAIN LAYOUT ── */
+  .main-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 16px 60px;
+  }
+
+  /* ── MISSION CARD ── */
+  .mission-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1.5px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .mission-header {
+    background: linear-gradient(135deg, var(--uva-blue) 0%, var(--uva-blue-dark) 100%);
+    color: white;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .mission-title { font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+  .mission-badge {
+    background: rgba(255,255,255,0.18);
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .mission-body { padding: 22px; }
+
+  /* ── PROGRESS DOTS ── */
+  .progress-dots {
+    display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .dot {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700; color: var(--text-light);
+    transition: all 0.3s;
+    cursor: default;
+  }
+  .dot.done { background: var(--uva-green); border-color: var(--uva-green); color: white; }
+  .dot.active { background: var(--uva-blue); border-color: var(--uva-blue); color: white; box-shadow: 0 0 0 4px rgba(27,94,175,0.2); }
+  .dot.wrong { background: var(--error); border-color: var(--error); color: white; }
+
+  /* ── QUESTION AREA ── */
+  .q-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+  .q-context {
+    background: linear-gradient(135deg, #e8f0fb, #f0f7f2);
+    border-left: 4px solid var(--uva-blue);
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+  .q-context strong { color: var(--uva-blue); }
+
+  /* ── ANSWER OPTIONS ── */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 560px) { .options-grid { grid-template-columns: 1fr; } }
+
+  .option-btn {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-dark);
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--uva-blue);
+    background: #f0f4fb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(27,94,175,0.12);
+  }
+  .option-btn .opt-letter {
+    background: var(--light-bg);
+    border-radius: 6px;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.78rem; color: var(--uva-blue);
+    flex-shrink: 0;
+  }
+  .option-btn.correct {
+    border-color: var(--success);
+    background: #f0fdf4;
+    color: var(--success);
+  }
+  .option-btn.correct .opt-letter { background: var(--success); color: white; }
+  .option-btn.wrong {
+    border-color: var(--error);
+    background: #fef2f2;
+    color: var(--error);
+  }
+  .option-btn.wrong .opt-letter { background: var(--error); color: white; }
+  .option-btn:disabled { cursor: not-allowed; }
+
+  /* ── DRAG & DROP ── */
+  .drag-area {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .drag-col { flex: 1; min-width: 200px; }
+  .drag-col h4 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--border);
+  }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+  .drag-item {
+    background: white;
+    border: 2px solid var(--uva-blue);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--uva-blue);
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .drag-item:hover { background: #e8f0fb; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(27,94,175,0.15); }
+  .drag-item.dragging { opacity: 0.4; cursor: grabbing; }
+  .drag-item.placed-correct { border-color: var(--success); background: #f0fdf4; color: var(--success); cursor: default; }
+  .drag-item.placed-wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+
+  .drop-zone {
+    background: #f8faff;
+    border: 2.5px dashed var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+  .drop-zone.drag-over { border-color: var(--uva-blue); background: #e8f0fb; }
+  .drop-zone-label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    text-align: center;
+    padding: 8px;
+    font-style: italic;
+  }
+
+  /* ── SIMULATION UI ── */
+  .sim-ui {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    font-size: 0.82rem;
+  }
+  .sim-toolbar {
+    background: #404040;
+    color: white;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+  }
+  .sim-toolbar-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .sim-menu-bar {
+    background: #f1f3f4;
+    border-bottom: 1px solid #dadce0;
+    padding: 4px 12px;
+    display: flex;
+    gap: 16px;
+    font-size: 0.78rem;
+    color: #3c4043;
+  }
+  .sim-menu-item { padding: 3px 6px; border-radius: 4px; cursor: pointer; }
+  .sim-menu-item:hover { background: #e8eaed; }
+  .sim-menu-item.active { background: #d2e3fc; color: var(--uva-blue); font-weight: 600; }
+  .sim-content { display: flex; min-height: 200px; }
+  .sim-slide-area {
+    flex: 1;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-right: 1px solid #dadce0;
+  }
+  .sim-slide {
+    width: 100%;
+    max-width: 320px;
+    aspect-ratio: 16/9;
+    background: white;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sim-slide-title { font-size: 0.9rem; font-weight: 700; color: #1a1a2e; margin-bottom: 8px; }
+  .sim-slide-bullet {
+    font-size: 0.72rem;
+    color: #3a3a5c;
+    padding: 2px 0;
+    width: 100%;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: all 0.4s;
+  }
+  .sim-slide-bullet.visible { opacity: 1; transform: translateX(0); }
+  .sim-sidebar {
+    width: 180px;
+    background: #f8f9fa;
+    padding: 12px;
+    border-left: 1px solid #dadce0;
+    font-size: 0.75rem;
+  }
+  .sim-sidebar h5 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #3c4043;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .sim-effect-item {
+    background: white;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .sim-effect-item:hover { border-color: var(--uva-blue); background: #e8f0fb; }
+  .sim-effect-item.selected { border-color: var(--uva-blue); background: #d2e3fc; }
+  .sim-trigger-select {
+    width: 100%;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    padding: 4px 6px;
+    font-size: 0.72rem;
+    background: white;
+    margin-top: 4px;
+    cursor: pointer;
+  }
+
+  /* ── FEEDBACK ── */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    display: none;
+    animation: slideIn 0.3s ease;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb {
+    background: #f0fdf4;
+    border: 2px solid var(--success);
+    color: #15803d;
+  }
+  .feedback-box.wrong-fb {
+    background: #fef2f2;
+    border: 2px solid var(--error);
+    color: #b91c1c;
+  }
+  .feedback-box .fb-title { font-weight: 800; font-size: 1rem; margin-bottom: 4px; }
+  .feedback-box .xp-gain { font-weight: 700; color: var(--uva-blue); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── STREAK POPUP ── */
+  .streak-popup {
+    position: fixed;
+    top: 80px; right: 20px;
+    background: linear-gradient(135deg, var(--warning), #f59e0b);
+    color: white;
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-weight: 800;
+    font-size: 1rem;
+    box-shadow: 0 8px 30px rgba(217,119,6,0.4);
+    z-index: 1000;
+    display: none;
+    animation: popIn 0.4s cubic-bezier(.34,1.56,.64,1);
+  }
+  .streak-popup.show { display: block; }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.5) translateY(-20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ── RANK UP POPUP ── */
+  .rankup-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .rankup-overlay.show { display: flex; }
+  .rankup-card {
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: popIn 0.5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .rankup-icon { font-size: 4rem; margin-bottom: 12px; }
+  .rankup-title { font-size: 1.6rem; font-weight: 900; color: var(--uva-blue); margin-bottom: 6px; }
+  .rankup-sub { color: var(--text-light); margin-bottom: 20px; }
+  .rankup-new { font-size: 1.1rem; font-weight: 800; color: var(--uva-green); margin-bottom: 20px; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    z-index: 3000;
+    pointer-events: none;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-dark));
+    color: white;
+    box-shadow: 0 4px 14px rgba(27,94,175,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(27,94,175,0.4); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-green {
+    background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light));
+    color: white;
+    box-shadow: 0 4px 14px rgba(30,122,62,0.3);
+  }
+  .btn-green:hover { transform: translateY(-1px); }
+  .btn-outline {
+    background: white;
+    color: var(--uva-blue);
+    border: 2px solid var(--uva-blue);
+  }
+  .btn-outline:hover { background: #e8f0fb; }
+
+  /* ── COMPLETION SCREEN ── */
+  .completion-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .completion-screen.show { display: block; }
+  .completion-trophy { font-size: 5rem; margin-bottom: 16px; }
+  .completion-title { font-size: 2rem; font-weight: 900; color: var(--uva-blue); margin-bottom: 8px; }
+  .completion-sub { color: var(--text-mid); margin-bottom: 24px; font-size: 1rem; }
+  .score-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    max-width: 500px;
+    margin: 0 auto 28px;
+  }
+  .score-cell {
+    background: var(--light-bg);
+    border-radius: 12px;
+    padding: 16px;
+    border: 2px solid var(--border);
+  }
+  .score-cell .val { font-size: 1.8rem; font-weight: 900; color: var(--uva-blue); }
+  .score-cell .lbl { font-size: 0.72rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
+
+  .standards-box {
+    background: linear-gradient(135deg, #e8f0fb, #f0f7f2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: left;
+    max-width: 600px;
+    margin: 0 auto 24px;
+    font-size: 0.84rem;
+    color: var(--text-mid);
+  }
+  .standards-box h4 { color: var(--uva-blue); font-weight: 800; margin-bottom: 8px; }
+
+  /* ── INTRO SCREEN ── */
+  .intro-screen { padding: 10px 0; }
+  .intro-hero {
+    background: linear-gradient(135deg, var(--uva-blue) 0%, var(--uva-blue-dark) 100%);
+    border-radius: var(--radius);
+    color: white;
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .intro-hero::before {
+    content: '🎬';
+    position: absolute;
+    font-size: 8rem;
+    opacity: 0.07;
+    top: -10px; right: -10px;
+  }
+  .intro-hero h2 { font-size: 1.6rem; font-weight: 900; margin-bottom: 8px; }
+  .intro-hero p { opacity: 0.85; font-size: 0.92rem; max-width: 500px; margin: 0 auto 20px; line-height: 1.6; }
+  .intro-objectives {
+    background: white;
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 20px;
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .intro-objectives h3 { color: var(--uva-blue); font-size: 0.95rem; font-weight: 800; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .obj-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.86rem;
+    color: var(--text-mid);
+    line-height: 1.4;
+  }
+  .obj-item:last-child { border-bottom: none; }
+  .obj-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+  .mission-map {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .mission-map-item {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+  .mission-map-item .m-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .mission-map-item .m-name { font-weight: 700; color: var(--uva-blue); margin-bottom: 3px; }
+  .mission-map-item .m-type { color: var(--text-light); font-size: 0.72rem; }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── UTILITY ── */
+  .flex-between { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-20 { margin-top: 20px; }
+  .hidden { display: none !important; }
+  .text-center { text-align: center; }
+
+  /* ── MATCHING LINES ── */
+  .match-area { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+  .match-col { flex: 1; min-width: 180px; }
+  .match-col h4 { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 10px; }
+  .match-item {
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+  .match-item:hover { border-color: var(--uva-blue); background: #f0f4fb; }
+  .match-item.selected { border-color: var(--uva-blue); background: #d2e3fc; color: var(--uva-blue); }
+  .match-item.matched-correct { border-color: var(--success); background: #f0fdf4; color: var(--success); cursor: default; }
+  .match-item.matched-wrong { border-color: var(--error); background: #fef2f2; color: var(--error); }
+  .match-connector { width: 30px; display: flex; flex-direction: column; justify-content: flex-start; padding-top: 10px; gap: 8px; }
+
+  /* ── SCENARIO ── */
+  .scenario-box {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    color: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .scenario-box::before { content: '📋'; position: absolute; right: 16px; top: 16px; font-size: 2rem; opacity: 0.2; }
+  .scenario-box .scenario-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); font-weight: 700; margin-bottom: 8px; }
+  .scenario-box p { font-size: 0.9rem; line-height: 1.6; opacity: 0.92; }
+
+  /* ── TOOLTIP ── */
+  .tip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    background: var(--uva-blue);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 800;
+    cursor: help;
+    position: relative;
+  }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    background: var(--uva-blue-dark);
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    padding: 14px;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+  }
+  .site-footer strong { color: white; }
+</style>
+</head>
+<body>
+
+<!-- STREAK POPUP -->
+<div class="streak-popup" id="streakPopup">🔥 <span id="streakText"></span></div>
+
+<!-- RANK UP OVERLAY -->
+<div class="rankup-overlay" id="rankupOverlay">
+  <div class="rankup-card">
+    <div class="rankup-icon" id="rankupIcon">🏅</div>
+    <div class="rankup-title">RANK UP!</div>
+    <div class="rankup-sub">You've proven your skills, UVA Scholar!</div>
+    <div class="rankup-new" id="rankupNew"></div>
+    <button class="btn btn-primary" onclick="closeRankup()">Continue Mission ▶</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-shield">UVA</div>
+      <div class="logo-text">
+        <h1>University View Academy</h1>
+        <p>Computer Tech Literacy · Google Slides Motion</p>
+      </div>
+    </div>
+    <div class="hud">
+      <div class="hud-card">
+        <div class="val" id="hudScore">0</div>
+        <div class="lbl">XP Points</div>
+      </div>
+      <div class="hud-card">
+        <div class="val" id="hudStreak">0</div>
+        <div class="lbl">Streak 🔥</div>
+      </div>
+      <div class="hud-card">
+        <div class="val" id="hudMission">0/7</div>
+        <div class="lbl">Missions</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MOTTO RIBBON -->
+<div class="motto-ribbon">Virtue  ·  Vigor  ·  Vision</div>
+
+<!-- RANK BANNER -->
+<div class="rank-banner">
+  <div class="rank-display">
+    <span style="font-size:0.8rem;color:var(--text-light);font-weight:600;">Current Rank:</span>
+    <div class="rank-badge" id="rankBadge">⚡ Trainee</div>
+  </div>
+  <div class="xp-bar-wrap">
+    <div class="xp-bar-label">
+      <span id="xpLabel">XP Progress</span>
+      <span id="xpFraction">0 / 100 XP</span>
+    </div>
+    <div class="xp-bar-track">
+      <div class="xp-bar-fill" id="xpBar" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="streak-display">
+    <span class="flame">🔥</span>
+    <span id="streakLabel">No streak yet</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- INTRO SCREEN -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="introScreen" class="intro-screen">
+    <div class="intro-hero">
+      <h2>🎬 Motion Mastery Mission Briefing</h2>
+      <p>Welcome, UVA Scholar! You've been selected for the <strong>Google Slides Motion Corps</strong>. Complete 7 missions to earn your Master Animator badge and prove your Digital Literacy skills.</p>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <span style="background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 14px;font-size:0.78rem;">📚 Exam: Digital Literacy §5.2</span>
+        <span style="background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 14px;font-size:0.78rem;">⏱ 10–15 Minutes</span>
+        <span style="background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 14px;font-size:0.78rem;">🏆 700 XP Available</span>
+      </div>
+    </div>
+
+    <div class="intro-objectives">
+      <h3>🎯 Mission Objectives (Learning Goals)</h3>
+      <div class="obj-item"><span class="obj-icon">🔀</span><span>Distinguish between <strong>slide transitions</strong> (slide-to-slide) vs. <strong>object animations</strong> (element-level)</span></div>
+      <div class="obj-item"><span class="obj-icon">🖱️</span><span>Navigate the <strong>Motion sidebar</strong> to implement and customize effects</span></div>
+      <div class="obj-item"><span class="obj-icon">⚙️</span><span>Configure motion triggers: <strong>On Click, After Previous, With Previous</strong></span></div>
+      <div class="obj-item"><span class="obj-icon">📋</span><span>Apply the <strong>By Paragraph</strong> technique for information chunking in lists</span></div>
+      <div class="obj-item"><span class="obj-icon">✅</span><span>Apply <strong>professional animation governance</strong> for visual consistency</span></div>
+    </div>
+
+    <div class="section-label">Mission Map</div>
+    <div class="mission-map">
+      <div class="mission-map-item"><div class="m-icon">🔀</div><div class="m-name">Mission 1</div><div class="m-type">Transitions vs Animations</div></div>
+      <div class="mission-map-item"><div class="m-icon">🖱️</div><div class="m-name">Mission 2</div><div class="m-type">Motion Sidebar Navigation</div></div>
+      <div class="mission-map-item"><div class="m-icon">🎯</div><div class="m-name">Mission 3</div><div class="m-type">Drag & Drop: Triggers</div></div>
+      <div class="mission-map-item"><div class="m-icon">📋</div><div class="m-name">Mission 4</div><div class="m-type">By Paragraph Technique</div></div>
+      <div class="mission-map-item"><div class="m-icon">🎬</div><div class="m-name">Mission 5</div><div class="m-type">Simulation: Apply Motion</div></div>
+      <div class="mission-map-item"><div class="m-icon">🏛️</div><div class="m-name">Mission 6</div><div class="m-type">Governance Standards</div></div>
+      <div class="mission-map-item"><div class="m-icon">🏆</div><div class="m-name">Mission 7</div><div class="m-type">Scenario Challenge</div></div>
+    </div>
+
+    <div class="text-center">
+      <button class="btn btn-primary" onclick="startActivity()" style="font-size:1rem;padding:14px 32px;">
+        🚀 Begin Missions
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- ACTIVITY SCREEN -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="activityScreen" class="hidden">
+
+    <!-- Progress dots -->
+    <div class="progress-dots" id="progressDots"></div>
+
+    <!-- Mission card -->
+    <div class="mission-card" id="missionCard">
+      <div class="mission-header">
+        <div class="mission-title">
+          <span id="missionIcon">🔀</span>
+          <span id="missionTitle">Mission 1</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div class="mission-badge" id="missionType">Knowledge Check</div>
+          <div class="mission-badge" style="background:rgba(245,197,24,0.25);color:var(--gold);" id="missionXP">+100 XP</div>
+        </div>
+      </div>
+      <div class="mission-body" id="missionBody">
+        <!-- Dynamically populated -->
+      </div>
+    </div>
+
+    <!-- Nav buttons -->
+    <div class="flex-between">
+      <button class="btn btn-outline" id="prevBtn" onclick="prevMission()" disabled>◀ Previous</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextMission()" disabled>Next Mission ▶</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- COMPLETION SCREEN -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="completionScreen" class="completion-screen">
+    <div class="completion-trophy">🏆</div>
+    <div class="completion-title">Mission Complete!</div>
+    <div class="completion-sub" id="completionSub">You've mastered Google Slides Motion, UVA Scholar!</div>
+
+    <div class="score-grid">
+      <div class="score-cell">
+        <div class="val" id="finalScore">0</div>
+        <div class="lbl">Total XP</div>
+      </div>
+      <div class="score-cell">
+        <div class="val" id="finalCorrect">0/7</div>
+        <div class="lbl">Correct</div>
+      </div>
+      <div class="score-cell">
+        <div class="val" id="finalRank">—</div>
+        <div class="lbl">Final Rank</div>
+      </div>
+    </div>
+
+    <div class="standards-box">
+      <h4>📋 Standards Alignment: Digital Literacy §5.2</h4>
+      <p>This activity assessed your mastery of presentation motion design including transition scope, animation triggers, By Paragraph chunking, and professional governance standards — all core competencies for the Digital Literacy & Presentation Standards exam.</p>
+    </div>
+
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="restartActivity()">🔄 Retry Missions</button>
+      <button class="btn btn-green" onclick="showCertificate()">🎓 View Achievement</button>
+    </div>
+
+    <div id="certificateArea" class="hidden" style="margin-top:28px;">
+      <div style="background:linear-gradient(135deg,var(--uva-blue),var(--uva-blue-dark));color:white;border-radius:16px;padding:32px;max-width:500px;margin:0 auto;border:4px solid var(--gold);">
+        <div style="font-size:0.75rem;letter-spacing:3px;text-transform:uppercase;opacity:0.7;margin-bottom:8px;">University View Academy</div>
+        <div style="font-size:1.4rem;font-weight:900;margin-bottom:4px;">Certificate of Achievement</div>
+        <div style="font-size:0.85rem;opacity:0.8;margin-bottom:20px;">Virtue · Vigor · Vision</div>
+        <div style="font-size:1rem;margin-bottom:8px;">This certifies mastery of</div>
+        <div style="font-size:1.2rem;font-weight:800;color:var(--gold);margin-bottom:16px;">Google Slides Motion: Transitions & Animations</div>
+        <div style="font-size:0.85rem;opacity:0.8;">Digital Literacy & Presentation Standards – Section 5.2</div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.2);font-size:0.8rem;opacity:0.7;" id="certDate"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <strong>University View Academy</strong> · Computer Tech Literacy · Google Slides Motion Activity · Digital Literacy §5.2 · <em>Virtue, Vigor, Vision</em>
+</footer>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════
+let state = {
+  score: 0,
+  streak: 0,
+  maxStreak: 0,
+  currentMission: 0,
+  missionResults: [],   // true/false per mission
+  missionAnswered: [],  // whether answered
+  rankIndex: 0,
+};
+
+const RANKS = [
+  { name: 'Trainee',    icon: '⚡', threshold: 0,   cls: '',       emoji: '⚡' },
+  { name: 'Apprentice', icon: '🎓', threshold: 150, cls: 'green',  emoji: '🎓' },
+  { name: 'Expert',     icon: '🌟', threshold: 350, cls: 'gold',   emoji: '🌟' },
+  { name: 'Master',     icon: '🏆', threshold: 550, cls: 'master', emoji: '🏆' },
+];
+
+const TOTAL_MISSIONS = 7;
+
+// ══════════════════════════════════════════════════════════════
+// MISSIONS DATA
+// ══════════════════════════════════════════════════════════════
+const missions = [
+
+  // ── MISSION 1: MC – Transitions vs Animations ──
+  {
+    id: 1,
+    icon: '🔀',
+    title: 'Mission 1: Transitions vs. Animations',
+    type: 'Knowledge Check',
+    xp: 100,
+    format: 'mc',
+    question: 'Your teacher asks you to make the <strong>entire slide</strong> sweep in from the left when you advance to the next slide. Which Google Slides feature should you use?',
+    context: '📍 <strong>Real-World Context:</strong> You\'re building a class presentation. You want a dramatic entrance for each new slide — not for individual text boxes or images.',
+    options: [
+      { letter: 'A', text: 'Object Animation — apply "Fly in from Left" to every element on the slide' },
+      { letter: 'B', text: 'Slide Transition — open the Motion sidebar, click the slide, and choose a transition effect' },
+      { letter: 'C', text: 'Theme — change the presentation theme to one with built-in motion' },
+      { letter: 'D', text: 'By Paragraph — animate each bullet point to enter from the left' },
+    ],
+    correct: 1,
+    explanation: '✅ <strong>Slide Transitions</strong> control how the <em>entire slide</em> enters or exits during a presentation. They are applied to the slide itself (not individual objects). Object Animations control individual elements. The Motion sidebar handles both, but transitions are the right tool here.',
+  },
+
+  // ── MISSION 2: MC – Motion Sidebar Navigation ──
+  {
+    id: 2,
+    icon: '🖱️',
+    title: 'Mission 2: Navigating the Motion Sidebar',
+    type: 'UI Navigation',
+    xp: 100,
+    format: 'mc_sim',
+    question: 'You want to add a "Fade in" animation to a text box. Walk through the correct sequence of steps in Google Slides.',
+    context: '📍 <strong>Scenario:</strong> You\'ve selected a text box on your slide. Now you need to open the Motion panel and apply an entrance animation.',
+    steps: [
+      { label: 'Select the text box on the slide', icon: '👆' },
+      { label: 'Click Insert → Animation (or View → Motion)', icon: '📋' },
+      { label: 'Motion sidebar opens on the right', icon: '▶' },
+      { label: 'Click "+ Add animation"', icon: '➕' },
+      { label: 'Choose "Fade in" from the dropdown', icon: '🎨' },
+      { label: 'Set trigger: On click / After previous / With previous', icon: '⚙️' },
+    ],
+    options: [
+      { letter: 'A', text: 'Slide → Transition → choose "Fade" → apply to all slides' },
+      { letter: 'B', text: 'Select object → Insert → Animation → Motion sidebar opens → click "+ Add animation" → choose effect → set trigger' },
+      { letter: 'C', text: 'Right-click slide thumbnail → Animate → pick Fade In' },
+      { letter: 'D', text: 'Format → Slide → Motion → select object → Fade' },
+    ],
+    correct: 1,
+    explanation: '✅ The correct path is: <strong>Select object → Insert → Animation</strong> (or View → Motion) to open the Motion sidebar → <strong>+ Add animation</strong> → choose your effect → configure the trigger. The Motion sidebar is the central hub for all animation controls in Google Slides.',
+  },
+
+  // ── MISSION 3: DRAG & DROP – Triggers ──
+  {
+    id: 3,
+    icon: '🎯',
+    title: 'Mission 3: Animation Trigger Matching',
+    type: 'Drag & Drop',
+    xp: 100,
+    format: 'dragdrop',
+    instruction: 'Drag each animation trigger to its correct definition. Match all 3 to complete the mission!',
+    items: [
+      { id: 'oc', label: '🖱️ On Click', correct: 'def-oc' },
+      { id: 'ap', label: '⏭ After Previous', correct: 'def-ap' },
+      { id: 'wp', label: '⚡ With Previous', correct: 'def-wp' },
+    ],
+    zones: [
+      { id: 'def-oc', label: 'Animation starts when the presenter clicks the mouse or presses a key. Gives full manual control over pacing.' },
+      { id: 'def-ap', label: 'Animation starts automatically after the previous animation in the sequence finishes. No click needed.' },
+      { id: 'def-wp', label: 'Animation starts at the same time as the previous animation — they play simultaneously.' },
+    ],
+  },
+
+  // ── MISSION 4: MC – By Paragraph ──
+  {
+    id: 4,
+    icon: '📋',
+    title: 'Mission 4: By Paragraph Technique',
+    type: 'Knowledge Check',
+    xp: 100,
+    format: 'mc',
+    question: 'You have a text box with 4 bullet points. You want each bullet to appear one at a time as you click. What is the correct technique in Google Slides?',
+    context: '📍 <strong>Scenario:</strong> You\'re presenting research findings. You want to reveal each bullet point individually to control the audience\'s focus — a technique called <em>information chunking</em>.',
+    options: [
+      { letter: 'A', text: 'Add 4 separate text boxes, each with one bullet, and animate each box individually' },
+      { letter: 'B', text: 'Select the text box → Add animation → check "By paragraph" in the animation options — each bullet animates separately with one animation rule' },
+      { letter: 'C', text: 'Use "After Previous" trigger on the whole text box so it auto-plays all bullets' },
+      { letter: 'D', text: 'Apply a slide transition with "By paragraph" checked in the Transition panel' },
+    ],
+    correct: 1,
+    explanation: '✅ The <strong>By Paragraph</strong> option appears in the animation settings for a text box. When checked, Google Slides treats each paragraph (bullet) as a separate animation unit — so one animation rule reveals all bullets one-by-one on click. This is far more efficient than creating separate text boxes!',
+  },
+
+  // ── MISSION 5: SIMULATION – Apply Motion ──
+  {
+    id: 5,
+    icon: '🎬',
+    title: 'Mission 5: Motion Sidebar Simulation',
+    type: 'Interactive Sim',
+    xp: 100,
+    format: 'simulation',
+    instruction: 'Use the simulated Google Slides Motion sidebar below. Apply a <strong>"Fade in"</strong> animation with <strong>"On Click"</strong> trigger to the title text box. Then click "Check My Work".',
+  },
+
+  // ── MISSION 6: MC – Governance Standards ──
+  {
+    id: 6,
+    icon: '🏛️',
+    title: 'Mission 6: Professional Animation Governance',
+    type: 'Best Practices',
+    xp: 100,
+    format: 'mc',
+    question: 'Which of the following best demonstrates <strong>professional animation governance</strong> in a business presentation?',
+    context: '📍 <strong>Scenario:</strong> You\'re preparing a presentation for a school board meeting. Your teacher reminds you to follow "animation governance standards" — the professional rules for using motion in presentations.',
+    options: [
+      { letter: 'A', text: 'Use a different animation effect for every object on every slide to keep the audience engaged and entertained' },
+      { letter: 'B', text: 'Limit animations to 1–2 consistent effects (e.g., Fade in), use them purposefully to guide attention, and avoid decorative motion that distracts from content' },
+      { letter: 'C', text: 'Apply "Spin" and "Bounce" animations to all titles so they stand out from the body text' },
+      { letter: 'D', text: 'Use "With Previous" on every element so the entire slide animates automatically without any clicks' },
+    ],
+    correct: 1,
+    explanation: '✅ <strong>Professional animation governance</strong> means: use motion with purpose, not decoration. Best practices include: limit to 1–2 consistent effects, use Fade or Fly-in (not Spin/Bounce), animate to guide attention (not entertain), and maintain consistent timing. Less is more in professional contexts.',
+  },
+
+  // ── MISSION 7: SCENARIO CHALLENGE ──
+  {
+    id: 7,
+    icon: '🏆',
+    title: 'Mission 7: Final Scenario Challenge',
+    type: 'Scenario Challenge',
+    xp: 100,
+    format: 'scenario',
+    scenario: 'Ms. Rivera asks her class to create a 5-slide presentation on climate change. She gives these requirements:\n• Slide transitions: subtle, consistent across all slides\n• Title on each slide: animate in first\n• Bullet points: reveal one at a time on click\n• No "distracting" animations\n• Charts: appear automatically after the last bullet',
+    question: 'Which configuration BEST meets ALL of Ms. Rivera\'s requirements?',
+    options: [
+      {
+        letter: 'A',
+        text: 'Transition: "Dissolve" on all slides | Title: Fade in (On Click) | Bullets: By Paragraph (On Click) | Charts: Fade in (After Previous)',
+      },
+      {
+        letter: 'B',
+        text: 'Transition: "Cube" on all slides | Title: Spin (On Click) | Bullets: Fly in (With Previous) | Charts: Bounce (On Click)',
+      },
+      {
+        letter: 'C',
+        text: 'Transition: Different effect per slide | Title: Fade in (With Previous) | Bullets: By Paragraph (After Previous) | Charts: Fade in (On Click)',
+      },
+      {
+        letter: 'D',
+        text: 'No transitions | Title: Fade in (On Click) | Bullets: separate text boxes each animated | Charts: Spin (After Previous)',
+      },
+    ],
+    correct: 0,
+    explanation: '✅ <strong>Option A</strong> is correct: "Dissolve" is subtle and consistent. Fade in is professional (not distracting). By Paragraph + On Click reveals bullets one at a time. "After Previous" on the chart makes it appear automatically after the last bullet — no extra click needed. This meets every requirement!',
+  },
+];
+
+// ══════════════════════════════════════════════════════════════
+// DRAG & DROP STATE
+// ══════════════════════════════════════════════════════════════
+let dragState = {
+  dragging: null,
+  placements: {},   // zoneId → itemId
+  completed: false,
+};
+
+// ══════════════════════════════════════════════════════════════
+// SIMULATION STATE
+// ══════════════════════════════════════════════════════════════
+let simState = {
+  selectedEffect: null,
+  selectedTrigger: null,
+  checked: false,
+};
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+function startActivity() {
+  document.getElementById('introScreen').classList.add('hidden');
+  document.getElementById('activityScreen').classList.remove('hidden');
+  state.missionAnswered = new Array(TOTAL_MISSIONS).fill(false);
+  state.missionResults = new Array(TOTAL_MISSIONS).fill(null);
+  buildProgressDots();
+  renderMission(0);
+}
+
+function buildProgressDots() {
+  const container = document.getElementById('progressDots');
+  container.innerHTML = '';
+  for (let i = 0; i < TOTAL_MISSIONS; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.textContent = i + 1;
+    dot.id = 'dot-' + i;
+    container.appendChild(dot);
+  }
+}
+
+function updateProgressDots() {
+  for (let i = 0; i < TOTAL_MISSIONS; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.className = 'dot';
+    if (i === state.currentMission) dot.classList.add('active');
+    else if (state.missionResults[i] === true) dot.classList.add('done');
+    else if (state.missionResults[i] === false) dot.classList.add('wrong');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER MISSION
+// ══════════════════════════════════════════════════════════════
+function renderMission(idx) {
+  state.currentMission = idx;
+  const m = missions[idx];
+  document.getElementById('missionIcon').textContent = m.icon;
+  document.getElementById('missionTitle').textContent = m.title;
+  document.getElementById('missionType').textContent = m.type;
+  document.getElementById('missionXP').textContent = '+' + m.xp + ' XP';
+  document.getElementById('hudMission').textContent = (idx + 1) + '/' + TOTAL_MISSIONS;
+
+  const body = document.getElementById('missionBody');
+  body.innerHTML = '';
+
+  if (m.format === 'mc' || m.format === 'mc_sim') renderMC(m, body);
+  else if (m.format === 'dragdrop') renderDragDrop(m, body);
+  else if (m.format === 'simulation') renderSimulation(m, body);
+  else if (m.format === 'scenario') renderScenario(m, body);
+
+  // Nav buttons
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = !state.missionAnswered[idx];
+  if (idx === TOTAL_MISSIONS - 1) {
+    document.getElementById('nextBtn').textContent = '🏁 Finish Missions';
+  } else {
+    document.getElementById('nextBtn').textContent = 'Next Mission ▶';
+  }
+
+  updateProgressDots();
+}
+
+// ── MC RENDER ──
+function renderMC(m, body) {
+  if (m.context) {
+    const ctx = document.createElement('div');
+    ctx.className = 'q-context';
+    ctx.innerHTML = m.context;
+    body.appendChild(ctx);
+  }
+
+  if (m.format === 'mc_sim' && m.steps) {
+    const stepsDiv = document.createElement('div');
+    stepsDiv.style.cssText = 'background:#f8faff;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:16px;';
+    stepsDiv.innerHTML = '<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);margin-bottom:10px;">📍 Google Slides Motion Sidebar — Step Reference</div>';
+    m.steps.forEach((s, i) => {
+      stepsDiv.innerHTML += `<div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:0.82rem;color:var(--text-mid);">
+        <span style="background:var(--uva-blue);color:white;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:800;flex-shrink:0;">${i+1}</span>
+        <span>${s.icon} ${s.label}</span>
+      </div>`;
+    });
+    body.appendChild(stepsDiv);
+  }
+
+  const qText = document.createElement('div');
+  qText.className = 'q-text';
+  qText.innerHTML = m.question;
+  body.appendChild(qText);
+
+  const grid = document.createElement('div');
+  grid.className = 'options-grid';
+  m.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.id = 'opt-' + i;
+    btn.innerHTML = `<span class="opt-letter">${opt.letter}</span><span>${opt.text}</span>`;
+    btn.onclick = () => handleMCAnswer(m, i);
+    if (state.missionAnswered[state.currentMission]) {
+      btn.disabled = true;
+      if (i === m.correct) btn.classList.add('correct');
+    }
+    grid.appendChild(btn);
+  });
+  body.appendChild(grid);
+
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box';
+  fb.id = 'feedback';
+  if (state.missionAnswered[state.currentMission]) {
+    fb.classList.add('show');
+    const wasCorrect = state.missionResults[state.currentMission];
+    fb.classList.add(wasCorrect ? 'correct-fb' : 'wrong-fb');
+    fb.innerHTML = `<div class="fb-title">${wasCorrect ? '✅ Correct!' : '❌ Not quite'}</div>${m.explanation}`;
+  }
+  body.appendChild(fb);
+}
+
+function handleMCAnswer(m, chosen) {
+  if (state.missionAnswered[state.currentMission]) return;
+  state.missionAnswered[state.currentMission] = true;
+  const correct = chosen === m.correct;
+  state.missionResults[state.currentMission] = correct;
+
+  // Style buttons
+  m.options.forEach((_, i) => {
+    const btn = document.getElementById('opt-' + i);
+    btn.disabled = true;
+    if (i === m.correct) btn.classList.add('correct');
+    else if (i === chosen && !correct) btn.classList.add('wrong');
+  });
+
+  // Feedback
+  const fb = document.getElementById('feedback');
+  fb.classList.add('show', correct ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = `<div class="fb-title">${correct ? '✅ Correct! +' + m.xp + ' XP' : '❌ Not quite — review the explanation below'}</div>${m.explanation}`;
+
+  updateScore(correct, m.xp);
+  document.getElementById('nextBtn').disabled = false;
+  updateProgressDots();
+}
+
+// ── DRAG & DROP RENDER ──
+function renderDragDrop(m, body) {
+  dragState = { dragging: null, placements: {}, completed: false };
+
+  const instr = document.createElement('div');
+  instr.className = 'q-context';
+  instr.innerHTML = '🎯 <strong>Instructions:</strong> ' + m.instruction;
+  body.appendChild(instr);
+
+  const area = document.createElement('div');
+  area.className = 'drag-area';
+
+  // Left: draggable items
+  const leftCol = document.createElement('div');
+  leftCol.className = 'drag-col';
+  leftCol.innerHTML = '<h4>🏷️ Triggers</h4>';
+  const itemsDiv = document.createElement('div');
+  itemsDiv.className = 'drag-items';
+  itemsDiv.id = 'drag-source';
+
+  m.items.forEach(item => {
+    const el = createDragItem(item);
+    itemsDiv.appendChild(el);
+  });
+  leftCol.appendChild(itemsDiv);
+  area.appendChild(leftCol);
+
+  // Right: drop zones
+  const rightCol = document.createElement('div');
+  rightCol.className = 'drag-col';
+  rightCol.innerHTML = '<h4>📖 Definitions</h4>';
+
+  m.zones.forEach(zone => {
+    const zoneEl = document.createElement('div');
+    zoneEl.className = 'drop-zone';
+    zoneEl.id = 'zone-' + zone.id;
+    zoneEl.innerHTML = `<div style="font-size:0.8rem;color:var(--text-mid);line-height:1.4;margin-bottom:6px;">${zone.label}</div><div class="drop-zone-label" id="zone-placeholder-${zone.id}">Drop trigger here</div>`;
+    zoneEl.addEventListener('dragover', e => { e.preventDefault(); zoneEl.classList.add('drag-over'); });
+    zoneEl.addEventListener('dragleave', () => zoneEl.classList.remove('drag-over'));
+    zoneEl.addEventListener('drop', e => { e.preventDefault(); zoneEl.classList.remove('drag-over'); handleDrop(zone.id, m); });
+    rightCol.appendChild(zoneEl);
+  });
+  area.appendChild(rightCol);
+  body.appendChild(area);
+
+  // Check button
+  const checkBtn = document.createElement('button');
+  checkBtn.className = 'btn btn-primary mt-16';
+  checkBtn.id = 'ddCheckBtn';
+  checkBtn.textContent = '✅ Check Matches';
+  checkBtn.onclick = () => checkDragDrop(m);
+  checkBtn.disabled = true;
+  body.appendChild(checkBtn);
+
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box';
+  fb.id = 'feedback';
+  body.appendChild(fb);
+
+  if (state.missionAnswered[state.currentMission]) {
+    checkBtn.disabled = true;
+    fb.classList.add('show', state.missionResults[state.currentMission] ? 'correct-fb' : 'wrong-fb');
+    fb.innerHTML = `<div class="fb-title">${state.missionResults[state.currentMission] ? '✅ All matched correctly!' : '❌ Some matches were incorrect'}</div>
+    <strong>Correct answers:</strong><br>
+    🖱️ On Click → Animation starts when presenter clicks<br>
+    ⏭ After Previous → Starts automatically after previous animation ends<br>
+    ⚡ With Previous → Starts simultaneously with previous animation`;
+  }
+}
+
+function createDragItem(item) {
+  const el = document.createElement('div');
+  el.className = 'drag-item';
+  el.id = 'drag-' + item.id;
+  el.draggable = true;
+  el.innerHTML = item.label;
+  el.dataset.itemId = item.id;
+  el.addEventListener('dragstart', () => {
+    dragState.dragging = item.id;
+    el.classList.add('dragging');
+  });
+  el.addEventListener('dragend', () => {
+    el.classList.remove('dragging');
+    dragState.dragging = null;
+  });
+  // Touch support
+  el.addEventListener('touchstart', e => { dragState.dragging = item.id; }, { passive: true });
+  return el;
+}
+
+function handleDrop(zoneId, m) {
+  if (!dragState.dragging) return;
+  const itemId = dragState.dragging;
+
+  // Remove from previous zone if placed
+  Object.keys(dragState.placements).forEach(z => {
+    if (dragState.placements[z] === itemId) {
+      delete dragState.placements[z];
+      const ph = document.getElementById('zone-placeholder-' + z);
+      if (ph) ph.style.display = 'block';
+      const placed = document.getElementById('placed-' + itemId + '-' + z);
+      if (placed) placed.remove();
+    }
+  });
+
+  // Remove existing item in this zone
+  if (dragState.placements[zoneId]) {
+    const oldId = dragState.placements[zoneId];
+    const oldEl = document.getElementById('placed-' + oldId + '-' + zoneId);
+    if (oldEl) oldEl.remove();
+    // Return old item to source
+    const sourceItem = m.items.find(i => i.id === oldId);
+    if (sourceItem) {
+      const src = document.getElementById('drag-source');
+      const newEl = createDragItem(sourceItem);
+      src.appendChild(newEl);
+    }
+  }
+
+  dragState.placements[zoneId] = itemId;
+
+  // Hide original
+  const origEl = document.getElementById('drag-' + itemId);
+  if (origEl) origEl.remove();
+
+  // Show in zone
+  const zone = document.getElementById('zone-' + zoneId);
+  const ph = document.getElementById('zone-placeholder-' + zoneId);
+  if (ph) ph.style.display = 'none';
+
+  const item = m.items.find(i => i.id === itemId);
+  const placed = document.createElement('div');
+  placed.className = 'drag-item';
+  placed.id = 'placed-' + itemId + '-' + zoneId;
+  placed.innerHTML = item.label;
+  placed.draggable = true;
+  placed.dataset.itemId = itemId;
+  placed.addEventListener('dragstart', () => {
+    dragState.dragging = itemId;
+    placed.classList.add('dragging');
+  });
+  placed.addEventListener('dragend', () => {
+    placed.classList.remove('dragging');
+    dragState.dragging = null;
+  });
+  zone.appendChild(placed);
+
+  // Enable check if all placed
+  const checkBtn = document.getElementById('ddCheckBtn');
+  if (checkBtn) checkBtn.disabled = Object.keys(dragState.placements).length < m.zones.length;
+}
+
+function checkDragDrop(m) {
+  if (state.missionAnswered[state.currentMission]) return;
+  let allCorrect = true;
+  m.items.forEach(item => {
+    const placedZone = Object.keys(dragState.placements).find(z => dragState.placements[z] === item.id);
+    const correct = placedZone === item.correct;
+    if (!correct) allCorrect = false;
+    // Style placed item
+    if (placedZone) {
+      const el = document.getElementById('placed-' + item.id + '-' + placedZone);
+      if (el) el.classList.add(correct ? 'placed-correct' : 'placed-wrong');
+    }
+  });
+
+  state.missionAnswered[state.currentMission] = true;
+  state.missionResults[state.currentMission] = allCorrect;
+
+  const fb = document.getElementById('feedback');
+  fb.classList.add('show', allCorrect ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = `<div class="fb-title">${allCorrect ? '✅ Perfect Matches! +' + m.xp + ' XP' : '❌ Some mismatches — see correct answers below'}</div>
+  <strong>Correct answers:</strong><br>
+  🖱️ <strong>On Click</strong> → Animation starts when presenter clicks (manual control)<br>
+  ⏭ <strong>After Previous</strong> → Starts automatically after previous animation ends<br>
+  ⚡ <strong>With Previous</strong> → Starts simultaneously with previous animation`;
+
+  document.getElementById('ddCheckBtn').disabled = true;
+  updateScore(allCorrect, m.xp);
+  document.getElementById('nextBtn').disabled = false;
+  updateProgressDots();
+}
+
+// ── SIMULATION RENDER ──
+function renderSimulation(m, body) {
+  simState = { selectedEffect: null, selectedTrigger: null, checked: false };
+
+  const instr = document.createElement('div');
+  instr.className = 'q-context';
+  instr.innerHTML = '🎬 <strong>Simulation:</strong> ' + m.instruction;
+  body.appendChild(instr);
+
+  const sim = document.createElement('div');
+  sim.className = 'sim-ui';
+  sim.innerHTML = `
+    <div class="sim-toolbar">
+      <div class="sim-toolbar-dot" style="background:#ff5f57"></div>
+      <div class="sim-toolbar-dot" style="background:#febc2e"></div>
+      <div class="sim-toolbar-dot" style="background:#28c840"></div>
+      <span style="margin-left:8px;opacity:0.7;">Climate Change Presentation.gslides — Google Slides</span>
+    </div>
+    <div class="sim-menu-bar">
+      <span class="sim-menu-item">File</span>
+      <span class="sim-menu-item">Edit</span>
+      <span class="sim-menu-item">View</span>
+      <span class="sim-menu-item active" id="simInsertMenu">Insert ▾</span>
+      <span class="sim-menu-item">Format</span>
+      <span class="sim-menu-item">Slide</span>
+      <span class="sim-menu-item">Arrange</span>
+      <span class="sim-menu-item">Tools</span>
+    </div>
+    <div class="sim-content">
+      <div class="sim-slide-area">
+        <div class="sim-slide" id="simSlide">
+          <div class="sim-slide-title">Climate Change: Key Facts</div>
+          <div class="sim-slide-bullet" id="bullet1">• Global temps up 1.1°C since 1880</div>
+          <div class="sim-slide-bullet" id="bullet2">• CO₂ levels at record highs</div>
+          <div class="sim-slide-bullet" id="bullet3">• Sea levels rising 3.3mm/year</div>
+          <div style="position:absolute;bottom:8px;right:8px;font-size:0.65rem;color:#aaa;">Slide 1 of 5</div>
+        </div>
+        <div style="margin-top:10px;text-align:center;">
+          <div id="simSelectedObj" style="font-size:0.75rem;color:var(--uva-blue);font-weight:600;background:#e8f0fb;border-radius:6px;padding:4px 10px;display:inline-block;">
+            ✅ Title text box selected
+          </div>
+        </div>
+      </div>
+      <div class="sim-sidebar" id="simSidebar" style="display:none;">
+        <h5>Motion</h5>
+        <div style="font-size:0.7rem;color:var(--text-light);margin-bottom:8px;">Slide: No transition</div>
+        <div style="border-top:1px solid #dadce0;padding-top:8px;margin-bottom:8px;">
+          <div style="font-size:0.7rem;font-weight:700;color:#3c4043;margin-bottom:6px;">ANIMATIONS</div>
+          <div id="simAnimList">
+            <div style="font-size:0.72rem;color:var(--text-light);font-style:italic;">No animations yet</div>
+          </div>
+          <div id="simAddBtn" style="margin-top:8px;background:var(--uva-blue);color:white;border-radius:4px;padding:5px 8px;font-size:0.72rem;font-weight:700;cursor:pointer;text-align:center;" onclick="simAddAnimation()">+ Add animation</div>
+        </div>
+      </div>
+    </div>
+    <div id="simEffectPanel" style="display:none;padding:12px;border-top:1px solid #dadce0;background:#f8f9fa;">
+      <div style="font-size:0.75rem;font-weight:700;color:#3c4043;margin-bottom:8px;">Choose animation effect:</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        ${['Fade in','Fly in from left','Zoom in','Spin','Bounce'].map(e => `<div class="sim-effect-item" id="eff-${e.replace(/ /g,'-')}" onclick="simSelectEffect('${e}')">${e}</div>`).join('')}
+      </div>
+      <div style="font-size:0.75rem;font-weight:700;color:#3c4043;margin-bottom:6px;">Start trigger:</div>
+      <select class="sim-trigger-select" id="simTriggerSelect" onchange="simSelectTrigger(this.value)">
+        <option value="">-- Select trigger --</option>
+        <option value="On click">On click</option>
+        <option value="After previous">After previous</option>
+        <option value="With previous">With previous</option>
+      </select>
+    </div>
+  `;
+  body.appendChild(sim);
+
+  // Insert menu click
+  setTimeout(() => {
+    const insertMenu = document.getElementById('simInsertMenu');
+    if (insertMenu) {
+      insertMenu.addEventListener('click', () => {
+        showInsertDropdown();
+      });
+    }
+  }, 100);
+
+  const checkBtn = document.createElement('button');
+  checkBtn.className = 'btn btn-primary mt-16';
+  checkBtn.id = 'simCheckBtn';
+  checkBtn.textContent = '✅ Check My Work';
+  checkBtn.onclick = checkSimulation;
+  body.appendChild(checkBtn);
+
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box';
+  fb.id = 'feedback';
+  body.appendChild(fb);
+
+  if (state.missionAnswered[state.currentMission]) {
+    fb.classList.add('show', state.missionResults[state.currentMission] ? 'correct-fb' : 'wrong-fb');
+    fb.innerHTML = state.missionResults[state.currentMission]
+      ? '<div class="fb-title">✅ Correct configuration! +100 XP</div>You selected "Fade in" with "On click" trigger — exactly right!'
+      : '<div class="fb-title">❌ Incorrect configuration</div>You needed: Effect = "Fade in", Trigger = "On click"';
+  }
+}
+
+function showInsertDropdown() {
+  const sidebar = document.getElementById('simSidebar');
+  if (sidebar) {
+    sidebar.style.display = 'block';
+    const insertMenu = document.getElementById('simInsertMenu');
+    if (insertMenu) insertMenu.style.background = '#d2e3fc';
+  }
+}
+
+function simAddAnimation() {
+  const panel = document.getElementById('simEffectPanel');
+  if (panel) panel.style.display = 'block';
+  const addBtn = document.getElementById('simAddBtn');
+  if (addBtn) addBtn.style.opacity = '0.5';
+}
+
+function simSelectEffect(effect) {
+  simState.selectedEffect = effect;
+  document.querySelectorAll('.sim-effect-item').forEach(el => el.classList.remove('selected'));
+  const el = document.getElementById('eff-' + effect.replace(/ /g, '-'));
+  if (el) el.classList.add('selected');
+
+  // Preview animation on slide
+  if (effect === 'Fade in') {
+    const title = document.querySelector('.sim-slide-title');
+    if (title) { title.style.opacity = '0'; setTimeout(() => { title.style.transition = 'opacity 0.6s'; title.style.opacity = '1'; }, 100); }
+  }
+
+  updateSimAnimList();
+}
+
+function simSelectTrigger(val) {
+  simState.selectedTrigger = val;
+  updateSimAnimList();
+}
+
+function updateSimAnimList() {
+  const list = document.getElementById('simAnimList');
+  if (!list) return;
+  if (simState.selectedEffect) {
+    list.innerHTML = `<div style="background:white;border:1px solid #dadce0;border-radius:4px;padding:6px 8px;font-size:0.72rem;">
+      <div style="font-weight:700;color:var(--uva-blue);">📦 Title: ${simState.selectedEffect}</div>
+      <div style="color:var(--text-light);">Trigger: ${simState.selectedTrigger || '(not set)'}</div>
+    </div>`;
+  }
+}
+
+function checkSimulation() {
+  if (state.missionAnswered[state.currentMission]) return;
+  const correct = simState.selectedEffect === 'Fade in' && simState.selectedTrigger === 'On click';
+  state.missionAnswered[state.currentMission] = true;
+  state.missionResults[state.currentMission] = correct;
+
+  const fb = document.getElementById('feedback');
+  fb.classList.add('show', correct ? 'correct-fb' : 'wrong-fb');
+  if (correct) {
+    fb.innerHTML = '<div class="fb-title">✅ Perfect! +100 XP</div>You correctly applied <strong>Fade in</strong> with <strong>On click</strong> trigger — exactly how you\'d do it in the real Google Slides Motion sidebar!';
+  } else {
+    fb.innerHTML = `<div class="fb-title">❌ Not quite</div>
+    You selected: Effect = <strong>${simState.selectedEffect || 'none'}</strong>, Trigger = <strong>${simState.selectedTrigger || 'none'}</strong><br>
+    Required: Effect = <strong>Fade in</strong>, Trigger = <strong>On click</strong><br>
+    In Google Slides: Select object → Insert → Animation → + Add animation → Fade in → On click`;
+  }
+
+  updateScore(correct, 100);
+  document.getElementById('nextBtn').disabled = false;
+  updateProgressDots();
+}
+
+// ── SCENARIO RENDER ──
+function renderScenario(m, body) {
+  const scenBox = document.createElement('div');
+  scenBox.className = 'scenario-box';
+  scenBox.innerHTML = `<div class="scenario-label">📋 Mission Scenario</div><p>${m.scenario.replace(/\n/g, '<br>')}</p>`;
+  body.appendChild(scenBox);
+
+  const qText = document.createElement('div');
+  qText.className = 'q-text';
+  qText.innerHTML = m.question;
+  body.appendChild(qText);
+
+  const grid = document.createElement('div');
+  grid.className = 'options-grid';
+  m.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.id = 'opt-' + i;
+    btn.innerHTML = `<span class="opt-letter">${opt.letter}</span><span>${opt.text}</span>`;
+    btn.onclick = () => handleMCAnswer(m, i);
+    if (state.missionAnswered[state.currentMission]) {
+      btn.disabled = true;
+      if (i === m.correct) btn.classList.add('correct');
+    }
+    grid.appendChild(btn);
+  });
+  body.appendChild(grid);
+
+  const fb = document.createElement('div');
+  fb.className = 'feedback-box';
+  fb.id = 'feedback';
+  if (state.missionAnswered[state.currentMission]) {
+    fb.classList.add('show');
+    const wasCorrect = state.missionResults[state.currentMission];
+    fb.classList.add(wasCorrect ? 'correct-fb' : 'wrong-fb');
+    fb.innerHTML = `<div class="fb-title">${wasCorrect ? '✅ Excellent!' : '❌ Not quite'}</div>${m.explanation}`;
+  }
+  body.appendChild(fb);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SCORE & RANK
+// ══════════════════════════════════════════════════════════════
+function updateScore(correct, xp) {
+  if (correct) {
+    state.score += xp;
+    state.streak++;
+    if (state.streak > state.maxStreak) state.maxStreak = state.streak;
+    showStreakPopup();
+  } else {
+    state.streak = 0;
+  }
+
+  document.getElementById('hudScore').textContent = state.score;
+  document.getElementById('hudStreak').textContent = state.streak;
+  document.getElementById('streakLabel').textContent = state.streak >= 2 ? state.streak + ' in a row! 🔥' : (state.streak === 1 ? '1 correct' : 'No streak');
+
+  updateRank();
+  updateXPBar();
+}
+
+function updateRank() {
+  let newRankIdx = 0;
+  for (let i = RANKS.length - 1; i >= 0; i--) {
+    if (state.score >= RANKS[i].threshold) { newRankIdx = i; break; }
+  }
+  if (newRankIdx > state.rankIndex) {
+    state.rankIndex = newRankIdx;
+    showRankUp(RANKS[newRankIdx]);
+    launchConfetti();
+  }
+  const rank = RANKS[state.rankIndex];
+  const badge = document.getElementById('rankBadge');
+  badge.textContent = rank.emoji + ' ' + rank.name;
+  badge.className = 'rank-badge ' + rank.cls;
+}
+
+function updateXPBar() {
+  const rank = RANKS[state.rankIndex];
+  const nextRank = RANKS[state.rankIndex + 1];
+  if (!nextRank) {
+    document.getElementById('xpBar').style.width = '100%';
+    document.getElementById('xpFraction').textContent = 'MAX RANK';
+    document.getElementById('xpLabel').textContent = '🏆 Master Rank Achieved!';
+    return;
+  }
+  const progress = state.score - rank.threshold;
+  const needed = nextRank.threshold - rank.threshold;
+  const pct = Math.min(100, Math.round((progress / needed) * 100));
+  document.getElementById('xpBar').style.width = pct + '%';
+  document.getElementById('xpFraction').textContent = state.score + ' / ' + nextRank.threshold + ' XP';
+  document.getElementById('xpLabel').textContent = 'Next: ' + nextRank.emoji + ' ' + nextRank.name;
+}
+
+function showStreakPopup() {
+  if (state.streak < 2) return;
+  const popup = document.getElementById('streakPopup');
+  const msgs = { 2: '2 in a row! Keep going!', 3: '🔥 3-Streak! On fire!', 4: '💥 4-Streak! Unstoppable!', 5: '⚡ 5-Streak! LEGENDARY!' };
+  document.getElementById('streakText').textContent = msgs[state.streak] || state.streak + '-Streak! Amazing!';
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 2500);
+}
+
+function showRankUp(rank) {
+  document.getElementById('rankupIcon').textContent = rank.emoji;
+  document.getElementById('rankupNew').textContent = 'You are now: ' + rank.emoji + ' ' + rank.name;
+  document.getElementById('rankupOverlay').classList.add('show');
+  launchConfetti();
+}
+
+function closeRankup() {
+  document.getElementById('rankupOverlay').classList.remove('show');
+}
+
+// ══════════════════════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════════════════════
+function launchConfetti() {
+  const colors = ['#1B5EAF','#1E7A3E','#F5C518','#ff6b6b','#a855f7','#06b6d4'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.cssText = `
+        left: ${Math.random() * 100}vw;
+        top: -20px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        width: ${6 + Math.random() * 8}px;
+        height: ${6 + Math.random() * 8}px;
+        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        animation-duration: ${1.5 + Math.random() * 2}s;
+        animation-delay: ${Math.random() * 0.5}s;
+      `;
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 3000);
+    }, i * 30);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════
+function nextMission() {
+  if (state.currentMission < TOTAL_MISSIONS - 1) {
+    renderMission(state.currentMission + 1);
+  } else {
+    showCompletion();
+  }
+}
+
+function prevMission() {
+  if (state.currentMission > 0) {
+    renderMission(state.currentMission - 1);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// COMPLETION
+// ══════════════════════════════════════════════════════════════
+function showCompletion() {
+  document.getElementById('activityScreen').classList.add('hidden');
+  const comp = document.getElementById('completionScreen');
+  comp.classList.add('show');
+
+  const correct = state.missionResults.filter(r => r === true).length;
+  const pct = Math.round((correct / TOTAL_MISSIONS) * 100);
+  const rank = RANKS[state.rankIndex];
+
+  document.getElementById('finalScore').textContent = state.score;
+  document.getElementById('finalCorrect').textContent = correct + '/' + TOTAL_MISSIONS;
+  document.getElementById('finalRank').textContent = rank.emoji + ' ' + rank.name;
+
+  let sub = '';
+  if (pct === 100) sub = '🏆 Perfect score! You\'ve achieved Master Animator status, UVA Scholar!';
+  else if (pct >= 71) sub = '🌟 Excellent work! You\'ve demonstrated strong motion design skills.';
+  else if (pct >= 57) sub = '🎓 Good effort! Review the missions you missed and try again.';
+  else sub = '📚 Keep practicing! Review the Motion sidebar concepts and retry.';
+  document.getElementById('completionSub').textContent = sub;
+
+  launchConfetti();
+  document.getElementById('certDate').textContent = 'Completed: ' + new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+function showCertificate() {
+  const cert = document.getElementById('certificateArea');
+  cert.classList.toggle('hidden');
+  if (!cert.classList.contains('hidden')) launchConfetti();
+}
+
+function restartActivity() {
+  state = { score: 0, streak: 0, maxStreak: 0, currentMission: 0, missionResults: [], missionAnswered: [], rankIndex: 0 };
+  simState = { selectedEffect: null, selectedTrigger: null, checked: false };
+  dragState = { dragging: null, placements: {}, completed: false };
+
+  document.getElementById('hudScore').textContent = '0';
+  document.getElementById('hudStreak').textContent = '0';
+  document.getElementById('hudMission').textContent = '0/' + TOTAL_MISSIONS;
+  document.getElementById('rankBadge').textContent = '⚡ Trainee';
+  document.getElementById('rankBadge').className = 'rank-badge';
+  document.getElementById('xpBar').style.width = '0%';
+  document.getElementById('xpFraction').textContent = '0 / 150 XP';
+  document.getElementById('xpLabel').textContent = 'Next: 🎓 Apprentice';
+  document.getElementById('streakLabel').textContent = 'No streak yet';
+
+  document.getElementById('completionScreen').classList.remove('show');
+  document.getElementById('activityScreen').classList.remove('hidden');
+  document.getElementById('certificateArea').classList.add('hidden');
+
+  state.missionAnswered = new Array(TOTAL_MISSIONS).fill(false);
+  state.missionResults = new Array(TOTAL_MISSIONS).fill(null);
+  buildProgressDots();
+  renderMission(0);
+}
+</script>
+</body>
+</html>
