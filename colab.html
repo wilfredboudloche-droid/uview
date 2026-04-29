@@ -1,0 +1,1932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mastering Collaborative Ecosystems | UVA Computer Tech Literacy</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #134080;
+    --uva-blue-light: #2a7fd4;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #27a352;
+    --gold: #F5C518;
+    --gold-dark: #d4a800;
+    --white: #ffffff;
+    --light-bg: #f0f4fb;
+    --card-bg: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #3a3a5c;
+    --text-light: #6b7280;
+    --success: #16a34a;
+    --error: #dc2626;
+    --streak-orange: #f97316;
+    --border-radius: 14px;
+    --shadow: 0 4px 24px rgba(27,94,175,0.13);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #e8f0fb 0%, #e6f4ec 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(90deg, var(--uva-blue) 0%, var(--uva-blue-dark) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .uva-logo-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .uva-crest {
+    width: 54px; height: 54px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    flex-shrink: 0;
+  }
+  .uva-name { line-height: 1.2; }
+  .uva-name .school { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.5px; }
+  .uva-name .dept { font-size: 0.78rem; opacity: 0.85; }
+
+  .rank-display {
+    background: rgba(255,255,255,0.12);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    border-radius: 30px;
+    padding: 8px 20px;
+    text-align: center;
+    min-width: 160px;
+  }
+  .rank-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-value { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+  .rank-icon { font-size: 1.3rem; }
+
+  /* Motto ribbon */
+  .motto-ribbon {
+    background: var(--uva-green);
+    text-align: center;
+    padding: 7px 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: white;
+    position: relative;
+  }
+  .motto-ribbon::before, .motto-ribbon::after {
+    content: '✦';
+    margin: 0 12px;
+    opacity: 0.7;
+  }
+
+  .header-title-area {
+    padding: 14px 32px 20px;
+    text-align: center;
+  }
+  .mission-badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--uva-blue-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+  .header-title-area h1 {
+    font-size: 1.55rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 4px;
+  }
+  .header-title-area p {
+    font-size: 0.88rem;
+    opacity: 0.8;
+  }
+
+  /* ── PROGRESS BAR ── */
+  .progress-section {
+    background: white;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    flex-wrap: wrap;
+  }
+  .progress-label { font-size: 0.82rem; font-weight: 600; color: var(--uva-blue); white-space: nowrap; }
+  .progress-bar-wrap {
+    flex: 1; min-width: 120px;
+    background: #e5e7eb;
+    border-radius: 20px;
+    height: 12px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--uva-blue), var(--uva-green));
+    border-radius: 20px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .score-display {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--light-bg);
+    border-radius: 20px;
+    padding: 6px 16px;
+  }
+  .score-display .score-num { font-size: 1.1rem; font-weight: 800; color: var(--uva-blue); }
+  .score-display .score-lbl { font-size: 0.75rem; color: var(--text-light); }
+  .streak-badge {
+    background: var(--streak-orange);
+    color: white;
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: none;
+    animation: pulse 0.5s ease;
+  }
+  .streak-badge.show { display: inline-block; }
+
+  /* ── MAIN CONTENT ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 28px 20px 60px; }
+
+  /* ── SCREEN SYSTEM ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO SCREEN ── */
+  .intro-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .intro-hero {
+    background: linear-gradient(135deg, var(--uva-blue) 0%, var(--uva-green) 100%);
+    padding: 36px 32px;
+    text-align: center;
+    color: white;
+  }
+  .intro-hero .big-icon { font-size: 4rem; margin-bottom: 12px; }
+  .intro-hero h2 { font-size: 1.6rem; font-weight: 800; margin-bottom: 8px; }
+  .intro-hero p { font-size: 0.95rem; opacity: 0.9; max-width: 500px; margin: 0 auto; }
+  .intro-body { padding: 28px 32px; }
+  .intro-body h3 { font-size: 1.05rem; font-weight: 700; color: var(--uva-blue); margin-bottom: 14px; }
+  .mission-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .mission-list li {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+  .mission-list li .mi { font-size: 1.3rem; flex-shrink: 0; }
+  .mission-list li strong { color: var(--uva-blue); }
+  .rank-ladder {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .rank-step {
+    flex: 1; min-width: 90px;
+    background: var(--light-bg);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 0.78rem;
+    border: 2px solid transparent;
+  }
+  .rank-step .rs-icon { font-size: 1.4rem; }
+  .rank-step .rs-name { font-weight: 700; color: var(--uva-blue); margin-top: 4px; }
+  .rank-step .rs-pts { color: var(--text-light); font-size: 0.72rem; }
+  .btn-start {
+    display: block; width: 100%;
+    background: linear-gradient(90deg, var(--uva-blue), var(--uva-green));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 16px rgba(27,94,175,0.3);
+  }
+  .btn-start:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,94,175,0.4); }
+
+  /* ── MISSION CARD ── */
+  .mission-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .mission-header {
+    background: linear-gradient(90deg, var(--uva-blue) 0%, var(--uva-blue-dark) 100%);
+    color: white;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .mission-num {
+    background: var(--gold);
+    color: var(--uva-blue-dark);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem;
+    flex-shrink: 0;
+  }
+  .mission-header-text .mission-type {
+    font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .mission-header-text .mission-title { font-size: 1.05rem; font-weight: 700; }
+  .mission-body { padding: 24px; }
+  .mission-scenario {
+    background: linear-gradient(135deg, #f0f4fb, #e6f4ec);
+    border-left: 4px solid var(--uva-blue);
+    border-radius: 0 10px 10px 0;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--text-mid);
+  }
+  .mission-scenario strong { color: var(--uva-blue); }
+  .mission-question {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── CHOICE BUTTONS ── */
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice-btn {
+    background: var(--light-bg);
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    padding: 13px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.92rem;
+    color: var(--text-dark);
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.5;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--uva-blue);
+    background: #e8f0fb;
+    transform: translateX(3px);
+  }
+  .choice-btn .choice-letter {
+    background: var(--uva-blue);
+    color: white;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .choice-btn.correct {
+    background: #dcfce7;
+    border-color: var(--success);
+    color: #14532d;
+  }
+  .choice-btn.correct .choice-letter { background: var(--success); }
+  .choice-btn.wrong {
+    background: #fee2e2;
+    border-color: var(--error);
+    color: #7f1d1d;
+  }
+  .choice-btn.wrong .choice-letter { background: var(--error); }
+  .choice-btn:disabled { cursor: default; }
+
+  /* ── FEEDBACK BOX ── */
+  .feedback-box {
+    margin-top: 16px;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb {
+    background: #dcfce7;
+    border: 1.5px solid #86efac;
+    color: #14532d;
+  }
+  .feedback-box.wrong-fb {
+    background: #fee2e2;
+    border: 1.5px solid #fca5a5;
+    color: #7f1d1d;
+  }
+  .feedback-box .fb-title { font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+  .feedback-box .fb-pts {
+    display: inline-block;
+    background: var(--uva-blue);
+    color: white;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+
+  /* ── DRAG & DROP ── */
+  .drag-area {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .drag-col { flex: 1; min-width: 200px; }
+  .drag-col h4 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--uva-blue);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--uva-blue);
+  }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 40px; }
+  .drag-item {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: grab;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .drag-item:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(27,94,175,0.3); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drop-zone {
+    background: #f8faff;
+    border: 2px dashed #93c5fd;
+    border-radius: 10px;
+    padding: 12px;
+    min-height: 52px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .drop-zone.drag-over {
+    background: #dbeafe;
+    border-color: var(--uva-blue);
+  }
+  .drop-zone.correct-zone { border-color: var(--success); background: #dcfce7; }
+  .drop-zone.wrong-zone { border-color: var(--error); background: #fee2e2; }
+  .drop-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    margin-bottom: 4px;
+  }
+
+  /* ── SIMULATION / WALKTHROUGH ── */
+  .sim-container {
+    background: #f8faff;
+    border-radius: 12px;
+    border: 1.5px solid #d1d5db;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .sim-toolbar {
+    background: #e8eaf0;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #d1d5db;
+  }
+  .sim-dot { width: 12px; height: 12px; border-radius: 50%; }
+  .sim-dot.red { background: #ef4444; }
+  .sim-dot.yellow { background: #f59e0b; }
+  .sim-dot.green { background: #22c55e; }
+  .sim-url-bar {
+    flex: 1;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    color: var(--text-mid);
+    font-family: monospace;
+  }
+  .sim-body { padding: 16px; }
+
+  /* Google Sheets mock */
+  .sheets-mock {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+  }
+  .sheets-header {
+    background: #f8f9fa;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .sheets-icon { font-size: 1.2rem; }
+  .sheets-title { font-size: 0.88rem; font-weight: 600; color: #202124; }
+  .sheets-menu {
+    display: flex; gap: 14px;
+    padding: 4px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 0.75rem;
+    color: #5f6368;
+    flex-wrap: wrap;
+  }
+  .sheets-menu span { cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+  .sheets-menu span:hover { background: #e8eaed; }
+  .sheets-menu span.highlight-menu {
+    background: #fef9c3;
+    color: #854d0e;
+    font-weight: 700;
+    border: 1px solid #fde047;
+    animation: blink 1s ease infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  .sheets-grid {
+    display: grid;
+    grid-template-columns: 40px repeat(4, 1fr);
+    font-size: 0.78rem;
+  }
+  .cell {
+    border: 1px solid #e5e7eb;
+    padding: 5px 8px;
+    min-height: 28px;
+    display: flex;
+    align-items: center;
+  }
+  .cell.header-row { background: #f8f9fa; font-weight: 700; color: #5f6368; justify-content: center; }
+  .cell.row-num { background: #f8f9fa; color: #5f6368; justify-content: center; font-weight: 600; }
+  .cell.color-blue { background: #cfe2ff; }
+  .cell.color-green { background: #d1fae5; }
+  .cell.color-yellow { background: #fef9c3; }
+  .cell.color-pink { background: #fce7f3; }
+  .cell.selected { outline: 2px solid var(--uva-blue); outline-offset: -2px; }
+  .cell.highlight-cell { animation: cellPulse 1s ease infinite; }
+  @keyframes cellPulse { 0%,100%{background:#fef9c3} 50%{background:#fde047} }
+
+  /* Share dialog mock */
+  .share-dialog {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .share-dialog h4 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; color: #202124; }
+  .share-input-row {
+    display: flex; gap: 8px; margin-bottom: 14px;
+  }
+  .share-input {
+    flex: 1;
+    border: 1.5px solid #d1d5db;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+  }
+  .share-input.active-input { border-color: var(--uva-blue); }
+  .share-btn-sm {
+    background: var(--uva-blue);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .permission-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.85rem;
+  }
+  .permission-row:last-child { border-bottom: none; }
+  .perm-user { display: flex; align-items: center; gap: 8px; }
+  .perm-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: white;
+  }
+  .perm-select {
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 0.78rem;
+    color: var(--text-mid);
+    cursor: pointer;
+  }
+  .perm-select.highlight-select {
+    border-color: var(--uva-blue);
+    background: #e8f0fb;
+    color: var(--uva-blue);
+    font-weight: 700;
+  }
+
+  /* Incognito mock */
+  .incognito-bar {
+    background: #1f2937;
+    color: #d1d5db;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.8rem;
+  }
+  .incognito-icon { font-size: 1.2rem; }
+  .incognito-label { font-weight: 600; color: #9ca3af; }
+
+  /* ── CLICKABLE HOTSPOT ── */
+  .hotspot-area {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+  }
+  .hotspot {
+    position: absolute;
+    border: 3px solid var(--gold);
+    border-radius: 6px;
+    cursor: pointer;
+    animation: hotspotPulse 1.5s ease infinite;
+    background: rgba(245,197,24,0.15);
+    transition: background 0.2s;
+  }
+  .hotspot:hover { background: rgba(245,197,24,0.35); }
+  @keyframes hotspotPulse { 0%,100%{box-shadow:0 0 0 0 rgba(245,197,24,0.5)} 50%{box-shadow:0 0 0 6px rgba(245,197,24,0)} }
+  .hotspot.clicked-correct { border-color: var(--success); background: rgba(22,163,74,0.2); animation: none; }
+  .hotspot.clicked-wrong { border-color: var(--error); background: rgba(220,38,38,0.15); animation: none; }
+
+  /* ── NAV BUTTONS ── */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn-nav {
+    background: var(--uva-blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-nav:hover { background: var(--uva-blue-dark); transform: translateY(-1px); }
+  .btn-nav:disabled { background: #9ca3af; cursor: default; transform: none; }
+  .btn-nav.green { background: var(--uva-green); }
+  .btn-nav.green:hover { background: #155c2e; }
+  .btn-check {
+    background: var(--gold);
+    color: var(--uva-blue-dark);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-check:hover { background: var(--gold-dark); }
+  .btn-check:disabled { background: #d1d5db; color: #9ca3af; cursor: default; }
+
+  /* ── RESULTS SCREEN ── */
+  .results-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    text-align: center;
+  }
+  .results-hero {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-green));
+    padding: 40px 32px;
+    color: white;
+  }
+  .results-hero .trophy { font-size: 5rem; margin-bottom: 12px; }
+  .results-hero h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+  .results-hero p { opacity: 0.9; font-size: 1rem; }
+  .results-body { padding: 32px; }
+  .final-rank-display {
+    background: linear-gradient(135deg, var(--gold), #f59e0b);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 24px;
+    display: inline-block;
+    min-width: 200px;
+  }
+  .final-rank-display .fr-icon { font-size: 3rem; }
+  .final-rank-display .fr-label { font-size: 0.8rem; font-weight: 600; color: #78350f; text-transform: uppercase; letter-spacing: 1px; }
+  .final-rank-display .fr-name { font-size: 1.6rem; font-weight: 800; color: #451a03; }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-box {
+    background: var(--light-bg);
+    border-radius: 12px;
+    padding: 16px 10px;
+  }
+  .stat-box .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--uva-blue); }
+  .stat-box .stat-lbl { font-size: 0.78rem; color: var(--text-light); margin-top: 2px; }
+  .objectives-list { text-align: left; margin-bottom: 24px; }
+  .objectives-list h4 { font-size: 0.9rem; font-weight: 700; color: var(--uva-blue); margin-bottom: 10px; }
+  .obj-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    line-height: 1.5;
+  }
+  .obj-item:last-child { border-bottom: none; }
+  .obj-check { color: var(--success); font-size: 1.1rem; flex-shrink: 0; }
+  .module-badge {
+    background: var(--light-bg);
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+    margin-bottom: 20px;
+  }
+  .module-badge strong { color: var(--uva-blue); }
+  .btn-restart {
+    background: linear-gradient(90deg, var(--uva-blue), var(--uva-green));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 36px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(27,94,175,0.3);
+  }
+  .btn-restart:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,94,175,0.4); }
+
+  /* ── CONFETTI ── */
+  #confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed;
+    top: 20px; right: 20px;
+    background: var(--uva-blue);
+    color: white;
+    border-radius: 12px;
+    padding: 14px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    max-width: 280px;
+  }
+  .toast.show { transform: translateX(0); }
+  .toast.gold-toast { background: linear-gradient(135deg, var(--gold), #f59e0b); color: #451a03; }
+  .toast.green-toast { background: var(--uva-green); }
+
+  /* ── PILLAR CARDS ── */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .pillar-card {
+    background: var(--light-bg);
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.82rem;
+  }
+  .pillar-card:hover { border-color: var(--uva-blue); background: #e8f0fb; }
+  .pillar-card.selected { border-color: var(--uva-blue); background: #dbeafe; }
+  .pillar-card.correct-card { border-color: var(--success); background: #dcfce7; }
+  .pillar-card.wrong-card { border-color: var(--error); background: #fee2e2; }
+  .pillar-card .pc-icon { font-size: 1.6rem; margin-bottom: 6px; }
+  .pillar-card .pc-name { font-weight: 700; color: var(--uva-blue); }
+  .pillar-card .pc-desc { color: var(--text-light); font-size: 0.75rem; margin-top: 3px; }
+
+  /* ── VERSION HISTORY MOCK ── */
+  .version-list { display: flex; flex-direction: column; gap: 6px; }
+  .version-item {
+    display: flex; align-items: center; gap: 12px;
+    background: white;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .version-item:hover { border-color: var(--uva-blue); background: #f0f4fb; }
+  .version-item.selected-version { border-color: var(--uva-blue); background: #dbeafe; }
+  .version-item.correct-version { border-color: var(--success); background: #dcfce7; }
+  .version-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .version-dot.current { background: var(--uva-green); }
+  .version-dot.old { background: #9ca3af; }
+  .version-info { flex: 1; }
+  .version-time { font-weight: 600; color: var(--text-dark); }
+  .version-author { color: var(--text-light); font-size: 0.75rem; }
+  .version-action { color: var(--uva-blue); font-size: 0.78rem; font-weight: 600; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  .fade-in { animation: fadeIn 0.4s ease; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .header-top { padding: 14px 16px 8px; }
+    .header-title-area { padding: 10px 16px 16px; }
+    .header-title-area h1 { font-size: 1.2rem; }
+    .progress-section { padding: 10px 16px; }
+    .main { padding: 16px 12px 40px; }
+    .intro-body, .mission-body { padding: 18px 16px; }
+    .intro-hero { padding: 24px 16px; }
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    .drag-area { flex-direction: column; }
+    .results-body { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════ HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="uva-logo-area">
+      <div class="uva-crest">🎓</div>
+      <div class="uva-name">
+        <div class="school">University View Academy</div>
+        <div class="dept">Computer Tech Literacy · Module 4.1</div>
+      </div>
+    </div>
+    <div class="rank-display">
+      <div class="rank-label">Current Rank</div>
+      <div class="rank-icon" id="rankIcon">🔰</div>
+      <div class="rank-value" id="rankValue">Trainee</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">Virtue  ·  Vigor  ·  Vision</div>
+  <div class="header-title-area">
+    <div class="mission-badge">🚀 Active Mission Sequence</div>
+    <h1>Mastering Collaborative Ecosystems<br>in Google Workspace</h1>
+    <p>Setting Up Group Collaborative Projects in Google Sheets</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ PROGRESS BAR -->
+<div class="progress-section">
+  <span class="progress-label">Mission Progress</span>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+  <div class="score-display">
+    <span class="score-num" id="scoreNum">0</span>
+    <span class="score-lbl">pts</span>
+  </div>
+  <div class="streak-badge" id="streakBadge">🔥 Streak!</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ MAIN -->
+<div class="main">
+
+  <!-- ── INTRO SCREEN ── -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-card fade-in">
+      <div class="intro-hero">
+        <div class="big-icon">🛡️</div>
+        <h2>Welcome, UVA Cadet!</h2>
+        <p>Your team's Google Sheet is in chaos — missing data, wrong permissions, and no version control. Complete 5 missions to earn your <strong>Collaboration Master</strong> rank and save the project!</p>
+      </div>
+      <div class="intro-body">
+        <h3>🎯 Your Mission Briefing</h3>
+        <ul class="mission-list">
+          <li><span class="mi">🏛️</span><div><strong>Mission 1:</strong> Identify the Five Pillars of Digital Collaboration</div></li>
+          <li><span class="mi">🎨</span><div><strong>Mission 2:</strong> Apply Color Coding & Structured Table Layouts</div></li>
+          <li><span class="mi">🕐</span><div><strong>Mission 3:</strong> Navigate Version History to Restore Lost Data</div></li>
+          <li><span class="mi">🔒</span><div><strong>Mission 4:</strong> Set Correct Sharing Permissions</div></li>
+          <li><span class="mi">🕵️</span><div><strong>Mission 5:</strong> Verify Access Using Incognito Mode</div></li>
+        </ul>
+        <h3 style="margin-bottom:12px;">📊 Rank Progression</h3>
+        <div class="rank-ladder">
+          <div class="rank-step"><div class="rs-icon">🔰</div><div class="rs-name">Trainee</div><div class="rs-pts">0 pts</div></div>
+          <div class="rank-step"><div class="rs-icon">⚔️</div><div class="rs-name">Apprentice</div><div class="rs-pts">100 pts</div></div>
+          <div class="rank-step"><div class="rs-icon">🏅</div><div class="rs-name">Expert</div><div class="rs-pts">200 pts</div></div>
+          <div class="rank-step"><div class="rs-icon">👑</div><div class="rs-name">Master</div><div class="rs-pts">300 pts</div></div>
+        </div>
+        <button class="btn-start" onclick="startGame()">🚀 Launch Mission Sequence</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MISSION 1: Five Pillars (Drag & Drop) ── -->
+  <div class="screen" id="screen-1">
+    <div class="mission-card fade-in">
+      <div class="mission-header">
+        <div class="mission-num">1</div>
+        <div class="mission-header-text">
+          <div class="mission-type">🏛️ Drag & Drop Mission</div>
+          <div class="mission-title">The Five Pillars of Digital Collaboration</div>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-scenario">
+          <strong>🚨 Situation:</strong> Your UVA project team just created a shared Google Sheet, but within 24 hours: data was overwritten, no one knows who changed what, and a teammate accidentally deleted the budget column. Your instructor says you violated the <em>Five Pillars of Digital Collaboration</em>. Do you know what they are?
+        </div>
+        <div class="mission-question">Match each pillar to its correct description by dragging the pillar names into the right boxes:</div>
+
+        <div class="drag-area">
+          <div class="drag-col">
+            <h4>📦 Pillars (Drag These)</h4>
+            <div class="drag-items" id="pillarSource">
+              <div class="drag-item" draggable="true" data-pillar="Ownership"><span>👤</span> Ownership</div>
+              <div class="drag-item" draggable="true" data-pillar="Structure"><span>📐</span> Structure</div>
+              <div class="drag-item" draggable="true" data-pillar="Version Control"><span>🕐</span> Version Control</div>
+              <div class="drag-item" draggable="true" data-pillar="Permissions"><span>🔒</span> Permissions</div>
+              <div class="drag-item" draggable="true" data-pillar="Communication"><span>💬</span> Communication</div>
+            </div>
+          </div>
+          <div class="drag-col">
+            <h4>📋 Descriptions (Drop Here)</h4>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div>
+                <div class="drop-label">Each section has a designated team member responsible for its accuracy.</div>
+                <div class="drop-zone" data-answer="Ownership" id="drop-0"></div>
+              </div>
+              <div>
+                <div class="drop-label">Consistent headers, color coding, and frozen rows keep data readable.</div>
+                <div class="drop-zone" data-answer="Structure" id="drop-1"></div>
+              </div>
+              <div>
+                <div class="drop-label">Using File → Version History to track and restore changes.</div>
+                <div class="drop-zone" data-answer="Version Control" id="drop-2"></div>
+              </div>
+              <div>
+                <div class="drop-label">Controlling who can View, Comment, or Edit the document.</div>
+                <div class="drop-zone" data-answer="Permissions" id="drop-3"></div>
+              </div>
+              <div>
+                <div class="drop-label">Using Google Sheets comments and @mentions to coordinate edits.</div>
+                <div class="drop-zone" data-answer="Communication" id="drop-4"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback-box" id="fb-1"></div>
+        <div class="nav-row">
+          <div></div>
+          <button class="btn-check" id="checkBtn-1" onclick="checkDragDrop()" disabled>✅ Check Matches</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MISSION 2: Color Coding (Click the correct cell) ── -->
+  <div class="screen" id="screen-2">
+    <div class="mission-card fade-in">
+      <div class="mission-header">
+        <div class="mission-num">2</div>
+        <div class="mission-header-text">
+          <div class="mission-type">🎨 Simulation Mission</div>
+          <div class="mission-title">Apply Color Coding & Structured Layouts</div>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-scenario">
+          <strong>🎯 Objective:</strong> Your team lead says: <em>"Color-code each member's section so we can instantly see who owns what data. Use the Fill Color tool in Google Sheets."</em> You need to select the correct cells for <strong>Alex's row</strong> and apply a color. Click the correct action below.
+        </div>
+        <div class="mission-question">Step 1 of 2 — In the Google Sheet below, which menu contains the <strong>Fill Color</strong> option to color-code cells?</div>
+
+        <div class="sim-container">
+          <div class="sim-toolbar">
+            <div class="sim-dot red"></div>
+            <div class="sim-dot yellow"></div>
+            <div class="sim-dot green"></div>
+            <div class="sim-url-bar">docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit</div>
+          </div>
+          <div class="sim-body">
+            <div class="sheets-mock">
+              <div class="sheets-header">
+                <span class="sheets-icon">📊</span>
+                <span class="sheets-title">UVA Group Project — Budget Tracker</span>
+              </div>
+              <div class="sheets-menu" id="sheetsMenu">
+                <span onclick="checkMenuClick('File')">File</span>
+                <span onclick="checkMenuClick('Edit')">Edit</span>
+                <span onclick="checkMenuClick('View')">View</span>
+                <span onclick="checkMenuClick('Insert')">Insert</span>
+                <span onclick="checkMenuClick('Format')" id="menuFormat">Format</span>
+                <span onclick="checkMenuClick('Tools')">Tools</span>
+                <span onclick="checkMenuClick('Extensions')">Extensions</span>
+                <span onclick="checkMenuClick('Help')">Help</span>
+              </div>
+              <div class="sheets-grid">
+                <div class="cell header-row"></div>
+                <div class="cell header-row">A</div>
+                <div class="cell header-row">B</div>
+                <div class="cell header-row">C</div>
+                <div class="cell header-row">D</div>
+                <div class="cell row-num">1</div>
+                <div class="cell" style="font-weight:700;background:#e8eaed;">Member</div>
+                <div class="cell" style="font-weight:700;background:#e8eaed;">Section</div>
+                <div class="cell" style="font-weight:700;background:#e8eaed;">Budget ($)</div>
+                <div class="cell" style="font-weight:700;background:#e8eaed;">Status</div>
+                <div class="cell row-num">2</div>
+                <div class="cell color-blue">Alex</div>
+                <div class="cell color-blue">Marketing</div>
+                <div class="cell color-blue">$500</div>
+                <div class="cell color-blue">In Progress</div>
+                <div class="cell row-num">3</div>
+                <div class="cell color-green">Jordan</div>
+                <div class="cell color-green">Research</div>
+                <div class="cell color-green">$300</div>
+                <div class="cell color-green">Complete</div>
+                <div class="cell row-num">4</div>
+                <div class="cell color-yellow">Sam</div>
+                <div class="cell color-yellow">Design</div>
+                <div class="cell color-yellow">$200</div>
+                <div class="cell color-yellow">Not Started</div>
+                <div class="cell row-num">5</div>
+                <div class="cell color-pink">Riley</div>
+                <div class="cell color-pink">Logistics</div>
+                <div class="cell color-pink">$150</div>
+                <div class="cell color-pink">In Progress</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="choices" id="choices-2">
+          <button class="choice-btn" onclick="checkChoice2(this,'wrong')" data-val="wrong">
+            <span class="choice-letter">A</span>
+            <span>Click <strong>Insert</strong> → Background Color</span>
+          </button>
+          <button class="choice-btn" onclick="checkChoice2(this,'wrong2')" data-val="wrong2">
+            <span class="choice-letter">B</span>
+            <span>Click <strong>Edit</strong> → Fill Color</span>
+          </button>
+          <button class="choice-btn" onclick="checkChoice2(this,'correct')" data-val="correct">
+            <span class="choice-letter">C</span>
+            <span>Select the cells → Click <strong>Format</strong> → then use the <strong>Fill Color (paint bucket 🪣)</strong> icon in the toolbar, or Format → Theme</span>
+          </button>
+          <button class="choice-btn" onclick="checkChoice2(this,'wrong3')" data-val="wrong3">
+            <span class="choice-letter">D</span>
+            <span>Right-click → <strong>Format Cells</strong> → Color Picker</span>
+          </button>
+        </div>
+
+        <div class="feedback-box" id="fb-2"></div>
+        <div class="nav-row">
+          <div></div>
+          <button class="btn-nav" id="nextBtn-2" onclick="goToScreen(3)" disabled>Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MISSION 3: Version History ── -->
+  <div class="screen" id="screen-3">
+    <div class="mission-card fade-in">
+      <div class="mission-header">
+        <div class="mission-num">3</div>
+        <div class="mission-header-text">
+          <div class="mission-type">🕐 Simulation Mission</div>
+          <div class="mission-title">Navigate Version History to Restore Lost Data</div>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-scenario">
+          <strong>🚨 Emergency!</strong> A teammate accidentally deleted the entire <em>Budget ($)</em> column at <strong>3:47 PM today</strong>. You need to use Google Sheets' <strong>Version History</strong> to find and restore the last good version. The correct path is: <em>File → Version History → See Version History</em>.
+        </div>
+        <div class="mission-question">Which version should you restore to recover the deleted Budget column? Click the correct version:</div>
+
+        <div class="sim-container">
+          <div class="sim-toolbar">
+            <div class="sim-dot red"></div>
+            <div class="sim-dot yellow"></div>
+            <div class="sim-dot green"></div>
+            <div class="sim-url-bar">docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit#gid=0</div>
+          </div>
+          <div class="sim-body" style="padding:12px;">
+            <div style="font-size:0.82rem;font-weight:700;color:#5f6368;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+              <span>←</span> Version History
+              <span style="font-weight:400;color:#9ca3af;">· UVA Group Project — Budget Tracker</span>
+            </div>
+            <div class="version-list" id="versionList">
+              <div class="version-item" onclick="selectVersion(this, 'wrong')" data-val="wrong">
+                <div class="version-dot current"></div>
+                <div class="version-info">
+                  <div class="version-time">Today, 4:12 PM <span style="background:#dbeafe;color:#1e40af;font-size:0.7rem;padding:1px 6px;border-radius:10px;margin-left:4px;">Current</span></div>
+                  <div class="version-author">Edited by: Sam Rivera</div>
+                </div>
+                <div class="version-action">Restore</div>
+              </div>
+              <div class="version-item" onclick="selectVersion(this, 'wrong2')" data-val="wrong2">
+                <div class="version-dot old"></div>
+                <div class="version-info">
+                  <div class="version-time">Today, 3:52 PM</div>
+                  <div class="version-author">Edited by: Jordan Lee</div>
+                </div>
+                <div class="version-action">Restore</div>
+              </div>
+              <div class="version-item" onclick="selectVersion(this, 'correct')" data-val="correct">
+                <div class="version-dot old"></div>
+                <div class="version-info">
+                  <div class="version-time">Today, 3:44 PM <span style="background:#fef9c3;color:#854d0e;font-size:0.7rem;padding:1px 6px;border-radius:10px;margin-left:4px;">Before deletion</span></div>
+                  <div class="version-author">Edited by: Alex Chen</div>
+                </div>
+                <div class="version-action">Restore</div>
+              </div>
+              <div class="version-item" onclick="selectVersion(this, 'wrong3')" data-val="wrong3">
+                <div class="version-dot old"></div>
+                <div class="version-info">
+                  <div class="version-time">Today, 2:30 PM</div>
+                  <div class="version-author">Edited by: Riley Park</div>
+                </div>
+                <div class="version-action">Restore</div>
+              </div>
+              <div class="version-item" onclick="selectVersion(this, 'wrong4')" data-val="wrong4">
+                <div class="version-dot old"></div>
+                <div class="version-info">
+                  <div class="version-time">Yesterday, 11:15 AM</div>
+                  <div class="version-author">Edited by: Alex Chen</div>
+                </div>
+                <div class="version-action">Restore</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback-box" id="fb-3"></div>
+        <div class="nav-row">
+          <div></div>
+          <button class="btn-nav" id="nextBtn-3" onclick="goToScreen(4)" disabled>Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MISSION 4: Sharing Permissions ── -->
+  <div class="screen" id="screen-4">
+    <div class="mission-card fade-in">
+      <div class="mission-header">
+        <div class="mission-num">4</div>
+        <div class="mission-header-text">
+          <div class="mission-type">🔒 Scenario Mission</div>
+          <div class="mission-title">Set Correct Sharing Permissions</div>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-scenario">
+          <strong>📋 Scenario:</strong> Your UVA project team has 3 roles: <br>
+          • <strong>Alex (Team Lead)</strong> — needs full editing access<br>
+          • <strong>Ms. Thompson (Instructor)</strong> — should only leave feedback, not edit data<br>
+          • <strong>External Reviewer</strong> — can only read the sheet, no changes<br><br>
+          You're in the <strong>Share</strong> dialog. Set the correct permission for each person.
+        </div>
+        <div class="mission-question">Click the correct permission level for each team member in the Share dialog:</div>
+
+        <div class="sim-container">
+          <div class="sim-toolbar">
+            <div class="sim-dot red"></div>
+            <div class="sim-dot yellow"></div>
+            <div class="sim-dot green"></div>
+            <div class="sim-url-bar">docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit</div>
+          </div>
+          <div class="sim-body">
+            <div class="share-dialog">
+              <h4>🔗 Share "UVA Group Project — Budget Tracker"</h4>
+              <div class="share-input-row">
+                <input class="share-input" type="text" placeholder="Add people and groups" readonly>
+                <button class="share-btn-sm">Send</button>
+              </div>
+              <div style="font-size:0.78rem;font-weight:700;color:#5f6368;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">People with access</div>
+              <div class="permission-row">
+                <div class="perm-user">
+                  <div class="perm-avatar" style="background:#1B5EAF;">AC</div>
+                  <div>
+                    <div style="font-weight:600;font-size:0.85rem;">Alex Chen (Team Lead)</div>
+                    <div style="font-size:0.75rem;color:#9ca3af;">alex.chen@uva.edu</div>
+                  </div>
+                </div>
+                <select class="perm-select" id="perm-alex" onchange="checkPermission('alex', this.value)">
+                  <option value="">Select...</option>
+                  <option value="viewer">Viewer</option>
+                  <option value="commenter">Commenter</option>
+                  <option value="editor">Editor</option>
+                </select>
+              </div>
+              <div class="permission-row">
+                <div class="perm-user">
+                  <div class="perm-avatar" style="background:#1E7A3E;">MT</div>
+                  <div>
+                    <div style="font-weight:600;font-size:0.85rem;">Ms. Thompson (Instructor)</div>
+                    <div style="font-size:0.75rem;color:#9ca3af;">m.thompson@uva.edu</div>
+                  </div>
+                </div>
+                <select class="perm-select" id="perm-thompson" onchange="checkPermission('thompson', this.value)">
+                  <option value="">Select...</option>
+                  <option value="viewer">Viewer</option>
+                  <option value="commenter">Commenter</option>
+                  <option value="editor">Editor</option>
+                </select>
+              </div>
+              <div class="permission-row">
+                <div class="perm-user">
+                  <div class="perm-avatar" style="background:#6b7280;">ER</div>
+                  <div>
+                    <div style="font-weight:600;font-size:0.85rem;">External Reviewer</div>
+                    <div style="font-size:0.75rem;color:#9ca3af;">reviewer@external.org</div>
+                  </div>
+                </div>
+                <select class="perm-select" id="perm-reviewer" onchange="checkPermission('reviewer', this.value)">
+                  <option value="">Select...</option>
+                  <option value="viewer">Viewer</option>
+                  <option value="commenter">Commenter</option>
+                  <option value="editor">Editor</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="feedback-box" id="fb-4"></div>
+        <div class="nav-row">
+          <div></div>
+          <button class="btn-nav" id="nextBtn-4" onclick="goToScreen(5)" disabled>Next Mission →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MISSION 5: Incognito Mode ── -->
+  <div class="screen" id="screen-5">
+    <div class="mission-card fade-in">
+      <div class="mission-header">
+        <div class="mission-num">5</div>
+        <div class="mission-header-text">
+          <div class="mission-type">🕵️ Final Mission</div>
+          <div class="mission-title">Verify Access Using Incognito Mode</div>
+        </div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-scenario">
+          <strong>🔍 Final Challenge:</strong> You've set permissions, but how do you <em>verify</em> that the External Reviewer truly only has Viewer access and can't accidentally edit? Your instructor says: <em>"Always test permissions from the recipient's perspective using Incognito Mode — it bypasses your own Google login."</em>
+        </div>
+
+        <div class="mission-question">Answer all 3 questions to complete your final mission:</div>
+
+        <!-- Q5a -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:0.88rem;font-weight:700;color:var(--uva-blue);margin-bottom:10px;">❓ Q1: Why use Incognito Mode instead of just opening the link normally?</div>
+          <div class="choices" id="choices-5a">
+            <button class="choice-btn" onclick="checkMulti(this,'5a','wrong')">
+              <span class="choice-letter">A</span>
+              <span>Incognito mode makes the sheet load faster</span>
+            </button>
+            <button class="choice-btn" onclick="checkMulti(this,'5a','correct')">
+              <span class="choice-letter">B</span>
+              <span>Incognito mode doesn't use your saved Google account, so you see the sheet exactly as an outside user would — without your Editor privileges</span>
+            </button>
+            <button class="choice-btn" onclick="checkMulti(this,'5a','wrong2')">
+              <span class="choice-letter">C</span>
+              <span>Incognito mode automatically logs you in as the reviewer</span>
+            </button>
+            <button class="choice-btn" onclick="checkMulti(this,'5a','wrong3')">
+              <span class="choice-letter">D</span>
+              <span>Incognito mode is required by Google to share files</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Q5b: Incognito simulation -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:0.88rem;font-weight:700;color:var(--uva-blue);margin-bottom:10px;">❓ Q2: In the Incognito window below, what tells you the reviewer has <em>Viewer-only</em> access?</div>
+          <div class="sim-container">
+            <div class="incognito-bar">
+              <span class="incognito-icon">🕵️</span>
+              <span class="incognito-label">Incognito</span>
+              <span style="flex:1;background:#374151;border-radius:4px;padding:3px 10px;font-family:monospace;font-size:0.75rem;">docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit</span>
+            </div>
+            <div class="sim-body">
+              <div class="sheets-mock">
+                <div class="sheets-header">
+                  <span class="sheets-icon">📊</span>
+                  <span class="sheets-title">UVA Group Project — Budget Tracker</span>
+                  <span style="margin-left:auto;background:#f3f4f6;border:1px solid #d1d5db;border-radius:4px;padding:3px 10px;font-size:0.75rem;color:#6b7280;">👁️ View only</span>
+                </div>
+                <div class="sheets-menu" style="pointer-events:none;opacity:0.6;">
+                  <span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Tools</span>
+                </div>
+                <div class="sheets-grid">
+                  <div class="cell header-row"></div>
+                  <div class="cell header-row">A</div>
+                  <div class="cell header-row">B</div>
+                  <div class="cell header-row">C</div>
+                  <div class="cell header-row">D</div>
+                  <div class="cell row-num">1</div>
+                  <div class="cell" style="font-weight:700;background:#e8eaed;">Member</div>
+                  <div class="cell" style="font-weight:700;background:#e8eaed;">Section</div>
+                  <div class="cell" style="font-weight:700;background:#e8eaed;">Budget ($)</div>
+                  <div class="cell" style="font-weight:700;background:#e8eaed;">Status</div>
+                  <div class="cell row-num">2</div>
+                  <div class="cell color-blue">Alex</div>
+                  <div class="cell color-blue">Marketing</div>
+                  <div class="cell color-blue">$500</div>
+                  <div class="cell color-blue">In Progress</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="choices" id="choices-5b">
+            <button class="choice-btn" onclick="checkMulti(this,'5b','wrong')">
+              <span class="choice-letter">A</span>
+              <span>The sheet is in dark mode</span>
+            </button>
+            <button class="choice-btn" onclick="checkMulti(this,'5b','correct')">
+              <span class="choice-letter">B</span>
+              <span>The <strong>"👁️ View only"</strong> badge appears in the top-right of the sheet header, and the toolbar menus are grayed out — confirming no editing is possible</span>
+            </button>
+            <button class="choice-btn" onclick="checkMulti(this,'5b','wrong2')">
+              <span class="choice-letter">C</span>
+              <span>The URL changes to /view instead of /edit</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Q5c -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:0.88rem;font-weight:700;color:var(--uva-blue);margin-bottom:10px;">❓ Q3: After verifying in Incognito, what is the BEST next step?</div>
+          <div class="choices" id="choices-5c">
+            <button class="choice-btn" onclick="checkMulti(this,'5c','wrong')">
+              <span class="choice-letter">A</span>
+              <span>Delete the Incognito window and never check again</span>
+            </button>
+            <button class="choice-btn" onclick="checkMulti(this,'5c','wrong2')">
+              <span class="choice-letter">B</span>
+              <span>Change all permissions to Editor so everyone can help</span>
+            </button>
+            <button class="choice-btn" onclick="checkMulti(this,'5c','correct')">
+              <span class="choice-letter">C</span>
+              <span>Document the verified permissions in your project notes and notify each team member of their access level via Google Sheets comment or email</span>
+            </button>
+            <button class="choice-btn" onclick="checkMulti(this,'5c','wrong3')">
+              <span class="choice-letter">D</span>
+              <span>Re-share the document with everyone as "Anyone with the link can edit"</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="feedback-box" id="fb-5"></div>
+        <div class="nav-row">
+          <div></div>
+          <button class="btn-nav green" id="nextBtn-5" onclick="showResults()" disabled>🏆 View Final Results</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS SCREEN ── -->
+  <div class="screen" id="screen-results">
+    <div class="results-card fade-in">
+      <div class="results-hero">
+        <div class="trophy" id="resultsTrophy">🏆</div>
+        <h2 id="resultsTitle">Mission Complete!</h2>
+        <p id="resultsSubtitle">You've mastered Google Workspace Collaboration!</p>
+      </div>
+      <div class="results-body">
+        <div class="final-rank-display">
+          <div class="fr-icon" id="finalRankIcon">👑</div>
+          <div class="fr-label">Final Rank Achieved</div>
+          <div class="fr-name" id="finalRankName">Master</div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-num" id="statScore">0</div>
+            <div class="stat-lbl">Total Points</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statCorrect">0</div>
+            <div class="stat-lbl">Correct Answers</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num" id="statStreak">0</div>
+            <div class="stat-lbl">Best Streak</div>
+          </div>
+        </div>
+
+        <div class="module-badge">
+          📚 <strong>Digital Literacy & Collaboration Standards — Module 4.1</strong><br>
+          All five learning objectives completed ✓
+        </div>
+
+        <div class="objectives-list">
+          <h4>✅ Learning Objectives Mastered</h4>
+          <div class="obj-item"><span class="obj-check">✅</span> Identified the five pillars of digital collaboration management to prevent collaborative disasters</div>
+          <div class="obj-item"><span class="obj-check">✅</span> Applied unique color coding and structured table layouts to a shared Google Sheet</div>
+          <div class="obj-item"><span class="obj-check">✅</span> Utilized Version History to monitor contributions and restore accidental deletions</div>
+          <div class="obj-item"><span class="obj-check">✅</span> Verified project sharing permissions using Incognito Mode for technical troubleshooting</div>
+        </div>
+
+        <div style="text-align:center;margin-bottom:16px;font-size:0.85rem;color:var(--text-light);font-style:italic;">
+          "Virtue, Vigor, Vision" — University View Academy
+        </div>
+
+        <div style="text-align:center;">
+          <button class="btn-restart" onclick="restartGame()">🔄 Restart Mission Sequence</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ══════════════════════════════════════════════
+// GAME STATE
+// ══════════════════════════════════════════════
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let correctCount = 0;
+let totalAnswered = 0;
+let currentScreen = 'intro';
+
+// Mission 1 drag state
+let draggedPillar = null;
+let dropZoneAnswers = {}; // dropId -> pillarName
+
+// Mission 4 permissions
+let permAnswers = { alex: null, thompson: null, reviewer: null };
+let permCorrect = { alex: false, thompson: false, reviewer: false };
+
+// Mission 5 multi-Q
+let m5Answers = { '5a': null, '5b': null, '5c': null };
+let m5Correct = { '5a': false, '5b': false, '5c': false };
+
+const RANKS = [
+  { name: 'Trainee',    icon: '🔰', min: 0   },
+  { name: 'Apprentice', icon: '⚔️', min: 100 },
+  { name: 'Expert',     icon: '🏅', min: 200 },
+  { name: 'Master',     icon: '👑', min: 300 },
+];
+
+function getRank(pts) {
+  let r = RANKS[0];
+  for (const rank of RANKS) { if (pts >= rank.min) r = rank; }
+  return r;
+}
+
+function updateRankDisplay() {
+  const r = getRank(score);
+  document.getElementById('rankIcon').textContent = r.icon;
+  document.getElementById('rankValue').textContent = r.name;
+}
+
+function updateScore(pts) {
+  score += pts;
+  document.getElementById('scoreNum').textContent = score;
+  updateRankDisplay();
+  const maxScore = 500;
+  const pct = Math.min(100, (score / maxScore) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function updateStreak(correct) {
+  if (correct) {
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    correctCount++;
+    const badge = document.getElementById('streakBadge');
+    if (streak >= 2) {
+      badge.textContent = '🔥 ' + streak + ' in a row!';
+      badge.classList.add('show');
+    }
+    if (streak === 3) showToast('🔥 3-Streak Bonus! +15 pts', 'gold');
+    if (streak === 5) showToast('⚡ 5-Streak LEGENDARY! +25 pts', 'gold');
+  } else {
+    streak = 0;
+    document.getElementById('streakBadge').classList.remove('show');
+  }
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+function showToast(msg, type='blue') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type==='gold'?' gold-toast':type==='green'?' green-toast':'');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════
+function launchConfetti(duration=2500) {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = [];
+  const colors = ['#1B5EAF','#1E7A3E','#F5C518','#ef4444','#8b5cf6','#06b6d4'];
+  for (let i = 0; i < 120; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * -canvas.height,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 6 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * 360,
+      vx: (Math.random() - 0.5) * 3,
+      vy: Math.random() * 4 + 2,
+      vr: (Math.random() - 0.5) * 6,
+    });
+  }
+  let start = null;
+  function draw(ts) {
+    if (!start) start = ts;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if (ts - start < duration) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  requestAnimationFrame(draw);
+}
+
+// ══════════════════════════════════════════════
+// SCREEN NAVIGATION
+// ══════════════════════════════════════════════
+function startGame() {
+  goToScreen(1);
+}
+
+function goToScreen(n) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-' + n) || document.getElementById('screen-results');
+  if (target) { target.classList.add('active'); target.scrollIntoView({behavior:'smooth',block:'start'}); }
+  currentScreen = n;
+}
+
+function showResults() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-results').classList.add('active');
+  const r = getRank(score);
+  document.getElementById('finalRankIcon').textContent = r.icon;
+  document.getElementById('finalRankName').textContent = r.name;
+  document.getElementById('statScore').textContent = score;
+  document.getElementById('statCorrect').textContent = correctCount;
+  document.getElementById('statStreak').textContent = bestStreak;
+  if (score >= 300) {
+    document.getElementById('resultsTrophy').textContent = '👑';
+    document.getElementById('resultsTitle').textContent = 'Collaboration Master Achieved!';
+    document.getElementById('resultsSubtitle').textContent = 'Outstanding performance, UVA Cadet! You\'ve earned the highest rank!';
+    launchConfetti(4000);
+  } else if (score >= 200) {
+    document.getElementById('resultsTrophy').textContent = '🏅';
+    document.getElementById('resultsTitle').textContent = 'Expert Status Unlocked!';
+    document.getElementById('resultsSubtitle').textContent = 'Excellent work! You\'ve demonstrated strong collaboration skills.';
+    launchConfetti(2500);
+  } else {
+    document.getElementById('resultsTrophy').textContent = '🎓';
+    document.getElementById('resultsTitle').textContent = 'Mission Sequence Complete!';
+    document.getElementById('resultsSubtitle').textContent = 'Good effort! Review the feedback and try again to reach Master rank.';
+  }
+  document.getElementById('screen-results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function restartGame() {
+  score = 0; streak = 0; bestStreak = 0; correctCount = 0;
+  dropZoneAnswers = {};
+  permAnswers = { alex: null, thompson: null, reviewer: null };
+  permCorrect = { alex: false, thompson: false, reviewer: false };
+  m5Answers = { '5a': null, '5b': null, '5c': null };
+  m5Correct = { '5a': false, '5b': false, '5c': false };
+  document.getElementById('scoreNum').textContent = '0';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('streakBadge').classList.remove('show');
+  updateRankDisplay();
+  // Reset all buttons/feedback
+  document.querySelectorAll('.choice-btn').forEach(b => { b.className='choice-btn'; b.disabled=false; });
+  document.querySelectorAll('.feedback-box').forEach(f => { f.className='feedback-box'; f.innerHTML=''; });
+  document.querySelectorAll('.btn-nav').forEach(b => b.disabled=true);
+  document.querySelectorAll('.btn-check').forEach(b => b.disabled=true);
+  // Reset drag
+  document.querySelectorAll('.drop-zone').forEach(z => { z.innerHTML=''; z.className='drop-zone'; });
+  document.querySelectorAll('.drag-item').forEach(item => {
+    document.getElementById('pillarSource').appendChild(item);
+    item.style.opacity='1';
+  });
+  // Reset permissions
+  ['alex','thompson','reviewer'].forEach(id => {
+    const sel = document.getElementById('perm-'+id);
+    if(sel) { sel.value=''; sel.className='perm-select'; sel.disabled=false; }
+  });
+  // Reset version list
+  document.querySelectorAll('.version-item').forEach(v => { v.className='version-item'; });
+  // Reset M5
+  document.querySelectorAll('[id^="choices-5"]').forEach(c => {
+    c.querySelectorAll('.choice-btn').forEach(b => { b.className='choice-btn'; b.disabled=false; });
+  });
+  document.getElementById('nextBtn-5').disabled=true;
+  goToScreen('intro');
+  document.getElementById('screen-intro').classList.add('active');
+}
+
+// ══════════════════════════════════════════════
+// MISSION 1: DRAG & DROP
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  setupDragDrop();
+});
+
+function setupDragDrop() {
+  const items = document.querySelectorAll('.drag-item');
+  const zones = document.querySelectorAll('.drop-zone');
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      draggedPillar = item;
+      item.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+    });
+  });
+
+  zones.forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!draggedPillar) return;
+      // If zone already has an item, send it back
+      const existing = zone.querySelector('.drag-item');
+      if (existing) {
+        document.getElementById('pillarSource').appendChild(existing);
+        delete dropZoneAnswers[zone.id];
+      }
+      zone.appendChild(draggedPillar);
+      dropZoneAnswers[zone.id] = draggedPillar.dataset.pillar;
+      draggedPillar = null;
+      // Enable check if all zones filled
+      const filled = Object.keys(dropZoneAnswers).length;
+      document.getElementById('checkBtn-1').disabled = filled < 5;
+    });
+  });
+}
+
+function checkDragDrop() {
+  const zones = document.querySelectorAll('.drop-zone');
+  let allCorrect = true;
+  let correctMatches = 0;
+  zones.forEach(zone => {
+    const answer = zone.dataset.answer;
+    const placed = dropZoneAnswers[zone.id];
+    if (placed === answer) {
+      zone.classList.add('correct-zone');
+      correctMatches++;
+    } else {
+      zone.classList.add('wrong-zone');
+      allCorrect = false;
+    }
+  });
+  // Disable dragging
+  document.querySelectorAll('.drag-item').forEach(i => i.setAttribute('draggable','false'));
+  document.getElementById('checkBtn-1').disabled = true;
+
+  const fb = document.getElementById('fb-1');
+  fb.classList.add('show');
+  if (allCorrect) {
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">🎉 Perfect Match! All Five Pillars Identified!</div>The five pillars — Ownership, Structure, Version Control, Permissions, and Communication — are the foundation of every successful collaborative Google Sheet. Mastering these prevents 90% of team data disasters!<span class="fb-pts">+100 pts</span>';
+    updateScore(100);
+    updateStreak(true);
+    launchConfetti(2000);
+    showToast('🏛️ All 5 Pillars Matched! +100 pts', 'gold');
+    setTimeout(() => {
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn-nav';
+      nextBtn.style.marginTop = '14px';
+      nextBtn.textContent = 'Next Mission →';
+      nextBtn.onclick = () => goToScreen(2);
+      fb.appendChild(document.createElement('br'));
+      fb.appendChild(nextBtn);
+    }, 500);
+  } else {
+    fb.className = 'feedback-box show wrong-fb';
+    fb.innerHTML = `<div class="fb-title">⚠️ ${correctMatches}/5 Correct</div>Some pillars are mismatched. Green zones = correct, Red zones = incorrect. Review the descriptions carefully — each pillar has a very specific role in collaboration management.<span class="fb-pts">+${correctMatches * 10} pts</span>`;
+    updateScore(correctMatches * 10);
+    updateStreak(false);
+    // Allow retry
+    setTimeout(() => {
+      const retryBtn = document.createElement('button');
+      retryBtn.className = 'btn-check';
+      retryBtn.style.marginTop='12px';
+      retryBtn.textContent = '🔄 Try Again';
+      retryBtn.onclick = () => resetDragDrop();
+      fb.appendChild(document.createElement('br'));
+      fb.appendChild(retryBtn);
+    }, 300);
+  }
+}
+
+function resetDragDrop() {
+  dropZoneAnswers = {};
+  document.querySelectorAll('.drop-zone').forEach(z => { z.innerHTML=''; z.className='drop-zone'; });
+  document.querySelectorAll('.drag-item').forEach(item => {
+    document.getElementById('pillarSource').appendChild(item);
+    item.setAttribute('draggable','true');
+  });
+  document.getElementById('fb-1').className='feedback-box';
+  document.getElementById('fb-1').innerHTML='';
+  document.getElementById('checkBtn-1').disabled=true;
+}
+
+// ══════════════════════════════════════════════
+// MISSION 2: COLOR CODING
+// ══════════════════════════════════════════════
+let m2Done = false;
+function checkChoice2(btn, val) {
+  if (m2Done) return;
+  m2Done = true;
+  const btns = document.querySelectorAll('#choices-2 .choice-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('fb-2');
+  fb.classList.add('show');
+  if (val === 'correct') {
+    btn.classList.add('correct');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">✅ Correct! That\'s the real Google Sheets workflow!</div>In Google Sheets, you select the target cells first (e.g., A2:D2 for Alex\'s row), then use the <strong>🪣 Fill Color</strong> icon in the toolbar (or Format menu) to apply a background color. This creates instant visual ownership — each team member\'s section is color-coded for clarity.<span class="fb-pts">+80 pts</span>';
+    updateScore(80);
+    updateStreak(true);
+    showToast('🎨 Color Coding Expert! +80 pts', 'green');
+    document.getElementById('nextBtn-2').disabled = false;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback-box show wrong-fb';
+    let hint = '';
+    if (val==='wrong') hint = 'The <strong>Insert</strong> menu is for adding rows, columns, charts, and images — not for cell formatting.';
+    else if (val==='wrong2') hint = 'The <strong>Edit</strong> menu handles copy/paste and find/replace — not fill colors.';
+    else hint = 'Right-click → Format Cells is a Microsoft Excel shortcut. In Google Sheets, the correct path is selecting cells then using the <strong>Fill Color (🪣)</strong> toolbar icon or the Format menu.';
+    fb.innerHTML = `<div class="fb-title">❌ Not quite!</div>${hint} The correct answer is <strong>C</strong>: Select cells → use the Fill Color icon in the toolbar.<span class="fb-pts">+20 pts</span>`;
+    updateScore(20);
+    updateStreak(false);
+    // Highlight correct
+    btns.forEach(b => { if(b.dataset.val==='correct') b.classList.add('correct'); });
+    document.getElementById('nextBtn-2').disabled = false;
+  }
+}
+
+// ══════════════════════════════════════════════
+// MISSION 3: VERSION HISTORY
+// ══════════════════════════════════════════════
+let m3Done = false;
+function selectVersion(item, val) {
+  if (m3Done) return;
+  m3Done = true;
+  document.querySelectorAll('.version-item').forEach(v => v.classList.remove('selected-version'));
+  item.classList.add('selected-version');
+  const fb = document.getElementById('fb-3');
+  fb.classList.add('show');
+  if (val === 'correct') {
+    item.classList.add('correct-version');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">✅ Correct Version Selected!</div>The <strong>3:44 PM version</strong> (edited by Alex Chen) is the last save <em>before</em> the deletion at 3:47 PM. Restoring this version recovers the Budget column. Key insight: always look for the version <strong>just before</strong> the incident timestamp — not the current version or versions from much earlier.<span class="fb-pts">+80 pts</span>';
+    updateScore(80);
+    updateStreak(true);
+    showToast('🕐 Version History Expert! +80 pts', 'green');
+    launchConfetti(1500);
+  } else {
+    item.style.borderColor = 'var(--error)';
+    item.style.background = '#fee2e2';
+    fb.className = 'feedback-box show wrong-fb';
+    let hint = '';
+    if (val==='wrong') hint = 'The <strong>Current version (4:12 PM)</strong> already has the Budget column deleted — restoring this does nothing.';
+    else if (val==='wrong2') hint = 'The <strong>3:52 PM version</strong> is after the deletion at 3:47 PM — the Budget column is already gone here too.';
+    else if (val==='wrong3') hint = 'The <strong>2:30 PM version</strong> would work, but you\'d lose all edits made between 2:30 PM and 3:44 PM. Always restore the closest safe version.';
+    else hint = 'The <strong>Yesterday 11:15 AM version</strong> is far too old — you\'d lose an entire day of work. Always find the closest version before the incident.';
+    fb.innerHTML = `<div class="fb-title">❌ Wrong Version!</div>${hint} The correct answer is <strong>Today, 3:44 PM</strong> — the last save before the deletion.<span class="fb-pts">+20 pts</span>`;
+    updateScore(20);
+    updateStreak(false);
+    document.querySelectorAll('.version-item').forEach(v => { if(v.dataset.val==='correct') v.classList.add('correct-version'); });
+  }
+  document.getElementById('nextBtn-3').disabled = false;
+}
+
+// ══════════════════════════════════════════════
+// MISSION 4: PERMISSIONS
+// ══════════════════════════════════════════════
+const correctPerms = { alex: 'editor', thompson: 'commenter', reviewer: 'viewer' };
+let permChecked = false;
+
+function checkPermission(person, val) {
+  if (permChecked) return;
+  permAnswers[person] = val;
+  const sel = document.getElementById('perm-' + person);
+  if (val === correctPerms[person]) {
+    sel.className = 'perm-select highlight-select';
+    permCorrect[person] = true;
+  } else {
+    sel.style.borderColor = 'var(--error)';
+    sel.style.color = 'var(--error)';
+    permCorrect[person] = false;
+  }
+  // Check if all 3 answered
+  const allAnswered = permAnswers.alex && permAnswers.thompson && permAnswers.reviewer;
+  if (allAnswered) {
+    permChecked = true;
+    const allRight = permCorrect.alex && permCorrect.thompson && permCorrect.reviewer;
+    const rightCount = Object.values(permCorrect).filter(Boolean).length;
+    const fb = document.getElementById('fb-4');
+    fb.classList.add('show');
+    if (allRight) {
+      fb.className = 'feedback-box show correct-fb';
+      fb.innerHTML = '<div class="fb-title">🔒 Perfect Permissions Setup!</div><strong>Alex (Editor)</strong> — can add, edit, and delete data. <strong>Ms. Thompson (Commenter)</strong> — can leave feedback via comments but cannot change cell data. <strong>External Reviewer (Viewer)</strong> — read-only access, cannot modify anything. This is the gold standard for collaborative document security!<span class="fb-pts">+80 pts</span>';
+      updateScore(80);
+      updateStreak(true);
+      showToast('🔒 Permissions Master! +80 pts', 'gold');
+      launchConfetti(1500);
+    } else {
+      fb.className = 'feedback-box show wrong-fb';
+      fb.innerHTML = `<div class="fb-title">⚠️ ${rightCount}/3 Correct Permissions</div>Remember: <strong>Editor</strong> = full access (team leads only), <strong>Commenter</strong> = feedback only (instructors/reviewers who need to annotate), <strong>Viewer</strong> = read-only (external stakeholders). Giving too many people Editor access is a major collaboration disaster risk!<span class="fb-pts">+${rightCount * 20} pts</span>`;
+      updateScore(rightCount * 20);
+      updateStreak(false);
+    }
+    document.getElementById('nextBtn-4').disabled = false;
+    ['alex','thompson','reviewer'].forEach(id => document.getElementById('perm-'+id).disabled=true);
+  }
+}
+
+// ══════════════════════════════════════════════
+// MISSION 5: MULTI-QUESTION
+// ══════════════════════════════════════════════
+function checkMulti(btn, qid, val) {
+  if (m5Answers[qid] !== null) return;
+  m5Answers[qid] = val;
+  const btns = document.querySelectorAll('#choices-' + qid + ' .choice-btn');
+  btns.forEach(b => b.disabled = true);
+  if (val === 'correct') {
+    btn.classList.add('correct');
+    m5Correct[qid] = true;
+    updateScore(40);
+    updateStreak(true);
+  } else {
+    btn.classList.add('wrong');
+    m5Correct[qid] = false;
+    updateScore(10);
+    updateStreak(false);
+    btns.forEach(b => { if(b.textContent.includes('B') || b.querySelector('.choice-letter')?.textContent==='B') {
+      // find correct btn
+    }});
+    // highlight correct
+    btns.forEach(b => {
+      const letter = b.querySelector('.choice-letter');
+      if (!letter) return;
+      // We need to find which button has the correct answer
+      b.onclick = null;
+    });
+    // Re-highlight correct by checking onclick was 'correct'
+    document.querySelectorAll('#choices-' + qid + ' .choice-btn').forEach(b => {
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'correct'")) {
+        b.classList.add('correct');
+      }
+    });
+  }
+  // Check if all 3 answered
+  const allDone = m5Answers['5a'] !== null && m5Answers['5b'] !== null && m5Answers['5c'] !== null;
+  if (allDone) {
+    const rightCount = Object.values(m5Correct).filter(Boolean).length;
+    const fb = document.getElementById('fb-5');
+    fb.classList.add('show');
+    if (rightCount === 3) {
+      fb.className = 'feedback-box show correct-fb';
+      fb.innerHTML = '<div class="fb-title">🕵️ Incognito Verification Expert!</div>You understand all three key concepts: (1) Incognito bypasses your own credentials to simulate another user\'s view, (2) the "👁️ View only" badge confirms Viewer access, and (3) documenting and communicating permissions is the professional final step. You\'re ready to lead a UVA collaborative project!<span class="fb-pts">+120 pts bonus</span>';
+      updateScore(120);
+      launchConfetti(2000);
+      showToast('🕵️ Incognito Master! Mission Complete!', 'gold');
+    } else {
+      fb.className = 'feedback-box show wrong-fb';
+      fb.innerHTML = `<div class="fb-title">⚠️ ${rightCount}/3 Correct</div>Review the Incognito Mode concepts: it simulates a fresh browser session without your Google login, the "View only" badge is the key visual indicator, and always document your permission setup after verification.<span class="fb-pts">+${rightCount * 10} pts</span>`;
+      updateScore(rightCount * 10);
+    }
+    document.getElementById('nextBtn-5').disabled = false;
+  }
+}
+
+// ══════════════════════════════════════════════
+// MENU CLICK (Mission 2 easter egg)
+// ══════════════════════════════════════════════
+function checkMenuClick(menu) {
+  if (menu === 'Format') {
+    document.getElementById('menuFormat').classList.add('highlight-menu');
+    showToast('📌 Format menu highlighted! Now select Fill Color.', 'blue');
+  }
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.addEventListener('resize', () => {
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+</body>
+</html>
