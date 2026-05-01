@@ -1601,12 +1601,21 @@ function restartGame() {
   document.querySelectorAll('.feedback-box').forEach(f => { f.className='feedback-box'; f.innerHTML=''; });
   document.querySelectorAll('.btn-nav').forEach(b => b.disabled=true);
   document.querySelectorAll('.btn-check').forEach(b => b.disabled=true);
-  // Reset drag
+  // Reset drag — fully rebuild items and re-attach listeners
   document.querySelectorAll('.drop-zone').forEach(z => { z.innerHTML=''; z.className='drop-zone'; });
-  document.querySelectorAll('.drag-item').forEach(item => {
-    document.getElementById('pillarSource').appendChild(item);
-    item.style.opacity='1';
+  const source = document.getElementById('pillarSource');
+  const pillarOrder = ['Ownership','Structure','Version Control','Permissions','Communication'];
+  const pillarIcons = { 'Ownership':'👤', 'Structure':'📐', 'Version Control':'🕐', 'Permissions':'🔒', 'Communication':'💬' };
+  source.innerHTML = '';
+  pillarOrder.forEach(pillar => {
+    const div = document.createElement('div');
+    div.className = 'drag-item';
+    div.setAttribute('draggable', 'true');
+    div.dataset.pillar = pillar;
+    div.innerHTML = `<span>${pillarIcons[pillar]}</span> ${pillar}`;
+    source.appendChild(div);
   });
+  setupDragDrop();
   // Reset permissions
   ['alex','thompson','reviewer'].forEach(id => {
     const sel = document.getElementById('perm-'+id);
@@ -1631,10 +1640,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function setupDragDrop() {
-  const items = document.querySelectorAll('.drag-item');
-  const zones = document.querySelectorAll('.drop-zone');
-
-  items.forEach(item => {
+  // Attach listeners to drag items (freshly created elements, no duplicate risk)
+  document.querySelectorAll('.drag-item').forEach(item => {
     item.addEventListener('dragstart', e => {
       draggedPillar = item;
       item.classList.add('dragging');
@@ -1645,7 +1652,13 @@ function setupDragDrop() {
     });
   });
 
-  zones.forEach(zone => {
+  // Drop zones are static HTML — replace each with a clone to wipe old listeners, then re-attach
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    const fresh = zone.cloneNode(true);
+    zone.parentNode.replaceChild(fresh, zone);
+  });
+
+  document.querySelectorAll('.drop-zone').forEach(zone => {
     zone.addEventListener('dragover', e => {
       e.preventDefault();
       zone.classList.add('drag-over');
@@ -1655,7 +1668,7 @@ function setupDragDrop() {
       e.preventDefault();
       zone.classList.remove('drag-over');
       if (!draggedPillar) return;
-      // If zone already has an item, send it back
+      // If zone already has an item, send it back to source
       const existing = zone.querySelector('.drag-item');
       if (existing) {
         document.getElementById('pillarSource').appendChild(existing);
@@ -1664,7 +1677,7 @@ function setupDragDrop() {
       zone.appendChild(draggedPillar);
       dropZoneAnswers[zone.id] = draggedPillar.dataset.pillar;
       draggedPillar = null;
-      // Enable check if all zones filled
+      // Enable check button only when all 5 zones are filled
       const filled = Object.keys(dropZoneAnswers).length;
       document.getElementById('checkBtn-1').disabled = filled < 5;
     });
@@ -1728,14 +1741,30 @@ function checkDragDrop() {
 
 function resetDragDrop() {
   dropZoneAnswers = {};
-  document.querySelectorAll('.drop-zone').forEach(z => { z.innerHTML=''; z.className='drop-zone'; });
-  document.querySelectorAll('.drag-item').forEach(item => {
-    document.getElementById('pillarSource').appendChild(item);
-    item.setAttribute('draggable','true');
+  // Clear all drop zones
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.innerHTML = '';
+    z.className = 'drop-zone';
   });
-  document.getElementById('fb-1').className='feedback-box';
-  document.getElementById('fb-1').innerHTML='';
-  document.getElementById('checkBtn-1').disabled=true;
+  // Move all drag items back to source and re-enable dragging
+  const source = document.getElementById('pillarSource');
+  // Re-build items in original order to keep consistent layout
+  const pillarOrder = ['Ownership','Structure','Version Control','Permissions','Communication'];
+  const pillarIcons = { 'Ownership':'👤', 'Structure':'📐', 'Version Control':'🕐', 'Permissions':'🔒', 'Communication':'💬' };
+  source.innerHTML = '';
+  pillarOrder.forEach(pillar => {
+    const div = document.createElement('div');
+    div.className = 'drag-item';
+    div.setAttribute('draggable', 'true');
+    div.dataset.pillar = pillar;
+    div.innerHTML = `<span>${pillarIcons[pillar]}</span> ${pillar}`;
+    source.appendChild(div);
+  });
+  // Re-attach drag listeners to the freshly created items
+  setupDragDrop();
+  document.getElementById('fb-1').className = 'feedback-box';
+  document.getElementById('fb-1').innerHTML = '';
+  document.getElementById('checkBtn-1').disabled = true;
 }
 
 // ══════════════════════════════════════════════
