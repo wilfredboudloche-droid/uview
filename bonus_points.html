@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register Today – CompTIA A+ Core 2 Exam</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Open+Sans:wght@400;600&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: #0d0d2b;
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #ff6b00 0%, #ff0080 50%, #7b00ff 100%);
+      text-align: center;
+      padding: 60px 20px 50px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 70% 30%, rgba(255,255,255,.15) 0%, transparent 60%);
+    }
+    .hero .badge {
+      display: inline-block;
+      background: #fff;
+      color: #ff0080;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: .85rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 50px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 6vw, 4rem);
+      line-height: 1.1;
+      text-shadow: 0 4px 20px rgba(0,0,0,.4);
+    }
+    .hero h1 span { color: #ffe600; }
+    .hero p {
+      margin-top: 16px;
+      font-size: clamp(1rem, 2.5vw, 1.3rem);
+      opacity: .92;
+      max-width: 620px;
+      margin-inline: auto;
+    }
+    .hero .cta-btn {
+      display: inline-block;
+      margin-top: 32px;
+      background: #ffe600;
+      color: #0d0d2b;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+      padding: 16px 44px;
+      border-radius: 50px;
+      text-decoration: none;
+      letter-spacing: 1px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .hero .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,.45); }
+
+    /* ── BONUS BANNER ── */
+    .bonus-banner {
+      background: #ffe600;
+      color: #0d0d2b;
+      text-align: center;
+      padding: 22px 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      letter-spacing: 1px;
+    }
+    .bonus-banner span {
+      background: #ff0080;
+      color: #fff;
+      padding: 4px 14px;
+      border-radius: 8px;
+      margin-left: 8px;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.5rem, 4vw, 2.4rem);
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .section-title span { color: #ff6b00; }
+
+    /* ── INFO IMAGE ── */
+    .info-image-wrap {
+      background: linear-gradient(135deg, #1a1a40, #12122e);
+      border: 3px solid #ff6b00;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 60px;
+      box-shadow: 0 0 40px rgba(255,107,0,.25);
+      text-align: center;
+    }
+    .info-image-wrap img {
+      width: 100%;
+      max-width: 960px;
+      border-radius: 12px;
+      display: block;
+      margin: 0 auto;
+    }
+    .info-image-wrap p {
+      margin-top: 14px;
+      font-size: .9rem;
+      opacity: .7;
+      font-style: italic;
+    }
+
+    /* ── CARDS ── */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      margin-bottom: 60px;
+    }
+    .card {
+      background: linear-gradient(145deg, #1a1a40, #12122e);
+      border-radius: 18px;
+      padding: 36px 28px;
+      border-top: 5px solid;
+      box-shadow: 0 8px 30px rgba(0,0,0,.4);
+      transition: transform .25s;
+    }
+    .card:hover { transform: translateY(-6px); }
+    .card:nth-child(1) { border-color: #ff6b00; }
+    .card:nth-child(2) { border-color: #ff0080; }
+    .card:nth-child(3) { border-color: #7b00ff; }
+    .card:nth-child(4) { border-color: #ffe600; }
+    .card .icon { font-size: 2.6rem; margin-bottom: 16px; }
+    .card h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+    .card p { font-size: .95rem; line-height: 1.65; opacity: .85; }
+
+    /* ── STEPS ── */
+    .steps {
+      background: linear-gradient(135deg, #1a1a40, #12122e);
+      border-radius: 20px;
+      padding: 48px 40px;
+      margin-bottom: 60px;
+      border: 2px solid rgba(255,255,255,.08);
+    }
+    .steps ol {
+      list-style: none;
+      counter-reset: step;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+    }
+    .steps ol li {
+      counter-increment: step;
+      position: relative;
+      padding-top: 56px;
+    }
+    .steps ol li::before {
+      content: counter(step);
+      position: absolute;
+      top: 0; left: 0;
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b00, #ff0080);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 1.1rem;
+    }
+    .steps ol li h4 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      margin-bottom: 8px;
+      font-size: 1rem;
+    }
+    .steps ol li p { font-size: .9rem; opacity: .8; line-height: 1.6; }
+
+    /* ── DEADLINE ALERT ── */
+    .deadline {
+      background: linear-gradient(135deg, #ff0080, #ff6b00);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 60px;
+      box-shadow: 0 10px 40px rgba(255,0,128,.35);
+    }
+    .deadline h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      margin-bottom: 12px;
+    }
+    .deadline .dates {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      color: #ffe600;
+      text-shadow: 0 2px 10px rgba(0,0,0,.3);
+      margin: 10px 0;
+    }
+    .deadline p { font-size: 1rem; opacity: .9; max-width: 500px; margin: 0 auto; }
+
+    /* ── MANDATORY DATA POINTS ── */
+    .data-points {
+      background: linear-gradient(145deg, #1a1a40, #12122e);
+      border-radius: 20px;
+      padding: 48px 40px;
+      margin-bottom: 60px;
+      border: 2px solid #7b00ff;
+      box-shadow: 0 0 30px rgba(123,0,255,.2);
+    }
+    .data-points ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 24px;
+      justify-content: center;
+    }
+    .data-points ul li {
+      background: rgba(123,0,255,.2);
+      border: 2px solid #7b00ff;
+      border-radius: 12px;
+      padding: 18px 30px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .data-points ul li .dot { font-size: 1.4rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #07071a;
+      text-align: center;
+      padding: 30px 20px;
+      font-size: .85rem;
+      opacity: .6;
+      border-top: 2px solid rgba(255,255,255,.06);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="badge">🎓 Computer Architecture Class – Special Opportunity</div>
+    <h1>Schedule Your<br><span>CompTIA A+ Core 2</span><br>Exam Today!</h1>
+    <p>Don't miss your chance to earn <strong>50 Bonus Points</strong> just by registering for the exam. It's easy, it's free to schedule, and it boosts your grade!</p>
+    <a href="https://www.comptia.org/certifications/a" target="_blank" class="cta-btn">🚀 Register Now at CompTIA.org</a>
+  </section>
+
+  <!-- BONUS BANNER -->
+  <div class="bonus-banner">
+    🏆 Register & Submit Proof = <span>+50 BONUS POINTS</span> in Computer Architecture!
+  </div>
+
+  <!-- MAIN -->
+  <div class="container">
+
+    <!-- SECTION TITLE -->
+    <h2 class="section-title">📋 Official Scheduling <span>Requirements</span></h2>
+
+    <!-- INFO IMAGE -->
+    <div class="info-image-wrap">
+      <img src="Register Today.png" alt="CompTIA A+ Core 2 Exam Scheduling & Confirmation Info" />
+      <p>Official scheduling requirements from your instructor — refer to this for all deadlines and submission details.</p>
+    </div>
+
+    <!-- WHY CARDS -->
+    <h2 class="section-title">Why You <span>Should Register</span></h2>
+    <div class="cards">
+      <div class="card">
+        <div class="icon">💯</div>
+        <h3>50 Bonus Points</h3>
+        <p>Simply scheduling the exam earns you 50 extra points in Computer Architecture — a huge grade boost with minimal effort!</p>
+      </div>
+      <div class="card">
+        <div class="icon">🏅</div>
+        <h3>Industry Certification</h3>
+        <p>CompTIA A+ is one of the most recognized IT certifications in the world. Employers love it — get a head start on your career.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📅</div>
+        <h3>5-Day Window Only</h3>
+        <p>Exams <strong>must</strong> be scheduled between <strong>May 11 – May 15</strong>. Don't wait — spots fill up fast!</p>
+      </div>
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3>Quick & Easy Process</h3>
+        <p>Scheduling takes just a few minutes online. Submit your confirmation to the course portal and you're done!</p>
+      </div>
+    </div>
+
+    <!-- DEADLINE ALERT -->
+    <div class="deadline">
+      <h2>⏰ Scheduling Window</h2>
+      <div class="dates">MAY 11 – MAY 15</div>
+      <p>All CompTIA A+ Core 2 Exams <strong>must</strong> be scheduled within this five-day window. Missing this window means missing your bonus points!</p>
+    </div>
+
+    <!-- HOW TO STEPS -->
+    <div class="steps">
+      <h2 class="section-title" style="text-align:left; margin-bottom:32px;">How to <span>Register</span> in 4 Steps</h2>
+      <ol>
+        <li>
+          <h4>Visit CompTIA.org</h4>
+          <p>Go to <strong>comptia.org</strong> and navigate to the A+ Core 2 (220-1102) exam page.</p>
+        </li>
+        <li>
+          <h4>Create / Log In</h4>
+          <p>Create a free CompTIA account or log in if you already have one.</p>
+        </li>
+        <li>
+          <h4>Schedule Your Exam</h4>
+          <p>Pick a date between <strong>May 11–15</strong> and complete the scheduling process.</p>
+        </li>
+        <li>
+          <h4>Submit Proof</h4>
+          <p>Attach your official receipt or email confirmation to the <strong>course portal</strong> to claim your bonus points.</p>
+        </li>
+      </ol>
+    </div>
+
+    <!-- MANDATORY DATA POINTS -->
+    <div class="data-points">
+      <h2 class="section-title" style="text-align:left; margin-bottom:0;">📌 Mandatory <span>Data Points</span></h2>
+      <p style="margin-top:12px; opacity:.8;">Your submitted documentation <strong>must clearly display</strong> all three of the following:</p>
+      <ul>
+        <li><span class="dot">🕐</span> Time</li>
+        <li><span class="dot">📆</span> Date</li>
+        <li><span class="dot">💻</span> Testing Mode</li>
+      </ul>
+      <p style="margin-top:24px; opacity:.7; font-size:.9rem; text-align:center;">Missing any of these data points may result in your submission not being accepted. Double-check before uploading!</p>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Computer Architecture Class  |  CompTIA A+ Core 2 Exam Registration  |  Scheduling Window: May 11 – May 15</p>
+    <p style="margin-top:6px;">Questions? Contact your instructor through the course portal.</p>
+  </footer>
+
+</body>
+</html>
