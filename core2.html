@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>UVA Core 2 Mission Hub | CompTIA A+ 220-1202</title>
+<style>
+:root{
+  --blue:#1B5EAF;--blue-dark:#134080;--blue-light:#2a7de1;
+  --green:#1E7A3E;--green-light:#27a352;
+  --gold:#F5C518;--white:#fff;
+  --gray-light:#f0f4fa;--gray:#dde4ef;
+  --text:#1a1a2e;--correct:#1E7A3E;--incorrect:#c0392b;
+  --shadow:0 4px 18px rgba(27,94,175,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#e8f0fb 0%,#eaf5ee 100%);min-height:100vh;color:var(--text);}
+
+/* HEADER */
+header{background:var(--blue);color:#fff;position:relative;}
+.header-top{display:flex;align-items:center;justify-content:space-between;padding:12px 24px 8px;flex-wrap:wrap;gap:6px;}
+.school-name{font-size:1.25rem;font-weight:800;letter-spacing:1px;}
+.school-name span{color:var(--gold);}
+.motto-ribbon{background:var(--green);text-align:center;padding:5px 0;font-size:.8rem;font-weight:700;letter-spacing:3px;color:#fff;text-transform:uppercase;}
+.header-sub{text-align:center;padding:10px 20px 12px;font-size:.95rem;opacity:.9;}
+.header-sub strong{font-size:1.2rem;color:var(--gold);display:block;}
+
+/* RANK BAR */
+.rank-bar{background:var(--blue-dark);display:flex;align-items:center;justify-content:space-between;padding:7px 24px;flex-wrap:wrap;gap:6px;}
+.rank-badge{display:flex;align-items:center;gap:7px;font-weight:700;font-size:.9rem;color:#fff;}
+.rank-label{color:var(--gold);}
+.score-display{font-size:.9rem;color:#fff;font-weight:600;}
+.streak-display{font-size:.85rem;color:#ffe082;font-weight:700;}
+
+/* MAIN */
+main{max-width:900px;margin:24px auto 40px;padding:0 14px;}
+
+/* HUB SCREEN */
+.hub-title{text-align:center;margin-bottom:6px;}
+.hub-title h2{font-size:1.4rem;font-weight:800;color:var(--blue);}
+.hub-title p{font-size:.9rem;color:#555;margin-top:4px;}
+.hub-legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin:12px 0 18px;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;color:#555;}
+.legend-dot{width:12px;height:12px;border-radius:50%;}
+
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.module-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:16px 18px;cursor:pointer;transition:all .2s;border:2px solid transparent;position:relative;overflow:hidden;}
+.module-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.module-card.domain-1::before{background:linear-gradient(90deg,#1B5EAF,#2a7de1);}
+.module-card.domain-2::before{background:linear-gradient(90deg,#1E7A3E,#27a352);}
+.module-card.domain-3::before{background:linear-gradient(90deg,#c0392b,#e74c3c);}
+.module-card.domain-4::before{background:linear-gradient(90deg,#7d3c98,#9b59b6);}
+.module-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(27,94,175,.2);}
+.module-card.completed{border-color:var(--green);}
+.module-card.in-progress{border-color:var(--gold);}
+.module-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.module-icon{font-size:1.6rem;flex-shrink:0;}
+.module-status{font-size:.7rem;font-weight:800;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.status-new{background:#e8f0fb;color:var(--blue);}
+.status-progress{background:#fff8e1;color:#b8860b;}
+.status-done{background:#d4edda;color:var(--green);}
+.module-title{font-size:.95rem;font-weight:800;color:var(--text);margin-bottom:3px;}
+.module-meta{font-size:.75rem;color:#777;margin-bottom:8px;}
+.module-progress-bg{background:var(--gray);border-radius:10px;height:7px;overflow:hidden;}
+.module-progress-fill{height:100%;border-radius:10px;transition:width .4s;}
+.domain-1 .module-progress-fill{background:var(--blue);}
+.domain-2 .module-progress-fill{background:var(--green);}
+.domain-3 .module-progress-fill{background:#c0392b;}
+.domain-4 .module-progress-fill{background:#7d3c98;}
+.module-score{font-size:.75rem;color:#555;margin-top:4px;font-weight:600;}
+
+/* QUESTION SCREEN */
+#question-screen{display:none;}
+.q-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.back-btn{background:var(--gray-light);border:2px solid var(--gray);border-radius:8px;padding:6px 14px;font-size:.85rem;font-weight:700;cursor:pointer;color:var(--blue);transition:all .15s;}
+.back-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+.q-module-label{font-size:.85rem;font-weight:700;color:var(--blue);}
+.q-progress-label{font-size:.8rem;color:#777;margin-left:auto;}
+
+.card{background:#fff;border-radius:16px;box-shadow:var(--shadow);padding:28px 32px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;}
+.card.domain-1::before{background:linear-gradient(90deg,var(--blue),var(--blue-light));}
+.card.domain-2::before{background:linear-gradient(90deg,var(--green),var(--green-light));}
+.card.domain-3::before{background:linear-gradient(90deg,#c0392b,#e74c3c);}
+.card.domain-4::before{background:linear-gradient(90deg,#7d3c98,#9b59b6);}
+
+.mission-tag{display:inline-block;background:var(--blue);color:#fff;font-size:.7rem;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:8px;}
+.topic-tag{display:inline-block;background:var(--green);color:#fff;font-size:.68rem;font-weight:700;padding:2px 9px;border-radius:20px;margin-left:5px;margin-bottom:8px;}
+.question-text{font-size:1.05rem;font-weight:600;line-height:1.6;margin-bottom:18px;}
+.multi-note{font-size:.78rem;color:var(--blue);font-weight:700;margin-bottom:10px;background:#e8f0fb;padding:4px 11px;border-radius:8px;display:inline-block;}
+
+.options-list{list-style:none;display:flex;flex-direction:column;gap:10px;}
+.option-btn{width:100%;text-align:left;padding:12px 16px;border:2px solid var(--gray);border-radius:10px;background:var(--gray-light);font-size:.95rem;cursor:pointer;transition:all .18s;font-family:inherit;color:var(--text);display:flex;align-items:center;gap:9px;}
+.option-btn:hover:not(:disabled){border-color:var(--blue-light);background:#ddeeff;transform:translateX(3px);}
+.option-btn.selected{border-color:var(--blue);background:#d0e4ff;}
+.option-btn.correct{border-color:var(--correct);background:#d4edda;color:#155724;font-weight:700;}
+.option-btn.incorrect{border-color:var(--incorrect);background:#f8d7da;color:#721c24;}
+.option-btn:disabled{cursor:default;}
+.opt-letter{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--blue);color:#fff;font-size:.75rem;font-weight:800;flex-shrink:0;}
+.option-btn.correct .opt-letter{background:var(--correct);}
+.option-btn.incorrect .opt-letter{background:var(--incorrect);}
+
+.feedback-box{margin-top:16px;padding:13px 16px;border-radius:10px;font-size:.9rem;line-height:1.55;display:none;}
+.feedback-box.show{display:block;}
+.feedback-box.correct-fb{background:#d4edda;border-left:5px solid var(--correct);color:#155724;}
+.feedback-box.incorrect-fb{background:#f8d7da;border-left:5px solid var(--incorrect);color:#721c24;}
+.feedback-title{font-weight:800;font-size:.97rem;margin-bottom:4px;}
+.feedback-detail{font-size:.85rem;margin-top:5px;opacity:.92;}
+
+.btn-row{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;}
+.btn{padding:10px 24px;border:none;border-radius:8px;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .18s;font-family:inherit;}
+.btn-primary{background:var(--blue);color:#fff;}
+.btn-primary:hover{background:var(--blue-dark);transform:translateY(-1px);}
+.btn-primary:disabled{background:#aaa;cursor:default;transform:none;}
+.btn-next{background:var(--green);color:#fff;}
+.btn-next:hover{background:var(--green-light);transform:translateY(-1px);}
+.btn-hub{background:var(--gray-light);color:var(--blue);border:2px solid var(--blue);}
+.btn-hub:hover{background:var(--blue);color:#fff;}
+
+/* MODULE RESULTS */
+#module-results{display:none;}
+.mod-results-card{text-align:center;padding:10px 0 16px;}
+.mod-trophy{font-size:3.5rem;margin-bottom:8px;}
+.mod-score{font-size:2.5rem;font-weight:900;color:var(--green);margin:8px 0;}
+.mod-label{font-size:.95rem;color:#555;margin-bottom:14px;}
+.mod-breakdown{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:14px 0;}
+.breakdown-item{background:var(--gray-light);border-radius:10px;padding:12px 8px;text-align:center;}
+.breakdown-num{font-size:1.6rem;font-weight:900;color:var(--blue);}
+.breakdown-lbl{font-size:.72rem;color:#666;font-weight:600;margin-top:2px;}
+.mod-btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
+
+/* CONFETTI */
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;}
+
+/* STREAK POPUP */
+.streak-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);background:linear-gradient(135deg,var(--gold),#ff9800);color:#333;font-size:1.4rem;font-weight:900;padding:16px 32px;border-radius:18px;box-shadow:0 8px 32px rgba(0,0,0,.25);z-index:1000;transition:transform .3s cubic-bezier(.34,1.56,.64,1);text-align:center;pointer-events:none;}
+.streak-popup.show{transform:translate(-50%,-50%) scale(1);}
+.streak-sub{font-size:.8rem;font-weight:700;margin-top:2px;}
+
+/* PROGRESS BAR */
+.prog-wrap{background:var(--gray-light);padding:8px 24px 5px;border-bottom:2px solid var(--gray);}
+.prog-label{font-size:.75rem;color:var(--blue);font-weight:700;margin-bottom:3px;}
+.prog-bg{background:var(--gray);border-radius:20px;height:10px;overflow:hidden;}
+.prog-fill{background:linear-gradient(90deg,var(--blue),var(--green));height:100%;border-radius:20px;transition:width .5s ease;width:0%;}
+
+/* OVERALL PROGRESS */
+.overall-bar{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:14px 18px;margin-bottom:16px;}
+.overall-title{font-size:.85rem;font-weight:800;color:var(--blue);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;}
+.overall-stats{display:flex;gap:16px;flex-wrap:wrap;}
+.overall-stat{text-align:center;}
+.overall-stat .num{font-size:1.4rem;font-weight:900;color:var(--blue);}
+.overall-stat .lbl{font-size:.7rem;color:#777;font-weight:600;}
+
+@media(max-width:600px){
+  .card{padding:18px 14px;}
+  .header-top{padding:10px 14px 7px;}
+  .rank-bar{padding:7px 14px;}
+  main{margin:14px auto 28px;}
+  .modules-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div class="streak-popup" id="streak-popup">
+  <div id="streak-text">🔥 3 in a Row!</div>
+  <div class="streak-sub">Keep it up, Agent!</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <div class="school-name">🎓 <span>University View Academy</span></div>
+    <div style="font-size:.78rem;opacity:.85;">CompTIA A+ Core 2 · 220-1202</div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue  ·  Vigor  ·  Vision ✦</div>
+  <div class="header-sub">
+    <strong>🛡️ MISSION HUB: Core 2 Review</strong>
+    Select a Module to begin your briefing
+  </div>
+</header>
+
+<!-- RANK BAR -->
+<div class="rank-bar">
+  <div class="rank-badge">
+    <span id="rank-icon">🪖</span>
+    Rank: <span class="rank-label" id="rank-label">Trainee</span>
+  </div>
+  <div class="score-display">Total Score: <strong id="score-display">0</strong></div>
+  <div class="streak-display" id="streak-display">Streak: 0 🔥</div>
+</div>
+
+<!-- PROGRESS BAR (question mode) -->
+<div class="prog-wrap" id="prog-wrap" style="display:none;">
+  <div class="prog-label" id="prog-label">Question 1 of 1</div>
+  <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
+</div>
+
+<main>
+
+  <!-- HUB SCREEN -->
+  <div id="hub-screen">
+    <div class="hub-title">
+      <h2>📡 Mission Control — Select Your Module</h2>
+      <p>Complete modules in any order. Your progress is saved as you go.</p>
+    </div>
+
+    <!-- Overall Stats -->
+    <div class="overall-bar">
+      <div class="overall-title">📊 Overall Mission Progress</div>
+      <div class="overall-stats">
+        <div class="overall-stat"><div class="num" id="ov-modules">0/22</div><div class="lbl">Modules Done</div></div>
+        <div class="overall-stat"><div class="num" id="ov-questions">0</div><div class="lbl">Qs Answered</div></div>
+        <div class="overall-stat"><div class="num" id="ov-correct">0</div><div class="lbl">Correct</div></div>
+        <div class="overall-stat"><div class="num" id="ov-pct">0%</div><div class="lbl">Accuracy</div></div>
+        <div class="overall-stat"><div class="num" id="ov-streak">0</div><div class="lbl">Best Streak</div></div>
+      </div>
+    </div>
+
+    <div class="hub-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Domain 1.0 OS</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Domain 2.0 Security</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#c0392b"></div>Domain 3.0 Troubleshooting</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7d3c98"></div>Domain 4.0 Procedures</div>
+    </div>
+
+    <div class="modules-grid" id="modules-grid"></div>
+  </div>
+
+  <!-- QUESTION SCREEN -->
+  <div id="question-screen">
+    <div class="q-header">
+      <button class="back-btn" onclick="goToHub()">← Hub</button>
+      <span class="q-module-label" id="q-module-label">Module</span>
+      <span class="q-progress-label" id="q-progress-label">1 / 1</span>
+    </div>
+    <div class="card" id="q-card">
+      <div>
+        <span class="mission-tag" id="q-mission-tag">Briefing 1</span>
+        <span class="topic-tag" id="q-topic-tag">Topic</span>
+      </div>
+      <div class="question-text" id="question-text"></div>
+      <div class="multi-note" id="multi-note" style="display:none;">☑️ Select ALL correct answers, then submit.</div>
+      <ul class="options-list" id="options-list"></ul>
+      <div class="feedback-box" id="feedback-box">
+        <div class="feedback-title" id="feedback-title"></div>
+        <div id="feedback-detail"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="submit-btn" onclick="submitAnswer()" disabled>Submit Answer</button>
+        <button class="btn btn-next" id="next-btn" onclick="nextQuestion()" style="display:none;">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULE RESULTS -->
+  <div id="module-results">
+    <div class="q-header">
+      <button class="back-btn" onclick="goToHub()">← Hub</button>
+      <span class="q-module-label" id="mr-module-label">Module Complete</span>
+    </div>
+    <div class="card">
+      <div class="mod-results-card">
+        <div class="mod-trophy" id="mr-trophy">🏆</div>
+        <div style="font-size:1.3rem;font-weight:800;color:var(--blue);" id="mr-title">Module Complete!</div>
+        <div class="mod-score" id="mr-score">0/0</div>
+        <div class="mod-label" id="mr-label">Mission Debrief</div>
+        <div class="mod-breakdown">
+          <div class="breakdown-item"><div class="breakdown-num" id="mr-correct">0</div><div class="breakdown-lbl">✅ Correct</div></div>
+          <div class="breakdown-item"><div class="breakdown-num" id="mr-incorrect">0</div><div class="breakdown-lbl">❌ Incorrect</div></div>
+          <div class="breakdown-item"><div class="breakdown-num" id="mr-pct">0%</div><div class="breakdown-lbl">📊 Accuracy</div></div>
+          <div class="breakdown-item"><div class="breakdown-num" id="mr-streak">0</div><div class="breakdown-lbl">🔥 Best Streak</div></div>
+        </div>
+        <div id="mr-message" style="font-size:.9rem;color:#444;margin-bottom:14px;line-height:1.6;max-width:480px;margin-left:auto;margin-right:auto;"></div>
+        <div class="mod-btn-row">
+          <button class="btn btn-primary" id="mr-retry-btn" onclick="retryModule()">🔄 Retry Module</button>
+          <button class="btn btn-hub" onclick="goToHub()">📡 Back to Hub</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DATA — 22 UNITS grouped into modules
+// ═══════════════════════════════════════════════════════════════════
+const MODULES = [
+  {
+    id:"1_1", title:"OS Fundamentals", subtitle:"Android & ChromeOS",
+    domain:1, icon:"🖥️", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:73,text:"A curious IT administrator notices issues with certain applications invoking the kernel. Which operating system would allow the administrator to change the underlying operating system?",type:"single",options:["iOS","macOS","iPadOS","Android"],correct:[3],explanation:"<strong>Android</strong> is an open-source OS based on Linux, developed by the Open Handset Alliance (primarily Google). Unlike iOS or macOS, it allows users to modify the underlying OS.<br><br>• <em>iOS</em> and <em>macOS</em> are closed-source Apple systems.<br>• <em>iPadOS</em> is derived from iOS and is also closed-source."},
+      {id:86,text:"A teacher has been assigned to research low-cost operating systems to support the educational needs of the school system. Which one of the following is best geared towards accomplishing their goal?",type:"single",options:["macOS","Windows","ChromeOS","Linux"],correct:[2],explanation:"<strong>ChromeOS</strong> is developed by Google to run on Chromebooks and Chromeboxes — hardware specifically designed for the budget and education markets.<br><br>• <em>macOS</em> is Apple-only and expensive.<br>• <em>Windows</em> has education discounts but isn't specifically tailored for budget markets.<br>• <em>Linux</em> is open-source but not specifically designed for education hardware."},
+    ]
+  },
+  {
+    id:"1_2", title:"Disk Configuration", subtitle:"GPT, MBR & Installation Media",
+    domain:1, icon:"💾", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:32,text:"A client administrator sets up a new system for GUID partition table (GPT) partitioning. What dependency will the administrator need to set?",type:"single",options:["TPM 2.0","BIOS","MBR","UEFI"],correct:[3],explanation:"<strong>UEFI</strong> (Unified Extensible Firmware Interface) is required when using GPT partitioning. If the boot method is set to BIOS, the disk will not be recognized as a boot device.<br><br>• <em>TPM 2.0</em> is required for Windows 11, not specifically for GPT.<br>• <em>MBR</em> is the older partition style that works with BIOS.<br>• <em>BIOS</em> is incompatible with GPT boot."},
+      {id:48,text:"A client administrator for a video game development company wants to upgrade machines to support five primary partitions. The developers work with large files and might need partitions larger than 2 TB. Which of the following should the administrator use?",type:"single",options:["MBR","GPT","APFS","NTFS"],correct:[1],explanation:"<strong>GPT</strong> (GUID Partition Table) supports more than four primary partitions (up to 128 in Windows) and partitions larger than 2 TB, plus a backup copy of partition entries.<br><br>• <em>MBR</em> is limited to 4 primary partitions and 2 TB max.<br>• <em>APFS</em> is Apple's file system.<br>• <em>NTFS</em> is a file system, not a partition style."},
+      {id:81,text:"A security researcher wants to install an older operating system for research and testing. What is the most common medium, which comes as a disc, that the researcher should use?",type:"single",options:["Optical media","Internet-based","Internal hard drive","USB"],correct:[0],explanation:"<strong>Optical media</strong> (CD-ROM or DVD) is the traditional disc-based installation medium. The optical drive must be set as the priority boot device.<br><br>• <em>USB</em> became more popular later for its ability to load the latest install files.<br>• <em>Internet-based</em> requires network boot support.<br>• <em>Internal hard drive</em> is the destination, not the installation source."},
+    ]
+  },
+  {
+    id:"1_3", title:"Windows Editions", subtitle:"Home, Pro, Enterprise & Education",
+    domain:1, icon:"🪟", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:69,text:"An IT professional is preparing a presentation on the differences between Windows 10 Pro, Enterprise, Education, and Home editions. Which statement is accurate?",type:"single",options:["Group policy editor is available in Windows Home edition.","Windows Home edition cannot host Remote Desktop sessions, but it can initiate connections to other systems over the network.","Windows Home, Pro, and Enterprise can join a domain network, whereas Education does not.","BitLocker is available in all Windows editions."],correct:[1],explanation:"<strong>Windows Home cannot host RDP sessions</strong> (no RDP server), but it includes the RDP client to connect to other machines.<br><br>• <em>Group Policy Editor (gpedit.msc)</em> is NOT available in Home edition.<br>• <em>Domain joining</em> is only available in Pro, Enterprise, and Education — not Home.<br>• <em>BitLocker</em> is only in Pro, Enterprise, and Education editions."},
+    ]
+  },
+  {
+    id:"1_4", title:"System Tools", subtitle:"msconfig, services.msc & taskschd",
+    domain:1, icon:"⚙️", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:19,text:"An IT manager wants to test various boot settings before applying them to the environment. Which tool can the manager use to accomplish this best?",type:"single",options:["dfrgui.exe","gpedit.msc","cleanmgr.exe","msconfig.exe"],correct:[3],explanation:"<strong>msconfig.exe</strong> (System Configuration Utility) modifies settings and files that affect how the computer boots and loads Windows — perfect for testing boot configurations.<br><br>• <em>gpedit.msc</em> manages Group Policy settings.<br>• <em>cleanmgr.exe</em> is Disk Cleanup.<br>• <em>dfrgui.exe</em> is Defragment and Optimize Drives."},
+      {id:21,text:"A server administrator receives a report that the company's external-facing web server is unresponsive. Rebooting the server would take too long. What utility should the administrator use to restart the website?",type:"single",options:["msconfig.exe","regedit.exe","services.msc","certmgr.msc"],correct:[2],explanation:"<strong>services.msc</strong> (Services Console) starts, stops, and pauses background processes — ideal for restarting an unresponsive web server without a full reboot.<br><br>• <em>msconfig.exe</em> manages boot settings.<br>• <em>regedit.exe</em> edits the Windows registry.<br>• <em>certmgr.msc</em> manages certificates."},
+      {id:22,text:"A security engineer finds suspicious communication every five minutes from a particular box. After investigating running processes, memory, and file integrity, they find nothing. What else could the engineer check for persistence mechanisms?",type:"single",options:["msconfig.exe","taskschd.msc","Privileged time","lusrmgr.msc"],correct:[1],explanation:"<strong>taskschd.msc</strong> (Task Scheduler) runs software and scripts on calendar or event triggers — a common persistence mechanism for malware that beacons at regular intervals.<br><br>• <em>msconfig.exe</em> manages boot settings.<br>• <em>lusrmgr.msc</em> manages local users and groups.<br>• <em>Privileged time</em> is a CPU performance metric."},
+    ]
+  },
+  {
+    id:"1_5", title:"Command Line Tools", subtitle:"netstat, /? and network commands",
+    domain:1, icon:"💻", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:38,text:"A security analyst suspects malware beaconing to a command and control server. What command will help them investigate open connections on the local host?",type:"single",options:["hostname","net user","netstat","net use"],correct:[2],explanation:"<strong>netstat</strong> investigates open ports and active connections on the local host — essential for identifying potential C2 (command and control) connections established by malware.<br><br>• <em>hostname</em> returns the machine's name.<br>• <em>net user</em> manages user accounts.<br>• <em>net use</em> manages shared network resources."},
+      {id:70,text:"A server administrator hasn't used the command line in a while and is trying to remember how to use commands. Which of the following should the administrator use?",type:"single",options:["/?","ping","winver","ipconfig"],correct:[0],explanation:"<strong>/?</strong> is the help switch. Typing a command followed by /? displays its syntax and available switches. Typing <em>help</em> at the prompt lists all available commands.<br><br>• <em>ping</em> tests network connectivity.<br>• <em>winver</em> shows Windows version info.<br>• <em>ipconfig</em> displays network adapter configuration."},
+    ]
+  },
+  {
+    id:"1_6", title:"Windows Settings", subtitle:"System, Privacy, Firewall & File Explorer",
+    domain:1, icon:"🔧", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:4,text:"An IT manager wants to enable a data-at-rest solution (BitLocker) on client machines. Where can the manager go to enable this built-in Microsoft solution?",type:"single",options:["Network and Sharing","Devices and Printers","System Settings","Programs and Features"],correct:[2],explanation:"<strong>System Settings</strong> in the Settings app is where BitLocker disk encryption is configured, along with input/output devices, power, remote desktop, notifications, and clipboard.<br><br>• <em>Devices and Printers</em> manages connected hardware.<br>• <em>Programs and Features</em> manages installed software.<br>• <em>Network and Sharing Center</em> shows network status."},
+      {id:12,text:"A user downloaded a script in text format and needs to change the extension to .ps1, but they don't see the extension. Where can the user configure this setting?",type:"single",options:["File Explorer Options View tab","Ease of Access","Internet Options","File Explorer Options General tab"],correct:[0],explanation:"<strong>File Explorer Options View tab</strong> allows users to configure hidden extensions, hidden files, and OS file visibility — enabling them to see and change file extensions.<br><br>• <em>General tab</em> controls Explorer window layout and click style.<br>• <em>Ease of Access</em> configures accessibility settings.<br>• <em>Internet Options</em> configures browser settings."},
+      {id:34,text:"A spouse wants to turn off activity history on their browser to keep a surprise party secret. Where can the spouse do this in Windows Settings?",type:"single",options:["Update & Security","Privacy","Personalization","Internet Options"],correct:[1],explanation:"<strong>Privacy</strong> settings govern what usage data Windows collects, what device functions are enabled, and which apps have access — including activity history.<br><br>• <em>Update & Security</em> manages updates and security tools.<br>• <em>Personalization</em> controls themes and desktop appearance.<br>• <em>Internet Options</em> configures browser security settings."},
+      {id:67,text:"An IT manager wants to lock down an airport dispatch image to block unneeded service ports (like email) from communicating. Where should the manager start?",type:"single",options:["Windows Firewall","Sound","Device Manager","Mail"],correct:[0],explanation:"<strong>Windows Defender Firewall</strong> determines which processes, protocols, and hosts can communicate with the local computer over the network — the right tool for blocking specific ports.<br><br>• <em>Mail</em> manages email account credentials.<br>• <em>Device Manager</em> manages hardware devices.<br>• <em>Sound</em> configures audio settings."},
+    ]
+  },
+  {
+    id:"1_7", title:"Network & Printing", subtitle:"DNS, Printer Drivers & Sharing",
+    domain:1, icon:"🖨️", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:63,text:"A user wants to share their printer with other teams that use different operating systems. What can the user configure to enable functionality with the other teams?",type:"single",options:["Proxy settings","Additional drivers","File server","Mapped drive"],correct:[1],explanation:"<strong>Additional drivers</strong> allows a print server to make drivers available for different client operating systems. For example, a Windows 10 64-bit server can provide 32-bit Windows 7 drivers.<br><br>• <em>Proxy settings</em> are for internet traffic routing.<br>• <em>File server</em> shares files, not printers.<br>• <em>Mapped drive</em> assigns a share to a drive letter."},
+      {id:65,text:"A server administrator tests connectivity between two statically assigned servers in a forest with different domains. What should they check first?",type:"single",options:["IP addressing scheme","Gateway","Subnet mask","DNS settings"],correct:[3],explanation:"<strong>DNS settings</strong> should be checked first because the servers are on different domains. The administrator likely used a hostname instead of the FQDN, causing DNS resolution to fail.<br><br>• <em>IP addressing scheme</em> isn't the issue since DNS resolution is being used.<br>• <em>Subnet mask</em> could be an issue but is less likely.<br>• <em>Gateway</em> misconfiguration would prevent all connectivity, not just to one server."},
+    ]
+  },
+  {
+    id:"1_8", title:"macOS Tools", subtitle:"FileVault, Disk Utility & Mac Features",
+    domain:1, icon:"🍎", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:79,text:"A systems administrator wants to implement a macOS equivalent to BitLocker for disk encryption. Which of the following should the administrator enable and configure?",type:"single",options:["Privacy","Time Machine","Keychain","FileVault"],correct:[3],explanation:"<strong>FileVault</strong> is macOS's disk encryption product — the direct equivalent of BitLocker. It protects data stored on a disk against unauthorized access.<br><br>• <em>Privacy</em> controls analytics and data collection settings.<br>• <em>Time Machine</em> is macOS's backup solution.<br>• <em>Keychain</em> manages passwords and credentials."},
+      {id:83,text:"A user wants to wipe their personal data from a Mac before selling it online. Which of the following will help them accomplish this?",type:"single",options:["Finder","Disk Utility","Dock","Remote Disc"],correct:[1],explanation:"<strong>Disk Utility</strong> can verify, repair, and erase a disk with security options — ideal for wiping personal data before selling a Mac.<br><br>• <em>Finder</em> is macOS's file manager (like File Explorer).<br>• <em>Remote Disc</em> allows access to a CD/DVD drive on another Mac (discontinued since 2016).<br>• <em>Dock</em> provides quick access to apps, similar to the Windows taskbar."},
+    ]
+  },
+  {
+    id:"1_10", title:"Application Requirements", subtitle:"Hardware Tokens & Graphics",
+    domain:1, icon:"📦", unitCode:"1.0 Operating Systems",
+    questions:[
+      {id:55,text:"A vulnerability management lead wants to set up a more secure authentication method than a simple password. What hardware aspect should the management lead consider?",type:"single",options:["Integrated graphics card","Dedicated graphics card","Hardware token","CPU requirements"],correct:[2],explanation:"<strong>Hardware token</strong> is a smart card or USB device that stores cryptographic user identification data. The user must present the token plus a password, PIN, or fingerprint to authenticate — much more secure than a password alone.<br><br>• <em>Graphics cards</em> and <em>CPU requirements</em> relate to application performance, not authentication security."},
+      {id:68,text:"A 3D animation expert is searching for a new computer. What should they ensure it has to handle their demanding software?",type:"single",options:["Dedicated graphics card","Integrated graphics card","64-bit CPU","Hardware token"],correct:[0],explanation:"<strong>Dedicated graphics card</strong> with its own video RAM is essential for demanding applications like 3D animation software or games.<br><br>• <em>Integrated graphics</em> shares system RAM and is insufficient for demanding 3D work.<br>• <em>64-bit CPU</em> helps but the GPU is the primary bottleneck for 3D applications.<br>• <em>Hardware token</em> is an authentication device, not a performance component."},
+    ]
+  },
+  {
+    id:"2_1", title:"Authentication Methods", subtitle:"Fingerprint, NFC & Soft Tokens",
+    domain:2, icon:"🔐", unitCode:"2.0 Security",
+    questions:[
+      {id:44,text:"Which of the following login options requires a user to touch a device that takes a digital print?",type:"single",options:["Security key","OU","Fingerprint scanner","Facial recognition"],correct:[2],explanation:"<strong>Fingerprint scanner</strong> is a biometric authentication method that uses a sensor to scan the unique features of a user's fingerprint — requiring physical touch.<br><br>• <em>Facial recognition</em> uses a camera (no touch required).<br>• <em>Security key</em> uses a USB token or NFC smart card.<br>• <em>OU</em> (Organizational Unit) is an Active Directory structure, not an authentication method."},
+      {id:59,text:"A company looks into security controls for a building entryway. The chosen solution uses a chip for data transmission and another chip for receiving data over the air. Which solution uses this technique?",type:"single",options:["Near-field","Keypad","Retina scanner","Biometrics"],correct:[0],explanation:"<strong>Near-field communication (NFC)</strong> uses very short-range data transmission (less than 1 foot) with a transmitter chip and receiver chip — used in smart proximity cards for building access.<br><br>• <em>Biometrics</em> uses physical traits like fingerprints or retinas.<br>• <em>Retina scanner</em> is a specific biometric device.<br>• <em>Keypad</em> uses a numeric passcode."},
+      {id:78,text:"A user implements a method that requires a one-time code within a given time frame to get access to their email account. What is this method?",type:"single",options:["SMS","Hard token","Soft token","Phone call"],correct:[2],explanation:"<strong>Soft token</strong> is a software-based two-factor authentication method that generates a single-use, time-limited login PIN to authorize access to computer services.<br><br>• <em>Hard token</em> is a physical device the user must possess.<br>• <em>SMS</em> sends a text message code (less secure).<br>• <em>Phone call</em> can be used as 2FA but is generally insecure."},
+    ]
+  },
+  {
+    id:"2_2", title:"Access Control", subtitle:"UAC, Admin Groups & BitLocker",
+    domain:2, icon:"🛡️", unitCode:"2.0 Security",
+    questions:[
+      {id:15,text:"Which of the following uses a security shield icon for tasks that are protected under them?",type:"single",options:["Fingerprint","SSO","PIN","UAC"],correct:[3],explanation:"<strong>UAC</strong> (User Account Control) is a Windows security feature that displays a shield icon on tasks requiring elevated privileges. It protects against malicious scripts exploiting administrator privileges.<br><br>• <em>PIN</em> is a passcode for screen lock authentication.<br>• <em>Fingerprint</em> is biometric authentication.<br>• <em>SSO</em> (Single Sign-On) allows one authentication for multiple services."},
+      {id:52,text:"What group has complete privilege control over a system?",type:"single",options:["Power","Guest user","Administrator","Standard"],correct:[2],explanation:"<strong>Administrator</strong> group members can perform all management tasks and have very high access to all files and objects in the system.<br><br>• <em>Standard</em> users can only configure their own profile settings.<br>• <em>Guest user</em> has the same default permissions as the standard user group.<br>• <em>Power users</em> is a legacy group with the same permissions as standard users."},
+      {id:62,text:"A user logs into a computer and uses a camera that records a 3-D image with its infrared sensor to mitigate attempts to use a photo to spoof the authentication mechanism. What is this called?",type:"single",options:["SSO","Fingerprint","Gpupdate","Facial recognition"],correct:[3],explanation:"<strong>Facial recognition</strong> uses a webcam with an infrared (IR) sensor to create a 3-D image of the user's face, preventing photo spoofing attacks.<br><br>• <em>Fingerprint</em> uses a touch sensor, not a camera.<br>• <em>SSO</em> is a single authentication for multiple services.<br>• <em>Gpupdate</em> applies Group Policy changes immediately."},
+      {id:90,text:"What can use a trusted platform module chip in the computer to tie the use of a fixed disk to a particular motherboard?",type:"single",options:["Application security","BitLocker","Port security","Inheritance"],correct:[1],explanation:"<strong>BitLocker</strong> uses the TPM chip to bind disk encryption to a specific motherboard, preventing the drive from being read if removed and placed in another system. Available in all Windows editions except Home.<br><br>• <em>Port security</em> is based on TCP/UDP port numbers.<br>• <em>Application security</em> is based on listening processes.<br>• <em>Inheritance</em> refers to folder permission propagation."},
+    ]
+  },
+  {
+    id:"2_3", title:"Wi-Fi Security", subtitle:"WPA2, WPA3 & Authentication",
+    domain:2, icon:"📶", unitCode:"2.0 Security",
+    questions:[
+      {id:31,text:"What uses a 4-way handshake to allow a station to associate with an access point, authenticate its credential, and exchange a key to use for data encryption?",type:"single",options:["WPA2","WPA3","MFA","WEP"],correct:[0],explanation:"<strong>WPA2</strong> uses the AES cipher with CCMP (Counter Mode with CBC-MAC Protocol) and a 4-way handshake for authentication and key exchange.<br><br>• <em>WEP</em> is an outdated protocol retired in 2004 that used a static RC4 key.<br>• <em>WPA3</em> uses a different method (SAE) for key agreement.<br>• <em>MFA</em> is a multi-factor authentication concept, not a Wi-Fi protocol."},
+    ]
+  },
+  {
+    id:"2_5", title:"Threat Types", subtitle:"DoS, DDoS & Evil Twin Attacks",
+    domain:2, icon:"⚠️", unitCode:"2.0 Security",
+    questions:[
+      {id:1,text:"An attacker uses a technique against a wireless network that allows them to flood access points with too many packets. What is this called?",type:"single",options:["Insider threat","DDoS","On-path attack","DoS"],correct:[3],explanation:"<strong>DoS</strong> (Denial of Service) causes a service to fail or become unavailable by flooding it with packets.<br><br>• <em>DDoS</em> (Distributed DoS) uses multiple compromised systems (a botnet) — this scenario describes a single attacker.<br>• <em>On-path attack</em> intercepts traffic between two hosts.<br>• <em>Insider threat</em> involves someone with internal access."},
+      {id:46,text:"A threat actor uses a technique that allows devices to connect to open authentication and then redirects the user's browser to a fake captive portal to harvest their network password. What is this technique?",type:"single",options:["Whaling","Insider threat","Spoofing","Evil twin"],correct:[3],explanation:"<strong>Evil twin</strong> is a rogue wireless access point attack — like phishing but using a fake Wi-Fi network to harvest credentials via a fake captive portal.<br><br>• <em>Whaling</em> targets upper management specifically.<br>• <em>Insider threat</em> involves someone with internal access.<br>• <em>Spoofing</em> is masquerading as a trusted user or computer."},
+    ]
+  },
+  {
+    id:"2_6", title:"Malware Response", subtitle:"Antivirus, Encyclopedias & Next Steps",
+    domain:2, icon:"🦠", unitCode:"2.0 Security",
+    questions:[
+      {id:18,text:"Malware encyclopedias are a resource that antivirus vendors often make available to IT professionals. What is their value for IT practitioners? (Select two.)",type:"multi",options:["They are documentation of known malware.","They provide information about the type, symptoms, purpose, and removal of malware.","They troubleshoot unknown malware based on the behavior of known malware.","They provide a pricing model for remediation based on the malware found."],correct:[0,1],explanation:"Malware encyclopedias (also called 'bestiaries') document known malware including:<br>✅ <strong>Documentation of known malware</strong> — makeup, behavior, and removal process.<br>✅ <strong>Type, symptoms, purpose, and removal info</strong> — for verification and remediation.<br><br>❌ They do NOT troubleshoot unknown malware or provide pricing models."},
+      {id:33,text:"A user calls the help desk with issues consistent with a malware infection, although no alert was received. The technician confirms no malware alert. Which of the following options would be appropriate next steps? (Select two.)",type:"multi",options:["Update the antivirus software.","Remove the malware.","Log on to the system as an administrator.","Scan the system using different antivirus software."],correct:[0,3],explanation:"✅ <strong>Update the antivirus software</strong> — outdated definitions may have missed the malware.<br>✅ <strong>Scan with different AV software</strong> — different products detect different threats.<br><br>❌ <em>Logging on as admin</em> exposes privileged credentials to the malware.<br>❌ <em>Removing malware</em> is premature — you haven't confirmed or identified it yet."},
+    ]
+  },
+  {
+    id:"2_7", title:"Account Policies", subtitle:"Lockout, Permissions & Password Policies",
+    domain:2, icon:"👤", unitCode:"2.0 Security",
+    questions:[
+      {id:5,text:"An attacker tries multiple times to log into a user's phone, but the phone ends up being disabled. What is this called?",type:"single",options:["Use timeout/screen lock","Failed attempts lockout","Disable AutoRun","Concurrent logins"],correct:[1],explanation:"<strong>Failed attempts lockout</strong> disables an account after a maximum number of incorrect sign-in attempts within a certain period.<br><br>• <em>Timeout/screen lock</em> locks after inactivity, not failed attempts.<br>• <em>Concurrent logins</em> limits simultaneous sessions.<br>• <em>Disable AutoRun</em> prevents automatic malware installation from removable media."},
+      {id:41,text:"A company uses a method that restricts its employees from changing or adjusting their computer settings. What is this method called?",type:"single",options:["BIOS password","Expiration requirements","Disable guest accounts","Secure PII and passwords"],correct:[0],explanation:"<strong>BIOS password</strong> is authentication information required before the machine can boot, effectively preventing users from changing BIOS/UEFI settings like boot order or hardware configuration.<br><br>• <em>Expiration requirements</em> force periodic password changes.<br>• <em>Disable guest accounts</em> prevents unauthorized access.<br>• <em>Secure PII</em> protects personal identifiable information."},
+      {id:47,text:"A user is only able to read data on the file. What account management policy is this?",type:"single",options:["Restrict user permission.","Change the default administrator account.","Disable guest accounts.","Restrict login times."],correct:[0],explanation:"<strong>Restrict user permission</strong> limits what a user can do with resources. Read-only access is a common permission restriction — the principle of least privilege.<br><br>• <em>Default administrator account</em> changes relate to security of the admin account itself.<br>• <em>Disable guest accounts</em> prevents unauthorized access.<br>• <em>Restrict login times</em> prevents logins at unusual hours."},
+      {id:66,text:"Which of the following should generate an alert when the account is disabled or altered?",type:"single",options:["Restrict login times.","Restrict user permission.","Change the default administrator account.","Disable guest account."],correct:[2],explanation:"<strong>Change the default administrator account</strong> — default accounts are prime targets for threat actors. Any use of the default administrator account must be logged and generate alerts when disabled or altered.<br><br>• <em>Restrict login times</em> prevents off-hours logins.<br>• <em>Restrict user permission</em> limits access rights.<br>• <em>Disable guest account</em> prevents unauthorized access."},
+      {id:89,text:"What is referred to as a protection measure for data on persistent storage like HDDs, SSDs, and thumb drives?",type:"single",options:["Data in Transit encryption","Data in Use protection","Use timeout/screen lock","Data-at-rest encryption"],correct:[3],explanation:"<strong>Data-at-rest encryption</strong> protects data stored on persistent storage (HDDs, SSDs, thumb drives) by encrypting it so it cannot be read if the drive is removed.<br><br>• <em>Data in Transit</em> protects data moving over a network (VPN, SSL/TLS).<br>• <em>Data in Use</em> is data actively processed by memory/CPU — normally not encrypted.<br>• <em>Timeout/screen lock</em> is a physical access control, not encryption."},
+    ]
+  },
+  {
+    id:"2_8_2_9", title:"Mobile Auth & Data Destruction", subtitle:"Pattern Lock & Low-Level Formatting",
+    domain:2, icon:"📱", unitCode:"2.0 Security",
+    questions:[
+      {id:53,text:"Users perform a technique that tends to select C, M, N, O, and S shapes. Which of the following is this?",type:"single",options:["PIN","Swipe","Facial recognition","Pattern"],correct:[3],explanation:"<strong>Pattern</strong> authentication requires the user to swipe a 'join-the-dots' pattern. Letters like C, M, N, O, and S are common shapes traced on the dot grid — though this method has numerous weaknesses.<br><br>• <em>Swipe</em> is unauthenticated — just swipe to unlock.<br>• <em>PIN</em> uses numeric/alphanumeric codes.<br>• <em>Facial recognition</em> uses a 3-D camera scan."},
+      {id:51,text:"What technique is used on hard drives that resets them to factory condition?",type:"single",options:["Erasing/wiping","Certificate of destruction","Low-level formatting","Third-party vendor"],correct:[2],explanation:"<strong>Low-level formatting</strong> resets a disk to its factory condition. Modern tools incorporate sanitize functions like Secure Erase (SE) and Instant Secure Erase (ISE).<br><br>• <em>Erasing/wiping</em> uses zeroes or random patterns to clean data but doesn't fully reset the disk.<br>• <em>Certificate of destruction</em> documents the destruction process.<br>• <em>Third-party vendors</em> may use overwriting or crypto-erase."},
+    ]
+  },
+  {
+    id:"2_11", title:"Browser Security", subtitle:"Private Browsing, Certificates & Ad Blockers",
+    domain:2, icon:"🌐", unitCode:"2.0 Security",
+    questions:[
+      {id:2,text:"What will block third-party cookies and enable strict tracking protection?",type:"single",options:["Pop-up blockers","Ad blockers","Clearing cache","Private browsing mode"],correct:[3],explanation:"<strong>Private browsing mode</strong> disables caching so no cookies, browsing history, form fields, passwords, or temp files are stored when the session closes — blocking third-party tracking.<br><br>• <em>Clearing cache</em> deletes existing history but doesn't prevent future tracking.<br>• <em>Ad blockers</em> block ads but don't specifically block all third-party cookies.<br>• <em>Pop-up blockers</em> prevent dialog boxes and additional windows."},
+      {id:39,text:"A user is on a website using an HTTPS URL; the browser displays information about the certificate in the address bar. What does this certificate validate?",type:"single",options:["Secure connection","Untrusted source","Pop-up blocker","Browser sign-in"],correct:[0],explanation:"<strong>Secure connection</strong> — an HTTPS certificate validates the host's identity and encrypts communications to protect against snooping and man-in-the-middle attacks.<br><br>• <em>Untrusted source</em> is when an installer can't be verified by a digital signature.<br>• <em>Browser sign-in</em> synchronizes settings across browser instances.<br>• <em>Pop-up blocker</em> prevents unwanted dialog boxes."},
+      {id:84,text:"What uses domain names of components loading on the web page against a vast blacklist?",type:"single",options:["Ad blocker","Clearing browsing data","Private browsing mode","Browser sign-in"],correct:[0],explanation:"<strong>Ad blockers</strong> use sophisticated techniques including checking domain names against blacklists to prevent displaying anything that doesn't seem to be part of the site's main content.<br><br>• <em>Clearing browsing data</em> deletes history and cache.<br>• <em>Private browsing mode</em> prevents local storage of session data.<br>• <em>Browser sign-in</em> syncs settings between devices."},
+    ]
+  },
+  {
+    id:"3_1", title:"PC Troubleshooting", subtitle:"Apps, Services, RAM & Safe Mode",
+    domain:3, icon:"🔨", unitCode:"3.0 Software Troubleshooting",
+    questions:[
+      {id:7,text:"The electronic health records software crashes during a busy day. The IT consultant knows the application backs up data in real-time and has the latest update installed. Which option could potentially fix the crashing issue?",type:"single",options:["Update the application driver.","Uninstall and reinstall the application.","Try to recover data from temporary files.","Uninstall and reinstall the application driver."],correct:[1],explanation:"<strong>Uninstall and reinstall the application</strong> is the best option since the latest update is already applied and data is backed up in real-time.<br><br>• <em>Application drivers</em> don't exist — drivers are for hardware, not software applications.<br>• <em>Recovering from temp files</em> won't fix the crash and isn't needed since data is backed up."},
+      {id:8,text:"A user disabled some laptop services to speed up performance. After restarting, 'One or more services failed to start' appears. The IT specialist restarts the failed service but it doesn't fix it. Which scenario best explains why?",type:"single",options:["The failed service was deleted.","The user disabled a dependent service.","The failed service was set to a delayed start.","The IT specialist should have restored the failed service instead of restarting it."],correct:[1],explanation:"<strong>The user disabled a dependent service.</strong> Most Windows services depend on other services. If a dependency was disabled, the dependent service will fail to start even if it exists.<br><br>• <em>Deleted service</em> would not appear as a failed service.<br>• <em>Delayed start</em> improves boot time but doesn't cause failure.<br>• <em>Restoring</em> is for missing/deleted services, not dependency issues."},
+      {id:23,text:"Worried about a crash, a user creates a complete backup of the system configuration and data files on their computer. Identify what the user has created.",type:"single",options:["An update","A reimage","An update rollback","An image"],correct:[3],explanation:"<strong>An image</strong> is a complete backup of everything on the computer — installation, settings, apps, and files. Also called a system image.<br><br>• <em>Reimaging</em> resets the PC to defaults — it's not a backup.<br>• <em>An update</em> fixes or improves the OS/software.<br>• <em>An update rollback</em> uninstalls a problematic update."},
+      {id:37,text:"A user plugs in USB-C headphones to a USB 3 port and gets 'not enough USB controller resources.' What is the best fix?",type:"single",options:["Run the SFC to locate and update the USB controller drivers.","Close all running programs to free up memory.","Connect the headphones to a USB 2 port.","Open the Resource Monitor to verify compatibility."],correct:[2],explanation:"<strong>Connect to a USB 2 port</strong> — 'Not enough USB controller resources' is common with USB 3 ports when too many devices are connected or one device exceeds allocated endpoints. USB 2 ports have more endpoints.<br><br>• <em>Closing programs</em> frees memory, not USB controller resources.<br>• <em>SFC</em> scans system files — it doesn't update drivers.<br>• <em>Resource Monitor</em> won't resolve USB controller allocation issues."},
+      {id:49,text:"After installing Windows 11 on an older computer, the computer boots to a blank screen. Which solutions could conceivably fix the blank screen? (Select two.)",type:"multi",options:["Repair Windows.","Update the graphics adapter driver.","Run the IDLE debugger.","Defrag the hard drive."],correct:[0,1],explanation:"✅ <strong>Repair Windows</strong> — a blank screen after installation could indicate an interrupted or incomplete install.<br>✅ <strong>Update the graphics driver</strong> — an outdated driver incompatible with Windows 11 could cause a blank screen.<br><br>❌ <em>IDLE debugger</em> is for Python scripts, not Windows issues.<br>❌ <em>Defragging</em> optimizes file storage but won't fix a blank screen."},
+      {id:57,text:"A researcher complains of slow computer performance. They frequently run multiple programs simultaneously and have many browser tabs open. Which solution should speed up performance?",type:"single",options:["Run System Restore.","Reset Windows.","Add RAM.","Have the user run the computer in Safe Mode with Networking."],correct:[2],explanation:"<strong>Add RAM</strong> — running multiple programs and many browser tabs consumes a lot of RAM. Since the researcher needs to continue this practice, adding more RAM is the appropriate solution.<br><br>• <em>System Restore</em> rolls back configuration changes, not memory issues.<br>• <em>Safe Mode</em> is a troubleshooting environment, not a work environment.<br>• <em>Reset Windows</em> restores factory defaults and removes all applications."},
+      {id:72,text:"A user's Windows freezes to a blue screen every time it tries to boot. The technician boots in Safe Mode. What is the BEST reason the technician wants to enter Safe Mode?",type:"single",options:["CHKDSK can be run in Safe Mode.","Safe Mode is necessary for troubleshooting.","Safe Mode loads only the minimum amount of drivers and services to start the system.","Antivirus scans can be run in Safe Mode."],correct:[2],explanation:"<strong>Safe Mode loads only minimum drivers and services</strong> — this allows the system to boot when a normal boot fails (like a BSOD), isolating the problematic driver or service.<br><br>• <em>CHKDSK</em> can run in Safe Mode but that's not the primary reason to use it here.<br>• <em>Safe Mode isn't required</em> for troubleshooting — many tools work in normal mode too.<br>• <em>Antivirus scans</em> can run in Safe Mode but that's a secondary benefit."},
+      {id:82,text:"A user's computer frequently shuts down, freezes, reboots, and powers off with no error messages. Which of the following problems would cause this instability? (Select three.)",type:"multi",options:["Failing CPU","Misconfigured firewall","Overheating","Too many connected devices"],correct:[0,1,2],explanation:"✅ <strong>Overheating</strong> — excessive heat damages circuitry and causes shutdowns, freezing, and reboots.<br>✅ <strong>Failing CPU</strong> — can lead to crashes, freezing, and reboots.<br>✅ <strong>Misconfigured firewall</strong> — introduces malware risk that could cause instability symptoms.<br><br>❌ <em>Too many connected devices</em> generates a USB resource warning but won't cause shutdowns or freezes."},
+    ]
+  },
+  {
+    id:"3_2", title:"Mobile Device Troubleshooting", subtitle:"iOS, Android & Connectivity Issues",
+    domain:3, icon:"📲", unitCode:"3.0 Software Troubleshooting",
+    questions:[
+      {id:13,text:"Two friends want to share photos via AirDrop from their iPhones. The first friend gets a message that there is no one nearby to share with. Why would that message appear?",type:"single",options:["The second friend has Bluetooth disabled.","The second friend has Wi-Fi disabled.","The first friend has Nearby Share disabled.","The first friend has Bluetooth disabled."],correct:[0],explanation:"<strong>The second friend has Bluetooth disabled.</strong> AirDrop transfers files over Bluetooth. If the receiving device has Bluetooth disabled, it won't be discoverable.<br><br>• <em>Wi-Fi disabled</em> wouldn't affect Bluetooth AirDrop.<br>• <em>Nearby Share</em> is the Android equivalent of AirDrop.<br>• <em>First friend's Bluetooth disabled</em> would prompt them to turn Bluetooth on before sharing."},
+      {id:14,text:"The OS update on a user's Android phone fails. The user verifies the phone is connected to a wall outlet and the office network. Which of the following could be responsible for the update failure?",type:"single",options:["RADIUS","NFC","Metered network","WLAN"],correct:[2],explanation:"<strong>Metered network</strong> — updates may be blocked if the device is connected to a metered (data-limited) network, even if it's connected to Wi-Fi.<br><br>• <em>RADIUS</em> manages remote/wireless authentication infrastructure.<br>• <em>NFC</em> is for short-range contactless communication.<br>• <em>WLAN</em> — since the user verified Wi-Fi connectivity, this isn't the issue."},
+      {id:17,text:"A user turns their phone sideways to watch Netflix on the treadmill, but the picture does not orient to landscape as it always has. Which of the following could cause this issue?",type:"single",options:["Rotation lock is disabled.","Screen lock is enabled.","Screen lock is disabled.","Rotation lock is enabled."],correct:[3],explanation:"<strong>Rotation lock is enabled</strong> — when enabled, it prevents the screen from auto-rotating. In iOS, it's in Control Center; in Android, it's in the navigation bar.<br><br>• <em>Rotation lock disabled</em> means the screen should auto-rotate normally.<br>• <em>Screen lock</em> is a security feature for device access, unrelated to screen orientation."},
+      {id:25,text:"The Instagram app on an Android phone will not launch. Which of the following options could fix the problem?",type:"single",options:["Swiping","Software Update","AirDrop","Force Stop"],correct:[3],explanation:"<strong>Force Stop</strong> — if an app fails to launch, use Force Stop to quit it and try again. In Android: Settings > Apps > tap app > Force Stop.<br><br>• <em>Swiping</em> is a gesture for navigation, not app troubleshooting.<br>• <em>AirDrop</em> is an iOS file-sharing feature.<br>• <em>Software Update</em> is an iOS option; Android uses 'System Update.'"},
+      {id:42,text:"A low battery charge can cause several different problems on a mobile device. Which of the following issues could stem from a low battery? (Select all that apply.)",type:"multi",options:["Weak Bluetooth signal","Autorotation stops","Weak Wi-Fi signal","Lockout"],correct:[0,2],explanation:"✅ <strong>Weak Wi-Fi signal</strong> — searching for Wi-Fi consumes battery; low battery may not power a strong signal search.<br>✅ <strong>Weak Bluetooth signal</strong> — same reason; Bluetooth scanning drains battery.<br><br>❌ <em>Autorotation stops</em> — caused by rotation lock or hardware issues, not low battery.<br>❌ <em>Lockout</em> — occurs after failed sign-in attempts, not low battery."},
+      {id:76,text:"The Snapchat app on an iOS phone will not close. The user rebooted the device unsuccessfully. Which option would be best to try next?",type:"single",options:["Factory Reset","Wiping","Uninstall, then reinstall","System updates"],correct:[2],explanation:"<strong>Uninstall, then reinstall</strong> — reinstalling an app can fix issues like failing to close. To uninstall on iOS: tap-and-hold until it wiggles, press the X, confirm Delete.<br><br>• <em>System updates</em> is an Android option; iOS uses 'Software Update.'<br>• <em>Wiping</em> performs a factory reset — extreme for a single app issue.<br>• <em>Factory Reset</em> is a last resort that erases all data."},
+    ]
+  },
+  {
+    id:"3_3", title:"Mobile Security", subtitle:"Rooting, Jailbreaking & Developer Mode",
+    domain:3, icon:"🔓", unitCode:"3.0 Software Troubleshooting",
+    questions:[
+      {id:9,text:"Rooting is typically an action related to Android, while jailbreaking is associated with iOS. They are both trying to accomplish the same goal. What is that goal?",type:"single",options:["Gain unrestricted access.","Bootlegging","Spoofing","Publish malicious apps."],correct:[0],explanation:"<strong>Gain unrestricted access</strong> (privilege escalation) — both rooting and jailbreaking subvert built-in security controls to gain root/admin access, which also permanently disables many security measures.<br><br>• <em>Publishing malicious apps</em> is done by rogue developers, not the goal of rooting/jailbreaking.<br>• <em>Bootlegging</em> is illegally copying commercial software.<br>• <em>Spoofing</em> is masquerading as a legitimate app."},
+      {id:43,text:"To ensure authenticity of a mobile app, a service provider issues a certificate to valid developers. Which attribute of an app would likely disqualify it as trustworthy?",type:"single",options:["Duplicates the function of a VPN","Duplicates the function of MDM","Duplicates the function of core OS apps","Duplicates the function of IoT"],correct:[2],explanation:"<strong>Duplicates the function of core OS apps</strong> — an app that replicates core operating system functionality is at risk of not receiving trusted app status, as it could be used to intercept or replace critical system functions.<br><br>• <em>VPN</em> and <em>MDM</em> functions are not proprietary and can be duplicated.<br>• <em>IoT</em> functionality cannot be duplicated by an app."},
+      {id:85,text:"A new app developer's phone is denied access to the corporate network. Why would the network deny access from the developer's mobile phone?",type:"single",options:["App spoofing","Sluggish response time","Developer mode","High network traffic"],correct:[2],explanation:"<strong>Developer mode</strong> — the company's MDM (Mobile Device Management) system blocks devices in developer mode because it can be used to install apps from untrusted sources, posing a security risk.<br><br>• <em>High network traffic</em> is a bandwidth issue, not an access denial reason.<br>• <em>App spoofing</em> is a malicious app technique, not a network access issue.<br>• <em>Sluggish response time</em> is a performance issue, not an access denial reason."},
+    ]
+  },
+  {
+    id:"3_4", title:"Security Troubleshooting", subtitle:"Malware, Certificates & Browser Issues",
+    domain:3, icon:"🚨", unitCode:"3.0 Software Troubleshooting",
+    questions:[
+      {id:16,text:"While browsing, a user receives a pop-up: 'We have detected a Trojan virus. Click OK to begin the repair process.' The user clicks OK. What is the most likely outcome?",type:"single",options:["Unwanted notifications start popping up in Windows.","The user starts experiencing drive-by downloads.","UAC will need to be enabled.","Nothing happens because Windows BitLocker blocks the Trojan virus."],correct:[0],explanation:"<strong>Unwanted notifications (adware)</strong> — clicking a malicious browser pop-up typically delivers adware, which generates unwanted notifications and pop-ups.<br><br>• <em>Drive-by downloads</em> infect passively (just visiting a site), not through active clicking.<br>• <em>BitLocker</em> is an encryption tool, not antivirus.<br>• <em>UAC</em> is enabled by default and prevents unauthorized admin use."},
+      {id:50,text:"While searching for cleaning services, a homeowner clicks a result and sees 'Warning: Potential Security Risk Ahead.' What would cause this message? (Select all that apply.)",type:"multi",options:["The certificate is issued by an untrusted CA.","Malware is trying to redirect the browser to a spoofed page.","The cleaning service is no longer in business.","The certificate has expired."],correct:[0,1,3],explanation:"✅ <strong>Untrusted CA</strong> — certificates from untrusted Certificate Authorities trigger security warnings.<br>✅ <strong>Malware redirection</strong> — malware can redirect browsers to spoofed pages with invalid certificates.<br>✅ <strong>Expired certificate</strong> — expired certificates trigger security warnings.<br><br>❌ <em>Business closure</em> — a closed business website would not generate a security warning."},
+      {id:60,text:"A user receives a Windows pop-up stating 163 viruses were detected and they need to purchase the full version to remove them. What type of antivirus does the user have?",type:"single",options:["Rogue","Execution control","On-access","Defender"],correct:[0],explanation:"<strong>Rogue antivirus</strong> — fake security alerts disguised as Windows dialog boxes that promote installation of Trojan malware or trick users into purchasing fake software.<br><br>• <em>Windows Defender</em> never generates pop-ups to purchase a full version.<br>• <em>On-access</em> scanning scans files before opening them.<br>• <em>Execution control</em> prevents malicious software from running regardless of user privileges."},
+      {id:61,text:"Which of the following scenarios would result in a website having an untrusted or invalid certificate? (Select three.)",type:"multi",options:["The certificate is issued by a trusted CA.","The certificate is self-signed.","The certificate is revoked.","The certificate has expired."],correct:[1,2,3],explanation:"✅ <strong>Self-signed certificate</strong> — not issued by a trusted CA, triggers untrusted warnings.<br>✅ <strong>Revoked certificate</strong> — could indicate site misconfiguration or malware spoofing.<br>✅ <strong>Expired certificate</strong> — invalid certificates trigger security warnings.<br><br>❌ <em>Trusted CA certificate</em> — this is a valid, trusted certificate and would NOT trigger warnings."},
+      {id:64,text:"Over the course of a day, a user's computer becomes slow, pop-ups appear, internet searches redirect to Google instead of Firefox, and the computer starts crashing. What is the best diagnosis?",type:"single",options:["The HOSTS file is corrupted and is mapping domain names to the wrong IP addresses.","Adware or spyware infection","The DNS server is corrupted and is mapping domain names to the wrong IP addresses.","Ransomware"],correct:[1],explanation:"<strong>Adware or spyware infection</strong> — slow performance, random pop-ups, browser redirection, and crashes are all classic symptoms of adware/spyware.<br><br>• <em>Ransomware</em> encrypts files for extortion — doesn't cause these symptoms.<br>• <em>DNS/HOSTS corruption</em> causes redirection but not the other symptoms like pop-ups and crashes."},
+      {id:75,text:"An employee enters a newspaper's web address but gets a site with click-bait celebrity stories. Re-entering the address returns the same page. Which troubleshooting step would be appropriate?",type:"single",options:["Check the System Configuration Utility.","Check to see if the newspaper website's certificate is expired.","Check to see if the DNS browser is configured correctly.","Check HOSTS files for malicious entries."],correct:[3],explanation:"<strong>Check HOSTS files for malicious entries</strong> — this is a redirection attack. The HOSTS file maps domain names to IP addresses locally, and malicious entries can reroute traffic to fake sites.<br><br>• <em>Certificate expiry</em> generates a warning message, not a redirect to another site.<br>• <em>DNS</em> is a server, not a browser — use nslookup to check DNS records.<br>• <em>System Configuration Utility</em> manages boot settings, not browser redirects."},
+      {id:77,text:"A user receives an unsolicited call from a 'Microsoft support technician' saying their antivirus alerted Microsoft of a malware infection and they need to remote in to fix it. What is the technician trying to do?",type:"single",options:["Address the problem faster with a call rather than an email.","Address the problem faster with a call rather than a pop-up notification alert.","Proactively respond to a virus alert.","Circumvent security software."],correct:[3],explanation:"<strong>Circumvent security software</strong> — this is a social engineering scam. Microsoft does not directly support users and would never randomly call about a malware alert. The goal is to steal credentials or install malware.<br><br>• Microsoft does not receive antivirus alerts from individual users.<br>• Microsoft does not call, email, or contact users about malware."},
+      {id:88,text:"A malware infection can manifest in many ways. Malware may cause which of the following computer issues? (Select all that apply.)",type:"multi",options:["UAC is enabled","Windows update fails","Roaming profiles","Redirection"],correct:[1,3],explanation:"✅ <strong>Windows update fails</strong> — malware often disables security tools including Windows Update, antivirus, and firewall.<br>✅ <strong>Redirection</strong> — malware targets browsers, redirecting users to malicious sites.<br><br>❌ <em>UAC enabled</em> — malware tries to DISABLE UAC, not enable it.<br>❌ <em>Roaming profiles</em> — these copy profiles from a share at logon; not a malware symptom."},
+    ]
+  },
+  {
+    id:"4_1_4_2", title:"Policies & Change Management", subtitle:"AUP & Change Requests",
+    domain:4, icon:"📋", unitCode:"4.0 Operational Procedures",
+    questions:[
+      {id:6,text:"A company has employees sign a document that enforces the importance of protecting the organization from the security and legal implications of employees misusing its equipment. What is this document?",type:"single",options:["Acceptable use policy","Procurement life cycle","Assigned users","Splash screen"],correct:[0],explanation:"<strong>Acceptable Use Policy (AUP)</strong> defines what employees can and cannot do with company equipment and resources, protecting the organization legally and from security risks.<br><br>• <em>Procurement life cycle</em> covers asset acquisition and disposal.<br>• <em>Assigned users</em> refers to hardware/software assigned to specific accounts.<br>• <em>Splash screen</em> is a graphical intro screen showing software version."},
+      {id:35,text:"When constructing a change request document, a part that needs to be included is the number of devices, users, or customers that will be affected by the change. What is this part of the document?",type:"single",options:["Rollback plan","End-user acceptance","Purpose of the change","Scope of the change"],correct:[3],explanation:"<strong>Scope of the change</strong> includes cost, timescales, number of devices/users affected, and the factors by which success or failure can be judged.<br><br>• <em>Purpose of the change</em> is the business case and accumulated benefits.<br>• <em>End-user acceptance</em> accounts for user adaptation to new processes.<br>• <em>Rollback plan</em> describes how to reverse the change if it has harmful consequences."},
+    ]
+  },
+  {
+    id:"4_3", title:"Backup & Recovery", subtitle:"GFS, 3-2-1 Rule & Off-site Storage",
+    domain:4, icon:"💿", unitCode:"4.0 Operational Procedures",
+    questions:[
+      {id:20,text:"An administrator uses a backup rotation scheme that labels the backup tapes in generations. What is this called?",type:"single",options:["Frequency","GFS","Synthetic","3-2-1 backup rule"],correct:[1],explanation:"<strong>GFS</strong> (Grandfather-Father-Son) is a backup rotation scheme using son tapes (most recent, shortest retention), father tapes (weekly), and grandfather tapes (oldest, longest retention).<br><br>• <em>3-2-1 rule</em> is a best-practice maxim (3 copies, 2 media types, 1 off-site).<br>• <em>Synthetic full backup</em> is assembled from other backup jobs, not from original data.<br>• <em>Frequency</em> is the period between backup jobs."},
+      {id:27,text:"A technician uses a backup configuration that reflects how much lost work can be tolerated. What main factor of backup operations is this technician utilizing?",type:"single",options:["Retention","Full with incremental","Frequency","Full with differential"],correct:[2],explanation:"<strong>Frequency</strong> is the period between backup jobs. How much lost work can be tolerated determines how often backups should run — measured in hours, minutes, or seconds for critical data.<br><br>• <em>Retention</em> is how long a backup is kept.<br>• <em>Full with incremental</em> backs up only changes since the last job.<br>• <em>Full with differential</em> backs up all changes since the original full backup."},
+      {id:45,text:"Which of the following backup procedures states that users should have three copies of their data across two media types, with one copy held off-line and off-site?",type:"single",options:["Frequency","Synthetic","3-2-1 backup rule","GFS"],correct:[2],explanation:"<strong>3-2-1 backup rule</strong>: 3 copies of data, across 2 different media types, with 1 copy held off-line and off-site — mitigating the widest possible range of disaster scenarios.<br><br>• <em>GFS</em> is a tape rotation scheme.<br>• <em>Synthetic full backup</em> is assembled from other backup jobs.<br>• <em>Frequency</em> is the period between backup jobs."},
+      {id:80,text:"A company has backup storage located at a different location, which lowers the risk of losing both production and backup copies of data. Which of the following is this backup storage?",type:"single",options:["Off-site backup storage","On-site backup storage","Frequency","Synthetic"],correct:[0],explanation:"<strong>Off-site backup storage</strong> stores backups at a different physical location, protecting against disasters that could destroy both production and backup data at the same site.<br><br>• <em>On-site backup storage</em> risks losing both copies in the same disaster.<br>• <em>Synthetic</em> is a backup type assembled from other jobs.<br>• <em>Frequency</em> is the period between backup jobs."},
+    ]
+  },
+  {
+    id:"4_4_4_6", title:"Safety, Licensing & Documentation", subtitle:"ESD, Licenses, CSIRT & Splash Screens",
+    domain:4, icon:"📄", unitCode:"4.0 Operational Procedures",
+    questions:[
+      {id:74,text:"Which of the following are proper component handling tools and techniques to protect electronic components against electronic discharge when fixing a PC or mobile device? (Select two.)",type:"multi",options:["ESD mats","Safety goggles","ESD straps","Air filter mask"],correct:[0,2],explanation:"✅ <strong>ESD straps</strong> — worn on the wrist or ankle to dissipate static charges; the metal stud contacts the skin.<br>✅ <strong>ESD mats</strong> — used to organize sensitive components; connected to the wrist or leg strap.<br><br>❌ <em>Safety goggles</em> — protect eyes from corrosive materials, not ESD.<br>❌ <em>Air filter mask</em> — protects from dust/toner, not ESD."},
+      {id:26,text:"A user is buying software for their PC. Which of the following would the user be purchasing for individual use?",type:"single",options:["Corporate-use license","DRM","Data retention requirements","Personal license"],correct:[3],explanation:"<strong>Personal license</strong> allows the product to be used by a single person at a time, though it may permit installation on multiple personal devices.<br><br>• <em>Corporate-use license</em> covers multiple users/computers for a company.<br>• <em>DRM</em> (Digital Rights Management) is copy protection for digital media.<br>• <em>Data retention requirements</em> are regulations about how long data must be kept."},
+      {id:30,text:"A company uses a control that reminds users when logging in to the company's device of the current software version. What is this control called?",type:"single",options:["Assigned users","Knowledge base","Splash screen","Acceptable use policy"],correct:[2],explanation:"<strong>Splash screen</strong> is a graphic design element consisting of a window containing an image, logo, and the current software version — displayed at startup or login.<br><br>• <em>Knowledge base</em> is a repository of FAQs and troubleshooting articles.<br>• <em>Assigned users</em> refers to hardware/software assigned to specific accounts.<br>• <em>AUP</em> defines acceptable use of company resources."},
+      {id:87,text:"A technician detected and reported a security incident, resulting in the appropriate unit being notified and tasked with acting as first responders. What is this unit called?",type:"single",options:["CSIRT","Chain of custody","IRP","Open-source"],correct:[0],explanation:"<strong>CSIRT</strong> (Computer Security Incident Response Team) provides decision-making and technical skills to deal with different types of security incidents in larger organizations.<br><br>• <em>Chain of custody</em> records who collected and handled evidence.<br>• <em>IRP</em> (Incident Response Plan) sets procedures for dealing with incidents.<br>• <em>Open-source</em> refers to freely available software with accessible source code."},
+    ]
+  },
+  {
+    id:"4_7", title:"Customer Service", subtitle:"Professional Support & Communication",
+    domain:4, icon:"🤝", unitCode:"4.0 Operational Procedures",
+    questions:[
+      {id:3,text:"An employee needs to ensure that the customer receives a professional support delivery. Which of the following does this include? (Select three.)",type:"multi",options:["Be on time.","Provide proper documentation.","Take routine personal phone calls.","Deal appropriately with confidential and private materials."],correct:[0,1,3],explanation:"✅ <strong>Be on time</strong> — call ahead if running late.<br>✅ <strong>Provide proper documentation</strong> — so customers know what to expect.<br>✅ <strong>Deal appropriately with confidential materials</strong> — don't open files, emails, or web pages without permission.<br><br>❌ <em>Personal phone calls</em> — only take work-related urgent calls; no personal calls during customer visits."},
+      {id:28,text:"Which of the following alternatives can a customer select from when an issue cannot be resolved remotely? (Select two.)",type:"multi",options:["Clarify customer statements","Proper documentation","Repair","Replace"],correct:[2,3],explanation:"✅ <strong>Repair</strong> — customer gets instructions on how to pack and return the item to a repair center with a ticket number and RMA.<br>✅ <strong>Replace</strong> — customer gets instructions on delivery, re-ordering, and whether the broken product must be returned.<br><br>❌ <em>Clarify customer statements</em> and <em>proper documentation</em> are support process steps, not resolution alternatives."},
+      {id:56,text:"A technician is talking to a customer who is becoming abusive and unreasonable on a phone call. Which of the following skills should the technician use? (Select three.)",type:"multi",options:["Hang up.","Be judgmental.","Do not take complaints personally.","Identify early that the customer is angry."],correct:[0,2,3],explanation:"✅ <strong>Identify early that the customer is angry</strong> — try to calm the situation with a low voice and soothing language.<br>✅ <strong>Do not take complaints personally</strong> — don't express anger toward the customer.<br>✅ <strong>Hang up</strong> — if a customer is abusive or threatening, issue a caution and follow company policy.<br><br>❌ <em>Being judgmental</em> will escalate the situation."},
+      {id:71,text:"A technician asks the customer to describe the issue to them in detail because the customer is not sure how to locate the issue on their computer. What type of technique is this?",type:"single",options:["Hang up.","Ask a closed question.","Ask an open-ended question.","Be judgmental."],correct:[2],explanation:"<strong>Open-ended question</strong> — invites the other person to compose a detailed response, helping gather more information about the issue.<br><br>• <em>Closed questions</em> can only be answered with 'yes,' 'no,' or a fixed response.<br>• <em>Hang up</em> is for abusive/threatening customers.<br>• <em>Being judgmental</em> frustrates customers and is never appropriate."},
+    ]
+  },
+  {
+    id:"4_8", title:"Scripting", subtitle:"PowerShell, VBScript & Script Extensions",
+    domain:4, icon:"📝", unitCode:"4.0 Operational Procedures",
+    questions:[
+      {id:11,text:"A user uses a scripting language based on Microsoft's Visual Basic programming language. Which of the following extensions is used?",type:"single",options:[".py",".js",".vbs",".bat"],correct:[2],explanation:"<strong>.vbs</strong> is the VBScript file extension. VBScript predates PowerShell and is executed by the wscript.exe interpreter by default.<br><br>• <em>.bat</em> is the Windows batch file extension for CMD scripts.<br>• <em>.js</em> is JavaScript for web-based content.<br>• <em>.py</em> is Python for general-purpose scripting and applications."},
+      {id:36,text:"Which of the following extensions describes a file that combines a scripting language with hundreds of prebuilt modules called cmdlets that can access and change most components and features of Windows and Active Directory?",type:"single",options:[".ps1",".py",".sh",".js"],correct:[0],explanation:"<strong>.ps1</strong> is the PowerShell script file extension. PowerShell includes hundreds of prebuilt cmdlets and the Windows PowerShell ISE for rapid development.<br><br>• <em>.sh</em> is the Linux shell script extension.<br>• <em>.js</em> is JavaScript for web applications.<br>• <em>.py</em> is Python for general-purpose scripting."},
+    ]
+  },
+  {
+    id:"4_9_4_10", title:"Remote Tools & AI Concepts", subtitle:"RMM, AI Models & Hallucinations",
+    domain:4, icon:"🤖", unitCode:"4.0 Operational Procedures",
+    questions:[
+      {id:24,text:"What tool will distinguish client accounts and provide support for recording and reporting billable support activity?",type:"single",options:["RDP","VNC","RMM","VPN"],correct:[2],explanation:"<strong>RMM</strong> (Remote Monitoring and Management) tools are designed for managed service providers (MSPs) to monitor, manage, and bill clients for support activity.<br><br>• <em>RDP</em> (Remote Desktop Protocol) provides remote desktop access with encryption.<br>• <em>VNC</em> is freeware similar to RDP, works over TCP port 5900.<br>• <em>VPN</em> creates a secure tunnel to a remote network."},
+      {id:29,text:"A new AI tool has produced an output that is wrong and is not based on the data set or facts that the tool was trained on. Which of the following terms describes this issue?",type:"single",options:["Accuracy","Bias","NLP","Hallucinations"],correct:[3],explanation:"<strong>Hallucinations</strong> — when an AI system provides output that is wrong and not based on its training data or facts.<br><br>• <em>Bias</em> occurs when training data contains bias, causing biased outputs.<br>• <em>Accuracy</em> deals with how correct AI outputs are overall.<br>• <em>NLP</em> (Natural Language Processing) is a method for AI to process human voice/text inputs."},
+      {id:58,text:"A publicly traded company has developed its own custom AI system to evaluate the organization's financial transaction history. This tool will only be used by this organization. Which term describes this AI model?",type:"single",options:["Private","Community","Public","Hybrid"],correct:[0],explanation:"<strong>Private</strong> AI model — used exclusively by one organization for its own purposes, not accessible to the public or other organizations.<br><br>• <em>Public</em> models allow public use outside the organization.<br>• <em>Hybrid</em> and <em>Community</em> are not standard AI model classifications."},
+    ]
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+let moduleProgress = {}; // { moduleId: { score, answered, correct, incorrect, bestStreak, done } }
+let globalScore = 0;
+let globalAnswered = 0;
+let globalCorrect = 0;
+let globalBestStreak = 0;
+let globalStreak = 0;
+
+// Current session
+let currentModuleId = null;
+let currentQIndex = 0;
+let sessionAnswered = false;
+let sessionSelected = new Set();
+let sessionScore = 0;
+let sessionCorrect = 0;
+let sessionIncorrect = 0;
+let sessionStreak = 0;
+let sessionBestStreak = 0;
+
+const RANKS = [
+  {min:0,max:9,label:"Trainee",icon:"🪖"},
+  {min:10,max:24,label:"Apprentice",icon:"🎖️"},
+  {min:25,max:49,label:"Expert",icon:"⭐"},
+  {min:50,max:9999,label:"Master",icon:"🏆"}
+];
+function getRank(s){return RANKS.find(r=>s>=r.min&&s<=r.max)||RANKS[0];}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════════════════════════
+const canvas=document.getElementById('confetti-canvas');
+const ctx=canvas.getContext('2d');
+let confettiP=[];let confettiRun=false;
+function launchConfetti(n=80){
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const colors=['#1B5EAF','#1E7A3E','#F5C518','#e74c3c','#9b59b6','#2ecc71'];
+  for(let i=0;i<n;i++)confettiP.push({x:Math.random()*canvas.width,y:-10,r:Math.random()*7+4,color:colors[Math.floor(Math.random()*colors.length)],tilt:0,tiltAngle:0,tiltAngleInc:Math.random()*.07+.05,vy:Math.random()*3+2,vx:Math.random()*2-1});
+  if(!confettiRun)animateConfetti();
+}
+function animateConfetti(){
+  confettiRun=true;ctx.clearRect(0,0,canvas.width,canvas.height);
+  confettiP.forEach(p=>{ctx.beginPath();ctx.lineWidth=p.r/2;ctx.strokeStyle=p.color;ctx.moveTo(p.x+p.tilt+p.r/4,p.y);ctx.lineTo(p.x+p.tilt,p.y+p.tilt+p.r/4);ctx.stroke();p.tiltAngle+=p.tiltAngleInc;p.y+=p.vy;p.x+=p.vx;p.tilt=Math.sin(p.tiltAngle)*15;});
+  confettiP=confettiP.filter(p=>p.y<canvas.height+20);
+  if(confettiP.length>0)requestAnimationFrame(animateConfetti);else{confettiRun=false;ctx.clearRect(0,0,canvas.width,canvas.height);}
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STREAK POPUP
+// ═══════════════════════════════════════════════════════════════════
+function showStreakPopup(n){
+  const p=document.getElementById('streak-popup');
+  document.getElementById('streak-text').textContent=`🔥 ${n} in a Row!`;
+  p.classList.add('show');setTimeout(()=>p.classList.remove('show'),2000);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RANK BAR
+// ═══════════════════════════════════════════════════════════════════
+function updateRankBar(){
+  const rank=getRank(globalScore);
+  document.getElementById('rank-icon').textContent=rank.icon;
+  document.getElementById('rank-label').textContent=rank.label;
+  document.getElementById('score-display').textContent=globalScore;
+  document.getElementById('streak-display').textContent=`Streak: ${globalStreak} 🔥`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// HUB
+// ═══════════════════════════════════════════════════════════════════
+function renderHub(){
+  document.getElementById('hub-screen').style.display='block';
+  document.getElementById('question-screen').style.display='none';
+  document.getElementById('module-results').style.display='none';
+  document.getElementById('prog-wrap').style.display='none';
+  updateRankBar();
+  updateOverallStats();
+
+  const grid=document.getElementById('modules-grid');
+  grid.innerHTML='';
+  MODULES.forEach(mod=>{
+    const prog=moduleProgress[mod.id]||{score:0,answered:0,correct:0,done:false};
+    const total=mod.questions.length;
+    const pct=total>0?Math.round((prog.correct/total)*100):0;
+    const fillPct=total>0?Math.round((prog.answered/total)*100):0;
+
+    let statusClass='status-new',statusText='New';
+    let cardClass='';
+    if(prog.done){statusClass='status-done';statusText='✅ Complete';cardClass='completed';}
+    else if(prog.answered>0){statusClass='status-progress';statusText='⏳ In Progress';cardClass='in-progress';}
+
+    const domainClass=`domain-${mod.domain}`;
+    const card=document.createElement('div');
+    card.className=`module-card ${domainClass} ${cardClass}`;
+    card.onclick=()=>startModule(mod.id);
+    card.innerHTML=`
+      <div class="module-header">
+        <span class="module-icon">${mod.icon}</span>
+        <span class="module-status ${statusClass}">${statusText}</span>
+      </div>
+      <div class="module-title">${mod.title}</div>
+      <div class="module-meta">${mod.subtitle} · ${total} question${total!==1?'s':''} · ${mod.unitCode}</div>
+      <div class="module-progress-bg"><div class="module-progress-fill ${domainClass}" style="width:${fillPct}%"></div></div>
+      <div class="module-score">${prog.done?`Score: ${prog.correct}/${total} (${pct}%)`:(prog.answered>0?`${prog.answered}/${total} answered`:'Not started')}</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function updateOverallStats(){
+  const totalModules=MODULES.length;
+  const doneModules=Object.values(moduleProgress).filter(p=>p.done).length;
+  document.getElementById('ov-modules').textContent=`${doneModules}/${totalModules}`;
+  document.getElementById('ov-questions').textContent=globalAnswered;
+  document.getElementById('ov-correct').textContent=globalCorrect;
+  document.getElementById('ov-pct').textContent=globalAnswered>0?Math.round((globalCorrect/globalAnswered)*100)+'%':'0%';
+  document.getElementById('ov-streak').textContent=globalBestStreak;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// START MODULE
+// ═══════════════════════════════════════════════════════════════════
+function startModule(moduleId){
+  currentModuleId=moduleId;
+  currentQIndex=0;
+  sessionScore=0;sessionCorrect=0;sessionIncorrect=0;sessionStreak=0;sessionBestStreak=0;
+  // Reset module progress for fresh attempt
+  moduleProgress[moduleId]={score:0,answered:0,correct:0,incorrect:0,bestStreak:0,done:false};
+
+  document.getElementById('hub-screen').style.display='none';
+  document.getElementById('module-results').style.display='none';
+  document.getElementById('question-screen').style.display='block';
+  document.getElementById('prog-wrap').style.display='block';
+  loadQuestion();
+}
+
+function retryModule(){
+  startModule(currentModuleId);
+}
+
+function goToHub(){
+  renderHub();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LOAD QUESTION
+// ═══════════════════════════════════════════════════════════════════
+function loadQuestion(){
+  sessionAnswered=false;
+  sessionSelected=new Set();
+  const mod=MODULES.find(m=>m.id===currentModuleId);
+  const q=mod.questions[currentQIndex];
+  const total=mod.questions.length;
+
+  // Progress bar
+  const pct=Math.round((currentQIndex/total)*100);
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-label').textContent=`Question ${currentQIndex+1} of ${total}`;
+  document.getElementById('q-progress-label').textContent=`${currentQIndex+1} / ${total}`;
+  document.getElementById('q-module-label').textContent=`${mod.icon} ${mod.title}`;
+
+  // Domain color
+  const card=document.getElementById('q-card');
+  card.className=`card domain-${mod.domain}`;
+
+  document.getElementById('q-mission-tag').textContent=`Briefing ${currentQIndex+1} of ${total}`;
+  document.getElementById('q-topic-tag').textContent=mod.unitCode;
+  document.getElementById('question-text').textContent=q.text;
+
+  const multiNote=document.getElementById('multi-note');
+  multiNote.style.display=q.type==='multi'?'inline-block':'none';
+
+  const list=document.getElementById('options-list');
+  list.innerHTML='';
+  const letters=['A','B','C','D','E'];
+  q.options.forEach((opt,i)=>{
+    const li=document.createElement('li');
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML=`<span class="opt-letter">${letters[i]}</span> ${opt}`;
+    btn.onclick=()=>selectOption(i,btn,q.type);
+    btn.dataset.index=i;
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+
+  const fb=document.getElementById('feedback-box');
+  fb.className='feedback-box';fb.style.display='none';
+  document.getElementById('submit-btn').disabled=true;
+  document.getElementById('submit-btn').style.display='inline-block';
+  document.getElementById('next-btn').style.display='none';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SELECT OPTION
+// ═══════════════════════════════════════════════════════════════════
+function selectOption(idx,btn,type){
+  if(sessionAnswered)return;
+  const allBtns=document.querySelectorAll('.option-btn');
+  if(type==='single'){
+    allBtns.forEach(b=>b.classList.remove('selected'));
+    sessionSelected.clear();
+    btn.classList.add('selected');
+    sessionSelected.add(idx);
+  }else{
+    if(sessionSelected.has(idx)){sessionSelected.delete(idx);btn.classList.remove('selected');}
+    else{sessionSelected.add(idx);btn.classList.add('selected');}
+  }
+  document.getElementById('submit-btn').disabled=sessionSelected.size===0;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SUBMIT
+// ═══════════════════════════════════════════════════════════════════
+function submitAnswer(){
+  if(sessionAnswered)return;
+  sessionAnswered=true;
+  const mod=MODULES.find(m=>m.id===currentModuleId);
+  const q=mod.questions[currentQIndex];
+  const correctSet=new Set(q.correct);
+  const isCorrect=setsEqual(sessionSelected,correctSet);
+
+  document.querySelectorAll('.option-btn').forEach(btn=>{
+    btn.disabled=true;
+    const idx=parseInt(btn.dataset.index);
+    if(correctSet.has(idx))btn.classList.add('correct');
+    else if(sessionSelected.has(idx)&&!correctSet.has(idx))btn.classList.add('incorrect');
+    btn.classList.remove('selected');
+  });
+
+  const fb=document.getElementById('feedback-box');
+  const fbTitle=document.getElementById('feedback-title');
+  const fbDetail=document.getElementById('feedback-detail');
+
+  if(isCorrect){
+    sessionScore++;sessionCorrect++;sessionStreak++;globalScore++;globalCorrect++;globalStreak++;
+    if(sessionStreak>sessionBestStreak)sessionBestStreak=sessionStreak;
+    if(globalStreak>globalBestStreak)globalBestStreak=globalStreak;
+    fb.className='feedback-box correct-fb show';
+    fbTitle.textContent=sessionStreak>=3?`🔥 Correct! ${sessionStreak} in a Row!`:'✅ Correct! Well done, Agent!';
+    if(sessionStreak>=3)showStreakPopup(sessionStreak);
+    if(sessionStreak>=5)launchConfetti(100);
+  }else{
+    sessionIncorrect++;globalStreak=0;sessionStreak=0;
+    fb.className='feedback-box incorrect-fb show';
+    fbTitle.textContent='❌ Not quite — review your intel:';
+  }
+  fb.style.display='block';
+  fbDetail.innerHTML=q.explanation;
+  globalAnswered++;
+
+  // Update module progress
+  moduleProgress[currentModuleId]={
+    score:sessionScore,answered:currentQIndex+1,
+    correct:sessionCorrect,incorrect:sessionIncorrect,
+    bestStreak:sessionBestStreak,done:false
+  };
+
+  updateRankBar();
+  document.getElementById('submit-btn').style.display='none';
+  const nextBtn=document.getElementById('next-btn');
+  nextBtn.style.display='inline-block';
+  nextBtn.textContent=currentQIndex<mod.questions.length-1?'Next Briefing →':'📊 Module Results';
+}
+
+function setsEqual(a,b){if(a.size!==b.size)return false;for(let v of a)if(!b.has(v))return false;return true;}
+
+// ═══════════════════════════════════════════════════════════════════
+// NEXT QUESTION
+// ═══════════════════════════════════════════════════════════════════
+function nextQuestion(){
+  const mod=MODULES.find(m=>m.id===currentModuleId);
+  currentQIndex++;
+  if(currentQIndex>=mod.questions.length){
+    showModuleResults();
+  }else{
+    loadQuestion();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MODULE RESULTS
+// ═══════════════════════════════════════════════════════════════════
+function showModuleResults(){
+  const mod=MODULES.find(m=>m.id===currentModuleId);
+  const total=mod.questions.length;
+  const pct=Math.round((sessionCorrect/total)*100);
+
+  // Mark done
+  moduleProgress[currentModuleId]={
+    score:sessionScore,answered:total,
+    correct:sessionCorrect,incorrect:sessionIncorrect,
+    bestStreak:sessionBestStreak,done:true
+  };
+
+  document.getElementById('question-screen').style.display='none';
+  document.getElementById('prog-wrap').style.display='none';
+  document.getElementById('module-results').style.display='block';
+  document.getElementById('prog-fill').style.width='100%';
+
+  document.getElementById('mr-module-label').textContent=`${mod.icon} ${mod.title} — Complete`;
+
+  let trophy='🏆',title='Outstanding!';
+  if(pct===100){trophy='🏆';title='Perfect Score! Master Agent!';}
+  else if(pct>=80){trophy='⭐';title='Excellent Work, Agent!';}
+  else if(pct>=60){trophy='🎖️';title='Good Effort, Agent!';}
+  else{trophy='🪖';title='Keep Studying, Agent!';}
+
+  document.getElementById('mr-trophy').textContent=trophy;
+  document.getElementById('mr-title').textContent=title;
+  document.getElementById('mr-score').textContent=`${sessionCorrect}/${total}`;
+  document.getElementById('mr-label').textContent=`${pct}% Accuracy · ${mod.title}`;
+  document.getElementById('mr-correct').textContent=sessionCorrect;
+  document.getElementById('mr-incorrect').textContent=sessionIncorrect;
+  document.getElementById('mr-pct').textContent=pct+'%';
+  document.getElementById('mr-streak').textContent=sessionBestStreak;
+
+  const msgs={
+    100:"Perfect mission! You've mastered this module. Virtue, Vigor, Vision!",
+    80:"Strong performance! Review any missed questions and you'll be ready for the exam.",
+    60:"Good start! Review the explanations carefully and retry to improve your score.",
+    0:"Keep pushing, Agent! Study the explanations and retry this module."
+  };
+  const msgKey=pct===100?100:pct>=80?80:pct>=60?60:0;
+  document.getElementById('mr-message').textContent=msgs[msgKey];
+
+  if(pct===100)launchConfetti(150);
+  else if(pct>=80)launchConfetti(80);
+
+  updateRankBar();
+  updateOverallStats();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+renderHub();
+</script>
+</body>
+</html>
