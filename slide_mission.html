@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA | Google Slides Mastery Mission</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #C0392B;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-light: #f4f6fb;
+    --gray: #e0e6ef;
+    --text: #1a2340;
+    --text-muted: #5a6a8a;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(27,94,175,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gray-light);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--blue) 70%, var(--green) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px 10px 32px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+  .logo-shield {
+    width: 54px; height: 62px;
+    background: white;
+    clip-path: polygon(50% 0%, 100% 18%, 100% 65%, 50% 100%, 0% 65%, 0% 18%);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo-shield-inner {
+    width: 38px; height: 44px;
+    background: linear-gradient(160deg, var(--blue) 50%, var(--green) 100%);
+    clip-path: polygon(50% 0%, 100% 18%, 100% 65%, 50% 100%, 0% 65%, 0% 18%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; color: white; letter-spacing: -1px;
+  }
+  .school-name { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.5px; }
+  .school-sub { font-size: 0.78rem; opacity: 0.85; margin-top: 1px; }
+  .rank-display {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 50px;
+    padding: 8px 20px;
+    text-align: center;
+    min-width: 160px;
+  }
+  .rank-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-name { font-size: 1.1rem; font-weight: 800; }
+  .rank-stars { font-size: 1rem; letter-spacing: 2px; }
+
+  /* MOTTO RIBBON */
+  .motto-ribbon {
+    background: var(--gold);
+    color: var(--text);
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 0;
+  }
+
+  /* SCORE BAR */
+  .score-bar {
+    background: var(--blue-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 32px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .score-item { display: flex; align-items: center; gap: 8px; color: white; font-size: 0.88rem; }
+  .score-val { font-weight: 800; font-size: 1.1rem; color: var(--gold); }
+  .streak-badge {
+    background: var(--gold);
+    color: var(--text);
+    border-radius: 50px;
+    padding: 3px 14px;
+    font-weight: 800;
+    font-size: 0.82rem;
+    display: none;
+    animation: popIn 0.4s ease;
+  }
+  .streak-badge.show { display: inline-block; }
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: var(--gray);
+    border-radius: 0;
+    height: 8px;
+    width: 100%;
+  }
+  .progress-fill {
+    height: 8px;
+    background: linear-gradient(90deg, var(--green), var(--gold));
+    border-radius: 0 4px 4px 0;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    border-left: 5px solid var(--blue);
+    animation: slideIn 0.4s ease;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .mission-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 50px;
+    padding: 4px 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .mission-title { font-size: 1.25rem; font-weight: 800; color: var(--blue); margin-bottom: 6px; }
+  .mission-desc { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+
+  /* SCENARIO BOX */
+  .scenario-box {
+    background: var(--blue-light);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    border-left: 4px solid var(--blue);
+    font-size: 0.93rem;
+    line-height: 1.6;
+  }
+  .scenario-box strong { color: var(--blue); }
+
+  /* OPTIONS */
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: white;
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 14px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.93rem;
+    color: var(--text);
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    transform: translateX(4px);
+  }
+  .option-btn.correct {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: var(--green);
+    font-weight: 700;
+  }
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: var(--red-light);
+    color: var(--red);
+  }
+  .option-btn:disabled { cursor: default; }
+  .option-letter {
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-btn.correct .option-letter { background: var(--green); }
+  .option-btn.wrong .option-letter { background: var(--red); }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    display: none;
+    animation: slideIn 0.3s ease;
+  }
+  .feedback-box.correct { background: var(--green-light); border-left: 4px solid var(--green); color: #145a2e; }
+  .feedback-box.wrong { background: var(--red-light); border-left: 4px solid var(--red); color: #7b1a1a; }
+  .feedback-box.show { display: block; }
+  .feedback-icon { font-size: 1.2rem; margin-right: 6px; }
+
+  /* DRAG AND DROP */
+  .drag-area { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px; }
+  .drag-column { flex: 1; min-width: 200px; }
+  .drag-column-title {
+    font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px;
+    padding-bottom: 6px; border-bottom: 2px solid var(--gray);
+  }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+  .drag-item {
+    background: var(--blue);
+    color: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: grab;
+    user-select: none;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .drag-item:hover { background: var(--blue-dark); transform: scale(1.02); }
+  .drag-item.dragging { opacity: 0.5; cursor: grabbing; }
+  .drop-zone {
+    background: var(--gray-light);
+    border: 2px dashed var(--gray);
+    border-radius: 8px;
+    padding: 10px 14px;
+    min-height: 48px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .drop-zone.drag-over { border-color: var(--blue); background: var(--blue-light); }
+  .drop-zone-label {
+    font-size: 0.78rem; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .drop-zone .drag-item { background: var(--green); }
+  .drop-zone .drag-item.wrong-drop { background: var(--red); }
+
+  /* NEXT BUTTON */
+  .next-btn {
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 13px 36px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 18px;
+    display: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(27,94,175,0.3);
+  }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(27,94,175,0.4); }
+  .next-btn.show { display: inline-flex; align-items: center; gap: 8px; }
+
+  /* CHECK BUTTON */
+  .check-btn {
+    background: linear-gradient(135deg, var(--green), #155c2e);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 13px 36px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(30,122,62,0.3);
+  }
+  .check-btn:hover { transform: translateY(-2px); }
+  .check-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+  /* RESULTS SCREEN */
+  .results-screen {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px 32px;
+    text-align: center;
+    display: none;
+    animation: slideIn 0.5s ease;
+  }
+  .results-screen.show { display: block; }
+  .results-badge {
+    width: 110px; height: 110px;
+    background: linear-gradient(135deg, var(--gold), #e8920a);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 30px rgba(245,166,35,0.4);
+    animation: badgePop 0.6s ease 0.3s both;
+  }
+  @keyframes badgePop {
+    0% { transform: scale(0) rotate(-20deg); }
+    70% { transform: scale(1.15) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .results-title { font-size: 2rem; font-weight: 900; color: var(--blue); margin-bottom: 8px; }
+  .results-rank { font-size: 1.1rem; color: var(--green); font-weight: 700; margin-bottom: 20px; }
+  .results-score-big { font-size: 3.5rem; font-weight: 900; color: var(--blue); line-height: 1; }
+  .results-score-label { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; }
+  .results-standards {
+    background: var(--blue-light);
+    border-radius: 10px;
+    padding: 16px 20px;
+    text-align: left;
+    margin: 20px 0;
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+  .results-standards strong { color: var(--blue); }
+  .restart-btn {
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 40px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 14px rgba(27,94,175,0.3);
+  }
+  .restart-btn:hover { transform: translateY(-2px); }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none; z-index: 9999; overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -20px;
+    animation: confettiFall linear forwards;
+    border-radius: 2px;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* DIAGRAM ACTIVITY */
+  .diagram-wrap { position: relative; margin: 10px 0 20px; }
+  .slides-ui {
+    background: #f8f9fa;
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 0.8rem;
+  }
+  .slides-menubar {
+    background: white;
+    border-bottom: 1px solid var(--gray);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .slides-menu-item { color: #3c4043; font-size: 0.78rem; cursor: pointer; padding: 2px 4px; border-radius: 3px; }
+  .slides-menu-item:hover { background: #e8eaed; }
+  .slides-toolbar {
+    background: white;
+    border-bottom: 1px solid var(--gray);
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .toolbar-btn {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    color: #3c4043;
+    display: flex; align-items: center; gap: 3px;
+  }
+  .toolbar-btn:hover { background: #e8eaed; }
+  .toolbar-sep { width: 1px; height: 20px; background: var(--gray); margin: 0 4px; }
+  .slides-body { display: flex; height: 260px; }
+  .slides-panel { width: 90px; background: #f1f3f4; border-right: 1px solid var(--gray); padding: 8px; overflow-y: auto; }
+  .slide-thumb {
+    background: white;
+    border: 2px solid var(--gray);
+    border-radius: 3px;
+    height: 52px;
+    margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: #aaa;
+    cursor: pointer;
+  }
+  .slide-thumb.active { border-color: var(--blue); }
+  .slides-canvas { flex: 1; background: white; display: flex; align-items: center; justify-content: center; position: relative; }
+  .slide-content-area {
+    width: 85%; height: 80%;
+    border: 1px dashed #ccc;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-size: 0.75rem; color: #aaa;
+    border-radius: 4px;
+    position: relative;
+  }
+  .slide-title-placeholder { font-size: 1rem; font-weight: 700; color: #555; margin-bottom: 6px; }
+  .slide-body-placeholder { font-size: 0.7rem; color: #aaa; }
+  .slides-sidebar { width: 200px; background: #f8f9fa; border-left: 1px solid var(--gray); padding: 10px; font-size: 0.72rem; }
+  .sidebar-section { margin-bottom: 12px; }
+  .sidebar-title { font-weight: 700; color: #555; margin-bottom: 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sidebar-item { background: white; border: 1px solid var(--gray); border-radius: 4px; padding: 4px 8px; margin-bottom: 4px; color: #3c4043; }
+
+  /* LABEL ACTIVITY */
+  .label-diagram { position: relative; display: inline-block; width: 100%; }
+  .label-target {
+    position: absolute;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 0.75rem; color: white;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+  .label-target:hover { transform: scale(1.2); }
+  .label-target.labeled { background: var(--green); }
+  .label-target.wrong-label { background: var(--red); animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  /* WORD BANK */
+  .word-bank {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    background: var(--gray-light);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+    border: 2px dashed var(--gray);
+  }
+  .word-chip {
+    background: var(--blue);
+    color: white;
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+  }
+  .word-chip:hover { background: var(--blue-dark); transform: scale(1.05); }
+  .word-chip.selected { background: var(--gold); color: var(--text); border-color: #c8820a; }
+  .word-chip.used { background: var(--gray); color: var(--text-muted); cursor: default; pointer-events: none; }
+
+  /* INTRO SCREEN */
+  .intro-screen {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 40px 32px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .intro-icon { font-size: 3.5rem; margin-bottom: 16px; }
+  .intro-title { font-size: 1.8rem; font-weight: 900; color: var(--blue); margin-bottom: 10px; }
+  .intro-desc { font-size: 0.97rem; color: var(--text-muted); line-height: 1.7; max-width: 560px; margin: 0 auto 24px; }
+  .mission-list {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center; margin-bottom: 28px;
+  }
+  .mission-pill {
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 50px;
+    padding: 6px 16px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .start-btn {
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 16px 48px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px rgba(27,94,175,0.35);
+    letter-spacing: 0.5px;
+  }
+  .start-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(27,94,175,0.45); }
+
+  /* STANDARDS FOOTER */
+  .standards-bar {
+    background: var(--blue-dark);
+    color: rgba(255,255,255,0.7);
+    text-align: center;
+    font-size: 0.72rem;
+    padding: 8px 16px;
+    letter-spacing: 0.5px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-inner { padding: 14px 16px 8px; }
+    .score-bar { padding: 8px 16px; }
+    .main { padding: 16px 10px 40px; }
+    .mission-card { padding: 20px 16px; }
+    .drag-area { flex-direction: column; }
+    .slides-sidebar { display: none; }
+    .slides-panel { width: 60px; }
+  }
+
+  /* HIDDEN */
+  .hidden { display: none !important; }
+
+  /* TOOLTIP */
+  .tooltip {
+    position: absolute;
+    background: var(--text);
+    color: white;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    bottom: 110%; left: 50%; transform: translateX(-50%);
+  }
+  .label-target:hover .tooltip { opacity: 1; }
+
+  /* MISSION COUNTER */
+  .mission-counter {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-shield">
+        <div class="logo-shield-inner">UVA</div>
+      </div>
+      <div>
+        <div class="school-name">University View Academy</div>
+        <div class="school-sub">Computer Tech Literacy · Google Slides Mastery</div>
+      </div>
+    </div>
+    <div class="rank-display">
+      <div class="rank-label">Current Rank</div>
+      <div class="rank-name" id="rankName">🎓 Trainee</div>
+      <div class="rank-stars" id="rankStars">☆☆☆☆</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦   Virtue  ·  Vigor  ·  Vision   ✦</div>
+  <div class="score-bar">
+    <div class="score-item">🏆 Score: <span class="score-val" id="scoreDisplay">0</span></div>
+    <div class="score-item">📋 Mission: <span class="score-val" id="missionDisplay">0/8</span></div>
+    <div class="score-item"><span class="streak-badge" id="streakBadge">🔥 Streak!</span></div>
+    <div class="score-item">⭐ XP: <span class="score-val" id="xpDisplay">0</span></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainContent">
+
+  <!-- INTRO SCREEN -->
+  <div class="intro-screen" id="introScreen">
+    <div class="intro-icon">🎯</div>
+    <div class="intro-title">Google Slides Mastery Mission</div>
+    <div class="intro-desc">
+      Welcome, UVA Cadet! Your mission is to master <strong>Google Slides for Professional Communication</strong>. 
+      Complete 8 missions across 4 challenge types to earn your rank and prove your expertise. 
+      Answer correctly to build streaks and unlock achievements!
+    </div>
+    <div class="mission-list">
+      <div class="mission-pill">🖥️ Workspace Navigation</div>
+      <div class="mission-pill">🎨 Design Principles</div>
+      <div class="mission-pill">🏗️ Themes & Templates</div>
+      <div class="mission-pill">🔗 Multimodal Assets</div>
+      <div class="mission-pill">🛡️ Digital Citizenship</div>
+    </div>
+    <button class="start-btn" onclick="startMissions()">🚀 Launch Mission Sequence</button>
+  </div>
+
+  <!-- MISSION AREA -->
+  <div id="missionArea" class="hidden"></div>
+
+  <!-- RESULTS SCREEN -->
+  <div class="results-screen" id="resultsScreen">
+    <div class="results-badge" id="resultsBadge">🏆</div>
+    <div class="results-title" id="resultsTitle">Mission Complete!</div>
+    <div class="results-rank" id="resultsRank"></div>
+    <div class="results-score-big" id="resultsBigScore">0</div>
+    <div class="results-score-label">Total Points Earned</div>
+    <div class="results-standards">
+      <strong>📚 Standards Addressed:</strong><br>
+      <strong>M.DA.3B</strong> — Demonstrated understanding of professional digital presentation design and workflow tools.<br>
+      <strong>M.DA.1B</strong> — Applied data integration and multimodal asset management in digital environments.<br>
+      <strong>H.DA.3B</strong> — Evaluated digital citizenship responsibilities including accessibility, sourcing, and collaborative security.
+    </div>
+    <button class="restart-btn" onclick="restartMissions()">🔄 Retry Mission Sequence</button>
+  </div>
+
+</div>
+
+<!-- STANDARDS FOOTER -->
+<div class="standards-bar">
+  Standards: M.DA.3B · M.DA.1B · H.DA.3B  |  UVA Computer Tech Literacy  |  Google Slides Professional Communication
+</div>
+
+<script>
+// ===================== STATE =====================
+let score = 0;
+let xp = 0;
+let streak = 0;
+let currentMission = 0;
+let correctAnswers = 0;
+const TOTAL_MISSIONS = 8;
+
+const RANKS = [
+  { name: "🎓 Trainee",    stars: "☆☆☆☆", min: 0,   badge: "🎓" },
+  { name: "⚙️ Apprentice", stars: "★☆☆☆", min: 2,   badge: "⚙️" },
+  { name: "🔬 Expert",     stars: "★★★☆", min: 5,   badge: "🔬" },
+  { name: "🏆 Master",     stars: "★★★★", min: 7,   badge: "🏆" },
+];
+
+// ===================== MISSIONS DATA =====================
+const missions = [
+  // MISSION 1: Scenario - Workspace
+  {
+    type: "scenario",
+    tag: "Mission 1 · Workspace Navigation",
+    title: "The Presentation Emergency",
+    desc: "Your UVA team has 5 minutes before a presentation. You need to work fast!",
+    scenario: "You're in Google Slides and need to quickly duplicate the current slide, then undo a mistake. Which keyboard shortcuts should you use — in order?",
+    options: [
+      { letter: "A", text: "Ctrl+C then Ctrl+V to copy/paste the slide, then Ctrl+Z to undo", correct: false },
+      { letter: "B", text: "Ctrl+D to duplicate the slide, then Ctrl+Z to undo the last action", correct: true },
+      { letter: "C", text: "Right-click → Duplicate, then press Backspace to undo", correct: false },
+      { letter: "D", text: "Ctrl+D to duplicate, then Ctrl+Y to undo", correct: false },
+    ],
+    feedback: {
+      correct: "✅ Excellent! <strong>Ctrl+D</strong> duplicates a slide instantly, and <strong>Ctrl+Z</strong> is the universal undo shortcut. These are core workflow shortcuts in Google Slides that save critical time during live presentations.",
+      wrong: "❌ Not quite. <strong>Ctrl+D</strong> is the fastest way to duplicate a slide (no copy-paste needed), and <strong>Ctrl+Z</strong> — not Ctrl+Y — is undo. Ctrl+Y is actually <em>redo</em>!"
+    }
+  },
+
+  // MISSION 2: Drag-and-Drop - Design Principles
+  {
+    type: "dragdrop",
+    tag: "Mission 2 · Design Principles",
+    title: "The 6×6 Rule Sorting Challenge",
+    desc: "Sort these slide content examples into GOOD (follows 6×6 Rule) or NEEDS WORK (violates it).",
+    items: [
+      { id: "d1", text: "• 5 bullet points\n• Each under 6 words", category: "good" },
+      { id: "d2", text: "A paragraph of 3 sentences explaining the entire concept in detail", category: "bad" },
+      { id: "d3", text: "• 4 key terms listed\n• Short, scannable", category: "good" },
+      { id: "d4", text: "• 9 bullet points covering every sub-topic", category: "bad" },
+      { id: "d5", text: "• 6 bullets max\n• 6 words per bullet", category: "good" },
+      { id: "d6", text: "Dense text block with no visual hierarchy or spacing", category: "bad" },
+    ],
+    zones: [
+      { id: "good", label: "✅ Follows 6×6 Rule", accepts: "good" },
+      { id: "bad",  label: "⚠️ Violates 6×6 Rule", accepts: "bad" },
+    ],
+    feedback: {
+      correct: "✅ Perfect sort! The <strong>6×6 Rule</strong> means no more than 6 bullet points per slide and no more than 6 words per bullet. This prevents cognitive overload and keeps your audience focused on YOU, not reading the screen.",
+      wrong: "❌ Some items are misplaced. Remember: the 6×6 Rule = max 6 bullets, max 6 words each. Dense paragraphs and 9-bullet lists always violate this principle."
+    }
+  },
+
+  // MISSION 3: Scenario - Squint Test
+  {
+    type: "scenario",
+    tag: "Mission 3 · Design Principles",
+    title: "The Squint Test Protocol",
+    desc: "Apply the Squint Test to evaluate slide design quality.",
+    scenario: "Ms. Rivera asks you to apply the <strong>Squint Test</strong> to your slide. You squint your eyes and can still clearly see the main heading and one bold image, but the 12 bullet points all blur together. What does this tell you?",
+    options: [
+      { letter: "A", text: "The slide passes — the heading is visible, so the design is effective", correct: false },
+      { letter: "B", text: "The slide needs more color contrast on the background", correct: false },
+      { letter: "C", text: "The slide has too much text content causing visual clutter — reduce bullet points and increase white space", correct: true },
+      { letter: "D", text: "The font size needs to be increased on all elements equally", correct: false },
+    ],
+    feedback: {
+      correct: "✅ Correct! The Squint Test reveals <strong>visual hierarchy</strong>. If bullet points blur together, there are too many competing elements. The fix is to reduce content density and use white space strategically — not just increase font size.",
+      wrong: "❌ The Squint Test specifically checks visual hierarchy and clutter. When text blurs together, it signals too many competing elements — the solution is reducing content, not just adjusting contrast or font size uniformly."
+    }
+  },
+
+  // MISSION 4: Labeling - Theme Builder
+  {
+    type: "label",
+    tag: "Mission 4 · Themes & Templates",
+    title: "Theme Builder Identification",
+    desc: "Select the correct label from the Word Bank, then click a numbered hotspot on the Google Slides interface to place it.",
+    uiType: "themebuilder",
+    targets: [
+      { id: "t1", label: "Slide Master", x: "12%", y: "22%", desc: "Controls global layout for ALL slides" },
+      { id: "t2", label: "Layout Panel", x: "12%", y: "55%", desc: "Individual slide layout variations" },
+      { id: "t3", label: "Theme Colors", x: "82%", y: "18%", desc: "Global color palette for the presentation" },
+      { id: "t4", label: "Font Pairing", x: "82%", y: "42%", desc: "Heading + body font combination" },
+      { id: "t5", label: "Background Fill", x: "82%", y: "65%", desc: "Slide background style settings" },
+    ],
+    wordBank: ["Slide Master", "Layout Panel", "Theme Colors", "Font Pairing", "Background Fill", "Transition Panel", "Speaker Notes"],
+    feedback: {
+      correct: "✅ Outstanding! You've correctly identified all Theme Builder components. The <strong>Slide Master</strong> is the most powerful tool — changes here cascade to every slide automatically, ensuring global design consistency.",
+      wrong: "❌ Some labels are incorrect. Remember: the Slide Master sits at the TOP of the panel hierarchy and controls ALL slides. Layouts below it are variations. Theme Colors and Font Pairings are in the right panel."
+    }
+  },
+
+  // MISSION 5: Scenario - Themes vs Templates
+  {
+    type: "scenario",
+    tag: "Mission 5 · Themes & Templates",
+    title: "Theme vs. Template Decision",
+    desc: "Choose the right tool for the right job.",
+    scenario: "Your UVA team needs to create a <strong>quarterly report</strong> that will be reused every quarter with the same slide structure (title slide, data slide, summary slide) but updated content each time. What should you create?",
+    options: [
+      { letter: "A", text: "A Theme — apply consistent colors and fonts across all slides", correct: false },
+      { letter: "B", text: "A Template — a pre-structured file with placeholder layouts saved for reuse", correct: true },
+      { letter: "C", text: "A Master Slide — edit the master to lock all content in place", correct: false },
+      { letter: "D", text: "A new presentation each time using the same theme", correct: false },
+    ],
+    feedback: {
+      correct: "✅ Exactly right! A <strong>Template</strong> is a pre-built presentation file with placeholder content and structure, saved for repeated use. A Theme only controls visual styling (colors, fonts). Templates = structure + style; Themes = style only.",
+      wrong: "❌ Key distinction: A <strong>Theme</strong> controls visual appearance (colors, fonts). A <strong>Template</strong> is a full presentation file with pre-built slide structures and placeholders — perfect for recurring reports."
+    }
+  },
+
+  // MISSION 6: Drag-and-Drop - Multimodal Assets
+  {
+    type: "dragdrop",
+    tag: "Mission 6 · Multimodal Assets",
+    title: "Asset Integration Matching",
+    desc: "Match each Google Slides feature to its correct use case.",
+    items: [
+      { id: "a1", text: "🔗 Linked Chart", category: "z1" },
+      { id: "a2", text: "🖼️ Image Masking", category: "z2" },
+      { id: "a3", text: "✨ Motion Effects", category: "z3" },
+      { id: "a4", text: "📊 Embedded Chart", category: "z4" },
+    ],
+    zones: [
+      { id: "z1", label: "Auto-updates when source Google Sheet changes", accepts: "z1" },
+      { id: "z2", label: "Crops image into a custom shape (circle, star, etc.)", accepts: "z2" },
+      { id: "z3", label: "Animates elements to appear/exit on click", accepts: "z3" },
+      { id: "z4", label: "Static copy of chart — does NOT update automatically", accepts: "z4" },
+    ],
+    feedback: {
+      correct: "✅ Perfect matching! Key insight: <strong>Linked Charts</strong> maintain a live connection to Google Sheets — when data updates, your slide updates too. <strong>Embedded Charts</strong> are static snapshots. Always use Linked Charts for live data presentations!",
+      wrong: "❌ Review the differences: Linked Charts = live data connection to Sheets. Embedded = static copy. Image Masking = shape cropping. Motion Effects = animations for entrance/exit of elements."
+    }
+  },
+
+  // MISSION 7: Scenario - Digital Citizenship
+  {
+    type: "scenario",
+    tag: "Mission 7 · Digital Citizenship",
+    title: "The Copyright Dilemma",
+    desc: "Make the right ethical and legal choice.",
+    scenario: "You find a perfect professional photo on Google Images for your UVA presentation. The image has no visible watermark. What is the <strong>correct</strong> digital citizenship action?",
+    options: [
+      { letter: "A", text: "Use it — no watermark means it's free to use", correct: false },
+      { letter: "B", text: "Use it and add 'Image: Google' in the credits", correct: false },
+      { letter: "C", text: "Filter Google Images by 'Creative Commons licenses' or use sites like Unsplash/Pexels and cite the source", correct: true },
+      { letter: "D", text: "Screenshot the image and resize it — this counts as transformative use", correct: false },
+    ],
+    feedback: {
+      correct: "✅ Correct! No watermark does NOT mean free to use. Always filter by <strong>Creative Commons</strong> license in Google Images (Tools → Usage Rights) or use royalty-free sites like <strong>Unsplash</strong> or <strong>Pexels</strong>. Always cite your sources — this is a core digital citizenship responsibility.",
+      wrong: "❌ No watermark ≠ free to use. Copyright applies automatically to all original works. The correct approach: use Google Images' <strong>Creative Commons filter</strong> (Tools → Usage Rights) or royalty-free sites like Unsplash/Pexels, and always cite sources."
+    }
+  },
+
+  // MISSION 8: Scenario - Collaboration Security
+  {
+    type: "scenario",
+    tag: "Mission 8 · Digital Citizenship",
+    title: "Collaboration Security Protocol",
+    desc: "Protect your team's work with proper sharing settings.",
+    scenario: "You're sharing a Google Slides presentation with your UVA project team. The presentation contains draft content not ready for public view. Which sharing setting should you use?",
+    options: [
+      { letter: "A", text: "\"Anyone with the link can view\" — easiest for the team to access", correct: false },
+      { letter: "B", text: "\"Anyone with the link can edit\" — so everyone can contribute", correct: false },
+      { letter: "C", text: "Share directly with specific team members' school email addresses with Editor access", correct: true },
+      { letter: "D", text: "Make it public so the team can find it easily via search", correct: false },
+    ],
+    feedback: {
+      correct: "✅ Excellent security judgment! Sharing directly with <strong>specific school email addresses</strong> ensures only authorized team members can access draft content. 'Anyone with link' settings risk accidental public exposure. This is responsible collaborative security — a key H.DA.3B standard.",
+      wrong: "❌ 'Anyone with link' settings mean anyone who gets the link — even accidentally — can access your draft. Best practice: share directly with specific school email addresses. This limits access to only your intended collaborators."
+    }
+  },
+];
+
+// ===================== DRAG STATE =====================
+let draggedItem = null;
+let draggedFrom = null;
+let dropZoneAnswers = {};
+
+// ===================== LABEL STATE =====================
+let selectedWord = null;
+let labeledTargets = {};
+
+// ===================== FUNCTIONS =====================
+
+function updateUI() {
+  document.getElementById("scoreDisplay").textContent = score;
+  document.getElementById("xpDisplay").textContent = xp;
+  document.getElementById("missionDisplay").textContent = `${currentMission}/${TOTAL_MISSIONS}`;
+  const pct = (currentMission / TOTAL_MISSIONS) * 100;
+  document.getElementById("progressFill").style.width = pct + "%";
+
+  // Rank
+  let rank = RANKS[0];
+  for (let r of RANKS) { if (correctAnswers >= r.min) rank = r; }
+  document.getElementById("rankName").textContent = rank.name;
+  document.getElementById("rankStars").textContent = rank.stars;
+}
+
+function showStreak() {
+  const badge = document.getElementById("streakBadge");
+  if (streak >= 2) {
+    badge.textContent = `🔥 ${streak} in a row!`;
+    badge.classList.add("show");
+    setTimeout(() => badge.classList.remove("show"), 3000);
+  } else {
+    badge.classList.remove("show");
+  }
+}
+
+function launchConfetti() {
+  const container = document.getElementById("confettiContainer");
+  container.innerHTML = "";
+  const colors = ["#1B5EAF","#1E7A3E","#F5A623","#e74c3c","#9b59b6","#ffffff"];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti-piece";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + "px";
+    piece.style.height = (Math.random() * 8 + 6) + "px";
+    piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    piece.style.animationDuration = (Math.random() * 2 + 1.5) + "s";
+    piece.style.animationDelay = (Math.random() * 1) + "s";
+    container.appendChild(piece);
+  }
+  setTimeout(() => container.innerHTML = "", 4000);
+}
+
+function startMissions() {
+  document.getElementById("introScreen").classList.add("hidden");
+  document.getElementById("missionArea").classList.remove("hidden");
+  renderMission(0);
+}
+
+function renderMission(idx) {
+  if (idx >= missions.length) {
+    showResults();
+    return;
+  }
+  const m = missions[idx];
+  const area = document.getElementById("missionArea");
+  area.innerHTML = "";
+
+  if (m.type === "scenario") renderScenario(m, area);
+  else if (m.type === "dragdrop") renderDragDrop(m, area);
+  else if (m.type === "label") renderLabel(m, area);
+
+  updateUI();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ---- SCENARIO ----
+function renderScenario(m, area) {
+  const card = document.createElement("div");
+  card.className = "mission-card";
+  card.innerHTML = `
+    <div class="mission-counter">Mission ${currentMission + 1} of ${TOTAL_MISSIONS}</div>
+    <div class="mission-tag">🎯 ${m.tag}</div>
+    <div class="mission-title">${m.title}</div>
+    <div class="mission-desc">${m.desc}</div>
+    <div class="scenario-box"><strong>📋 Scenario:</strong> ${m.scenario}</div>
+    <div class="options-grid" id="optionsGrid">
+      ${m.options.map((o, i) => `
+        <button class="option-btn" onclick="selectOption(${i}, ${o.correct}, this)" data-correct="${o.correct}">
+          <span class="option-letter">${o.letter}</span>
+          <span>${o.text}</span>
+        </button>
+      `).join("")}
+    </div>
+    <div class="feedback-box" id="feedbackBox"></div>
+    <button class="next-btn" id="nextBtn" onclick="advanceMission()">Next Mission →</button>
+  `;
+  area.appendChild(card);
+}
+
+function selectOption(idx, isCorrect, btn) {
+  const grid = document.getElementById("optionsGrid");
+  const btns = grid.querySelectorAll(".option-btn");
+  btns.forEach(b => b.disabled = true);
+
+  const feedback = document.getElementById("feedbackBox");
+  const nextBtn = document.getElementById("nextBtn");
+  const m = missions[currentMission];
+
+  if (isCorrect) {
+    btn.classList.add("correct");
+    score += 100;
+    xp += 50;
+    streak++;
+    correctAnswers++;
+    feedback.className = "feedback-box correct show";
+    feedback.innerHTML = `<span class="feedback-icon">🎉</span>${m.feedback.correct}`;
+    showStreak();
+    if (streak >= 3) launchConfetti();
+  } else {
+    btn.classList.add("wrong");
+    streak = 0;
+    btns.forEach(b => { if (b.dataset.correct === "true") b.classList.add("correct"); });
+    feedback.className = "feedback-box wrong show";
+    feedback.innerHTML = `<span class="feedback-icon">💡</span>${m.feedback.wrong}`;
+    document.getElementById("streakBadge").classList.remove("show");
+  }
+
+  nextBtn.classList.add("show");
+  updateUI();
+}
+
+// ---- DRAG AND DROP ----
+function renderDragDrop(m, area) {
+  dropZoneAnswers = {};
+  m.zones.forEach(z => dropZoneAnswers[z.id] = []);
+
+  const card = document.createElement("div");
+  card.className = "mission-card";
+
+  let itemsHTML = m.items.map(item => `
+    <div class="drag-item" draggable="true" id="item-${item.id}" data-id="${item.id}" data-cat="${item.category}">
+      ${item.text.replace(/\n/g, "<br>")}
+    </div>
+  `).join("");
+
+  let zonesHTML = m.zones.map(z => `
+    <div class="drag-column">
+      <div class="drag-column-title">${z.label}</div>
+      <div class="drop-zone" id="zone-${z.id}" data-zone="${z.id}">
+        <div class="drop-zone-label">Drop here</div>
+      </div>
+    </div>
+  `).join("");
+
+  card.innerHTML = `
+    <div class="mission-counter">Mission ${currentMission + 1} of ${TOTAL_MISSIONS}</div>
+    <div class="mission-tag">🎯 ${m.tag}</div>
+    <div class="mission-title">${m.title}</div>
+    <div class="mission-desc">${m.desc}</div>
+    <div class="drag-column" style="margin-bottom:16px;">
+      <div class="drag-column-title">📦 Items to Sort</div>
+      <div class="drag-items" id="sourceItems">${itemsHTML}</div>
+    </div>
+    <div class="drag-area">${zonesHTML}</div>
+    <div class="feedback-box" id="feedbackBox"></div>
+    <button class="check-btn" id="checkBtn" onclick="checkDragDrop()">✅ Check My Answers</button>
+    <button class="next-btn" id="nextBtn" onclick="advanceMission()">Next Mission →</button>
+  `;
+  area.appendChild(card);
+
+  // Attach drag events
+  setTimeout(() => {
+    document.querySelectorAll(".drag-item").forEach(item => {
+      item.addEventListener("dragstart", e => {
+        draggedItem = item;
+        draggedFrom = item.parentElement;
+        item.classList.add("dragging");
+        e.dataTransfer.effectAllowed = "move";
+      });
+      item.addEventListener("dragend", () => item.classList.remove("dragging"));
+    });
+    document.querySelectorAll(".drop-zone").forEach(zone => {
+      zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("drag-over"); });
+      zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+      zone.addEventListener("drop", e => {
+        e.preventDefault();
+        zone.classList.remove("drag-over");
+        if (draggedItem) {
+          // Remove label if present
+          const label = zone.querySelector(".drop-zone-label");
+          if (label) label.remove();
+          zone.appendChild(draggedItem);
+          // If source is empty, restore label
+          if (draggedFrom && draggedFrom.classList.contains("drop-zone") && draggedFrom.querySelectorAll(".drag-item").length === 0) {
+            const lbl = document.createElement("div");
+            lbl.className = "drop-zone-label";
+            lbl.textContent = "Drop here";
+            draggedFrom.appendChild(lbl);
+          }
+          draggedItem = null;
+          draggedFrom = null;
+        }
+      });
+    });
+    // Source also droppable
+    const src = document.getElementById("sourceItems");
+    if (src) {
+      src.addEventListener("dragover", e => e.preventDefault());
+      src.addEventListener("drop", e => {
+        e.preventDefault();
+        if (draggedItem) {
+          src.appendChild(draggedItem);
+          draggedItem = null;
+          draggedFrom = null;
+        }
+      });
+    }
+  }, 100);
+}
+
+function checkDragDrop() {
+  const m = missions[currentMission];
+  let allCorrect = true;
+  let allPlaced = true;
+
+  m.items.forEach(item => {
+    const el = document.getElementById("item-" + item.id);
+    if (!el) return;
+    const parent = el.parentElement;
+    const zoneId = parent.dataset.zone;
+    if (!zoneId) { allPlaced = false; return; }
+    if (zoneId !== item.category) {
+      allCorrect = false;
+      el.classList.add("wrong-drop");
+    }
+  });
+
+  if (!allPlaced) {
+    alert("Please place all items before checking!");
+    return;
+  }
+
+  const feedback = document.getElementById("feedbackBox");
+  const nextBtn = document.getElementById("nextBtn");
+  document.getElementById("checkBtn").disabled = true;
+
+  if (allCorrect) {
+    score += 100;
+    xp += 50;
+    streak++;
+    correctAnswers++;
+    feedback.className = "feedback-box correct show";
+    feedback.innerHTML = `<span class="feedback-icon">🎉</span>${m.feedback.correct}`;
+    showStreak();
+    if (streak >= 3) launchConfetti();
+  } else {
+    streak = 0;
+    feedback.className = "feedback-box wrong show";
+    feedback.innerHTML = `<span class="feedback-icon">💡</span>${m.feedback.wrong}`;
+    document.getElementById("streakBadge").classList.remove("show");
+  }
+
+  nextBtn.classList.add("show");
+  updateUI();
+}
+
+// ---- LABEL ACTIVITY ----
+function renderLabel(m, area) {
+  selectedWord = null;
+  labeledTargets = {};
+
+  const card = document.createElement("div");
+  card.className = "mission-card";
+
+  // Build word bank
+  let wordBankHTML = m.wordBank.map(w => `
+    <div class="word-chip" id="chip-${w.replace(/\s/g,'_')}" onclick="selectWord('${w}')">${w}</div>
+  `).join("");
+
+  // Build fake Theme Builder UI
+  let uiHTML = buildThemeBuilderUI(m.targets);
+
+  card.innerHTML = `
+    <div class="mission-counter">Mission ${currentMission + 1} of ${TOTAL_MISSIONS}</div>
+    <div class="mission-tag">🎯 ${m.tag}</div>
+    <div class="mission-title">${m.title}</div>
+    <div class="mission-desc">${m.desc}</div>
+    <p style="font-size:0.88rem;color:var(--text-muted);margin-bottom:10px;">
+      <strong>Step 1:</strong> Click a label from the Word Bank.  <strong>Step 2:</strong> Click the matching numbered hotspot (🟡) on the interface.
+    </p>
+    <div class="word-bank" id="wordBank">${wordBankHTML}</div>
+    <div style="position:relative;margin-bottom:16px;">
+      ${uiHTML}
+      ${m.targets.map((t, i) => `
+        <div class="label-target" id="target-${t.id}" style="left:${t.x};top:${t.y};" onclick="placeLabel('${t.id}','${t.label}')">
+          ${i+1}
+          <div class="tooltip">${t.desc}</div>
+        </div>
+      `).join("")}
+    </div>
+    <div id="labelStatus" style="font-size:0.88rem;color:var(--text-muted);margin-bottom:8px;">
+      Labeled: <strong id="labelCount">0</strong> / ${m.targets.length}
+    </div>
+    <div class="feedback-box" id="feedbackBox"></div>
+    <button class="next-btn" id="nextBtn" onclick="advanceMission()">Next Mission →</button>
+  `;
+  area.appendChild(card);
+}
+
+function buildThemeBuilderUI(targets) {
+  return `
+  <div style="position:relative;border:2px solid var(--gray);border-radius:10px;overflow:hidden;background:#f8f9fa;font-size:0.75rem;">
+    <!-- Top bar -->
+    <div style="background:#1a73e8;color:white;padding:6px 14px;display:flex;align-items:center;gap:10px;font-size:0.78rem;">
+      <span style="font-weight:700;">Google Slides — Theme Builder</span>
+      <span style="opacity:0.7;font-size:0.7rem;">View → Theme Builder</span>
+    </div>
+    <!-- Body -->
+    <div style="display:flex;min-height:280px;">
+      <!-- Left panel -->
+      <div style="width:130px;background:#f1f3f4;border-right:1px solid #ddd;padding:8px;">
+        <div style="font-size:0.65rem;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Slide Hierarchy</div>
+        <!-- Slide Master -->
+        <div style="background:white;border:2px solid #1a73e8;border-radius:4px;padding:6px 8px;margin-bottom:6px;font-size:0.68rem;font-weight:700;color:#1a73e8;">
+          📐 Slide Master
+        </div>
+        <!-- Layouts -->
+        <div style="padding-left:10px;">
+          <div style="background:white;border:1px solid #ddd;border-radius:3px;padding:4px 6px;margin-bottom:4px;font-size:0.65rem;color:#555;">Title Layout</div>
+          <div style="background:white;border:1px solid #ddd;border-radius:3px;padding:4px 6px;margin-bottom:4px;font-size:0.65rem;color:#555;">Content Layout</div>
+          <div style="background:white;border:1px solid #ddd;border-radius:3px;padding:4px 6px;margin-bottom:4px;font-size:0.65rem;color:#555;">Blank Layout</div>
+          <div style="background:white;border:1px solid #ddd;border-radius:3px;padding:4px 6px;font-size:0.65rem;color:#555;">Section Layout</div>
+        </div>
+      </div>
+      <!-- Center canvas -->
+      <div style="flex:1;background:white;display:flex;align-items:center;justify-content:center;padding:16px;">
+        <div style="width:90%;height:160px;border:1px dashed #ccc;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fafafa;">
+          <div style="font-size:1rem;font-weight:700;color:#555;margin-bottom:6px;">Presentation Title</div>
+          <div style="font-size:0.65rem;color:#aaa;">Click to add subtitle</div>
+          <div style="margin-top:10px;display:flex;gap:6px;">
+            <div style="width:30px;height:8px;background:#1a73e8;border-radius:2px;"></div>
+            <div style="width:20px;height:8px;background:#34a853;border-radius:2px;"></div>
+            <div style="width:25px;height:8px;background:#fbbc04;border-radius:2px;"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Right panel -->
+      <div style="width:160px;background:#f8f9fa;border-left:1px solid #ddd;padding:10px;font-size:0.7rem;">
+        <div style="font-weight:700;color:#555;margin-bottom:8px;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;">Theme Settings</div>
+        <!-- Colors -->
+        <div style="background:white;border:1px solid #ddd;border-radius:4px;padding:6px 8px;margin-bottom:6px;">
+          <div style="font-size:0.62rem;color:#888;margin-bottom:4px;">Colors</div>
+          <div style="display:flex;gap:3px;">
+            <div style="width:14px;height:14px;background:#1a73e8;border-radius:2px;"></div>
+            <div style="width:14px;height:14px;background:#34a853;border-radius:2px;"></div>
+            <div style="width:14px;height:14px;background:#ea4335;border-radius:2px;"></div>
+            <div style="width:14px;height:14px;background:#fbbc04;border-radius:2px;"></div>
+          </div>
+        </div>
+        <!-- Fonts -->
+        <div style="background:white;border:1px solid #ddd;border-radius:4px;padding:6px 8px;margin-bottom:6px;">
+          <div style="font-size:0.62rem;color:#888;margin-bottom:2px;">Fonts</div>
+          <div style="font-size:0.68rem;font-weight:700;">Montserrat</div>
+          <div style="font-size:0.62rem;color:#888;">Open Sans</div>
+        </div>
+        <!-- Background -->
+        <div style="background:white;border:1px solid #ddd;border-radius:4px;padding:6px 8px;">
+          <div style="font-size:0.62rem;color:#888;margin-bottom:2px;">Background</div>
+          <div style="width:100%;height:20px;background:linear-gradient(135deg,#f8f9fa,#e8eaed);border-radius:2px;border:1px solid #ddd;"></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function selectWord(word) {
+  // Deselect previous
+  document.querySelectorAll(".word-chip").forEach(c => c.classList.remove("selected"));
+  selectedWord = word;
+  const chipId = "chip-" + word.replace(/\s/g, "_");
+  const chip = document.getElementById(chipId);
+  if (chip && !chip.classList.contains("used")) chip.classList.add("selected");
+}
+
+function placeLabel(targetId, correctLabel) {
+  if (!selectedWord) {
+    alert("First select a label from the Word Bank!");
+    return;
+  }
+  const target = document.getElementById("target-" + targetId);
+  if (target.classList.contains("labeled")) return;
+
+  const m = missions[currentMission];
+  const isCorrect = selectedWord === correctLabel;
+
+  if (isCorrect) {
+    target.classList.add("labeled");
+    target.innerHTML = `<span style="font-size:0.6rem;text-align:center;line-height:1.1;">${selectedWord.split(" ")[0]}</span>`;
+    labeledTargets[targetId] = true;
+
+    // Mark chip as used
+    const chipId = "chip-" + selectedWord.replace(/\s/g, "_");
+    const chip = document.getElementById(chipId);
+    if (chip) { chip.classList.remove("selected"); chip.classList.add("used"); }
+    selectedWord = null;
+
+    const count = Object.keys(labeledTargets).length;
+    document.getElementById("labelCount").textContent = count;
+
+    if (count === m.targets.length) {
+      // All labeled!
+      score += 100;
+      xp += 50;
+      streak++;
+      correctAnswers++;
+      const feedback = document.getElementById("feedbackBox");
+      feedback.className = "feedback-box correct show";
+      feedback.innerHTML = `<span class="feedback-icon">🎉</span>${m.feedback.correct}`;
+      document.getElementById("nextBtn").classList.add("show");
+      showStreak();
+      if (streak >= 3) launchConfetti();
+      updateUI();
+    }
+  } else {
+    target.classList.add("wrong-label");
+    setTimeout(() => target.classList.remove("wrong-label"), 500);
+    // Show hint
+    const feedback = document.getElementById("feedbackBox");
+    feedback.className = "feedback-box wrong show";
+    feedback.innerHTML = `<span class="feedback-icon">💡</span>That's not quite right for hotspot ${target.textContent.trim()}. Think about what that area of the interface controls.`;
+  }
+}
+
+function advanceMission() {
+  currentMission++;
+  renderMission(currentMission);
+}
+
+function showResults() {
+  document.getElementById("missionArea").classList.add("hidden");
+  const results = document.getElementById("resultsScreen");
+  results.classList.add("show");
+
+  let rank = RANKS[0];
+  for (let r of RANKS) { if (correctAnswers >= r.min) rank = r; }
+
+  document.getElementById("resultsBadge").textContent = rank.badge;
+  document.getElementById("resultsTitle").textContent = correctAnswers >= 7 ? "Mission Accomplished!" : correctAnswers >= 5 ? "Well Done, Cadet!" : "Mission Complete!";
+  document.getElementById("resultsRank").textContent = `Final Rank: ${rank.name}`;
+  document.getElementById("resultsBigScore").textContent = score;
+
+  updateUI();
+  if (correctAnswers >= 6) launchConfetti();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function restartMissions() {
+  score = 0; xp = 0; streak = 0; currentMission = 0; correctAnswers = 0;
+  selectedWord = null; labeledTargets = {};
+  document.getElementById("resultsScreen").classList.remove("show");
+  document.getElementById("streakBadge").classList.remove("show");
+  document.getElementById("missionArea").classList.add("hidden");
+  document.getElementById("introScreen").classList.remove("hidden");
+  updateUI();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// Init
+updateUI();
+</script>
+</body>
+</html>
