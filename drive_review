@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA | Mastering the Google Drive Ecosystem</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134080;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #C0392B;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-light: #f4f6fb;
+    --gray: #e0e6ef;
+    --text: #1a2340;
+    --shadow: 0 4px 18px rgba(27,94,175,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gray-light);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--blue);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .uva-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .uva-shield {
+    width: 48px; height: 56px;
+  }
+  .uva-name { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+  .uva-sub { font-size: 0.75rem; opacity: 0.85; }
+  .header-title { text-align: center; flex: 1; }
+  .header-title h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.5px; }
+  .header-title p { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+  .rank-badge {
+    background: var(--gold);
+    color: #1a2340;
+    border-radius: 20px;
+    padding: 6px 16px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-align: center;
+    min-width: 110px;
+  }
+  .rank-badge .rank-label { font-size: 0.65rem; font-weight: 600; opacity: 0.75; display: block; }
+
+  /* MOTTO RIBBON */
+  .motto-ribbon {
+    background: var(--green);
+    color: white;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  /* SCORE BAR */
+  .score-bar {
+    background: var(--blue-dark);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 28px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .score-item { color: white; font-size: 0.82rem; display: flex; align-items: center; gap: 6px; }
+  .score-item span { font-weight: 800; font-size: 1rem; color: var(--gold); }
+  .streak-badge {
+    background: var(--gold);
+    color: #1a2340;
+    border-radius: 12px;
+    padding: 3px 12px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    display: none;
+    animation: popIn 0.4s ease;
+  }
+  .streak-badge.show { display: inline-block; }
+  @keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    background: var(--blue-dark);
+    padding: 0 28px 10px;
+  }
+  .progress-track {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: linear-gradient(90deg, var(--gold), #ffcc44);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .progress-label {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.72rem;
+    margin-top: 4px;
+    text-align: right;
+  }
+
+  /* MAIN CONTENT */
+  .main { max-width: 860px; margin: 0 auto; padding: 24px 16px 40px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: none;
+    animation: slideIn 0.4s ease;
+  }
+  .mission-card.active { display: block; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .mission-header {
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white;
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .mission-icon {
+    width: 44px; height: 44px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+  .mission-meta { flex: 1; }
+  .mission-tag {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    background: rgba(255,255,255,0.15);
+    border-radius: 8px;
+    padding: 2px 8px;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .mission-title { font-size: 1.05rem; font-weight: 800; }
+  .mission-pts {
+    background: var(--gold);
+    color: #1a2340;
+    border-radius: 12px;
+    padding: 4px 12px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+  .mission-body { padding: 22px; }
+  .mission-question {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .mission-context {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  /* OPTIONS */
+  .options-grid {
+    display: grid;
+    gap: 10px;
+  }
+  .option-btn {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+    width: 100%;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    transform: translateX(3px);
+  }
+  .option-btn .opt-letter {
+    width: 28px; height: 28px;
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .option-btn.correct {
+    background: var(--green-light);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .option-btn.correct .opt-letter { background: var(--green); }
+  .option-btn.wrong {
+    background: var(--red-light);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .option-btn.wrong .opt-letter { background: var(--red); }
+  .option-btn:disabled { cursor: default; }
+
+  /* DRAG AND DROP */
+  .drag-area {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .drag-column {
+    flex: 1;
+    min-width: 200px;
+  }
+  .drag-column h4 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    color: white;
+  }
+  .drag-column.col-native h4 { background: var(--blue); }
+  .drag-column.col-nonnative h4 { background: var(--green); }
+  .drag-column.col-quota h4 { background: #7B2D8B; }
+  .drop-zone {
+    min-height: 120px;
+    border: 2px dashed var(--gray);
+    border-radius: 10px;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .drop-zone.drag-over {
+    border-color: var(--blue);
+    background: var(--blue-light);
+  }
+  .drag-item {
+    background: white;
+    border: 2px solid var(--gray);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .drag-item:hover { border-color: var(--blue); box-shadow: 0 2px 8px rgba(27,94,175,0.15); }
+  .drag-item.dragging { opacity: 0.4; }
+  .drag-item .drag-icon { font-size: 1rem; }
+  .drag-item.correct-place { border-color: var(--green); background: var(--green-light); }
+  .drag-item.wrong-place { border-color: var(--red); background: var(--red-light); }
+
+  /* SHORTCUT MATCHING */
+  .match-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .match-left, .match-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .match-item {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .match-item:hover { border-color: var(--blue); background: var(--blue-light); }
+  .match-item.selected { border-color: var(--blue); background: var(--blue-light); font-weight: 700; }
+  .match-item.matched-correct { border-color: var(--green); background: var(--green-light); cursor: default; }
+  .match-item.matched-wrong { border-color: var(--red); background: var(--red-light); }
+  .match-item kbd {
+    background: var(--blue);
+    color: white;
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-family: monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+  }
+
+  /* SCENARIO */
+  .scenario-box {
+    background: #f8f9ff;
+    border: 2px solid var(--blue-light);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .scenario-box .scenario-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+  .scenario-box p { font-size: 0.9rem; line-height: 1.6; }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    display: none;
+    animation: popIn 0.3s ease;
+  }
+  .feedback-box.show { display: block; }
+  .feedback-box.correct-fb {
+    background: var(--green-light);
+    border: 2px solid var(--green);
+    color: #145228;
+  }
+  .feedback-box.wrong-fb {
+    background: var(--red-light);
+    border: 2px solid var(--red);
+    color: #7b1a1a;
+  }
+  .feedback-box .fb-title { font-weight: 800; font-size: 1rem; margin-bottom: 4px; }
+
+  /* NEXT BUTTON */
+  .next-btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    display: none;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .next-btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .next-btn.show { display: inline-flex; align-items: center; gap: 8px; }
+
+  /* CHECK BUTTON */
+  .check-btn {
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background 0.2s;
+  }
+  .check-btn:hover { background: #155c2e; }
+  .check-btn:disabled { background: var(--gray); cursor: default; }
+
+  /* RESULTS SCREEN */
+  #results-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+  }
+  #results-screen.show { display: block; }
+  .results-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 40px 30px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .results-badge {
+    width: 100px; height: 100px;
+    background: linear-gradient(135deg, var(--gold), #ffcc44);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3rem;
+    margin: 0 auto 20px;
+    box-shadow: 0 6px 24px rgba(245,166,35,0.4);
+    animation: popIn 0.5s ease;
+  }
+  .results-rank {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+  .results-score {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--text);
+    margin: 10px 0;
+  }
+  .results-score span { font-size: 1.2rem; color: #888; font-weight: 400; }
+  .results-msg { font-size: 1rem; color: #555; margin-bottom: 24px; line-height: 1.6; }
+  .results-breakdown {
+    background: var(--gray-light);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .results-breakdown h4 { font-size: 0.85rem; font-weight: 700; color: var(--blue); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--gray);
+    font-size: 0.85rem;
+  }
+  .breakdown-item:last-child { border-bottom: none; }
+  .breakdown-item .bi-pts { font-weight: 700; color: var(--green); }
+  .restart-btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 32px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .restart-btn:hover { background: var(--blue-dark); }
+
+  /* CONFETTI */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    top: -10px;
+    animation: confettiFall linear forwards;
+    border-radius: 2px;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* INTRO SCREEN */
+  #intro-screen { display: block; }
+  #intro-screen.hide { display: none; }
+  .intro-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 36px 30px;
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+  .intro-icon { font-size: 3.5rem; margin-bottom: 12px; }
+  .intro-card h2 { font-size: 1.5rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+  .intro-card p { font-size: 0.92rem; color: #555; line-height: 1.7; margin-bottom: 16px; }
+  .mission-list {
+    text-align: left;
+    background: var(--gray-light);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+  }
+  .mission-list li {
+    font-size: 0.88rem;
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--gray);
+  }
+  .mission-list li:last-child { border-bottom: none; }
+  .mission-list .ml-icon { font-size: 1.1rem; }
+  .start-btn {
+    background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 16px 40px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 16px rgba(27,94,175,0.3);
+  }
+  .start-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(27,94,175,0.4); }
+
+  /* GAME AREA */
+  #game-area { display: none; }
+  #game-area.show { display: block; }
+
+  /* SEARCH UI SIMULATION */
+  .search-sim {
+    background: white;
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    font-family: monospace;
+    font-size: 0.88rem;
+    color: #333;
+  }
+  .search-sim .search-bar {
+    background: var(--gray-light);
+    border: 1px solid var(--gray);
+    border-radius: 24px;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .search-sim .search-bar .s-icon { color: #888; }
+  .search-sim .search-bar .s-text { color: var(--blue); font-weight: 600; }
+  .search-filter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .sf-chip {
+    background: var(--blue-light);
+    color: var(--blue);
+    border-radius: 12px;
+    padding: 3px 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: monospace;
+  }
+
+  /* ACCESS LEVEL TABLE */
+  .access-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+  }
+  .access-table th {
+    background: var(--blue);
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    font-weight: 700;
+  }
+  .access-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--gray);
+  }
+  .access-table tr:nth-child(even) td { background: var(--gray-light); }
+  .access-badge {
+    display: inline-block;
+    border-radius: 8px;
+    padding: 2px 10px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .ab-viewer { background: #e3f2fd; color: #1565c0; }
+  .ab-commenter { background: #fff3e0; color: #e65100; }
+  .ab-editor { background: #e8f5e9; color: #2e7d32; }
+  .ab-owner { background: #fce4ec; color: #c62828; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .header-top { flex-direction: column; text-align: center; }
+    .match-grid { grid-template-columns: 1fr; }
+    .drag-area { flex-direction: column; }
+    .score-bar { justify-content: center; }
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--blue-dark);
+    color: white;
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    z-index: 10000;
+    display: none;
+    animation: slideInRight 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .toast.show { display: block; }
+  @keyframes slideInRight {
+    from { transform: translateX(100px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .toast.gold { background: var(--gold); color: #1a2340; }
+  .toast.green { background: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="uva-logo">
+      <svg class="uva-shield" viewBox="0 0 48 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 2L4 10V28C4 40 14 50 24 54C34 50 44 40 44 28V10L24 2Z" fill="#F5A623" stroke="white" stroke-width="2"/>
+        <path d="M24 8L10 14V28C10 37 17 45 24 48C31 45 38 37 38 28V14L24 8Z" fill="#1B5EAF"/>
+        <text x="24" y="34" text-anchor="middle" fill="white" font-size="14" font-weight="900" font-family="Arial">U</text>
+      </svg>
+      <div>
+        <div class="uva-name">University View Academy</div>
+        <div class="uva-sub">Computer Tech Literacy</div>
+      </div>
+    </div>
+    <div class="header-title">
+      <h1>🚀 Google Drive Mastery</h1>
+      <p>Google Workspace Certification Prep</p>
+    </div>
+    <div class="rank-badge">
+      <span class="rank-label">Current Rank</span>
+      <span id="rank-display">🎓 Trainee</span>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue  ·  Vigor  ·  Vision ✦</div>
+  <div class="score-bar">
+    <div class="score-item">⭐ Score: <span id="score-display">0</span></div>
+    <div class="score-item">🎯 Mission: <span id="mission-display">0/7</span></div>
+    <div class="score-item">🔥 Streak: <span id="streak-display">0</span></div>
+    <div class="streak-badge" id="streak-badge">🔥 3 in a row!</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label">Mission 0 of 7</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CONFETTI -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- INTRO SCREEN -->
+  <div id="intro-screen">
+    <div class="intro-card">
+      <div class="intro-icon">🗂️</div>
+      <h2>Drive Mastery: Mission Briefing</h2>
+      <p>Welcome, UVA Cadet! Your mission is to master the <strong>Google Drive Ecosystem</strong> — from file formats and search ninja skills to collaboration security and sync strategies. Complete all 7 missions to earn your <strong>Google Workspace Certification</strong> rank!</p>
+      <ul class="mission-list">
+        <li><span class="ml-icon">📁</span> <strong>Mission 1:</strong> File Format Sorting — Native vs. Non-Native</li>
+        <li><span class="ml-icon">🔍</span> <strong>Mission 2:</strong> Search Ninja — Drive Filter Parameters</li>
+        <li><span class="ml-icon">⌨️</span> <strong>Mission 3:</strong> Keyboard Shortcut Matching</li>
+        <li><span class="ml-icon">🗂️</span> <strong>Mission 4:</strong> Naming Convention Rescue</li>
+        <li><span class="ml-icon">🔐</span> <strong>Mission 5:</strong> Access Level Assignment</li>
+        <li><span class="ml-icon">🔄</span> <strong>Mission 6:</strong> Sync Method Scenario</li>
+        <li><span class="ml-icon">🏆</span> <strong>Mission 7:</strong> Drive IQ Final Challenge</li>
+      </ul>
+      <button class="start-btn" onclick="startGame()">🚀 Launch Missions</button>
+    </div>
+  </div>
+
+  <!-- GAME AREA -->
+  <div id="game-area">
+
+    <!-- MISSION 1: Drag & Drop File Formats -->
+    <div class="mission-card" id="mission-1">
+      <div class="mission-header">
+        <div class="mission-icon">📁</div>
+        <div class="mission-meta">
+          <div class="mission-tag">Mission 1 of 7 · Storage Quota</div>
+          <div class="mission-title">File Format Sorting — Native vs. Non-Native</div>
+        </div>
+        <div class="mission-pts">+20 pts each</div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-context">
+          <strong>🧠 UVA Intel:</strong> Google-native files (Docs, Sheets, Slides, Forms) do <em>not</em> count against your 15 GB Google storage quota. Non-native files (Word, Excel, PDFs, images, videos) <em>do</em> consume quota. Knowing the difference is critical for Drive management!
+        </div>
+        <div class="mission-question">Drag each file type into the correct category. Sort all 8 files to complete the mission!</div>
+        <div class="drag-area">
+          <div class="drag-column col-native">
+            <h4>✅ Google-Native (No Quota)</h4>
+            <div class="drop-zone" id="zone-native" ondragover="dragOver(event)" ondrop="dropItem(event,'native')" ondragleave="dragLeave(event)"></div>
+          </div>
+          <div class="drag-column col-nonnative">
+            <h4>💾 Non-Native (Uses Quota)</h4>
+            <div class="drop-zone" id="zone-nonnative" ondragover="dragOver(event)" ondrop="dropItem(event,'nonnative')" ondragleave="dragLeave(event)"></div>
+          </div>
+        </div>
+        <div class="drop-zone" id="zone-unsorted" style="flex-direction:row;flex-wrap:wrap;min-height:60px;border-color:var(--blue);background:var(--blue-light);" ondragover="dragOver(event)" ondrop="dropItem(event,'unsorted')" ondragleave="dragLeave(event)">
+          <!-- Items populated by JS -->
+        </div>
+        <div style="font-size:0.78rem;color:#888;margin-top:6px;">☝️ Drag from the tray above into the correct column</div>
+        <div class="feedback-box" id="fb-1"></div>
+        <button class="check-btn" id="check-1" onclick="checkDrag()">✅ Check My Sorting</button>
+        <button class="next-btn" id="next-1" onclick="goToMission(2)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- MISSION 2: Search Ninja -->
+    <div class="mission-card" id="mission-2">
+      <div class="mission-header">
+        <div class="mission-icon">🔍</div>
+        <div class="mission-meta">
+          <div class="mission-tag">Mission 2 of 7 · Search Ninja</div>
+          <div class="mission-title">Drive Search Filter Parameters</div>
+        </div>
+        <div class="mission-pts">+15 pts each</div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-question">You need to find a specific file in Google Drive. Choose the BEST search filter for each scenario.</div>
+
+        <div id="search-q-container"></div>
+        <div class="feedback-box" id="fb-2"></div>
+        <button class="next-btn" id="next-2" onclick="goToMission(3)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- MISSION 3: Keyboard Shortcuts -->
+    <div class="mission-card" id="mission-3">
+      <div class="mission-header">
+        <div class="mission-icon">⌨️</div>
+        <div class="mission-meta">
+          <div class="mission-tag">Mission 3 of 7 · Keyboard Ninja</div>
+          <div class="mission-title">Google Drive Keyboard Shortcut Matching</div>
+        </div>
+        <div class="mission-pts">+15 pts each</div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-context">
+          <strong>⚡ Speed Tip:</strong> Google Drive has built-in keyboard shortcuts. Press <kbd style="background:var(--blue);color:white;border-radius:4px;padding:2px 6px;font-family:monospace;">?</kbd> in Drive to see the full list!
+        </div>
+        <div class="mission-question">Match each keyboard shortcut to its correct action. Click a shortcut, then click its matching action.</div>
+        <div class="match-grid">
+          <div class="match-left" id="shortcuts-left"></div>
+          <div class="match-right" id="shortcuts-right"></div>
+        </div>
+        <div class="feedback-box" id="fb-3"></div>
+        <button class="next-btn" id="next-3" onclick="goToMission(4)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- MISSION 4: Naming Convention -->
+    <div class="mission-card" id="mission-4">
+      <div class="mission-header">
+        <div class="mission-icon">🗂️</div>
+        <div class="mission-meta">
+          <div class="mission-tag">Mission 4 of 7 · Organization</div>
+          <div class="mission-title">Naming Convention Rescue</div>
+        </div>
+        <div class="mission-pts">+20 pts each</div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-context">
+          <strong>📋 UVA Standard:</strong> Good file naming prevents digital clutter. Use: <code style="background:var(--blue-light);padding:2px 6px;border-radius:4px;font-size:0.85rem;">YYYY-MM-DD_ProjectName_Version_Author</code>
+        </div>
+        <div id="naming-q-container"></div>
+        <div class="feedback-box" id="fb-4"></div>
+        <button class="next-btn" id="next-4" onclick="goToMission(5)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- MISSION 5: Access Levels -->
+    <div class="mission-card" id="mission-5">
+      <div class="mission-header">
+        <div class="mission-icon">🔐</div>
+        <div class="mission-meta">
+          <div class="mission-tag">Mission 5 of 7 · Security</div>
+          <div class="mission-title">Access Level Assignment</div>
+        </div>
+        <div class="mission-pts">+20 pts each</div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-context">
+          <strong>🔒 Drive Access Tiers:</strong>
+          <table class="access-table" style="margin-top:8px;">
+            <tr><th>Level</th><th>Can View</th><th>Can Comment</th><th>Can Edit</th><th>Can Share/Delete</th></tr>
+            <tr><td><span class="access-badge ab-viewer">Viewer</span></td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+            <tr><td><span class="access-badge ab-commenter">Commenter</span></td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+            <tr><td><span class="access-badge ab-editor">Editor</span></td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+            <tr><td><span class="access-badge ab-owner">Owner</span></td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+          </table>
+        </div>
+        <div id="access-q-container"></div>
+        <div class="feedback-box" id="fb-5"></div>
+        <button class="next-btn" id="next-5" onclick="goToMission(6)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- MISSION 6: Sync Methods -->
+    <div class="mission-card" id="mission-6">
+      <div class="mission-header">
+        <div class="mission-icon">🔄</div>
+        <div class="mission-meta">
+          <div class="mission-tag">Mission 6 of 7 · Sync Strategy</div>
+          <div class="mission-title">Sync Method Scenario</div>
+        </div>
+        <div class="mission-pts">+20 pts each</div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-context">
+          <strong>☁️ Sync Methods:</strong><br>
+          <strong>Drive for Desktop (Stream):</strong> Files stay in cloud, streamed on demand — saves local disk space.<br>
+          <strong>Drive for Desktop (Mirror):</strong> Files synced locally AND in cloud — works offline, uses disk space.<br>
+          <strong>Browser Only:</strong> Access via drive.google.com — no local sync, requires internet.
+        </div>
+        <div id="sync-q-container"></div>
+        <div class="feedback-box" id="fb-6"></div>
+        <button class="next-btn" id="next-6" onclick="goToMission(7)">Next Mission →</button>
+      </div>
+    </div>
+
+    <!-- MISSION 7: Final Challenge -->
+    <div class="mission-card" id="mission-7">
+      <div class="mission-header">
+        <div class="mission-icon">🏆</div>
+        <div class="mission-meta">
+          <div class="mission-tag">Mission 7 of 7 · Final Challenge</div>
+          <div class="mission-title">Drive IQ — Certification Gauntlet</div>
+        </div>
+        <div class="mission-pts">+25 pts each</div>
+      </div>
+      <div class="mission-body">
+        <div class="mission-question">Final stretch, Cadet! Answer these certification-level questions to complete your Drive Mastery!</div>
+        <div id="final-q-container"></div>
+        <div class="feedback-box" id="fb-7"></div>
+        <button class="next-btn" id="next-7" onclick="showResults()">🏁 View Final Results →</button>
+      </div>
+    </div>
+
+  </div><!-- end game-area -->
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen">
+    <div class="results-card">
+      <div class="results-badge" id="results-badge">🏆</div>
+      <div class="results-rank" id="results-rank">Master</div>
+      <div style="color:#888;font-size:0.85rem;margin-bottom:4px;">Final Score</div>
+      <div class="results-score" id="results-score">0 <span>/ 300 pts</span></div>
+      <div class="results-msg" id="results-msg"></div>
+      <div class="results-breakdown">
+        <h4>📊 Mission Breakdown</h4>
+        <div id="breakdown-list"></div>
+      </div>
+      <div style="background:var(--blue-light);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:0.85rem;color:var(--blue);font-weight:600;">
+        🎓 <strong>Google Workspace Certification Tip:</strong> Review any missed missions before your exam. Focus on search operators, sharing permissions, and storage quota rules!
+      </div>
+      <button class="restart-btn" onclick="restartGame()">🔄 Retry Missions</button>
+    </div>
+  </div>
+
+</div><!-- end main -->
+
+<script>
+// ===================== STATE =====================
+let score = 0;
+let streak = 0;
+let maxStreak = 0;
+let currentMission = 0;
+let missionScores = {};
+let missionNames = {
+  1: "File Format Sorting",
+  2: "Search Ninja",
+  3: "Keyboard Shortcuts",
+  4: "Naming Conventions",
+  5: "Access Levels",
+  6: "Sync Methods",
+  7: "Final Challenge"
+};
+const TOTAL_MISSIONS = 7;
+const MAX_SCORE = 310;
+
+// ===================== RANKS =====================
+function getRank(s) {
+  if (s >= 240) return { name: "🏆 Master", emoji: "🏆" };
+  if (s >= 160) return { name: "⭐ Expert", emoji: "⭐" };
+  if (s >= 80)  return { name: "🔵 Apprentice", emoji: "🔵" };
+  return { name: "🎓 Trainee", emoji: "🎓" };
+}
+
+function updateUI() {
+  document.getElementById('score-display').textContent = score;
+  document.getElementById('streak-display').textContent = streak;
+  document.getElementById('mission-display').textContent = currentMission + '/' + TOTAL_MISSIONS;
+  const pct = (currentMission / TOTAL_MISSIONS) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Mission ' + currentMission + ' of ' + TOTAL_MISSIONS;
+  const rank = getRank(score);
+  document.getElementById('rank-display').textContent = rank.name;
+
+  const sb = document.getElementById('streak-badge');
+  if (streak >= 3) {
+    sb.textContent = '🔥 ' + streak + ' in a row!';
+    sb.classList.add('show');
+  } else {
+    sb.classList.remove('show');
+  }
+}
+
+function addScore(pts, missionId) {
+  score += pts;
+  if (!missionScores[missionId]) missionScores[missionId] = 0;
+  missionScores[missionId] += pts;
+  updateUI();
+}
+
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===================== CONFETTI =====================
+function launchConfetti(count=60) {
+  const container = document.getElementById('confetti-container');
+  container.innerHTML = '';
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#E74C3C','#9B59B6','#3498DB','#2ECC71'];
+  for (let i = 0; i < count; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+    piece.style.animationDelay = (Math.random() * 1) + 's';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 4000);
+  }
+}
+
+// ===================== GAME FLOW =====================
+function startGame() {
+  document.getElementById('intro-screen').classList.add('hide');
+  document.getElementById('game-area').classList.add('show');
+  goToMission(1);
+}
+
+function goToMission(n) {
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('mission-' + n);
+  if (card) {
+    card.classList.add('active');
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  currentMission = n;
+  updateUI();
+}
+
+function handleCorrect(pts, missionId, msg) {
+  streak++;
+  if (streak > maxStreak) maxStreak = streak;
+  addScore(pts, missionId);
+  if (streak === 3) { showToast('🔥 3 in a row! Bonus streak!', 'gold'); launchConfetti(30); }
+  else if (streak === 5) { showToast('🚀 5 in a row! You\'re on fire!', 'gold'); launchConfetti(60); }
+  else { showToast('✅ Correct! +' + pts + ' pts', 'green'); }
+  updateUI();
+}
+
+function handleWrong() {
+  streak = 0;
+  updateUI();
+  showToast('❌ Not quite — check the feedback!');
+}
+
+// ===================== MISSION 1: DRAG & DROP =====================
+const fileItems = [
+  { id: 'f1', label: '📄 Google Doc', icon: '📄', category: 'native' },
+  { id: 'f2', label: '📊 Google Sheet', icon: '📊', category: 'native' },
+  { id: 'f3', label: '📽️ Google Slides', icon: '📽️', category: 'native' },
+  { id: 'f4', label: '📝 Google Form', icon: '📝', category: 'native' },
+  { id: 'f5', label: '📃 Word (.docx)', icon: '📃', category: 'nonnative' },
+  { id: 'f6', label: '📈 Excel (.xlsx)', icon: '📈', category: 'nonnative' },
+  { id: 'f7', label: '🖼️ Image (.jpg)', icon: '🖼️', category: 'nonnative' },
+  { id: 'f8', label: '📑 PDF (.pdf)', icon: '📑', category: 'nonnative' },
+];
+
+let draggedItem = null;
+
+function initDrag() {
+  const zone = document.getElementById('zone-unsorted');
+  fileItems.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'drag-item';
+    el.id = 'drag-' + item.id;
+    el.draggable = true;
+    el.dataset.category = item.category;
+    el.innerHTML = '<span class="drag-icon">' + item.icon + '</span>' + item.label;
+    el.addEventListener('dragstart', e => {
+      draggedItem = el;
+      setTimeout(() => el.classList.add('dragging'), 0);
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      draggedItem = null;
+    });
+    zone.appendChild(el);
+  });
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+function dropItem(e, zone) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (draggedItem) {
+    e.currentTarget.appendChild(draggedItem);
+  }
+}
+
+function checkDrag() {
+  const nativeZone = document.getElementById('zone-native');
+  const nonNativeZone = document.getElementById('zone-nonnative');
+  let correct = 0, total = fileItems.length;
+
+  fileItems.forEach(item => {
+    const el = document.getElementById('drag-' + item.id);
+    el.classList.remove('correct-place', 'wrong-place');
+    const parent = el.parentElement;
+    if (item.category === 'native' && parent.id === 'zone-native') {
+      el.classList.add('correct-place'); correct++;
+    } else if (item.category === 'nonnative' && parent.id === 'zone-nonnative') {
+      el.classList.add('correct-place'); correct++;
+    } else {
+      el.classList.add('wrong-place');
+    }
+  });
+
+  const fb = document.getElementById('fb-1');
+  fb.classList.add('show');
+  if (correct === total) {
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">🎉 Perfect Sort! All ' + total + '/' + total + ' correct!</div>Google-native files (Docs, Sheets, Slides, Forms) are stored as metadata only — they use <strong>zero quota</strong>. Non-native files count against your 15 GB limit. This is why converting uploaded Word/Excel files to Google format saves storage!';
+    handleCorrect(40, 1, 'Perfect sort!');
+    launchConfetti(40);
+    document.getElementById('check-1').disabled = true;
+    document.getElementById('next-1').classList.add('show');
+  } else {
+    fb.className = 'feedback-box show wrong-fb';
+    fb.innerHTML = '<div class="fb-title">⚠️ ' + correct + '/' + total + ' correct — try again!</div>Hint: Google-native formats are files <em>created inside</em> Google Drive (Docs, Sheets, Slides, Forms). Any file uploaded from outside (Word, Excel, PDF, images) is non-native and uses quota.';
+    handleWrong();
+  }
+}
+
+// ===================== MISSION 2: SEARCH NINJA =====================
+const searchQuestions = [
+  {
+    q: "You need to find all Google Sheets shared with you by your teacher, Ms. Rivera.",
+    sim: { text: 'type:spreadsheet owner:ms.rivera@uva.edu', filters: ['type:spreadsheet', 'owner:ms.rivera@uva.edu'] },
+    options: [
+      { text: 'Use the search bar and type the filename', correct: false },
+      { text: 'Filter by type:spreadsheet and owner:ms.rivera@uva.edu', correct: true },
+      { text: 'Click "Shared with me" and scroll through all files', correct: false },
+      { text: 'Use type:document and from:ms.rivera', correct: false }
+    ],
+    explanation: 'The <code>type:spreadsheet</code> filter narrows to Sheets, and <code>owner:</code> specifies who created/owns the file. Combining filters is the "Search Ninja" approach!'
+  },
+  {
+    q: "You want to find files modified in the last 7 days that contain the word 'budget'.",
+    sim: { text: 'budget after:2024-01-01 before:today', filters: ['after:YYYY-MM-DD', 'before:YYYY-MM-DD', 'keyword'] },
+    options: [
+      { text: 'Search "budget" and use the date filter in Drive\'s search tools dropdown', correct: true },
+      { text: 'Open every recent file and search for "budget" manually', correct: false },
+      { text: 'Use type:folder and search "budget"', correct: false },
+      { text: 'Check "Recent" tab and look for budget files', correct: false }
+    ],
+    explanation: 'Drive\'s search tools dropdown (click the filter icon in the search bar) lets you filter by <strong>date modified</strong>. Combined with a keyword, this is the fastest approach!'
+  },
+  {
+    q: "You need to find files that are NOT owned by you — files others have shared with you.",
+    sim: { text: 'to:me -owner:me', filters: ['to:me', '-owner:me'] },
+    options: [
+      { text: 'Click "My Drive" and look for shared icons', correct: false },
+      { text: 'Use the "Shared with me" section in the left sidebar', correct: true },
+      { text: 'Search type:all and filter by date', correct: false },
+      { text: 'Check Google Takeout for shared files', correct: false }
+    ],
+    explanation: 'The <strong>"Shared with me"</strong> section in Drive\'s left sidebar is the dedicated view for files others have shared with you. You can also use <code>to:me</code> in the search bar!'
+  }
+];
+
+let searchAnswered = 0;
+let searchCorrect = 0;
+
+function initSearchMission() {
+  const container = document.getElementById('search-q-container');
+  container.innerHTML = '';
+  searchAnswered = 0; searchCorrect = 0;
+  searchQuestions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '20px';
+    div.innerHTML = `
+      <div class="scenario-box">
+        <div class="scenario-label">🔍 Scenario ${qi+1} of ${searchQuestions.length}</div>
+        <p>${q.q}</p>
+        <div class="search-sim" style="margin-top:10px;">
+          <div class="search-bar"><span class="s-icon">🔍</span><span class="s-text">${q.sim.text}</span></div>
+          <div class="search-filter">${q.sim.filters.map(f=>`<span class="sf-chip">${f}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="options-grid" id="sq-opts-${qi}">
+        ${q.options.map((o,oi)=>`
+          <button class="option-btn" onclick="answerSearch(${qi},${oi})" id="sq-${qi}-${oi}">
+            <span class="opt-letter">${String.fromCharCode(65+oi)}</span>
+            ${o.text}
+          </button>`).join('')}
+      </div>
+      <div class="feedback-box" id="sq-fb-${qi}"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function answerSearch(qi, oi) {
+  const q = searchQuestions[qi];
+  const opts = document.querySelectorAll(`#sq-opts-${qi} .option-btn`);
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('sq-fb-' + qi);
+  fb.classList.add('show');
+  if (q.options[oi].correct) {
+    opts[oi].classList.add('correct');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">✅ Correct!</div>' + q.explanation;
+    handleCorrect(15, 2);
+    searchCorrect++;
+  } else {
+    opts[oi].classList.add('wrong');
+    q.options.forEach((o,i) => { if(o.correct) opts[i].classList.add('correct'); });
+    fb.className = 'feedback-box show wrong-fb';
+    fb.innerHTML = '<div class="fb-title">❌ Not quite!</div>' + q.explanation;
+    handleWrong();
+  }
+  searchAnswered++;
+  if (searchAnswered === searchQuestions.length) {
+    setTimeout(() => document.getElementById('next-2').classList.add('show'), 500);
+  }
+}
+
+// ===================== MISSION 3: KEYBOARD SHORTCUTS =====================
+const shortcuts = [
+  { key: '/ (Slash)', action: 'Focus the search bar' },
+  { key: 'N', action: 'Rename selected file' },
+  { key: 'S', action: 'Star / unstar selected item' },
+  { key: 'Shift + Z', action: 'Add shortcut to My Drive' },
+  { key: 'Ctrl + Enter', action: 'Open selected item' },
+  { key: 'Delete', action: 'Move selected item to Trash' },
+];
+
+let selectedShortcut = null;
+let matchedPairs = 0;
+const shuffledActions = [...shortcuts].sort(() => Math.random() - 0.5);
+
+function initShortcuts() {
+  const left = document.getElementById('shortcuts-left');
+  const right = document.getElementById('shortcuts-right');
+  left.innerHTML = ''; right.innerHTML = '';
+  matchedPairs = 0; selectedShortcut = null;
+
+  shortcuts.forEach((s, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'match-item';
+    btn.id = 'sk-left-' + i;
+    btn.dataset.index = i;
+    btn.innerHTML = '<kbd>' + s.key + '</kbd>';
+    btn.onclick = () => selectShortcut(i, btn);
+    left.appendChild(btn);
+  });
+
+  shuffledActions.forEach((s, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'match-item';
+    btn.id = 'sk-right-' + i;
+    btn.dataset.action = s.action;
+    btn.textContent = s.action;
+    btn.onclick = () => matchAction(s.action, btn);
+    right.appendChild(btn);
+  });
+}
+
+function selectShortcut(idx, btn) {
+  if (btn.classList.contains('matched-correct')) return;
+  document.querySelectorAll('#shortcuts-left .match-item').forEach(b => b.classList.remove('selected'));
+  selectedShortcut = { idx, btn };
+  btn.classList.add('selected');
+}
+
+function matchAction(action, btn) {
+  if (!selectedShortcut) { showToast('👈 First click a shortcut on the left!'); return; }
+  if (btn.classList.contains('matched-correct')) return;
+  const correct = shortcuts[selectedShortcut.idx].action === action;
+  if (correct) {
+    selectedShortcut.btn.classList.remove('selected');
+    selectedShortcut.btn.classList.add('matched-correct');
+    btn.classList.add('matched-correct');
+    handleCorrect(15, 3);
+    matchedPairs++;
+    selectedShortcut = null;
+    if (matchedPairs === shortcuts.length) {
+      const fb = document.getElementById('fb-3');
+      fb.className = 'feedback-box show correct-fb';
+      fb.innerHTML = '<div class="fb-title">🎉 All shortcuts matched!</div>You\'ve mastered Google Drive keyboard shortcuts! Remember: press <kbd style="background:var(--blue);color:white;border-radius:4px;padding:2px 6px;">?</kbd> in Drive to see the full shortcut list anytime.';
+      launchConfetti(40);
+      setTimeout(() => document.getElementById('next-3').classList.add('show'), 500);
+    }
+  } else {
+    btn.classList.add('matched-wrong');
+    setTimeout(() => btn.classList.remove('matched-wrong'), 800);
+    selectedShortcut.btn.classList.remove('selected');
+    selectedShortcut = null;
+    handleWrong();
+    showToast('❌ Wrong match — try again!');
+  }
+}
+
+// ===================== MISSION 4: NAMING CONVENTIONS =====================
+const namingQuestions = [
+  {
+    q: "Which filename follows UVA's recommended naming convention for a science project report?",
+    options: [
+      { text: 'science project final DONE.docx', correct: false },
+      { text: '2024-03-15_ScienceProject_v2_JSmith', correct: true },
+      { text: 'My Science Report (1) copy.docx', correct: false },
+      { text: 'FINAL_FINAL_USE_THIS_ONE.pdf', correct: false }
+    ],
+    explanation: 'The format <strong>YYYY-MM-DD_ProjectName_Version_Author</strong> makes files sortable by date, searchable by project, and traceable by author. Avoid vague names like "final" or "copy"!'
+  },
+  {
+    q: "Your team has 3 versions of a group project. Which folder structure prevents digital clutter?",
+    options: [
+      { text: 'One folder with all versions mixed together', correct: false },
+      { text: 'A main project folder with subfolders: /Drafts, /Final, /Archive', correct: true },
+      { text: 'Save everything to the Desktop and sort later', correct: false },
+      { text: 'Email files back and forth to keep track', correct: false }
+    ],
+    explanation: 'A tiered folder structure (<strong>Main → Drafts → Final → Archive</strong>) prevents clutter. The Archive folder keeps old versions accessible without cluttering the active workspace!'
+  },
+  {
+    q: "Which practice BEST prevents 'version chaos' in a collaborative Google Doc?",
+    options: [
+      { text: 'Make a copy every time you edit', correct: false },
+      { text: 'Use Google Docs Version History (File → Version History → Name this version)', correct: true },
+      { text: 'Download as Word and email the latest version', correct: false },
+      { text: 'Add "v1, v2, v3" to the filename each time', correct: false }
+    ],
+    explanation: '<strong>Version History</strong> in Google Docs (File → Version History → Name this version) lets you label and restore any previous state — no duplicate files needed! This is the Google-native way to manage versions.'
+  }
+];
+
+let namingAnswered = 0;
+
+function initNamingMission() {
+  const container = document.getElementById('naming-q-container');
+  container.innerHTML = '';
+  namingAnswered = 0;
+  namingQuestions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '20px';
+    div.innerHTML = `
+      <div class="mission-question" style="margin-bottom:10px;">${qi+1}. ${q.q}</div>
+      <div class="options-grid" id="nq-opts-${qi}">
+        ${q.options.map((o,oi)=>`
+          <button class="option-btn" onclick="answerNaming(${qi},${oi})" id="nq-${qi}-${oi}">
+            <span class="opt-letter">${String.fromCharCode(65+oi)}</span>
+            ${o.text}
+          </button>`).join('')}
+      </div>
+      <div class="feedback-box" id="nq-fb-${qi}"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function answerNaming(qi, oi) {
+  const q = namingQuestions[qi];
+  const opts = document.querySelectorAll(`#nq-opts-${qi} .option-btn`);
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('nq-fb-' + qi);
+  fb.classList.add('show');
+  if (q.options[oi].correct) {
+    opts[oi].classList.add('correct');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">✅ Correct!</div>' + q.explanation;
+    handleCorrect(20, 4);
+  } else {
+    opts[oi].classList.add('wrong');
+    q.options.forEach((o,i) => { if(o.correct) opts[i].classList.add('correct'); });
+    fb.className = 'feedback-box show wrong-fb';
+    fb.innerHTML = '<div class="fb-title">❌ Not quite!</div>' + q.explanation;
+    handleWrong();
+  }
+  namingAnswered++;
+  if (namingAnswered === namingQuestions.length) {
+    setTimeout(() => document.getElementById('next-4').classList.add('show'), 500);
+  }
+}
+
+// ===================== MISSION 5: ACCESS LEVELS =====================
+const accessQuestions = [
+  {
+    scenario: "Your principal needs to review your project proposal but should NOT be able to make any changes.",
+    options: ['Viewer', 'Commenter', 'Editor', 'Owner'],
+    correct: 'Viewer',
+    explanation: '<strong>Viewer</strong> is correct! The principal can read the document but cannot edit or comment. This protects the integrity of your submission.'
+  },
+  {
+    scenario: "Your peer reviewer needs to leave feedback and suggestions on your essay without changing the actual text.",
+    options: ['Viewer', 'Commenter', 'Editor', 'Owner'],
+    correct: 'Commenter',
+    explanation: '<strong>Commenter</strong> is correct! Commenters can add suggestions and comments but cannot directly edit the document text — perfect for peer review!'
+  },
+  {
+    scenario: "Your group partner needs to add their section to the shared Google Doc and format the document.",
+    options: ['Viewer', 'Commenter', 'Editor', 'Owner'],
+    correct: 'Editor',
+    explanation: '<strong>Editor</strong> is correct! Editors can make changes to the document. Note: Editors can also share the file unless the owner has restricted sharing permissions.'
+  },
+  {
+    scenario: "You created a class project folder and need to give your teacher full control — including the ability to delete files and change sharing settings.",
+    options: ['Viewer', 'Commenter', 'Editor', 'Owner'],
+    correct: 'Owner',
+    explanation: '<strong>Owner</strong> is correct! Only the Owner can permanently delete files, transfer ownership, and change sharing settings for the entire folder.'
+  }
+];
+
+let accessAnswered = 0;
+
+function initAccessMission() {
+  const container = document.getElementById('access-q-container');
+  container.innerHTML = '';
+  accessAnswered = 0;
+  accessQuestions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '20px';
+    div.innerHTML = `
+      <div class="scenario-box">
+        <div class="scenario-label">🔐 Scenario ${qi+1} of ${accessQuestions.length}</div>
+        <p>${q.scenario}</p>
+      </div>
+      <div class="mission-question" style="margin-bottom:10px;">What access level should you assign?</div>
+      <div class="options-grid" id="aq-opts-${qi}">
+        ${q.options.map((o,oi)=>`
+          <button class="option-btn" onclick="answerAccess(${qi},'${o}')" id="aq-${qi}-${oi}">
+            <span class="opt-letter">${String.fromCharCode(65+oi)}</span>
+            <span class="access-badge ab-${o.toLowerCase()}">${o}</span>
+          </button>`).join('')}
+      </div>
+      <div class="feedback-box" id="aq-fb-${qi}"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function answerAccess(qi, answer) {
+  const q = accessQuestions[qi];
+  const opts = document.querySelectorAll(`#aq-opts-${qi} .option-btn`);
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('aq-fb-' + qi);
+  fb.classList.add('show');
+  if (answer === q.correct) {
+    const idx = q.options.indexOf(answer);
+    opts[idx].classList.add('correct');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">✅ Correct!</div>' + q.explanation;
+    handleCorrect(20, 5);
+  } else {
+    const wrongIdx = q.options.indexOf(answer);
+    const correctIdx = q.options.indexOf(q.correct);
+    opts[wrongIdx].classList.add('wrong');
+    opts[correctIdx].classList.add('correct');
+    fb.className = 'feedback-box show wrong-fb';
+    fb.innerHTML = '<div class="fb-title">❌ Not quite!</div>' + q.explanation;
+    handleWrong();
+  }
+  accessAnswered++;
+  if (accessAnswered === accessQuestions.length) {
+    setTimeout(() => document.getElementById('next-5').classList.add('show'), 500);
+  }
+}
+
+// ===================== MISSION 6: SYNC METHODS =====================
+const syncQuestions = [
+  {
+    scenario: "Mia has a Chromebook with only 32 GB of storage. She works with large video files in Drive. She needs to access them but can't store them locally.",
+    options: [
+      { text: 'Drive for Desktop — Stream Files mode', correct: true },
+      { text: 'Drive for Desktop — Mirror Files mode', correct: false },
+      { text: 'Download all files manually each session', correct: false },
+      { text: 'Use Google Takeout to export files', correct: false }
+    ],
+    explanation: '<strong>Stream Files</strong> keeps files in the cloud and only downloads them when opened — perfect for low-storage devices! Files appear in File Explorer but don\'t use local disk space.'
+  },
+  {
+    scenario: "Carlos is a field researcher who travels to areas with no internet. He needs to access and edit his Drive files while offline.",
+    options: [
+      { text: 'Browser-only access via drive.google.com', correct: false },
+      { text: 'Drive for Desktop — Mirror Files mode', correct: true },
+      { text: 'Drive for Desktop — Stream Files mode', correct: false },
+      { text: 'Share files with himself via email', correct: false }
+    ],
+    explanation: '<strong>Mirror Files</strong> syncs a full local copy of your Drive to your computer. Changes sync when you reconnect to the internet — ideal for offline work!'
+  },
+  {
+    scenario: "A student uses a school computer lab where Drive for Desktop is not installed. They need to quickly access a file.",
+    options: [
+      { text: 'Install Drive for Desktop on the lab computer', correct: false },
+      { text: 'Access drive.google.com in the browser', correct: true },
+      { text: 'Use Mirror mode on the lab computer', correct: false },
+      { text: 'Email the file to themselves', correct: false }
+    ],
+    explanation: '<strong>Browser access via drive.google.com</strong> works on any computer without installation — perfect for shared/lab computers. Just log in and access your files!'
+  }
+];
+
+let syncAnswered = 0;
+
+function initSyncMission() {
+  const container = document.getElementById('sync-q-container');
+  container.innerHTML = '';
+  syncAnswered = 0;
+  syncQuestions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '20px';
+    div.innerHTML = `
+      <div class="scenario-box">
+        <div class="scenario-label">🔄 Scenario ${qi+1} of ${syncQuestions.length}</div>
+        <p>${q.scenario}</p>
+      </div>
+      <div class="mission-question" style="margin-bottom:10px;">Which sync method should they use?</div>
+      <div class="options-grid" id="syq-opts-${qi}">
+        ${q.options.map((o,oi)=>`
+          <button class="option-btn" onclick="answerSync(${qi},${oi})" id="syq-${qi}-${oi}">
+            <span class="opt-letter">${String.fromCharCode(65+oi)}</span>
+            ${o.text}
+          </button>`).join('')}
+      </div>
+      <div class="feedback-box" id="syq-fb-${qi}"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function answerSync(qi, oi) {
+  const q = syncQuestions[qi];
+  const opts = document.querySelectorAll(`#syq-opts-${qi} .option-btn`);
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('syq-fb-' + qi);
+  fb.classList.add('show');
+  if (q.options[oi].correct) {
+    opts[oi].classList.add('correct');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">✅ Correct!</div>' + q.explanation;
+    handleCorrect(20, 6);
+  } else {
+    opts[oi].classList.add('wrong');
+    q.options.forEach((o,i) => { if(o.correct) opts[i].classList.add('correct'); });
+    fb.className = 'feedback-box show wrong-fb';
+    fb.innerHTML = '<div class="fb-title">❌ Not quite!</div>' + q.explanation;
+    handleWrong();
+  }
+  syncAnswered++;
+  if (syncAnswered === syncQuestions.length) {
+    setTimeout(() => document.getElementById('next-6').classList.add('show'), 500);
+  }
+}
+
+// ===================== MISSION 7: FINAL CHALLENGE =====================
+const finalQuestions = [
+  {
+    q: "A student uploads a 500 MB video to Google Drive. How much of their 15 GB quota does this use?",
+    options: [
+      { text: '0 MB — videos are Google-native', correct: false },
+      { text: '500 MB — non-native files use full quota', correct: true },
+      { text: '250 MB — Drive compresses uploads by 50%', correct: false },
+      { text: 'It depends on the video format', correct: false }
+    ],
+    explanation: 'Videos are <strong>non-native files</strong> and use their full file size against your 15 GB quota. Only Google-native formats (Docs, Sheets, Slides, Forms) use zero quota.'
+  },
+  {
+    q: "Which Google Drive search operator finds files owned by a specific person?",
+    options: [
+      { text: 'from:person@email.com', correct: false },
+      { text: 'shared:person@email.com', correct: false },
+      { text: 'owner:person@email.com', correct: true },
+      { text: 'creator:person@email.com', correct: false }
+    ],
+    explanation: 'The <strong>owner:</strong> operator is the correct Drive search parameter. Example: <code>owner:teacher@school.edu type:spreadsheet</code> finds all Sheets owned by that teacher.'
+  },
+  {
+    q: "What happens to a shared Google Doc if the original owner deletes their Google account?",
+    options: [
+      { text: 'All collaborators keep their copies permanently', correct: false },
+      { text: 'The file is deleted for everyone', correct: false },
+      { text: 'Google transfers ownership to the oldest collaborator automatically', correct: false },
+      { text: 'The file is deleted unless ownership was transferred before account deletion', correct: true }
+    ],
+    explanation: 'Files are tied to the owner\'s account. If the owner deletes their account without transferring ownership, the files are deleted. Always <strong>transfer ownership</strong> before leaving an organization!'
+  },
+  {
+    q: "Which keyboard shortcut opens the 'Move to' dialog in Google Drive?",
+    options: [
+      { text: 'Ctrl + M', correct: false },
+      { text: 'Z', correct: true },
+      { text: 'Shift + M', correct: false },
+      { text: 'Ctrl + Shift + M', correct: false }
+    ],
+    explanation: 'Pressing <strong>Z</strong> in Google Drive opens the "Move to" dialog for the selected file. This is a key shortcut for organizing files quickly without using the right-click menu!'
+  }
+];
+
+let finalAnswered = 0;
+
+function initFinalMission() {
+  const container = document.getElementById('final-q-container');
+  container.innerHTML = '';
+  finalAnswered = 0;
+  finalQuestions.forEach((q, qi) => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '20px';
+    div.innerHTML = `
+      <div class="mission-question" style="margin-bottom:10px;">${qi+1}. ${q.q}</div>
+      <div class="options-grid" id="fq-opts-${qi}">
+        ${q.options.map((o,oi)=>`
+          <button class="option-btn" onclick="answerFinal(${qi},${oi})" id="fq-${qi}-${oi}">
+            <span class="opt-letter">${String.fromCharCode(65+oi)}</span>
+            ${o.text}
+          </button>`).join('')}
+      </div>
+      <div class="feedback-box" id="fq-fb-${qi}"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function answerFinal(qi, oi) {
+  const q = finalQuestions[qi];
+  const opts = document.querySelectorAll(`#fq-opts-${qi} .option-btn`);
+  opts.forEach(b => b.disabled = true);
+  const fb = document.getElementById('fq-fb-' + qi);
+  fb.classList.add('show');
+  if (q.options[oi].correct) {
+    opts[oi].classList.add('correct');
+    fb.className = 'feedback-box show correct-fb';
+    fb.innerHTML = '<div class="fb-title">✅ Correct!</div>' + q.explanation;
+    handleCorrect(25, 7);
+  } else {
+    opts[oi].classList.add('wrong');
+    q.options.forEach((o,i) => { if(o.correct) opts[i].classList.add('correct'); });
+    fb.className = 'feedback-box show wrong-fb';
+    fb.innerHTML = '<div class="fb-title">❌ Not quite!</div>' + q.explanation;
+    handleWrong();
+  }
+  finalAnswered++;
+  if (finalAnswered === finalQuestions.length) {
+    setTimeout(() => document.getElementById('next-7').classList.add('show'), 500);
+  }
+}
+
+// ===================== RESULTS =====================
+function showResults() {
+  document.getElementById('game-area').style.display = 'none';
+  const rs = document.getElementById('results-screen');
+  rs.classList.add('show');
+  rs.scrollIntoView({ behavior: 'smooth' });
+
+  const rank = getRank(score);
+  const pct = Math.round((score / MAX_SCORE) * 100);
+
+  document.getElementById('results-badge').textContent = rank.emoji;
+  document.getElementById('results-rank').textContent = rank.name;
+  document.getElementById('results-score').innerHTML = score + ' <span>/ ' + MAX_SCORE + ' pts (' + pct + '%)</span>';
+
+  let msg = '';
+  if (pct >= 90) msg = "Outstanding, Cadet! You've achieved <strong>Drive Master</strong> status. You're fully prepared for the Google Workspace Certification exam. Virtue, Vigor, Vision — you've demonstrated all three!";
+  else if (pct >= 70) msg = "Great work, Expert! You have a strong grasp of Google Drive management. Review any missed missions and you'll be certification-ready in no time!";
+  else if (pct >= 50) msg = "Good effort, Apprentice! You're building solid Drive skills. Focus on the missions you missed — especially search operators and access levels — and retry for a higher rank!";
+  else msg = "Keep going, Trainee! Every expert starts somewhere. Review the lesson materials on file formats, search filters, and sharing permissions, then retry the missions!";
+  document.getElementById('results-msg').innerHTML = msg;
+
+  const bl = document.getElementById('breakdown-list');
+  bl.innerHTML = '';
+  for (let i = 1; i <= TOTAL_MISSIONS; i++) {
+    const pts = missionScores[i] || 0;
+    const div = document.createElement('div');
+    div.className = 'breakdown-item';
+    div.innerHTML = `<span>${missionNames[i]}</span><span class="bi-pts">+${pts} pts</span>`;
+    bl.appendChild(div);
+  }
+
+  if (pct >= 80) launchConfetti(80);
+  else if (pct >= 60) launchConfetti(40);
+
+  currentMission = TOTAL_MISSIONS;
+  updateUI();
+}
+
+function restartGame() {
+  score = 0; streak = 0; maxStreak = 0; currentMission = 0; missionScores = {};
+  document.getElementById('results-screen').classList.remove('show');
+  document.getElementById('game-area').style.display = 'block';
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.next-btn').forEach(b => b.classList.remove('show'));
+  document.querySelectorAll('.feedback-box').forEach(b => { b.classList.remove('show','correct-fb','wrong-fb'); b.innerHTML=''; });
+  document.querySelectorAll('.option-btn').forEach(b => { b.disabled=false; b.classList.remove('correct','wrong'); });
+  document.getElementById('check-1').disabled = false;
+  updateUI();
+  initAll();
+  goToMission(1);
+}
+
+// ===================== INIT ALL =====================
+function initAll() {
+  initDrag();
+  initSearchMission();
+  initShortcuts();
+  initNamingMission();
+  initAccessMission();
+  initSyncMission();
+  initFinalMission();
+}
+
+// ===================== BOOT =====================
+window.onload = function() {
+  updateUI();
+  initAll();
+};
+</script>
+</body>
+</html>
