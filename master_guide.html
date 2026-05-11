@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA Digital Architect's Master Guide – Unit 6</title>
+<style>
+  :root {
+    --uva-blue: #1B5EAF;
+    --uva-blue-dark: #134080;
+    --uva-blue-light: #2a7fd4;
+    --uva-green: #1E7A3E;
+    --uva-green-light: #28a052;
+    --gold: #F5C518;
+    --gold-dark: #d4a800;
+    --white: #ffffff;
+    --light-bg: #f0f4fb;
+    --card-bg: #ffffff;
+    --text-dark: #1a1a2e;
+    --text-mid: #3a3a5c;
+    --border: #c8d8f0;
+    --success: #1E7A3E;
+    --error: #c0392b;
+    --streak-orange: #e67e22;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0d2b5e 0%, #1B5EAF 50%, #1E7A3E 100%);
+    min-height: 100vh;
+    color: var(--text-dark);
+  }
+
+  /* ── RIBBON BANNER ── */
+  .ribbon-banner {
+    background: linear-gradient(90deg, var(--uva-blue-dark), var(--uva-blue), var(--uva-green));
+    color: white;
+    text-align: center;
+    padding: 6px 0;
+    font-size: 0.78rem;
+    letter-spacing: 3px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-bottom: 3px solid var(--gold);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(10px);
+    border-bottom: 2px solid rgba(245,197,24,0.4);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .header-left { display: flex; align-items: center; gap: 14px; }
+  .uva-crest {
+    width: 52px; height: 52px;
+    background: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 0 0 3px white, 0 0 0 5px var(--gold);
+    flex-shrink: 0;
+  }
+  .header-title { color: white; }
+  .header-title h1 { font-size: 1.1rem; font-weight: 800; line-height: 1.2; }
+  .header-title p { font-size: 0.72rem; opacity: 0.85; margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  /* ── RANK BADGE ── */
+  .rank-badge {
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #1a1a00;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.78rem;
+    display: flex; align-items: center; gap: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+  .score-display {
+    background: rgba(255,255,255,0.15);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    white-space: nowrap;
+  }
+  .streak-display {
+    background: linear-gradient(135deg, var(--streak-orange), #e74c3c);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.78rem;
+    display: none;
+    animation: pulse 1s infinite;
+    white-space: nowrap;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+
+  /* ── MAIN CONTAINER ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  /* ── MISSION HUD ── */
+  .mission-hud {
+    background: rgba(255,255,255,0.95);
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    border: 2px solid var(--border);
+  }
+  .mission-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
+  }
+  .mission-tag {
+    background: var(--uva-blue);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .mission-progress-text { font-size: 0.8rem; color: var(--text-mid); font-weight: 600; }
+  .progress-bar-wrap {
+    background: #e0e8f5;
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--uva-blue), var(--uva-green));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .mission-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--uva-blue-dark);
+    margin: 10px 0 4px;
+  }
+  .mission-subtitle { font-size: 0.82rem; color: var(--text-mid); }
+
+  /* ── QUESTION CARD ── */
+  .question-card {
+    background: rgba(255,255,255,0.97);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    border: 2px solid var(--border);
+    animation: slideIn 0.4s ease;
+  }
+  @keyframes slideIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  .q-type-label {
+    display: inline-block;
+    background: var(--uva-green);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .q-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .q-scenario {
+    background: linear-gradient(135deg, #e8f0fb, #eaf5ee);
+    border-left: 4px solid var(--uva-blue);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+    color: var(--text-mid);
+    font-style: italic;
+  }
+
+  /* ── ANSWER OPTIONS ── */
+  .options-grid { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: #f5f8ff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 18px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--uva-blue);
+    background: #e8f0fb;
+    transform: translateX(4px);
+  }
+  .option-btn .opt-letter {
+    background: var(--uva-blue);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .option-btn.correct {
+    background: #d4edda;
+    border-color: var(--success);
+    color: var(--success);
+  }
+  .option-btn.correct .opt-letter { background: var(--success); }
+  .option-btn.wrong {
+    background: #fde8e8;
+    border-color: var(--error);
+    color: var(--error);
+  }
+  .option-btn.wrong .opt-letter { background: var(--error); }
+  .option-btn:disabled { cursor: not-allowed; }
+
+  /* ── DRAG & DROP ── */
+  .drag-area { display: flex; gap: 16px; flex-wrap: wrap; }
+  .drag-column { flex: 1; min-width: 200px; }
+  .drag-column h4 {
+    font-size: 0.78rem; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--uva-blue); margin-bottom: 8px;
+    padding-bottom: 6px; border-bottom: 2px solid var(--uva-blue);
+  }
+  .drag-items { display: flex; flex-direction: column; gap: 8px; min-height: 60px; }
+  .drag-item {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-light));
+    color: white;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: grab;
+    user-select: none;
+    box-shadow: 0 3px 8px rgba(27,94,175,0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .drag-item:active { cursor: grabbing; transform: scale(1.04); box-shadow: 0 6px 16px rgba(27,94,175,0.4); }
+  .drag-item.dragging { opacity: 0.5; }
+  .drop-zone {
+    background: #f0f4fb;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    min-height: 50px;
+    display: flex; flex-direction: column; gap: 6px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .drop-zone.drag-over { background: #dce8fb; border-color: var(--uva-blue); }
+  .drop-zone.correct-zone { border-color: var(--success); background: #d4edda; }
+  .drop-zone.wrong-zone { border-color: var(--error); background: #fde8e8; }
+  .drop-label {
+    font-size: 0.78rem; font-weight: 700; color: var(--text-mid);
+    margin-bottom: 4px; text-align: center;
+  }
+
+  /* ── FEEDBACK ── */
+  .feedback-box {
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .feedback-box.correct-fb { background: #d4edda; border: 2px solid var(--success); color: #155724; }
+  .feedback-box.wrong-fb { background: #fde8e8; border: 2px solid var(--error); color: #721c24; }
+  .feedback-icon { font-size: 1.2rem; margin-right: 6px; }
+
+  /* ── BUTTONS ── */
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--uva-blue), var(--uva-blue-dark));
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(27,94,175,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(27,94,175,0.45); }
+  .btn-secondary {
+    background: white;
+    color: var(--uva-blue);
+    border: 2px solid var(--uva-blue);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: #e8f0fb; }
+  .btn-green {
+    background: linear-gradient(135deg, var(--uva-green), var(--uva-green-light));
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(30,122,62,0.35);
+  }
+  .btn-green:hover { transform: translateY(-2px); }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO SCREEN ── */
+  .intro-card {
+    background: rgba(255,255,255,0.97);
+    border-radius: 20px;
+    padding: 36px 32px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    border: 2px solid rgba(245,197,24,0.4);
+  }
+  .intro-icon { font-size: 4rem; margin-bottom: 12px; }
+  .intro-card h2 { font-size: 1.6rem; color: var(--uva-blue-dark); font-weight: 900; margin-bottom: 8px; }
+  .intro-card p { color: var(--text-mid); font-size: 0.92rem; margin-bottom: 20px; line-height: 1.6; }
+  .objectives-list {
+    background: #f0f4fb;
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: left;
+    margin-bottom: 24px;
+  }
+  .objectives-list h4 { color: var(--uva-blue); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .objectives-list li { font-size: 0.85rem; color: var(--text-mid); margin-bottom: 6px; padding-left: 4px; list-style: none; display: flex; gap: 8px; }
+  .objectives-list li::before { content: "🎯"; flex-shrink: 0; }
+  .rank-preview {
+    display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .rank-chip {
+    padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;
+    border: 2px solid;
+  }
+  .rank-chip.trainee { border-color: #aaa; color: #666; background: #f5f5f5; }
+  .rank-chip.apprentice { border-color: var(--uva-blue); color: var(--uva-blue); background: #e8f0fb; }
+  .rank-chip.expert { border-color: var(--uva-green); color: var(--uva-green); background: #e8f5ee; }
+  .rank-chip.master { border-color: var(--gold-dark); color: #7a5800; background: #fff8e0; }
+
+  /* ── RESULTS SCREEN ── */
+  .results-card {
+    background: rgba(255,255,255,0.97);
+    border-radius: 20px;
+    padding: 36px 32px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  }
+  .results-score-ring {
+    width: 130px; height: 130px;
+    border-radius: 50%;
+    background: conic-gradient(var(--uva-blue) 0%, var(--uva-green) 100%);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 0 0 6px white, 0 0 0 8px var(--gold);
+    position: relative;
+  }
+  .results-score-inner {
+    width: 100px; height: 100px;
+    background: white;
+    border-radius: 50%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+  }
+  .results-score-inner .big-num { font-size: 2rem; font-weight: 900; color: var(--uva-blue-dark); line-height: 1; }
+  .results-score-inner .small-label { font-size: 0.65rem; color: var(--text-mid); font-weight: 600; }
+  .results-rank-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+    color: #1a1a00;
+    padding: 10px 24px;
+    border-radius: 24px;
+    font-weight: 900;
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .results-breakdown {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    margin: 20px 0;
+  }
+  .breakdown-item {
+    background: #f0f4fb;
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .breakdown-item .b-num { font-size: 1.5rem; font-weight: 900; color: var(--uva-blue); }
+  .breakdown-item .b-label { font-size: 0.72rem; color: var(--text-mid); font-weight: 600; margin-top: 2px; }
+  .cert-badge {
+    background: linear-gradient(135deg, #1B5EAF, #1E7A3E);
+    color: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  /* ── CONFETTI ── */
+  #confetti-canvas {
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── STREAK POPUP ── */
+  .streak-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--streak-orange), #e74c3c);
+    color: white;
+    padding: 20px 36px;
+    border-radius: 20px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    z-index: 1000;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+  }
+  .streak-popup.show { transform: translate(-50%, -50%) scale(1); }
+
+  /* ── BADGE POPUP ── */
+  .badge-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: white;
+    border: 4px solid var(--gold);
+    border-radius: 20px;
+    padding: 28px 36px;
+    z-index: 1001;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+    min-width: 260px;
+  }
+  .badge-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .badge-popup .badge-icon { font-size: 3.5rem; margin-bottom: 8px; }
+  .badge-popup h3 { color: var(--uva-blue-dark); font-size: 1.1rem; margin-bottom: 4px; }
+  .badge-popup p { color: var(--text-mid); font-size: 0.82rem; }
+
+  /* ── MISSION TABS ── */
+  .mission-tabs {
+    display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .mission-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 2px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.08);
+    cursor: default;
+    transition: all 0.3s;
+  }
+  .mission-tab.active { background: white; color: var(--uva-blue); border-color: white; }
+  .mission-tab.done { background: var(--uva-green); color: white; border-color: var(--uva-green); }
+
+  /* ── PROCESS STEPS ── */
+  .process-steps { display: flex; flex-direction: column; gap: 10px; }
+  .process-step {
+    background: #f5f8ff;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+  .process-step:hover:not(.placed) { border-color: var(--uva-blue); background: #e8f0fb; }
+  .process-step.placed { opacity: 0.4; cursor: default; }
+  .step-num {
+    width: 32px; height: 32px;
+    background: var(--uva-blue);
+    color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .sequence-slots { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+  .sequence-slot {
+    background: #f0f4fb;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-height: 48px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 0.85rem;
+    color: #aaa;
+    transition: all 0.2s;
+  }
+  .sequence-slot.filled { background: #e8f0fb; border-color: var(--uva-blue); color: var(--text-dark); }
+  .sequence-slot.correct-slot { background: #d4edda; border-color: var(--success); color: var(--success); }
+  .sequence-slot.wrong-slot { background: #fde8e8; border-color: var(--error); color: var(--error); }
+  .slot-num {
+    width: 26px; height: 26px;
+    background: var(--border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 0.75rem;
+    flex-shrink: 0;
+    color: var(--text-mid);
+  }
+  .sequence-slot.filled .slot-num { background: var(--uva-blue); color: white; }
+
+  /* ── UI MOCKUP ── */
+  .ui-mockup {
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .ui-toolbar {
+    background: #f1f3f4;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 12px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .ui-toolbar-btn {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .ui-toolbar-btn:hover { background: #e8eaed; }
+  .ui-toolbar-btn.highlight { background: #e8f0fb; border-color: var(--uva-blue); color: var(--uva-blue); }
+  .ui-doc-area {
+    padding: 16px 20px;
+    min-height: 80px;
+    font-size: 0.85rem;
+    color: var(--text-dark);
+    line-height: 1.6;
+  }
+  .ui-styles-menu {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 4px 0;
+    min-width: 160px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: none;
+    position: absolute;
+    z-index: 10;
+  }
+  .ui-styles-menu.open { display: block; }
+  .ui-style-item {
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .ui-style-item:hover { background: #e8f0fb; }
+  .ui-style-item.h1-style { font-size: 1.1rem; font-weight: 700; }
+  .ui-style-item.h2-style { font-size: 0.95rem; font-weight: 700; }
+  .ui-style-item.normal-style { font-size: 0.82rem; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .header { padding: 10px 14px; }
+    .header-title h1 { font-size: 0.9rem; }
+    .intro-card { padding: 24px 18px; }
+    .results-breakdown { grid-template-columns: repeat(3,1fr); }
+    .drag-area { flex-direction: column; }
+    .main { padding: 14px 10px 30px; }
+    .question-card { padding: 18px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div class="streak-popup" id="streakPopup"></div>
+<div class="badge-popup" id="badgePopup">
+  <div class="badge-icon" id="badgeIcon"></div>
+  <h3 id="badgeTitle"></h3>
+  <p id="badgeDesc"></p>
+</div>
+
+<!-- RIBBON -->
+<div class="ribbon-banner">✦ Virtue  ·  Vigor  ·  Vision ✦  |  University View Academy  |  Computer Tech Literacy</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-left">
+    <div class="uva-crest">🏛️</div>
+    <div class="header-title">
+      <h1>Digital Architect's Master Guide</h1>
+      <p>Unit 6 · Google Docs Certification Blueprint · Advanced Productivity</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="streak-display" id="streakDisplay">🔥 <span id="streakCount">0</span> Streak!</div>
+    <div class="score-display">⭐ <span id="headerScore">0</span> pts</div>
+    <div class="rank-badge">🎖️ <span id="headerRank">Trainee</span></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- MISSION TABS -->
+  <div class="mission-tabs" id="missionTabs" style="display:none;">
+    <div class="mission-tab" id="tab0">M1: Cloud</div>
+    <div class="mission-tab" id="tab1">M2: Styles</div>
+    <div class="mission-tab" id="tab2">M3: Citations</div>
+    <div class="mission-tab" id="tab3">M4: Tables</div>
+    <div class="mission-tab" id="tab4">M5: Collab</div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- INTRO SCREEN -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="screen active" id="screen-intro">
+    <div class="intro-card">
+      <div class="intro-icon">🏛️</div>
+      <h2>Welcome, Digital Architect!</h2>
+      <p>You've been selected for the <strong>UVA Google Docs Certification Blueprint</strong>. Complete 5 elite missions to earn your rank and prove your mastery of professional document design.</p>
+      <div class="objectives-list">
+        <h4>🎯 Mission Briefing – Unit 6 Objectives</h4>
+        <ul>
+          <li>Contrast cloud vs. local workflows to eliminate version chaos</li>
+          <li>Implement semantic architecture using Styles & Document Outline</li>
+          <li>Apply APA & MLA professional formatting standards</li>
+          <li>Utilize tables and image wrapping for data compartmentalization</li>
+          <li>Execute collaborative workflows with permission tiers & version history</li>
+        </ul>
+      </div>
+      <div class="rank-preview">
+        <div class="rank-chip trainee">🔰 Trainee</div>
+        <div style="display:flex;align-items:center;color:rgba(255,255,255,0.5);font-size:1.2rem;">→</div>
+        <div class="rank-chip apprentice">⚙️ Apprentice</div>
+        <div style="display:flex;align-items:center;color:rgba(255,255,255,0.5);font-size:1.2rem;">→</div>
+        <div class="rank-chip expert">🌿 Expert</div>
+        <div style="display:flex;align-items:center;color:rgba(255,255,255,0.5);font-size:1.2rem;">→</div>
+        <div class="rank-chip master">👑 Master</div>
+      </div>
+      <button class="btn-primary" style="font-size:1rem;padding:14px 36px;" onclick="startGame()">🚀 Begin Missions</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- MISSION 1: Cloud vs Local (MCQ Scenario) -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-0">
+    <div class="mission-hud">
+      <div class="mission-header">
+        <span class="mission-tag">Mission 1 of 5</span>
+        <span class="mission-progress-text" id="m0-progress">Question 1 of 3</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="m0-bar"></div></div>
+      <div class="mission-title">☁️ Cloud Architecture vs. Version Chaos</div>
+      <div class="mission-subtitle">Identify the correct cloud-based workflow decisions to eliminate version conflicts.</div>
+    </div>
+    <div id="m0-container"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- MISSION 2: Styles & Outline (UI Simulation) -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-1">
+    <div class="mission-hud">
+      <div class="mission-header">
+        <span class="mission-tag">Mission 2 of 5</span>
+        <span class="mission-progress-text" id="m1-progress">Question 1 of 3</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="m1-bar"></div></div>
+      <div class="mission-title">🎨 Semantic Architecture: Styles & Document Outline</div>
+      <div class="mission-subtitle">Apply the correct heading styles to build an accessible document structure.</div>
+    </div>
+    <div id="m1-container"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- MISSION 3: APA/MLA Formatting (Drag & Drop) -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-2">
+    <div class="mission-hud">
+      <div class="mission-header">
+        <span class="mission-tag">Mission 3 of 5</span>
+        <span class="mission-progress-text" id="m2-progress">Question 1 of 3</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="m2-bar"></div></div>
+      <div class="mission-title">📚 Citation Style Architect: APA & MLA Standards</div>
+      <div class="mission-subtitle">Drag each formatting rule to its correct citation style.</div>
+    </div>
+    <div id="m2-container"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- MISSION 4: Tables & Image Wrapping (MCQ) -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-3">
+    <div class="mission-hud">
+      <div class="mission-header">
+        <span class="mission-tag">Mission 4 of 5</span>
+        <span class="mission-progress-text" id="m3-progress">Question 1 of 3</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="m3-bar"></div></div>
+      <div class="mission-title">📊 Information Design: Tables & Image Wrapping</div>
+      <div class="mission-subtitle">Choose the correct tool for each data compartmentalization scenario.</div>
+    </div>
+    <div id="m3-container"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- MISSION 5: Collaboration (Sequence) -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-4">
+    <div class="mission-hud">
+      <div class="mission-header">
+        <span class="mission-tag">Mission 5 of 5</span>
+        <span class="mission-progress-text" id="m4-progress">Question 1 of 3</span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="m4-bar"></div></div>
+      <div class="mission-title">🤝 Collaborative Workflow Command Center</div>
+      <div class="mission-subtitle">Sequence the correct steps for secure document collaboration.</div>
+    </div>
+    <div id="m4-container"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- RESULTS SCREEN -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="screen" id="screen-results">
+    <div class="results-card">
+      <div style="font-size:0.8rem;color:var(--uva-blue);font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">🏛️ University View Academy · Mission Complete</div>
+      <div class="results-score-ring">
+        <div class="results-score-inner">
+          <div class="big-num" id="finalScoreNum">0</div>
+          <div class="small-label">POINTS</div>
+        </div>
+      </div>
+      <div class="results-rank-badge" id="finalRankBadge">🎖️ Trainee</div>
+      <div class="results-breakdown">
+        <div class="breakdown-item">
+          <div class="b-num" id="finalCorrect">0</div>
+          <div class="b-label">Correct</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="b-num" id="finalAccuracy">0%</div>
+          <div class="b-label">Accuracy</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="b-num" id="finalBestStreak">0</div>
+          <div class="b-label">Best Streak</div>
+        </div>
+      </div>
+      <div class="cert-badge" id="certBadge">
+        🎓 <strong>Google Docs Certification Blueprint</strong><br>
+        <span id="certMessage">Keep practicing to earn your certification!</span>
+      </div>
+      <div style="font-size:0.8rem;color:var(--text-mid);margin-bottom:20px;font-style:italic;">"Virtue, Vigor, Vision" — University View Academy</div>
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn-primary" onclick="restartGame()">🔄 Retry Missions</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// GAME STATE
+// ═══════════════════════════════════════════════════════════
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let totalCorrect = 0;
+let totalQuestions = 0;
+let currentMission = 0;
+let currentQ = 0;
+const TOTAL_MISSIONS = 5;
+const RANKS = [
+  { name: 'Trainee', icon: '🔰', min: 0 },
+  { name: 'Apprentice', icon: '⚙️', min: 150 },
+  { name: 'Expert', icon: '🌿', min: 300 },
+  { name: 'Master', icon: '👑', min: 420 }
+];
+
+// ═══════════════════════════════════════════════════════════
+// MISSION DATA
+// ═══════════════════════════════════════════════════════════
+
+// MISSION 1: Cloud vs Local (MCQ)
+const m0Questions = [
+  {
+    type: 'mcq',
+    scenario: '📁 Scenario: Your team is working on a group research paper. Jayla saves "FinalDraft.docx" to her desktop. Marcus emails "FinalDraft_v2.docx". Priya uploads "FinalDraft_REAL_FINAL.docx" to a USB drive.',
+    q: 'What is the PRIMARY problem with this workflow, and what is the Google Docs solution?',
+    options: [
+      'The files are too large — use Google Drive compression',
+      'Version chaos: multiple conflicting copies exist. Google Docs auto-saves one live version in the cloud, eliminating duplicate files',
+      'The team needs to use Microsoft OneDrive instead',
+      'Email attachments are the most reliable sharing method'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Google Docs maintains ONE authoritative version in the cloud. Auto-save happens every few seconds — no more "FinalDraft_REAL_FINAL_v3" chaos!'
+  },
+  {
+    type: 'mcq',
+    scenario: '💻 Scenario: Your internet goes out during class. You need to keep working on your Google Doc.',
+    q: 'Which Google Docs feature allows you to continue editing without internet access?',
+    options: [
+      'Google Docs cannot work offline — you must wait for internet',
+      'Download as .docx and edit in Microsoft Word',
+      'Enable offline mode in Google Drive settings (chrome://settings) so Docs syncs when reconnected',
+      'Use the Google Docs mobile app only'
+    ],
+    correct: 2,
+    feedback: '✅ Correct! In Google Drive settings, toggle "Offline" to enable offline editing. Changes sync automatically when your connection is restored.'
+  },
+  {
+    type: 'mcq',
+    scenario: '🕐 Scenario: You accidentally deleted two paragraphs from your essay 20 minutes ago and just noticed.',
+    q: 'How do you recover the deleted content in Google Docs?',
+    options: [
+      'Press Ctrl+Z repeatedly until you reach 20 minutes ago',
+      'Go to File → Version History → See Version History, then browse timestamps to restore the previous version',
+      'Contact your teacher — the content is permanently lost',
+      'Check your email for an auto-backup'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! File → Version History → See Version History (Ctrl+Alt+Shift+H) shows a full timeline. You can restore any previous version or copy text from it!'
+  }
+];
+
+// MISSION 2: Styles & Outline (MCQ with UI context)
+const m1Questions = [
+  {
+    type: 'mcq',
+    scenario: '📄 Scenario: You\'re creating a research report with sections: Introduction, Methods, Results, and Discussion. Your teacher requires a Document Outline for navigation.',
+    q: 'Which Google Docs feature creates the Document Outline automatically AND improves screen reader accessibility?',
+    options: [
+      'Manually bold and increase font size for each section title',
+      'Use Format → Paragraph Styles → Heading 1 for main sections (creates outline + semantic HTML structure)',
+      'Insert a Table of Contents at the top of the document',
+      'Use Insert → Bookmark for each section'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! The Styles menu (Format → Paragraph Styles) applies semantic heading tags. Heading 1 = H1 in HTML, which screen readers use for navigation AND auto-populates the Document Outline panel (View → Show Document Outline).'
+  },
+  {
+    type: 'mcq',
+    scenario: '🏗️ Scenario: Your document has: a main title, 3 major sections, and 2 subsections under each major section.',
+    q: 'What is the correct heading hierarchy to apply using the Styles menu?',
+    options: [
+      'Title → Heading 1 → Heading 2 (Title for doc title, H1 for major sections, H2 for subsections)',
+      'Heading 1 → Heading 2 → Heading 3 for everything',
+      'Normal text with bold formatting for all levels',
+      'Title → Subtitle → Normal text'
+    ],
+    correct: 0,
+    feedback: '✅ Correct! Semantic hierarchy: Title (document name) → Heading 1 (major sections) → Heading 2 (subsections). This creates a proper outline tree and maintains accessibility standards.'
+  },
+  {
+    type: 'mcq',
+    scenario: '♿ Scenario: A student using a screen reader needs to navigate your 10-page document efficiently.',
+    q: 'Why does using Heading Styles (not just bold/large text) matter for accessibility?',
+    options: [
+      'Heading styles only affect visual appearance — they have no accessibility impact',
+      'Heading styles apply semantic HTML tags that screen readers use to jump between sections, while bold text is purely visual with no structural meaning',
+      'Screen readers read all text the same way regardless of formatting',
+      'Only PDF documents need heading styles for accessibility'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Semantic architecture means structure has MEANING. Heading styles create H1/H2/H3 tags that assistive technology uses for navigation. Bold text is just visual — it carries no structural information for screen readers.'
+  }
+];
+
+// MISSION 3: APA/MLA Drag & Drop
+const m2Questions = [
+  {
+    type: 'dragdrop',
+    q: 'Drag each formatting rule to its correct citation style: APA or MLA',
+    items: [
+      { id: 'dd1', text: '📅 Author Last, First. (Year). Title.', correct: 'apa', icon: '📅' },
+      { id: 'dd2', text: '📖 Author Last, First. Title. Publisher, Year.', correct: 'mla', icon: '📖' },
+      { id: 'dd3', text: '🔤 "Works Cited" page title', correct: 'mla', icon: '🔤' },
+      { id: 'dd4', text: '📋 "References" page title', correct: 'apa', icon: '📋' },
+      { id: 'dd5', text: '↩️ Hanging indent: 0.5" second line indent', correct: 'both', icon: '↩️' },
+      { id: 'dd6', text: '🔢 In-text: (Author, Year, p. #)', correct: 'apa', icon: '🔢' },
+    ],
+    zones: ['apa', 'mla'],
+    zoneLabels: { apa: '📋 APA Style', mla: '📖 MLA Style' },
+    feedback: '✅ Key difference: APA uses "References" + (Author, Year) in-text citations. MLA uses "Works Cited" + (Author Page#). BOTH require hanging indents (Format → Align & Indent → Indentation Options → Special: Hanging, 0.5")!'
+  },
+  {
+    type: 'mcq',
+    scenario: '📝 Scenario: You\'re formatting your Works Cited page in Google Docs for MLA style. Each citation needs a hanging indent.',
+    q: 'What is the correct Google Docs path to apply a hanging indent?',
+    options: [
+      'Press Tab on the second line of each citation manually',
+      'Format → Align & Indent → Indentation Options → Special indent: Hanging → 0.5 inches → Apply',
+      'Insert → Special Characters → Indent',
+      'Use the ruler: drag the left indent marker to 0.5"'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Format → Align & Indent → Indentation Options → Special: Hanging → 0.5". This applies a proper hanging indent where the first line is flush left and all subsequent lines are indented 0.5". Option D (ruler) also works but is less precise!'
+  },
+  {
+    type: 'mcq',
+    scenario: '🎓 Scenario: Your APA paper requires double-spacing throughout, 1-inch margins, and 12pt Times New Roman.',
+    q: 'Which Google Docs menu path sets document-wide line spacing to double?',
+    options: [
+      'Insert → Line Spacing → Double',
+      'Format → Line & Paragraph Spacing → Double (or type 2.0 in custom spacing)',
+      'Edit → Preferences → Spacing → 2.0',
+      'View → Document Layout → Double Space'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Format → Line & Paragraph Spacing → Double. For margins: File → Page Setup → set all margins to 1". For font: select all (Ctrl+A) → change font to Times New Roman, size 12.'
+  }
+];
+
+// MISSION 4: Tables & Image Wrapping (MCQ)
+const m3Questions = [
+  {
+    type: 'mcq',
+    scenario: '📊 Scenario: You need to present a comparison of 4 smartphones across 6 features (price, battery, camera, storage, weight, display) in your tech report.',
+    q: 'Which Google Docs tool is BEST for this data compartmentalization task?',
+    options: [
+      'Use bullet points with dashes to separate data',
+      'Insert → Table → 5 columns × 7 rows (1 header row + 6 feature rows, 1 label column + 4 phone columns)',
+      'Create a numbered list with each phone\'s specs',
+      'Insert a screenshot of a spreadsheet'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Insert → Table → select grid size. A 5×7 table (5 columns, 7 rows) gives you: Column 1 = feature labels, Columns 2-5 = phone data, Row 1 = headers. Tables compartmentalize data for easy comparison — a core information design principle!'
+  },
+  {
+    type: 'mcq',
+    scenario: '🖼️ Scenario: You insert a product image into your report, but it pushes all your text down and creates a huge gap.',
+    q: 'Which image wrapping option in Google Docs allows text to flow around the image?',
+    options: [
+      'Image options → Text wrapping → In line (default — this is what\'s causing the gap)',
+      'Image options → Text wrapping → Wrap text (text flows around the image on both sides)',
+      'Image options → Text wrapping → Break text (text appears above and below only)',
+      'Right-click → Move to drawing'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Click the image → Image options (or right-click) → Text wrapping → "Wrap text" allows text to flow around the image. "In line" (default) treats the image like a character, causing large gaps. "Break text" puts text only above/below.'
+  },
+  {
+    type: 'mcq',
+    scenario: '🎨 Scenario: You want to add a border and background color to a table cell to highlight important data.',
+    q: 'How do you format individual table cells in Google Docs?',
+    options: [
+      'Table formatting is not possible in Google Docs',
+      'Select the cell(s) → right-click → Table properties → Cell background color / Border color & width',
+      'Format → Table → Cell Style',
+      'Insert → Drawing → add colored rectangle over the cell'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Select cell(s) → right-click → Table properties. Here you can set: Cell background color, Border color, Border width, Cell padding, and Vertical alignment. This is the professional way to create visually organized data tables!'
+  }
+];
+
+// MISSION 5: Collaboration Sequence
+const m4Questions = [
+  {
+    type: 'mcq',
+    scenario: '🔐 Scenario: You\'re sharing a Google Doc with your study group. Some members should only READ, one should be able to COMMENT, and you want to be the only one who can EDIT.',
+    q: 'Which permission tier setup is correct in Google Docs Share settings?',
+    options: [
+      'Share with "Anyone with the link" as Editor for everyone',
+      'Viewer = read only | Commenter = view + add comments | Editor = full edit access. Set each person\'s role individually via Share → Add people → choose role',
+      'There are only two options: Public and Private',
+      'Use password protection instead of permission tiers'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Google Docs has 3 permission tiers: Viewer (read-only), Commenter (can suggest/comment, cannot edit), Editor (full access). Share → Add people → type email → select role from dropdown. You can also restrict sharing so editors cannot change permissions!'
+  },
+  {
+    type: 'sequence',
+    q: 'A classmate made unauthorized changes to your shared Google Doc. Sequence the correct steps to restore the original version using Version History.',
+    steps: [
+      { id: 's1', text: 'Open the affected Google Doc', correctPos: 0 },
+      { id: 's2', text: 'Click File → Version History → See Version History', correctPos: 1 },
+      { id: 's3', text: 'Browse the timestamp list on the right panel to find the version before the changes', correctPos: 2 },
+      { id: 's4', text: 'Click the correct version to preview it in the main window', correctPos: 3 },
+      { id: 's5', text: 'Click "Restore this version" button at the top', correctPos: 4 },
+    ],
+    feedback: '✅ Correct sequence! Version History (Ctrl+Alt+Shift+H) is your document\'s time machine. Each auto-save creates a restore point. You can also name important versions: File → Version History → Name current version.'
+  },
+  {
+    type: 'mcq',
+    scenario: '💬 Scenario: Your teacher wants to give feedback on specific sentences in your Google Doc without changing your text.',
+    q: 'What is the correct tool for your teacher to use?',
+    options: [
+      'Edit the text directly with Track Changes enabled',
+      'Insert → Comment (Ctrl+Alt+M) — adds a comment bubble linked to selected text without modifying the document',
+      'Use the Chat feature in the top right corner',
+      'Email the feedback separately'
+    ],
+    correct: 1,
+    feedback: '✅ Correct! Insert → Comment (or Ctrl+Alt+M) creates a comment bubble anchored to selected text. The teacher can comment without altering your document. You can then Reply, Resolve, or act on each comment. Suggesting mode (Edit → Suggesting) shows tracked changes that the owner can Accept or Reject.'
+  }
+];
+
+const allMissions = [m0Questions, m1Questions, m2Questions, m3Questions, m4Questions];
+const missionStates = [
+  { qIndex: 0, answered: false, score: 0 },
+  { qIndex: 0, answered: false, score: 0 },
+  { qIndex: 0, answered: false, score: 0 },
+  { qIndex: 0, answered: false, score: 0 },
+  { qIndex: 0, answered: false, score: 0 }
+];
+
+// ═══════════════════════════════════════════════════════════
+// RENDER FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+
+function renderMission(mIdx) {
+  const questions = allMissions[mIdx];
+  const state = missionStates[mIdx];
+  const q = questions[state.qIndex];
+  const containerId = `m${mIdx}-container`;
+  const container = document.getElementById(containerId);
+
+  // Update progress
+  const pct = (state.qIndex / questions.length) * 100;
+  document.getElementById(`m${mIdx}-bar`).style.width = pct + '%';
+  document.getElementById(`m${mIdx}-progress`).textContent = `Question ${state.qIndex + 1} of ${questions.length}`;
+
+  if (q.type === 'mcq') {
+    container.innerHTML = renderMCQ(q, mIdx);
+  } else if (q.type === 'dragdrop') {
+    container.innerHTML = renderDragDrop(q, mIdx);
+    initDragDrop(mIdx);
+  } else if (q.type === 'sequence') {
+    container.innerHTML = renderSequence(q, mIdx);
+    initSequence(mIdx);
+  }
+}
+
+function renderMCQ(q, mIdx) {
+  const letters = ['A', 'B', 'C', 'D'];
+  let html = `<div class="question-card">
+    <span class="q-type-label">🎯 Scenario Challenge</span>`;
+  if (q.scenario) html += `<div class="q-scenario">${q.scenario}</div>`;
+  html += `<div class="q-text">${q.q}</div>
+    <div class="options-grid">`;
+  q.options.forEach((opt, i) => {
+    html += `<button class="option-btn" onclick="checkMCQ(${mIdx}, ${i})">
+      <span class="opt-letter">${letters[i]}</span>
+      <span>${opt}</span>
+    </button>`;
+  });
+  html += `</div>
+    <div class="feedback-box" id="fb-${mIdx}"></div>
+    <div class="btn-row" id="next-row-${mIdx}" style="display:none;">
+      <button class="btn-green" onclick="nextQuestion(${mIdx})">Next →</button>
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderDragDrop(q, mIdx) {
+  let html = `<div class="question-card">
+    <span class="q-type-label">🔀 Drag & Drop Challenge</span>
+    <div class="q-text">${q.q}</div>
+    <div class="drag-area">
+      <div class="drag-column">
+        <h4>📦 Formatting Rules</h4>
+        <div class="drag-items" id="drag-source-${mIdx}">`;
+  q.items.forEach(item => {
+    html += `<div class="drag-item" draggable="true" data-id="${item.id}" data-correct="${item.correct}" id="drag-${item.id}">
+      <span>${item.icon}</span><span>${item.text}</span>
+    </div>`;
+  });
+  html += `</div></div>
+      <div class="drag-column">`;
+  q.zones.forEach(zone => {
+    html += `<div style="margin-bottom:12px;">
+      <div class="drop-label">${q.zoneLabels[zone]}</div>
+      <div class="drop-zone" id="zone-${mIdx}-${zone}" data-zone="${zone}"></div>
+    </div>`;
+  });
+  html += `</div></div>
+    <div class="feedback-box" id="fb-${mIdx}"></div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="checkDragDrop(${mIdx})">✅ Check Answers</button>
+      <div id="next-row-${mIdx}" style="display:none;"><button class="btn-green" onclick="nextQuestion(${mIdx})">Next →</button></div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderSequence(q, mIdx) {
+  const shuffled = [...q.steps].sort(() => Math.random() - 0.5);
+  let html = `<div class="question-card">
+    <span class="q-type-label">🔢 Sequence Challenge</span>
+    <div class="q-text">${q.q}</div>
+    <p style="font-size:0.82rem;color:var(--text-mid);margin-bottom:12px;">Click steps in the correct order (1→5):</p>
+    <div class="process-steps" id="seq-steps-${mIdx}">`;
+  shuffled.forEach(step => {
+    html += `<div class="process-step" id="step-${step.id}" onclick="selectStep(${mIdx}, '${step.id}', ${step.correctPos})">
+      <div class="step-num">?</div>
+      <span>${step.text}</span>
+    </div>`;
+  });
+  html += `</div>
+    <p style="font-size:0.82rem;color:var(--text-mid);margin:12px 0 6px;">Your sequence:</p>
+    <div class="sequence-slots" id="seq-slots-${mIdx}">`;
+  for (let i = 0; i < q.steps.length; i++) {
+    html += `<div class="sequence-slot" id="slot-${mIdx}-${i}">
+      <div class="slot-num">${i + 1}</div>
+      <span style="color:#aaa;font-size:0.82rem;">Click a step above...</span>
+    </div>`;
+  }
+  html += `</div>
+    <div class="feedback-box" id="fb-${mIdx}"></div>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="resetSequence(${mIdx})">↺ Reset</button>
+      <button class="btn-primary" id="check-seq-${mIdx}" onclick="checkSequence(${mIdx})" disabled>✅ Check Order</button>
+      <div id="next-row-${mIdx}" style="display:none;"><button class="btn-green" onclick="nextQuestion(${mIdx})">Next →</button></div>
+    </div>
+  </div>`;
+  return html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INTERACTION HANDLERS
+// ═══════════════════════════════════════════════════════════
+
+function checkMCQ(mIdx, chosen) {
+  const q = allMissions[mIdx][missionStates[mIdx].qIndex];
+  const btns = document.querySelectorAll(`#m${mIdx}-container .option-btn`);
+  btns.forEach(b => b.disabled = true);
+  const isCorrect = chosen === q.correct;
+  btns[chosen].classList.add(isCorrect ? 'correct' : 'wrong');
+  if (!isCorrect) btns[q.correct].classList.add('correct');
+  showFeedback(mIdx, isCorrect, q.feedback);
+  updateScore(isCorrect, mIdx);
+  document.getElementById(`next-row-${mIdx}`).style.display = 'flex';
+}
+
+// Drag & Drop state
+let dragState = { dragId: null };
+
+function initDragDrop(mIdx) {
+  setTimeout(() => {
+    document.querySelectorAll('.drag-item').forEach(item => {
+      item.addEventListener('dragstart', e => {
+        dragState.dragId = item.dataset.id;
+        item.classList.add('dragging');
+      });
+      item.addEventListener('dragend', () => item.classList.remove('dragging'));
+    });
+    document.querySelectorAll('.drop-zone').forEach(zone => {
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const item = document.getElementById(`drag-${dragState.dragId}`);
+        if (item) zone.appendChild(item);
+      });
+    });
+  }, 100);
+}
+
+function checkDragDrop(mIdx) {
+  const q = allMissions[mIdx][missionStates[mIdx].qIndex];
+  let correct = 0;
+  q.zones.forEach(zone => {
+    const zoneEl = document.getElementById(`zone-${mIdx}-${zone}`);
+    const items = zoneEl.querySelectorAll('.drag-item');
+    let zoneCorrect = true;
+    items.forEach(item => {
+      const itemData = q.items.find(i => i.id === item.dataset.id);
+      if (itemData.correct !== zone && itemData.correct !== 'both') {
+        zoneCorrect = false;
+      }
+    });
+    if (zoneCorrect && items.length > 0) {
+      zoneEl.classList.add('correct-zone');
+      correct++;
+    } else {
+      zoneEl.classList.add('wrong-zone');
+    }
+  });
+  // Check "both" items
+  q.items.filter(i => i.correct === 'both').forEach(item => {
+    const el = document.getElementById(`drag-${item.id}`);
+    if (el) el.style.background = 'linear-gradient(135deg, #1E7A3E, #28a052)';
+  });
+  const isCorrect = correct === q.zones.length;
+  showFeedback(mIdx, isCorrect, q.feedback);
+  updateScore(isCorrect, mIdx);
+  document.querySelector(`#m${mIdx}-container .btn-primary`).disabled = true;
+  document.getElementById(`next-row-${mIdx}`).style.display = 'flex';
+}
+
+// Sequence state
+let seqState = {};
+
+function initSequence(mIdx) {
+  seqState[mIdx] = { placed: [], nextSlot: 0 };
+}
+
+function selectStep(mIdx, stepId, correctPos) {
+  const state = seqState[mIdx];
+  if (!state) return;
+  const stepEl = document.getElementById(`step-${stepId}`);
+  if (stepEl.classList.contains('placed')) return;
+  const slotIdx = state.nextSlot;
+  if (slotIdx >= allMissions[mIdx][missionStates[mIdx].qIndex].steps.length) return;
+  const slot = document.getElementById(`slot-${mIdx}-${slotIdx}`);
+  slot.classList.add('filled');
+  slot.querySelector('.slot-num').style.background = 'var(--uva-blue)';
+  slot.querySelector('.slot-num').style.color = 'white';
+  slot.innerHTML = `<div class="slot-num">${slotIdx + 1}</div><span>${stepEl.querySelector('span:last-child').textContent}</span>`;
+  stepEl.classList.add('placed');
+  stepEl.querySelector('.step-num').textContent = slotIdx + 1;
+  state.placed.push({ stepId, correctPos, slotIdx });
+  state.nextSlot++;
+  if (state.nextSlot >= allMissions[mIdx][missionStates[mIdx].qIndex].steps.length) {
+    document.getElementById(`check-seq-${mIdx}`).disabled = false;
+  }
+}
+
+function resetSequence(mIdx) {
+  seqState[mIdx] = { placed: [], nextSlot: 0 };
+  renderMission(mIdx);
+}
+
+function checkSequence(mIdx) {
+  const state = seqState[mIdx];
+  const q = allMissions[mIdx][missionStates[mIdx].qIndex];
+  let correct = 0;
+  state.placed.forEach(p => {
+    const slot = document.getElementById(`slot-${mIdx}-${p.slotIdx}`);
+    if (p.correctPos === p.slotIdx) {
+      slot.classList.add('correct-slot');
+      correct++;
+    } else {
+      slot.classList.add('wrong-slot');
+    }
+  });
+  const isCorrect = correct === q.steps.length;
+  showFeedback(mIdx, isCorrect, q.feedback);
+  updateScore(isCorrect, mIdx);
+  document.getElementById(`check-seq-${mIdx}`).disabled = true;
+  document.getElementById(`next-row-${mIdx}`).style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCORE & PROGRESSION
+// ═══════════════════════════════════════════════════════════
+
+function updateScore(isCorrect, mIdx) {
+  totalQuestions++;
+  if (isCorrect) {
+    totalCorrect++;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    const pts = 10 + (streak > 1 ? (streak - 1) * 5 : 0);
+    score += pts;
+    missionStates[mIdx].score += pts;
+    updateStreakDisplay();
+    if (streak === 3) showStreakPopup('🔥 3 in a Row! +Bonus XP!');
+    if (streak === 5) showStreakPopup('⚡ UNSTOPPABLE! 5 Streak!');
+  } else {
+    streak = 0;
+    updateStreakDisplay();
+  }
+  document.getElementById('headerScore').textContent = score;
+  updateRank();
+}
+
+function updateRank() {
+  let rank = RANKS[0];
+  for (let r of RANKS) { if (score >= r.min) rank = r; }
+  const prev = document.getElementById('headerRank').textContent;
+  document.getElementById('headerRank').textContent = rank.icon + ' ' + rank.name;
+  if (prev !== rank.icon + ' ' + rank.name && prev !== 'Trainee') {
+    showBadge(rank.icon, 'Rank Up! ' + rank.name, 'You\'ve earned the ' + rank.name + ' rank!');
+    launchConfetti();
+  }
+}
+
+function updateStreakDisplay() {
+  const el = document.getElementById('streakDisplay');
+  const cnt = document.getElementById('streakCount');
+  if (streak >= 2) {
+    el.style.display = 'flex';
+    cnt.textContent = streak;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function showFeedback(mIdx, isCorrect, text) {
+  const fb = document.getElementById(`fb-${mIdx}`);
+  fb.className = 'feedback-box ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+  fb.innerHTML = `<span class="feedback-icon">${isCorrect ? '✅' : '❌'}</span>${text}`;
+  fb.style.display = 'block';
+}
+
+function nextQuestion(mIdx) {
+  const state = missionStates[mIdx];
+  const questions = allMissions[mIdx];
+  state.qIndex++;
+  if (state.qIndex >= questions.length) {
+    // Mission complete
+    completeMission(mIdx);
+  } else {
+    renderMission(mIdx);
+  }
+}
+
+function completeMission(mIdx) {
+  // Mark tab done
+  const tab = document.getElementById(`tab${mIdx}`);
+  if (tab) { tab.classList.remove('active'); tab.classList.add('done'); tab.textContent = '✓ ' + tab.textContent.replace('✓ ', ''); }
+  launchConfetti();
+  showBadge('🏅', 'Mission ' + (mIdx + 1) + ' Complete!', 'Excellent work, Digital Architect!');
+  setTimeout(() => {
+    if (mIdx + 1 < TOTAL_MISSIONS) {
+      currentMission = mIdx + 1;
+      showScreen(currentMission);
+      const nextTab = document.getElementById(`tab${currentMission}`);
+      if (nextTab) nextTab.classList.add('active');
+    } else {
+      showResults();
+    }
+  }, 2000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SCREEN MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+
+function showScreen(idx) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const screenId = idx === 'results' ? 'screen-results' : `screen-${idx}`;
+  document.getElementById(screenId).classList.add('active');
+  if (typeof idx === 'number') renderMission(idx);
+  window.scrollTo(0, 0);
+}
+
+function startGame() {
+  document.getElementById('missionTabs').style.display = 'flex';
+  document.getElementById('tab0').classList.add('active');
+  showScreen(0);
+}
+
+function showResults() {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-results').classList.add('active');
+  document.getElementById('finalScoreNum').textContent = score;
+  document.getElementById('finalCorrect').textContent = totalCorrect;
+  document.getElementById('finalAccuracy').textContent = Math.round((totalCorrect / totalQuestions) * 100) + '%';
+  document.getElementById('finalBestStreak').textContent = bestStreak;
+  let rank = RANKS[0];
+  for (let r of RANKS) { if (score >= r.min) rank = r; }
+  document.getElementById('finalRankBadge').textContent = rank.icon + ' ' + rank.name;
+  const acc = Math.round((totalCorrect / totalQuestions) * 100);
+  let certMsg = '';
+  if (acc >= 90) certMsg = '🎓 Outstanding! You\'ve demonstrated Google Docs Mastery. Certification Ready!';
+  else if (acc >= 75) certMsg = '📚 Great work! Review a few concepts and you\'ll be certification-ready!';
+  else certMsg = '💪 Keep practicing! Review the mission feedback and retry to earn your certification.';
+  document.getElementById('certMessage').textContent = certMsg;
+  launchConfetti();
+  window.scrollTo(0, 0);
+}
+
+function restartGame() {
+  score = 0; streak = 0; bestStreak = 0; totalCorrect = 0; totalQuestions = 0; currentMission = 0;
+  missionStates.forEach(s => { s.qIndex = 0; s.answered = false; s.score = 0; });
+  document.getElementById('headerScore').textContent = '0';
+  document.getElementById('headerRank').textContent = '🔰 Trainee';
+  document.getElementById('streakDisplay').style.display = 'none';
+  document.querySelectorAll('.mission-tab').forEach((t, i) => {
+    t.classList.remove('active', 'done');
+    const labels = ['M1: Cloud', 'M2: Styles', 'M3: Citations', 'M4: Tables', 'M5: Collab'];
+    t.textContent = labels[i];
+  });
+  document.getElementById('missionTabs').style.display = 'none';
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-intro').classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ═══════════════════════════════════════════════════════════
+// VISUAL EFFECTS
+// ═══════════════════════════════════════════════════════════
+
+function showStreakPopup(msg) {
+  const el = document.getElementById('streakPopup');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 1800);
+}
+
+function showBadge(icon, title, desc) {
+  const el = document.getElementById('badgePopup');
+  document.getElementById('badgeIcon').textContent = icon;
+  document.getElementById('badgeTitle').textContent = title;
+  document.getElementById('badgeDesc').textContent = desc;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = [];
+  const colors = ['#1B5EAF', '#1E7A3E', '#F5C518', '#e74c3c', '#9b59b6', '#ffffff'];
+  for (let i = 0; i < 120; i++) {
+    pieces.push({
+      x: Math.random() * canvas.width,
+      y: -10,
+      w: Math.random() * 10 + 5,
+      h: Math.random() * 6 + 3,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * 4 + 2,
+      rot: Math.random() * 360,
+      rotV: (Math.random() - 0.5) * 8
+    });
+  }
+  let frame = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+      p.x += p.vx; p.y += p.vy; p.rot += p.rotV; p.vy += 0.05;
+    });
+    frame++;
+    if (frame < 120) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
