@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UVA | Google Sheets Mechanics & Financial Architecture</title>
+<style>
+  :root {
+    --blue: #1B5EAF;
+    --blue-dark: #134a8a;
+    --blue-light: #d6e4f7;
+    --green: #1E7A3E;
+    --green-light: #d4edda;
+    --gold: #F5A623;
+    --red: #C0392B;
+    --red-light: #fdecea;
+    --white: #ffffff;
+    --gray-light: #f4f6fb;
+    --gray: #e0e6ef;
+    --text: #1a2340;
+    --shadow: 0 4px 24px rgba(27,94,175,0.13);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--gray-light);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--blue) 70%, var(--green) 100%);
+    color: white;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .uva-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .uva-crest {
+    width: 54px; height: 54px;
+    background: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    flex-shrink: 0;
+  }
+  .uva-crest svg { width: 38px; height: 38px; }
+  .uva-title h1 { font-size: 1.25rem; font-weight: 800; letter-spacing: 1px; }
+  .uva-title p { font-size: 0.78rem; opacity: 0.85; letter-spacing: 0.5px; }
+  .rank-display {
+    background: rgba(255,255,255,0.15);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 12px;
+    padding: 8px 18px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .rank-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+  .rank-name { font-size: 1.1rem; font-weight: 800; }
+  .rank-icon { font-size: 1.4rem; }
+  .motto-ribbon {
+    background: var(--gold);
+    color: var(--blue-dark);
+    text-align: center;
+    padding: 7px 0;
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  }
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.18);
+    padding: 10px 32px 14px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .score-badge {
+    background: var(--gold);
+    color: var(--blue-dark);
+    border-radius: 20px;
+    padding: 4px 16px;
+    font-weight: 800;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+  .progress-outer {
+    flex: 1; min-width: 120px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 20px;
+    height: 12px;
+    overflow: hidden;
+  }
+  .progress-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), #fff176);
+    border-radius: 20px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+  .streak-badge {
+    background: #ff6b35;
+    color: white;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: none;
+    animation: pulse 0.5s ease;
+    white-space: nowrap;
+  }
+  @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.15)} 100%{transform:scale(1)} }
+
+  /* MAIN */
+  .main { max-width: 860px; margin: 0 auto; padding: 28px 16px 60px; }
+
+  /* MISSION CARD */
+  .mission-card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
+    display: none;
+    animation: fadeIn 0.4s ease;
+  }
+  .mission-card.active { display: block; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  .mission-header {
+    background: linear-gradient(90deg, var(--blue) 0%, var(--blue-dark) 100%);
+    color: white;
+    padding: 18px 24px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .mission-num {
+    background: var(--gold);
+    color: var(--blue-dark);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .mission-meta { flex: 1; }
+  .mission-tag {
+    font-size: 0.68rem;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 2px 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .mission-title { font-size: 1.05rem; font-weight: 800; }
+  .mission-subtitle { font-size: 0.8rem; opacity: 0.8; margin-top: 2px; }
+  .mission-pts {
+    background: rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 6px 12px;
+    text-align: center;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .mission-pts strong { display: block; font-size: 1.1rem; }
+
+  .mission-body { padding: 24px; }
+  .mission-question {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+  .mission-scenario {
+    background: var(--blue-light);
+    border-left: 4px solid var(--blue);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+  .mission-scenario strong { color: var(--blue-dark); }
+
+  /* OPTIONS */
+  .options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  @media(max-width:560px){ .options-grid { grid-template-columns: 1fr; } }
+  .option-btn {
+    background: var(--gray-light);
+    border: 2.5px solid var(--gray);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27,94,175,0.15);
+  }
+  .option-btn.correct {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: var(--green);
+  }
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: var(--red-light);
+    color: var(--red);
+  }
+  .option-btn:disabled { cursor: default; }
+  .opt-letter {
+    background: var(--blue);
+    color: white;
+    border-radius: 6px;
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 800;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .option-btn.correct .opt-letter { background: var(--green); }
+  .option-btn.wrong .opt-letter { background: var(--red); }
+
+  /* DRAG DROP */
+  .drag-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+    min-height: 54px;
+    background: var(--gray-light);
+    border: 2px dashed var(--gray);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .drag-item {
+    background: var(--blue);
+    color: white;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: grab;
+    font-size: 0.85rem;
+    font-weight: 700;
+    user-select: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    touch-action: none;
+  }
+  .drag-item:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(27,94,175,0.3); }
+  .drag-item.dragging { opacity: 0.5; }
+  .drop-zones { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+  .drop-zone {
+    border: 2.5px dashed var(--gray);
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s;
+    flex-wrap: wrap;
+  }
+  .drop-zone.drag-over { border-color: var(--blue); background: var(--blue-light); }
+  .drop-zone.correct-zone { border-color: var(--green); background: var(--green-light); }
+  .drop-zone.wrong-zone { border-color: var(--red); background: var(--red-light); }
+  .drop-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    white-space: nowrap;
+    min-width: 120px;
+  }
+  .drop-placeholder { color: #aaa; font-size: 0.8rem; font-style: italic; }
+
+  /* SPREADSHEET SIM */
+  .sheet-sim {
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 18px;
+    font-size: 0.82rem;
+  }
+  .sheet-toolbar {
+    background: #f1f3f4;
+    border-bottom: 1px solid var(--gray);
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    color: #555;
+  }
+  .sheet-toolbar span { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 2px 8px; }
+  .sheet-table { width: 100%; border-collapse: collapse; }
+  .sheet-table th {
+    background: #f1f3f4;
+    border: 1px solid #ddd;
+    padding: 5px 8px;
+    text-align: center;
+    font-weight: 700;
+    color: #555;
+    font-size: 0.78rem;
+  }
+  .sheet-table td {
+    border: 1px solid #ddd;
+    padding: 5px 8px;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+  .sheet-table td.row-header {
+    background: #f1f3f4;
+    font-weight: 700;
+    color: #555;
+    text-align: center;
+    width: 30px;
+  }
+  .sheet-table td.highlight { background: #e8f0fe; border: 2px solid var(--blue); }
+  .sheet-table td.formula-cell { background: #fff9e6; font-family: monospace; font-size: 0.78rem; }
+  .formula-bar {
+    background: white;
+    border-bottom: 1px solid var(--gray);
+    padding: 5px 10px;
+    font-family: monospace;
+    font-size: 0.82rem;
+    color: var(--blue-dark);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .formula-bar .fx { color: var(--blue); font-weight: 800; }
+
+  /* FEEDBACK */
+  .feedback-box {
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    display: none;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback-box.correct { background: var(--green-light); border: 2px solid var(--green); color: #145a2e; }
+  .feedback-box.wrong { background: var(--red-light); border: 2px solid var(--red); color: #7b1a1a; }
+  .feedback-icon { font-size: 1.3rem; margin-right: 6px; }
+
+  /* BUTTONS */
+  .btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:hover { background: var(--blue-dark); transform: translateY(-1px); }
+  .btn:disabled { background: #aaa; cursor: default; transform: none; }
+  .btn-green { background: var(--green); }
+  .btn-green:hover { background: #155c2e; }
+  .btn-gold { background: var(--gold); color: var(--blue-dark); }
+  .btn-gold:hover { background: #d4891a; }
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* FILL BLANK */
+  .fill-input {
+    border: 2.5px solid var(--gray);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+    font-family: monospace;
+    width: 100%;
+    max-width: 380px;
+    transition: border-color 0.2s;
+    outline: none;
+    color: var(--text);
+  }
+  .fill-input:focus { border-color: var(--blue); }
+  .fill-input.correct { border-color: var(--green); background: var(--green-light); }
+  .fill-input.wrong { border-color: var(--red); background: var(--red-light); }
+
+  /* RESULTS SCREEN */
+  #results-screen {
+    display: none;
+    background: white;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 40px 32px;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+  }
+  .results-badge {
+    font-size: 5rem;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .results-rank {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+  .results-score {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--gold);
+    margin: 10px 0;
+  }
+  .results-msg { font-size: 1rem; color: #555; margin-bottom: 24px; line-height: 1.6; }
+  .results-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .breakdown-item {
+    background: var(--gray-light);
+    border-radius: 12px;
+    padding: 14px 20px;
+    min-width: 100px;
+  }
+  .breakdown-item .bi-num { font-size: 1.6rem; font-weight: 900; color: var(--blue); }
+  .breakdown-item .bi-label { font-size: 0.75rem; color: #777; }
+
+  /* INTRO */
+  #intro-screen {
+    background: white;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 36px 32px;
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+  .intro-icon { font-size: 4rem; margin-bottom: 12px; }
+  .intro-title { font-size: 1.5rem; font-weight: 900; color: var(--blue); margin-bottom: 8px; }
+  .intro-sub { font-size: 0.95rem; color: #555; margin-bottom: 20px; line-height: 1.6; }
+  .mission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+  .mission-list-item {
+    background: var(--gray-light);
+    border-radius: 10px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.88rem;
+  }
+  .mission-list-item .mi-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .mission-list-item strong { color: var(--blue-dark); }
+
+  /* CONFETTI */
+  #confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* STREAK POPUP */
+  .streak-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, #ff6b35, #f7c59f);
+    color: white;
+    border-radius: 20px;
+    padding: 24px 40px;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+  }
+  .streak-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .streak-popup .sp-num { font-size: 3rem; font-weight: 900; }
+  .streak-popup .sp-text { font-size: 1rem; font-weight: 700; }
+
+  /* RANK UP POPUP */
+  .rankup-popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: linear-gradient(135deg, var(--blue), var(--green));
+    color: white;
+    border-radius: 20px;
+    padding: 30px 44px;
+    text-align: center;
+    z-index: 1001;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    pointer-events: none;
+  }
+  .rankup-popup.show { transform: translate(-50%, -50%) scale(1); }
+  .rankup-popup .rp-icon { font-size: 3.5rem; }
+  .rankup-popup .rp-title { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 2px; }
+  .rankup-popup .rp-rank { font-size: 2rem; font-weight: 900; }
+
+  /* TOOLTIP */
+  .tip-box {
+    background: #fffbe6;
+    border: 1.5px solid var(--gold);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    color: #7a5c00;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  /* ORDERING */
+  .order-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+  .order-item {
+    background: var(--gray-light);
+    border: 2px solid var(--gray);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    user-select: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .order-item:hover { border-color: var(--blue); box-shadow: 0 2px 8px rgba(27,94,175,0.12); }
+  .order-item.dragging-order { opacity: 0.4; }
+  .order-item.drag-over-order { border-color: var(--gold); background: #fffbe6; }
+  .order-handle { color: #aaa; font-size: 1.1rem; }
+  .order-num {
+    background: var(--blue);
+    color: white;
+    border-radius: 6px;
+    width: 26px; height: 26px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  /* RESPONSIVE */
+  @media(max-width:600px){
+    .header-top { padding: 14px 16px 8px; }
+    .progress-bar-wrap { padding: 8px 16px 12px; }
+    .main { padding: 16px 8px 40px; }
+    .mission-body { padding: 16px; }
+    .intro-screen, #results-screen { padding: 24px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="confetti-container"></div>
+<div class="streak-popup" id="streakPopup">
+  <div class="sp-num" id="streakNum">🔥 3</div>
+  <div class="sp-text">IN A ROW!</div>
+</div>
+<div class="rankup-popup" id="rankupPopup">
+  <div class="rp-icon" id="rankupIcon">⭐</div>
+  <div class="rp-title">RANK UP!</div>
+  <div class="rp-rank" id="rankupName">Apprentice</div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="uva-logo">
+      <div class="uva-crest">
+        <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="19" cy="19" r="18" fill="#1B5EAF"/>
+          <path d="M10 26 L19 10 L28 26" stroke="white" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+          <path d="M13 21 L25 21" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="19" cy="10" r="2.5" fill="#F5A623"/>
+          <path d="M14 26 Q19 30 24 26" stroke="#1E7A3E" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="uva-title">
+        <h1>UNIVERSITY VIEW ACADEMY</h1>
+        <p>Computer Tech Literacy · IC3 Digital Literacy Certification</p>
+      </div>
+    </div>
+    <div class="rank-display">
+      <div class="rank-icon" id="headerRankIcon">🎓</div>
+      <div class="rank-label">Current Rank</div>
+      <div class="rank-name" id="headerRankName">Trainee</div>
+    </div>
+  </div>
+  <div class="motto-ribbon">✦ Virtue · Vigor · Vision ✦</div>
+  <div class="progress-bar-wrap">
+    <div class="score-badge">⭐ <span id="scoreDisplay">0</span> pts</div>
+    <div class="progress-outer">
+      <div class="progress-inner" id="progressBar"></div>
+    </div>
+    <div class="streak-badge" id="streakBadge">🔥 <span id="streakCount">0</span> Streak</div>
+    <div style="color:rgba(255,255,255,0.85);font-size:0.8rem;white-space:nowrap;">
+      Mission <span id="missionNum">0</span>/7
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- INTRO -->
+  <div id="intro-screen">
+    <div class="intro-icon">🚀</div>
+    <div class="intro-title">Google Sheets Command Center</div>
+    <div class="intro-sub">
+      Welcome, UVA Cadet! Your mission: master <strong>Google Sheets Mechanics & Financial Architecture</strong>.<br>
+      Complete all 7 missions to earn your IC3 certification badge and achieve <strong>Master</strong> rank.
+    </div>
+    <div class="mission-list">
+      <div class="mission-list-item"><span class="mi-icon">🔗</span><div><strong>Mission 1:</strong> Cell Reference Recon — Identify relative, absolute & mixed references</div></div>
+      <div class="mission-list-item"><span class="mi-icon">🧩</span><div><strong>Mission 2:</strong> Reference Matching — Drag & drop reference types to scenarios</div></div>
+      <div class="mission-list-item"><span class="mi-icon">🧹</span><div><strong>Mission 3:</strong> Data Hygiene Protocol — Spot atomic value violations</div></div>
+      <div class="mission-list-item"><span class="mi-icon">💰</span><div><strong>Mission 4:</strong> PMT Formula Lab — Build the correct PMT function</div></div>
+      <div class="mission-list-item"><span class="mi-icon">📊</span><div><strong>Mission 5:</strong> Scientist's Logic Sequencer — Order dataset columns correctly</div></div>
+      <div class="mission-list-item"><span class="mi-icon">🏦</span><div><strong>Mission 6:</strong> Financial Architecture Audit — Identify unit isolation errors</div></div>
+      <div class="mission-list-item"><span class="mi-icon">🎯</span><div><strong>Mission 7:</strong> Master Challenge — Apply all concepts in a final scenario</div></div>
+    </div>
+    <div class="tip-box">💡 <span><strong>Rank System:</strong> Trainee → Apprentice → Expert → Master. Earn streaks for bonus points!</span></div>
+    <button class="btn btn-gold" onclick="startGame()" style="font-size:1.05rem;padding:14px 36px;">
+      🚀 Begin Missions
+    </button>
+  </div>
+
+  <!-- MISSIONS -->
+
+  <!-- MISSION 1: MCQ - Cell References -->
+  <div class="mission-card" id="mission-1">
+    <div class="mission-header">
+      <div class="mission-num">1</div>
+      <div class="mission-meta">
+        <span class="mission-tag">🔗 Reference Recon</span>
+        <div class="mission-title">Identify the Cell Reference Type</div>
+        <div class="mission-subtitle">Objective: Distinguish relative, absolute & mixed references</div>
+      </div>
+      <div class="mission-pts"><strong>+15</strong>pts</div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>📋 Scenario:</strong> Agent Rivera is building a tax calculator in Google Sheets. She copies a formula from cell C2 down to C10. She needs the formula to always reference the tax rate in cell <strong>B1</strong>, but allow the income values to shift with each row.
+      </div>
+      <div class="mission-question">Which formula correctly locks the tax rate cell while allowing the income reference to be relative?</div>
+      <div class="sheet-sim">
+        <div class="sheet-toolbar">
+          <span>fx</span> =B2*<span style="color:#1B5EAF;font-weight:800;">?</span>
+        </div>
+        <table class="sheet-table">
+          <tr><th></th><th>A</th><th>B</th><th>C</th></tr>
+          <tr><td class="row-header">1</td><td>Tax Rate</td><td class="highlight">0.08</td><td></td></tr>
+          <tr><td class="row-header">2</td><td>Income</td><td>50000</td><td class="formula-cell">← formula here</td></tr>
+          <tr><td class="row-header">3</td><td></td><td>62000</td><td class="formula-cell">← copies down</td></tr>
+        </table>
+      </div>
+      <div class="options-grid" id="m1-options">
+        <button class="option-btn" onclick="checkMCQ(1,'A','C')" data-val="A">
+          <span class="opt-letter">A</span>=B2*B1
+        </button>
+        <button class="option-btn" onclick="checkMCQ(1,'B','C')" data-val="B">
+          <span class="opt-letter">B</span>=B2*$B$1
+        </button>
+        <button class="option-btn" onclick="checkMCQ(1,'C','C')" data-val="C">
+          <span class="opt-letter">C</span>=$B2*$B$1
+        </button>
+        <button class="option-btn" onclick="checkMCQ(1,'D','C')" data-val="D">
+          <span class="opt-letter">D</span>=$B$2*B1
+        </button>
+      </div>
+      <div class="feedback-box" id="m1-feedback"></div>
+      <div class="btn-row">
+        <button class="btn" id="m1-next" onclick="nextMission(2)" style="display:none;">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 2: DRAG & DROP - Reference Types -->
+  <div class="mission-card" id="mission-2">
+    <div class="mission-header">
+      <div class="mission-num">2</div>
+      <div class="mission-meta">
+        <span class="mission-tag">🧩 Reference Matching</span>
+        <div class="mission-title">Match References to Their Behavior</div>
+        <div class="mission-subtitle">Objective: Apply correct reference type to each scenario</div>
+      </div>
+      <div class="mission-pts"><strong>+20</strong>pts</div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-question">Drag each reference type to the correct behavior description below.</div>
+      <div class="tip-box">💡 <span>Drag the blue tags from the bank into the matching drop zones.</span></div>
+      <div class="drag-area" id="drag-bank">
+        <div class="drag-item" draggable="true" data-ref="relative" id="drag-relative">A1 (Relative)</div>
+        <div class="drag-item" draggable="true" data-ref="absolute" id="drag-absolute">$A$1 (Absolute)</div>
+        <div class="drag-item" draggable="true" data-ref="mixed-col" id="drag-mixed-col">$A1 (Mixed-Col)</div>
+        <div class="drag-item" draggable="true" data-ref="mixed-row" id="drag-mixed-row">A$1 (Mixed-Row)</div>
+      </div>
+      <div class="drop-zones" id="drop-zones">
+        <div class="drop-zone" data-answer="absolute" id="dz-1">
+          <span class="drop-label">🔒 Always stays fixed</span>
+          <span class="drop-placeholder">Drop here...</span>
+        </div>
+        <div class="drop-zone" data-answer="relative" id="dz-2">
+          <span class="drop-label">↕↔ Shifts with copy direction</span>
+          <span class="drop-placeholder">Drop here...</span>
+        </div>
+        <div class="drop-zone" data-answer="mixed-col" id="dz-3">
+          <span class="drop-label">🔒↕ Column locked, row shifts</span>
+          <span class="drop-placeholder">Drop here...</span>
+        </div>
+        <div class="drop-zone" data-answer="mixed-row" id="dz-4">
+          <span class="drop-label">↔🔒 Row locked, column shifts</span>
+          <span class="drop-placeholder">Drop here...</span>
+        </div>
+      </div>
+      <div class="feedback-box" id="m2-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="checkDragDrop()" id="m2-check">✅ Check Matches</button>
+        <button class="btn" id="m2-next" onclick="nextMission(3)" style="display:none;">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 3: MCQ - Data Hygiene -->
+  <div class="mission-card" id="mission-3">
+    <div class="mission-header">
+      <div class="mission-num">3</div>
+      <div class="mission-meta">
+        <span class="mission-tag">🧹 Data Hygiene Protocol</span>
+        <div class="mission-title">Identify the Atomic Value Violation</div>
+        <div class="mission-subtitle">Objective: Apply data hygiene — atomic values & unit isolation</div>
+      </div>
+      <div class="mission-pts"><strong>+15</strong>pts</div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>📋 Scenario:</strong> Agent Chen is auditing a student budget spreadsheet. She must flag any cell that violates <strong>atomic value</strong> or <strong>unit isolation</strong> principles before the data is used in financial calculations.
+      </div>
+      <div class="mission-question">Which cell entry VIOLATES data hygiene protocols?</div>
+      <div class="sheet-sim">
+        <div class="formula-bar"><span class="fx">fx</span> [Select a cell to inspect]</div>
+        <table class="sheet-table">
+          <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+          <tr><td class="row-header">1</td><td><strong>Item</strong></td><td><strong>Cost</strong></td><td><strong>Qty</strong></td><td><strong>Total</strong></td></tr>
+          <tr><td class="row-header">2</td><td>Laptop</td><td>$899.99</td><td>1</td><td>=B2*C2</td></tr>
+          <tr><td class="row-header">3</td><td>Mouse & Keyboard</td><td>45</td><td>2</td><td>=B3*C3</td></tr>
+          <tr><td class="row-header">4</td><td>Monitor</td><td>320</td><td>1</td><td>=B4*C4</td></tr>
+          <tr><td class="row-header">5</td><td>USB Hub</td><td>25</td><td>3</td><td>=B5*C5</td></tr>
+        </table>
+      </div>
+      <div class="options-grid" id="m3-options">
+        <button class="option-btn" onclick="checkMCQ(3,'A','B')" data-val="A">
+          <span class="opt-letter">A</span>B2: "$899.99" — dollar sign included in cell
+        </button>
+        <button class="option-btn" onclick="checkMCQ(3,'B','B')" data-val="B">
+          <span class="opt-letter">B</span>A3: "Mouse & Keyboard" — two items in one cell
+        </button>
+        <button class="option-btn" onclick="checkMCQ(3,'C','B')" data-val="C">
+          <span class="opt-letter">C</span>D2: "=B2*C2" — formula instead of value
+        </button>
+        <button class="option-btn" onclick="checkMCQ(3,'D','B')" data-val="D">
+          <span class="opt-letter">D</span>C4: "1" — quantity should be text
+        </button>
+      </div>
+      <div class="feedback-box" id="m3-feedback"></div>
+      <div class="btn-row">
+        <button class="btn" id="m3-next" onclick="nextMission(4)" style="display:none;">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 4: FILL IN BLANK - PMT Function -->
+  <div class="mission-card" id="mission-4">
+    <div class="mission-header">
+      <div class="mission-num">4</div>
+      <div class="mission-meta">
+        <span class="mission-tag">💰 PMT Formula Lab</span>
+        <div class="mission-title">Build the PMT Function</div>
+        <div class="mission-subtitle">Objective: Execute PMT with correct monthly conversions</div>
+      </div>
+      <div class="mission-pts"><strong>+25</strong>pts</div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>📋 Scenario:</strong> Agent Torres is calculating monthly car payments. The loan details are stored in the spreadsheet below. She must write a PMT formula in cell <strong>B5</strong> using proper monthly conversions.
+      </div>
+      <div class="sheet-sim">
+        <div class="formula-bar"><span class="fx">fx</span> <span id="m4-formula-preview">=PMT( ?, ?, ? )</span></div>
+        <table class="sheet-table">
+          <tr><th></th><th>A</th><th>B</th></tr>
+          <tr><td class="row-header">1</td><td>Annual Interest Rate</td><td class="highlight">6%</td></tr>
+          <tr><td class="row-header">2</td><td>Loan Term (Years)</td><td class="highlight">5</td></tr>
+          <tr><td class="row-header">3</td><td>Loan Amount</td><td class="highlight">$25,000</td></tr>
+          <tr><td class="row-header">4</td><td></td><td></td></tr>
+          <tr><td class="row-header">5</td><td>Monthly Payment</td><td class="formula-cell" id="m4-result-cell">← Enter formula</td></tr>
+        </table>
+      </div>
+      <div class="mission-question">Type the correct PMT formula for cell B5 (use cell references B1, B2, B3):</div>
+      <div class="tip-box">💡 <span><strong>PMT syntax:</strong> =PMT(rate, nper, pv) — Remember to convert annual rate to monthly and years to months!</span></div>
+      <input type="text" class="fill-input" id="m4-input" placeholder="=PMT( ... )" oninput="updateFormulaPreview()" />
+      <div class="feedback-box" id="m4-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="checkPMT()">🔬 Test Formula</button>
+        <button class="btn" id="m4-next" onclick="nextMission(5)" style="display:none;">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 5: ORDERING - Scientist's Logic -->
+  <div class="mission-card" id="mission-5">
+    <div class="mission-header">
+      <div class="mission-num">5</div>
+      <div class="mission-meta">
+        <span class="mission-tag">📊 Scientist's Logic Sequencer</span>
+        <div class="mission-title">Order the Dataset Columns</div>
+        <div class="mission-subtitle">Objective: Organize datasets using Scientist's Logic</div>
+      </div>
+      <div class="mission-pts"><strong>+20</strong>pts</div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>📋 Scenario:</strong> Agent Kim is setting up a class grade tracker. According to <strong>Scientist's Logic</strong>, the independent variable (what you control/input) goes first, followed by the dependent variable (what you measure/output). Calculated fields come last.
+      </div>
+      <div class="mission-question">Drag to reorder these columns into the correct Scientist's Logic sequence (1 = first column):</div>
+      <div class="tip-box">💡 <span><strong>Scientist's Logic:</strong> Independent Variables → Dependent Variables → Calculated Fields</span></div>
+      <div class="order-list" id="order-list">
+        <div class="order-item" draggable="true" data-correct="3" id="oi-grade">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="oi-grade-num">?</span>
+          <span>📊 Final Grade % (calculated from scores)</span>
+        </div>
+        <div class="order-item" draggable="true" data-correct="1" id="oi-name">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="oi-name-num">?</span>
+          <span>👤 Student Name (identifier — you input this)</span>
+        </div>
+        <div class="order-item" draggable="true" data-correct="4" id="oi-letter">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="oi-letter-num">?</span>
+          <span>🔤 Letter Grade (derived from Final Grade %)</span>
+        </div>
+        <div class="order-item" draggable="true" data-correct="2" id="oi-score">
+          <span class="order-handle">⠿</span>
+          <span class="order-num" id="oi-score-num">?</span>
+          <span>📝 Test Score (measured outcome — you record this)</span>
+        </div>
+      </div>
+      <div class="feedback-box" id="m5-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="checkOrder()">📐 Check Sequence</button>
+        <button class="btn" id="m5-next" onclick="nextMission(6)" style="display:none;">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 6: MCQ - Unit Isolation -->
+  <div class="mission-card" id="mission-6">
+    <div class="mission-header">
+      <div class="mission-num">6</div>
+      <div class="mission-meta">
+        <span class="mission-tag">🏦 Financial Architecture Audit</span>
+        <div class="mission-title">Identify the Unit Isolation Error</div>
+        <div class="mission-subtitle">Objective: Maintain data integrity through unit isolation</div>
+      </div>
+      <div class="mission-pts"><strong>+15</strong>pts</div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>📋 Scenario:</strong> Agent Patel is reviewing a mortgage model. The PMT formula is returning an incorrect result. She suspects a <strong>unit isolation error</strong> — where annual and monthly values are being mixed without conversion.
+      </div>
+      <div class="sheet-sim">
+        <div class="formula-bar"><span class="fx">fx</span> =PMT(B1, B2, B3)</div>
+        <table class="sheet-table">
+          <tr><th></th><th>A</th><th>B</th><th>C (Notes)</th></tr>
+          <tr><td class="row-header">1</td><td>Interest Rate</td><td class="highlight" style="background:#fff3cd">0.05</td><td style="font-size:0.75rem;color:#888">Annual rate</td></tr>
+          <tr><td class="row-header">2</td><td>Num Payments</td><td class="highlight" style="background:#fff3cd">360</td><td style="font-size:0.75rem;color:#888">Monthly (30yr×12)</td></tr>
+          <tr><td class="row-header">3</td><td>Loan Amount</td><td>200000</td><td></td></tr>
+          <tr><td class="row-header">4</td><td></td><td></td><td></td></tr>
+          <tr><td class="row-header">5</td><td>Monthly Payment</td><td class="formula-cell">=PMT(B1,B2,B3)</td><td style="font-size:0.75rem;color:#c00">⚠ Wrong result!</td></tr>
+        </table>
+      </div>
+      <div class="mission-question">What is the unit isolation error in this model, and what is the correct formula for B5?</div>
+      <div class="options-grid" id="m6-options">
+        <button class="option-btn" onclick="checkMCQ(6,'A','A')" data-val="A">
+          <span class="opt-letter">A</span>B1 is annual (5%) but nper is monthly (360) — fix: =PMT(B1/12, B2, B3)
+        </button>
+        <button class="option-btn" onclick="checkMCQ(6,'B','A')" data-val="B">
+          <span class="opt-letter">B</span>B3 should be negative — fix: =PMT(B1, B2, -B3)
+        </button>
+        <button class="option-btn" onclick="checkMCQ(6,'C','A')" data-val="C">
+          <span class="opt-letter">C</span>B2 should be years not months — fix: =PMT(B1, B2/12, B3)
+        </button>
+        <button class="option-btn" onclick="checkMCQ(6,'D','A')" data-val="D">
+          <span class="opt-letter">D</span>The formula is correct; the loan amount is wrong
+        </button>
+      </div>
+      <div class="feedback-box" id="m6-feedback"></div>
+      <div class="btn-row">
+        <button class="btn" id="m6-next" onclick="nextMission(7)" style="display:none;">Next Mission →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MISSION 7: MASTER CHALLENGE - MCQ Scenario -->
+  <div class="mission-card" id="mission-7">
+    <div class="mission-header">
+      <div class="mission-num">7</div>
+      <div class="mission-meta">
+        <span class="mission-tag">🎯 Master Challenge</span>
+        <div class="mission-title">Final Integration Scenario</div>
+        <div class="mission-subtitle">Objective: Apply ALL concepts — references, hygiene, PMT, Scientist's Logic</div>
+      </div>
+      <div class="mission-pts"><strong>+30</strong>pts</div>
+    </div>
+    <div class="mission-body">
+      <div class="mission-scenario">
+        <strong>📋 Master Scenario:</strong> Agent UVA is building a <em>Student Loan Comparison Tool</em>. The model compares 3 loan options. The annual rate is in <strong>$B$1</strong> (shared across all options). Each loan's term (years) is in <strong>C2, D2, E2</strong> and principal in <strong>C3, D3, E3</strong>. She writes one PMT formula in C4 and copies it across to D4 and E4.
+      </div>
+      <div class="sheet-sim">
+        <div class="formula-bar"><span class="fx">fx</span> [C4 formula — copies to D4, E4]</div>
+        <table class="sheet-table">
+          <tr><th></th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
+          <tr><td class="row-header">1</td><td class="highlight">Rate: 7%</td><td></td><td></td><td></td></tr>
+          <tr><td class="row-header">2</td><td>Term (yrs)</td><td>5</td><td>10</td><td>15</td></tr>
+          <tr><td class="row-header">3</td><td>Principal</td><td>10000</td><td>10000</td><td>10000</td></tr>
+          <tr><td class="row-header">4</td><td>Monthly Pmt</td><td class="formula-cell">← formula</td><td class="formula-cell">← copies here</td><td class="formula-cell">← copies here</td></tr>
+        </table>
+      </div>
+      <div class="mission-question">Which formula in C4 correctly uses all best practices (absolute rate reference, relative term/principal, monthly conversions) and will copy accurately to D4 and E4?</div>
+      <div class="options-grid" id="m7-options">
+        <button class="option-btn" onclick="checkMCQ(7,'A','B')" data-val="A">
+          <span class="opt-letter">A</span>=PMT(B1/12, C2*12, C3)
+        </button>
+        <button class="option-btn" onclick="checkMCQ(7,'B','B')" data-val="B">
+          <span class="opt-letter">B</span>=PMT($B$1/12, C2*12, C3)
+        </button>
+        <button class="option-btn" onclick="checkMCQ(7,'C','B')" data-val="C">
+          <span class="opt-letter">C</span>=PMT($B$1/12, $C$2*12, $C$3)
+        </button>
+        <button class="option-btn" onclick="checkMCQ(7,'D','B')" data-val="D">
+          <span class="opt-letter">D</span>=PMT($B1/12, C2*12, C3)
+        </button>
+      </div>
+      <div class="feedback-box" id="m7-feedback"></div>
+      <div class="btn-row">
+        <button class="btn btn-gold" id="m7-next" onclick="showResults()" style="display:none;font-size:1rem;">🏆 View Final Results</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-screen">
+    <div class="results-badge" id="results-badge">🏆</div>
+    <div class="results-rank" id="results-rank">Master Agent</div>
+    <div style="color:#555;font-size:0.9rem;margin-bottom:4px;">Final Score</div>
+    <div class="results-score" id="results-score">0</div>
+    <div class="results-msg" id="results-msg">Outstanding work, UVA Cadet!</div>
+    <div class="results-breakdown">
+      <div class="breakdown-item">
+        <div class="bi-num" id="res-correct">0</div>
+        <div class="bi-label">Correct</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="bi-num" id="res-total">7</div>
+        <div class="bi-label">Total Missions</div>
+      </div>
+      <div class="breakdown-item">
+        <div class="bi-num" id="res-streak">0</div>
+        <div class="bi-label">Best Streak</div>
+      </div>
+    </div>
+    <div style="background:var(--blue-light);border-radius:12px;padding:16px 20px;margin-bottom:24px;text-align:left;font-size:0.88rem;line-height:1.7;">
+      <strong style="color:var(--blue-dark);">📚 Key Concepts Mastered:</strong><br>
+      ✅ Relative, Absolute & Mixed Cell References<br>
+      ✅ Atomic Values & Unit Isolation (Data Hygiene)<br>
+      ✅ PMT Function with Monthly Conversions<br>
+      ✅ Scientist's Logic for Dataset Organization<br>
+      ✅ Financial Architecture Best Practices
+    </div>
+    <div style="color:#888;font-size:0.8rem;margin-bottom:20px;">
+      🎓 University View Academy · IC3 Digital Literacy Certification · Computer Tech Literacy
+    </div>
+    <button class="btn btn-gold" onclick="restartGame()" style="font-size:1rem;padding:13px 32px;">🔄 Retry Missions</button>
+  </div>
+
+</div>
+
+<script>
+// ===== GAME STATE =====
+let score = 0;
+let streak = 0;
+let bestStreak = 0;
+let correctCount = 0;
+let currentMission = 0;
+let missionAnswered = {};
+const TOTAL_MISSIONS = 7;
+const MAX_SCORE = 140;
+
+const RANKS = [
+  { name: 'Trainee',    icon: '🎓', min: 0   },
+  { name: 'Apprentice', icon: '⭐', min: 30  },
+  { name: 'Expert',     icon: '🔥', min: 70  },
+  { name: 'Master',     icon: '🏆', min: 110 },
+];
+
+function getRank(s) {
+  let r = RANKS[0];
+  for (let rank of RANKS) { if (s >= rank.min) r = rank; }
+  return r;
+}
+
+function updateHUD() {
+  document.getElementById('scoreDisplay').textContent = score;
+  document.getElementById('progressBar').style.width = Math.min(100, (score / MAX_SCORE) * 100) + '%';
+  document.getElementById('missionNum').textContent = currentMission;
+  const rank = getRank(score);
+  document.getElementById('headerRankName').textContent = rank.name;
+  document.getElementById('headerRankIcon').textContent = rank.icon;
+  if (streak >= 2) {
+    document.getElementById('streakBadge').style.display = 'inline-flex';
+    document.getElementById('streakCount').textContent = streak;
+  } else {
+    document.getElementById('streakBadge').style.display = 'none';
+  }
+}
+
+function addScore(pts) {
+  const prevRank = getRank(score);
+  score += pts;
+  const newRank = getRank(score);
+  updateHUD();
+  if (newRank.name !== prevRank.name) {
+    setTimeout(() => showRankUp(newRank), 400);
+  }
+}
+
+function startGame() {
+  document.getElementById('intro-screen').style.display = 'none';
+  currentMission = 1;
+  updateHUD();
+  showMission(1);
+  initDragDrop();
+  initOrderDrag();
+}
+
+function showMission(n) {
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('mission-' + n);
+  if (card) { card.classList.add('active'); card.scrollIntoView({behavior:'smooth', block:'start'}); }
+}
+
+function nextMission(n) {
+  currentMission = n;
+  updateHUD();
+  showMission(n);
+}
+
+// ===== MCQ =====
+const feedbacks = {
+  1: {
+    correct: '<span class="feedback-icon">✅</span><strong>Excellent!</strong> <code>=B2*$B$1</code> is correct. The dollar signs lock both the column ($B) and row ($1) of the tax rate cell, making it <em>absolute</em>. When copied down, B2 shifts to B3, B4, etc., but $B$1 always points to the tax rate.',
+    wrong: '<span class="feedback-icon">❌</span><strong>Not quite.</strong> You need to lock the tax rate cell B1 so it doesn\'t shift when copied. Use <strong>$B$1</strong> (absolute reference) for the tax rate, while B2 stays relative to shift with each row.'
+  },
+  3: {
+    correct: '<span class="feedback-icon">✅</span><strong>Data Hygiene Alert confirmed!</strong> Cell A3 contains "Mouse & Keyboard" — two separate items in one cell. This violates the <em>atomic value</em> principle: each cell should hold exactly ONE piece of data. These should be in separate rows.',
+    wrong: '<span class="feedback-icon">❌</span><strong>Look again.</strong> The violation is in A3: "Mouse & Keyboard" stores TWO items in one cell, breaking the atomic value rule. Note: B2 having "$" is a formatting issue (not a data type error if stored as number), and formulas in D column are correct practice.'
+  },
+  6: {
+    correct: '<span class="feedback-icon">✅</span><strong>Unit Isolation Error identified!</strong> B1 holds an <em>annual</em> rate (5%) but B2 has <em>monthly</em> payments (360). Mixing units without conversion causes a wildly incorrect result. The fix: <code>=PMT(B1/12, B2, B3)</code> converts the annual rate to monthly.',
+    wrong: '<span class="feedback-icon">❌</span><strong>Check the units.</strong> The core issue is that B1 is an annual rate (5%) but B2 is already in months (360). You must divide the rate by 12: <code>=PMT(B1/12, B2, B3)</code>. This is the unit isolation error — mixing annual and monthly values.'
+  },
+  7: {
+    correct: '<span class="feedback-icon">✅</span><strong>Master-level formula!</strong> <code>=PMT($B$1/12, C2*12, C3)</code> is perfect. <strong>$B$1</strong> is absolute (rate stays fixed when copying across). <strong>C2</strong> and <strong>C3</strong> are relative (shift to D2/D3, E2/E3 when copied). <strong>/12</strong> converts annual rate to monthly, <strong>*12</strong> converts years to months.',
+    wrong: '<span class="feedback-icon">❌</span><strong>Almost there!</strong> The correct answer is B: <code>=PMT($B$1/12, C2*12, C3)</code>. The rate in $B$1 must be absolute (locked) so it doesn\'t shift when copying across columns. C2 and C3 must be relative so they shift to D2/D3 and E2/E3. Don\'t forget /12 and *12 for monthly conversions!'
+  }
+};
+
+function checkMCQ(mission, chosen, correct) {
+  if (missionAnswered[mission]) return;
+  missionAnswered[mission] = true;
+  const opts = document.querySelectorAll('#m' + mission + '-options .option-btn');
+  opts.forEach(btn => {
+    btn.disabled = true;
+    if (btn.dataset.val === correct) btn.classList.add('correct');
+    else if (btn.dataset.val === chosen && chosen !== correct) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('m' + mission + '-feedback');
+  fb.style.display = 'block';
+  const isCorrect = chosen === correct;
+  if (isCorrect) {
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = feedbacks[mission].correct;
+    const pts = mission === 7 ? 30 : 15;
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    correctCount++;
+    addScore(pts);
+    if (streak >= 3) showStreakPopup(streak);
+    if (streak >= 2) launchConfetti(8);
+  } else {
+    fb.className = 'feedback-box wrong';
+    fb.innerHTML = feedbacks[mission].wrong;
+    streak = 0;
+    updateHUD();
+  }
+  document.getElementById('m' + mission + '-next').style.display = 'inline-flex';
+}
+
+// ===== DRAG & DROP (Mission 2) =====
+let draggedItem = null;
+
+function initDragDrop() {
+  const items = document.querySelectorAll('.drag-item');
+  const zones = document.querySelectorAll('.drop-zone');
+
+  items.forEach(item => {
+    item.addEventListener('dragstart', e => {
+      draggedItem = item;
+      setTimeout(() => item.classList.add('dragging'), 0);
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging');
+      draggedItem = null;
+    });
+  });
+
+  zones.forEach(zone => {
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      zone.classList.add('drag-over');
+    });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      zone.classList.remove('drag-over');
+      if (!draggedItem) return;
+      // Remove placeholder
+      const ph = zone.querySelector('.drop-placeholder');
+      if (ph) ph.remove();
+      // If zone already has an item, send it back to bank
+      const existing = zone.querySelector('.drag-item');
+      if (existing) {
+        document.getElementById('drag-bank').appendChild(existing);
+        const bankPh = document.getElementById('drag-bank').querySelector('.drop-placeholder');
+        if (bankPh) bankPh.remove();
+      }
+      zone.appendChild(draggedItem);
+    });
+  });
+
+  // Touch support
+  items.forEach(item => {
+    item.addEventListener('touchstart', handleTouchStart, {passive:true});
+    item.addEventListener('touchmove', handleTouchMove, {passive:false});
+    item.addEventListener('touchend', handleTouchEnd);
+  });
+}
+
+let touchDragItem = null, touchClone = null;
+function handleTouchStart(e) {
+  touchDragItem = e.currentTarget;
+  const rect = touchDragItem.getBoundingClientRect();
+  touchClone = touchDragItem.cloneNode(true);
+  touchClone.style.cssText = `position:fixed;opacity:0.8;pointer-events:none;z-index:9999;width:${rect.width}px;left:${rect.left}px;top:${rect.top}px;`;
+  document.body.appendChild(touchClone);
+}
+function handleTouchMove(e) {
+  e.preventDefault();
+  const t = e.touches[0];
+  if (touchClone) { touchClone.style.left = (t.clientX - 40) + 'px'; touchClone.style.top = (t.clientY - 20) + 'px'; }
+}
+function handleTouchEnd(e) {
+  if (touchClone) { document.body.removeChild(touchClone); touchClone = null; }
+  if (!touchDragItem) return;
+  const t = e.changedTouches[0];
+  const el = document.elementFromPoint(t.clientX, t.clientY);
+  const zone = el ? el.closest('.drop-zone') : null;
+  if (zone) {
+    const ph = zone.querySelector('.drop-placeholder');
+    if (ph) ph.remove();
+    const existing = zone.querySelector('.drag-item');
+    if (existing) document.getElementById('drag-bank').appendChild(existing);
+    zone.appendChild(touchDragItem);
+  }
+  touchDragItem = null;
+}
+
+function checkDragDrop() {
+  if (missionAnswered[2]) return;
+  const zones = document.querySelectorAll('.drop-zone');
+  let allCorrect = true;
+  let allFilled = true;
+  zones.forEach(zone => {
+    const item = zone.querySelector('.drag-item');
+    if (!item) { allFilled = false; return; }
+    if (item.dataset.ref === zone.dataset.answer) {
+      zone.classList.add('correct-zone');
+    } else {
+      zone.classList.add('wrong-zone');
+      allCorrect = false;
+    }
+  });
+  if (!allFilled) {
+    const fb = document.getElementById('m2-feedback');
+    fb.style.display = 'block';
+    fb.className = 'feedback-box wrong';
+    fb.innerHTML = '<span class="feedback-icon">⚠️</span> Please drag all 4 reference types into the drop zones before checking!';
+    return;
+  }
+  missionAnswered[2] = true;
+  document.getElementById('m2-check').disabled = true;
+  const fb = document.getElementById('m2-feedback');
+  fb.style.display = 'block';
+  if (allCorrect) {
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Perfect matching!</strong> You correctly identified all 4 reference types. Remember: <strong>$</strong> before a letter locks the column, <strong>$</strong> before a number locks the row. Both locked = absolute. Neither locked = relative.';
+    streak++; if (streak > bestStreak) bestStreak = streak;
+    correctCount++;
+    addScore(20);
+    if (streak >= 3) showStreakPopup(streak);
+    if (streak >= 2) launchConfetti(10);
+  } else {
+    fb.className = 'feedback-box wrong';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Some mismatches.</strong> Review: <strong>$A$1</strong> = always fixed (absolute). <strong>A1</strong> = shifts both ways (relative). <strong>$A1</strong> = column A locked, row shifts (mixed-col). <strong>A$1</strong> = row 1 locked, column shifts (mixed-row).';
+    streak = 0; updateHUD();
+  }
+  document.getElementById('m2-next').style.display = 'inline-flex';
+}
+
+// ===== PMT (Mission 4) =====
+function updateFormulaPreview() {
+  const val = document.getElementById('m4-input').value;
+  document.getElementById('m4-formula-preview').textContent = val || '=PMT( ?, ?, ? )';
+}
+
+function checkPMT() {
+  if (missionAnswered[4]) return;
+  const raw = document.getElementById('m4-input').value.trim().toLowerCase().replace(/\s/g,'');
+  const input = document.getElementById('m4-input');
+  const fb = document.getElementById('m4-feedback');
+  fb.style.display = 'block';
+
+  // Accept variations: =pmt(b1/12,b2*12,b3) or =pmt(b1/12,b2*12,-b3) etc.
+  const validPatterns = [
+    /=pmt\(\$?b\$?1\/12,\$?b\$?2\*12,\$?b\$?3\)/,
+    /=pmt\(\$?b\$?1\/12,\$?b\$?2\*12,-\$?b\$?3\)/,
+  ];
+  const isCorrect = validPatterns.some(p => p.test(raw));
+
+  if (isCorrect) {
+    missionAnswered[4] = true;
+    input.classList.add('correct');
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Formula verified!</strong> <code>=PMT(B1/12, B2*12, B3)</code> is correct. <strong>B1/12</strong> converts the annual rate to monthly. <strong>B2*12</strong> converts years to total monthly payments. <strong>B3</strong> is the loan principal. The result will be negative (payment going out) — that\'s normal!';
+    document.getElementById('m4-result-cell').textContent = '≈ -$483.32/mo';
+    document.getElementById('m4-result-cell').style.color = 'var(--green)';
+    streak++; if (streak > bestStreak) bestStreak = streak;
+    correctCount++;
+    addScore(25);
+    if (streak >= 3) showStreakPopup(streak);
+    launchConfetti(12);
+    document.getElementById('m4-next').style.display = 'inline-flex';
+  } else {
+    input.classList.add('wrong');
+    fb.className = 'feedback-box wrong';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Formula error.</strong> Remember the PMT syntax: <code>=PMT(rate, nper, pv)</code>. For monthly payments: <strong>rate = B1/12</strong> (annual ÷ 12), <strong>nper = B2*12</strong> (years × 12), <strong>pv = B3</strong>. Try: <code>=PMT(B1/12, B2*12, B3)</code>';
+    streak = 0; updateHUD();
+    setTimeout(() => { input.classList.remove('wrong'); }, 1500);
+  }
+}
+
+// ===== ORDERING (Mission 5) =====
+let dragOrderItem = null;
+
+function initOrderDrag() {
+  const list = document.getElementById('order-list');
+  const items = list.querySelectorAll('.order-item');
+  items.forEach(item => {
+    item.addEventListener('dragstart', () => {
+      dragOrderItem = item;
+      setTimeout(() => item.classList.add('dragging-order'), 0);
+    });
+    item.addEventListener('dragend', () => {
+      item.classList.remove('dragging-order');
+      dragOrderItem = null;
+      updateOrderNums();
+    });
+    item.addEventListener('dragover', e => {
+      e.preventDefault();
+      item.classList.add('drag-over-order');
+      const list = document.getElementById('order-list');
+      const rect = item.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      if (e.clientY < mid) list.insertBefore(dragOrderItem, item);
+      else list.insertBefore(dragOrderItem, item.nextSibling);
+    });
+    item.addEventListener('dragleave', () => item.classList.remove('drag-over-order'));
+    item.addEventListener('drop', e => { e.preventDefault(); item.classList.remove('drag-over-order'); });
+  });
+}
+
+function updateOrderNums() {
+  const items = document.querySelectorAll('#order-list .order-item');
+  items.forEach((item, i) => {
+    const numEl = item.querySelector('.order-num');
+    if (numEl) numEl.textContent = i + 1;
+  });
+}
+
+function checkOrder() {
+  if (missionAnswered[5]) return;
+  const items = document.querySelectorAll('#order-list .order-item');
+  let allCorrect = true;
+  items.forEach((item, i) => {
+    const correct = parseInt(item.dataset.correct);
+    if (correct !== i + 1) allCorrect = false;
+  });
+  missionAnswered[5] = true;
+  const fb = document.getElementById('m5-feedback');
+  fb.style.display = 'block';
+  document.getElementById('order-list').querySelectorAll('.order-item').forEach(i => i.setAttribute('draggable','false'));
+  if (allCorrect) {
+    fb.className = 'feedback-box correct';
+    fb.innerHTML = '<span class="feedback-icon">✅</span><strong>Sequence correct!</strong> Scientist\'s Logic order: <strong>1) Student Name</strong> (independent — you input it) → <strong>2) Test Score</strong> (dependent — you measure it) → <strong>3) Final Grade %</strong> (calculated from scores) → <strong>4) Letter Grade</strong> (derived from Final Grade %). This ensures charts and analyses read data in logical cause-effect order.';
+    streak++; if (streak > bestStreak) bestStreak = streak;
+    correctCount++;
+    addScore(20);
+    if (streak >= 3) showStreakPopup(streak);
+    if (streak >= 2) launchConfetti(8);
+  } else {
+    fb.className = 'feedback-box wrong';
+    fb.innerHTML = '<span class="feedback-icon">❌</span><strong>Sequence off.</strong> Correct order: <strong>1) Student Name</strong> (independent variable — identifier you control) → <strong>2) Test Score</strong> (dependent — what you measure) → <strong>3) Final Grade %</strong> (calculated field) → <strong>4) Letter Grade</strong> (derived from calculated field). Independent → Dependent → Calculated.';
+    streak = 0; updateHUD();
+  }
+  document.getElementById('m5-next').style.display = 'inline-flex';
+}
+
+// ===== RESULTS =====
+function showResults() {
+  document.querySelectorAll('.mission-card').forEach(c => c.classList.remove('active'));
+  const rs = document.getElementById('results-screen');
+  rs.style.display = 'block';
+  rs.scrollIntoView({behavior:'smooth', block:'start'});
+  const rank = getRank(score);
+  document.getElementById('results-badge').textContent = rank.icon;
+  document.getElementById('results-rank').textContent = rank.name + ' Agent';
+  document.getElementById('results-score').textContent = score + ' pts';
+  document.getElementById('res-correct').textContent = correctCount;
+  document.getElementById('res-streak').textContent = bestStreak;
+  const pct = Math.round((score / MAX_SCORE) * 100);
+  let msg = '';
+  if (pct >= 90) msg = '🏆 Outstanding, UVA Master Agent! You\'ve demonstrated complete mastery of Google Sheets Mechanics & Financial Architecture. IC3 certification ready!';
+  else if (pct >= 70) msg = '🔥 Excellent work, UVA Expert! You have strong command of the core concepts. Review any missed missions to reach Master rank.';
+  else if (pct >= 50) msg = '⭐ Good effort, UVA Apprentice! You\'re building solid skills. Revisit cell references and PMT conversions for improvement.';
+  else msg = '🎓 Keep training, UVA Trainee! Review the lesson materials on cell references, data hygiene, and PMT functions, then retry the missions.';
+  document.getElementById('results-msg').textContent = msg;
+  launchConfetti(pct >= 70 ? 30 : 10);
+}
+
+function restartGame() {
+  score = 0; streak = 0; bestStreak = 0; correctCount = 0; currentMission = 0;
+  missionAnswered = {};
+  document.getElementById('results-screen').style.display = 'none';
+  // Reset all missions
+  document.querySelectorAll('.option-btn').forEach(b => { b.disabled = false; b.className = 'option-btn'; });
+  document.querySelectorAll('.feedback-box').forEach(f => { f.style.display = 'none'; f.className = 'feedback-box'; });
+  document.querySelectorAll('[id$="-next"]').forEach(b => b.style.display = 'none');
+  document.getElementById('m2-check').disabled = false;
+  document.getElementById('m4-input').value = '';
+  document.getElementById('m4-input').className = 'fill-input';
+  document.getElementById('m4-formula-preview').textContent = '=PMT( ?, ?, ? )';
+  document.getElementById('m4-result-cell').textContent = '← Enter formula';
+  document.getElementById('m4-result-cell').style.color = '';
+  // Reset drag bank
+  const bank = document.getElementById('drag-bank');
+  ['drag-relative','drag-absolute','drag-mixed-col','drag-mixed-row'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) bank.appendChild(el);
+  });
+  document.querySelectorAll('.drop-zone').forEach(z => {
+    z.className = 'drop-zone';
+    const ph = document.createElement('span');
+    ph.className = 'drop-placeholder';
+    ph.textContent = 'Drop here...';
+    const existing = z.querySelector('.drag-item');
+    if (existing) bank.appendChild(existing);
+    if (!z.querySelector('.drop-placeholder')) z.appendChild(ph);
+  });
+  // Reset order
+  const ol = document.getElementById('order-list');
+  const items = Array.from(ol.querySelectorAll('.order-item'));
+  items.sort(() => Math.random() - 0.5);
+  items.forEach(i => { i.setAttribute('draggable','true'); ol.appendChild(i); });
+  updateOrderNums();
+  updateHUD();
+  document.getElementById('intro-screen').style.display = 'block';
+  document.getElementById('intro-screen').scrollIntoView({behavior:'smooth'});
+}
+
+// ===== VISUAL EFFECTS =====
+function launchConfetti(count) {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#1B5EAF','#1E7A3E','#F5A623','#ff6b35','#fff176','#e91e63'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      piece.style.animationDelay = Math.random() * 0.5 + 's';
+      piece.style.width = (8 + Math.random() * 8) + 'px';
+      piece.style.height = (8 + Math.random() * 8) + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      container.appendChild(piece);
+      setTimeout(() => piece.remove(), 4000);
+    }, i * 60);
+  }
+}
+
+function showStreakPopup(n) {
+  const popup = document.getElementById('streakPopup');
+  document.getElementById('streakNum').textContent = '🔥 ' + n;
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 2000);
+}
+
+function showRankUp(rank) {
+  const popup = document.getElementById('rankupPopup');
+  document.getElementById('rankupIcon').textContent = rank.icon;
+  document.getElementById('rankupName').textContent = rank.name;
+  popup.classList.add('show');
+  launchConfetti(20);
+  setTimeout(() => popup.classList.remove('show'), 2500);
+}
+
+// Init order nums on load
+document.addEventListener('DOMContentLoaded', () => {
+  updateOrderNums();
+  updateHUD();
+});
+</script>
+</body>
+</html>
