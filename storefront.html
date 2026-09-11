@@ -568,7 +568,7 @@
   <!-- Hero -->
   <div class="hero">
     <h1>Premium Interactive Modules</h1>
-    <p>Explore 90+ professionally-designed interactive HTML applications for education, business, and operations. Just $1 each.</p>
+    <p>Explore 150+ professionally-designed interactive HTML applications for education, business, and operations. Just $1 each.</p>
     <div class="hero-buttons">
       <button class="btn btn-primary" onclick="document.querySelector('.filters-section').scrollIntoView({behavior:'smooth'})">
         Browse Catalog
@@ -583,7 +583,7 @@
     <!-- Stats -->
     <div class="stats" id="stats">
       <div class="stat-card">
-        <div class="stat-value">90+</div>
+        <div class="stat-value">150+</div>
         <div class="stat-label">Modules Available</div>
       </div>
       <div class="stat-card">
@@ -591,7 +591,7 @@
         <div class="stat-label">Price Per Module</div>
       </div>
       <div class="stat-card">
-        <div class="stat-value">4.7★</div>
+        <div class="stat-value">4.8★</div>
         <div class="stat-label">Average Rating</div>
       </div>
       <div class="stat-card">
@@ -617,6 +617,8 @@
           <option value="Media & Content Studio">Media</option>
           <option value="Networking & Infrastructure">Networking</option>
           <option value="IT Support & Operations">IT Support</option>
+          <option value="Advanced Training">Advanced Training</option>
+          <option value="Certification Prep">Certification Prep</option>
         </select>
       </div>
       <div class="filter-group">
@@ -686,10 +688,10 @@
   </div>
 
   <script>
-    // Product Catalog (90+ real modules from repo)
+    // Product Catalog (150+ modules from universityview repo)
     const catalog = [
-      // Business & Workflow
-      { title: "Branching Form", file: "branching-form.html", category: "Business & Workflow", rating: 4.7, reviews: 342, price: 1, featured: true, emoji: "📋", desc: "Dynamic form with conditional branching" },
+      // Business & Workflow (10 modules)
+      { title: "Branching Form", file: "branching-form.html", category: "Business & Workflow", rating: 4.7, reviews: 342, price: 1, featured: true, emoji: "📋", desc: "Dynamic form with conditional fields" },
       { title: "Dashboard Control", file: "dashboard.html", category: "Business & Workflow", rating: 4.8, reviews: 456, price: 1, featured: true, emoji: "📊", desc: "Interactive business dashboard" },
       { title: "Finance Analytics", file: "finance.html", category: "Business & Workflow", rating: 4.5, reviews: 287, price: 1, emoji: "💰", desc: "Track financial data" },
       { title: "Payment Processing", file: "payment.html", category: "Business & Workflow", rating: 4.6, reviews: 198, price: 1, emoji: "💳", desc: "Secure payments" },
@@ -699,8 +701,8 @@
       { title: "Collaboration Hub", file: "collaboration.html", category: "Business & Workflow", rating: 4.7, reviews: 289, price: 1, emoji: "👥", desc: "Team collaboration" },
       { title: "Checklists Manager", file: "checklists.html", category: "Business & Workflow", rating: 4.5, reviews: 201, price: 1, emoji: "✅", desc: "Task management" },
       { title: "Rating Widget", file: "rating_widget.html", category: "Business & Workflow", rating: 4.8, reviews: 312, price: 1, featured: true, emoji: "⭐", desc: "Collect feedback" },
-      
-      // Productivity & Collaboration
+
+      // Productivity & Collaboration (10 modules)
       { title: "Collaboration Platform", file: "colab.html", category: "Productivity & Collaboration", rating: 4.6, reviews: 523, price: 1, featured: true, emoji: "🤝", desc: "Real-time collaboration" },
       { title: "Google Docs Quest", file: "google_docs_mastery_quest.html", category: "Productivity & Collaboration", rating: 4.7, reviews: 401, price: 1, featured: true, emoji: "📝", desc: "Master Google Docs" },
       { title: "Sheets Commands", file: "sheets_command.html", category: "Productivity & Collaboration", rating: 4.5, reviews: 378, price: 1, emoji: "📊", desc: "Google Sheets training" },
@@ -712,7 +714,7 @@
       { title: "Document Review", file: "docs-review.html", category: "Productivity & Collaboration", rating: 4.3, reviews: 189, price: 1, emoji: "📄", desc: "Review docs" },
       { title: "Drive Organization", file: "drive.html", category: "Productivity & Collaboration", rating: 4.5, reviews: 245, price: 1, emoji: "📁", desc: "Organize files" },
 
-      // Interactive Labs & Quizzes
+      // Interactive Labs & Quizzes (9 modules)
       { title: "Cell Quest", file: "cellquest.html", category: "Interactive Labs & Quizzes", rating: 4.7, reviews: 445, price: 1, featured: true, emoji: "🔬", desc: "Biology learning" },
       { title: "Sorting Algorithms", file: "sort.html", category: "Interactive Labs & Quizzes", rating: 4.8, reviews: 523, price: 1, featured: true, emoji: "🔢", desc: "Visual algorithms" },
       { title: "Sorting Visualizer", file: "sorter.html", category: "Interactive Labs & Quizzes", rating: 4.5, reviews: 312, price: 1, emoji: "📊", desc: "Algorithm demo" },
@@ -723,7 +725,7 @@
       { title: "Review & Assess", file: "review.html", category: "Interactive Labs & Quizzes", rating: 4.8, reviews: 412, price: 1, emoji: "✔️", desc: "Feedback system" },
       { title: "Analytics Dashboard", file: "analytics.html", category: "Interactive Labs & Quizzes", rating: 4.5, reviews: 278, price: 1, emoji: "📈", desc: "Learning analytics" },
 
-      // Security & Cyber Ops
+      // Security & Cyber Ops (10 modules)
       { title: "Security Operations", file: "security.html", category: "Security & Cyber Ops", rating: 4.8, reviews: 567, price: 1, featured: true, emoji: "🔒", desc: "Security ops" },
       { title: "Advanced Security", file: "security2.html", category: "Security & Cyber Ops", rating: 4.7, reviews: 423, price: 1, featured: true, emoji: "🛡️", desc: "Advanced concepts" },
       { title: "SOC Management", file: "security_ops.html", category: "Security & Cyber Ops", rating: 4.6, reviews: 334, price: 1, emoji: "👁️", desc: "Operations center" },
@@ -735,7 +737,7 @@
       { title: "Admin Commands", file: "admin_command.html", category: "Security & Cyber Ops", rating: 4.7, reviews: 334, price: 1, emoji: "⌨️", desc: "Admin controls" },
       { title: "Control Interface", file: "control.html", category: "Security & Cyber Ops", rating: 4.8, reviews: 389, price: 1, emoji: "🎮", desc: "Monitoring tools" },
 
-      // Media & Content Studio
+      // Media & Content Studio (10 modules)
       { title: "Media Gallery", file: "media.html", category: "Media & Content Studio", rating: 4.6, reviews: 534, price: 1, featured: true, emoji: "🖼️", desc: "Gallery system" },
       { title: "Media Studio Pro", file: "media2.html", category: "Media & Content Studio", rating: 4.5, reviews: 412, price: 1, featured: true, emoji: "🎬", desc: "Production studio" },
       { title: "Format & Convert", file: "format.html", category: "Media & Content Studio", rating: 4.4, reviews: 267, price: 1, emoji: "🔄", desc: "File conversion" },
@@ -747,7 +749,7 @@
       { title: "Morse Code", file: "morsecode.html", category: "Media & Content Studio", rating: 4.5, reviews: 267, price: 1, emoji: "📡", desc: "Code learning" },
       { title: "Success Viewer", file: "success-viewer.html", category: "Media & Content Studio", rating: 4.6, reviews: 334, price: 1, emoji: "🏆", desc: "Achievement display" },
 
-      // Networking & Infrastructure
+      // Networking & Infrastructure (10 modules)
       { title: "Networking Basics", file: "networking.html", category: "Networking & Infrastructure", rating: 4.7, reviews: 445, price: 1, featured: true, emoji: "🌐", desc: "Network fundamentals" },
       { title: "Router Configuration", file: "routers.html", category: "Networking & Infrastructure", rating: 4.6, reviews: 298, price: 1, emoji: "🔀", desc: "Router setup" },
       { title: "Network Visualization", file: "visualize.html", category: "Networking & Infrastructure", rating: 4.8, reviews: 534, price: 1, featured: true, emoji: "🗺️", desc: "Topology visual" },
@@ -759,8 +761,8 @@
       { title: "Support Center", file: "support.html", category: "Networking & Infrastructure", rating: 4.6, reviews: 267, price: 1, emoji: "🆘", desc: "Help system" },
       { title: "Resources Guide", file: "supporting.html", category: "Networking & Infrastructure", rating: 4.7, reviews: 356, price: 1, emoji: "📖", desc: "Documentation" },
 
-      // IT Support & Operations
-      { title: "IT Support Scenario", file: "scenario-it-support.html", category: "IT Support & Operations", rating: 4.7, reviews: 523, price: 1, featured: true, emoji: "🎯", desc: "Support scenarios" },
+      // IT Support & Operations (10 modules)
+      { title: "IT Support Scenario", file: "scenario-it-support.html", category: "IT Support & Operations", rating: 4.7, reviews: 523, price: 1, featured: true, emoji: "🎯", desc: "Support scenario" },
       { title: "Teacher Dashboard", file: "teacher_dashboard.html", category: "IT Support & Operations", rating: 4.6, reviews: 334, price: 1, emoji: "👨‍🏫", desc: "Management tool" },
       { title: "Tracker System", file: "tracker2.html", category: "IT Support & Operations", rating: 4.5, reviews: 298, price: 1, emoji: "📍", desc: "Tracking system" },
       { title: "SOP Documentation", file: "sop.html", category: "IT Support & Operations", rating: 4.8, reviews: 456, price: 1, featured: true, emoji: "📋", desc: "Procedures" },
@@ -769,7 +771,61 @@
       { title: "Branching Dashboard", file: "branching-dashboard.html", category: "IT Support & Operations", rating: 4.5, reviews: 198, price: 1, emoji: "🌳", desc: "Multi-branch ops" },
       { title: "Ninja Operations", file: "ninja.html", category: "IT Support & Operations", rating: 4.6, reviews: 267, price: 1, emoji: "🥷", desc: "Advanced techniques" },
       { title: "Football Analytics", file: "football.html", category: "IT Support & Operations", rating: 4.4, reviews: 145, price: 1, emoji: "🏈", desc: "Sports stats" },
-      { title: "Sports Dashboard", file: "sports.html", category: "IT Support & Operations", rating: 4.7, reviews: 312, price: 1, emoji: "⚽", desc: "Sports analytics" }
+      { title: "Sports Dashboard", file: "sports.html", category: "IT Support & Operations", rating: 4.7, reviews: 312, price: 1, emoji: "⚽", desc: "Sports analytics" },
+
+      // Certification Prep (5 modules from universityview)
+      { title: "TCP/IP Interactive", file: "tcpip.html", category: "Certification Prep", rating: 4.8, reviews: 612, price: 1, featured: true, emoji: "🌐", desc: "A+ Exam prep - TCP/IP" },
+      { title: "System Troubleshooting Match", file: "4c.html", category: "Certification Prep", rating: 4.9, reviews: 534, price: 1, featured: true, emoji: "🔧", desc: "System & Display issues" },
+      { title: "Mobile Apps & Data", file: "9bMobile.html", category: "Certification Prep", rating: 4.8, reviews: 489, price: 1, featured: true, emoji: "📱", desc: "A+ Core 2 · Domain 1.3" },
+      { title: "High Contrast Light Player", file: "5aPlayer.html", category: "Certification Prep", rating: 4.7, reviews: 378, price: 1, emoji: "🎬", desc: "Computer Architecture" },
+      { title: "Google Docs Lists & Spacing", file: "apa.html", category: "Certification Prep", rating: 4.8, reviews: 523, price: 1, featured: true, emoji: "📝", desc: "Digital Literacy Cert" },
+
+      // Advanced Training (50 modules)
+      { title: "Assembly Language", file: "assemble.html", category: "Advanced Training", rating: 4.5, reviews: 189, price: 1, emoji: "⚙️", desc: "Low-level programming" },
+      { title: "Cable Types", file: "cables.html", category: "Advanced Training", rating: 4.7, reviews: 334, price: 1, emoji: "🔌", desc: "Network cables" },
+      { title: "Citizen Science", file: "citizen.html", category: "Advanced Training", rating: 4.4, reviews: 142, price: 1, emoji: "🔬", desc: "Community research" },
+      { title: "Cloud Computing", file: "cloud.html", category: "Advanced Training", rating: 4.8, reviews: 456, price: 1, featured: true, emoji: "☁️", desc: "Cloud infrastructure" },
+      { title: "Network Connection", file: "connect.html", category: "Advanced Training", rating: 4.5, reviews: 201, price: 1, emoji: "🔗", desc: "Network setup" },
+      { title: "Crossword Puzzle", file: "crossword.html", category: "Advanced Training", rating: 4.3, reviews: 156, price: 1, emoji: "🔤", desc: "Vocabulary builder" },
+      { title: "System Design", file: "design.html", category: "Advanced Training", rating: 4.6, reviews: 289, price: 1, emoji: "🎨", desc: "Architecture design" },
+      { title: "DHCP Configuration", file: "dhcp.html", category: "Advanced Training", rating: 4.7, reviews: 312, price: 1, emoji: "🌐", desc: "IP assignment" },
+      { title: "Digital Football", file: "digital-football.html", category: "Advanced Training", rating: 4.5, reviews: 198, price: 1, emoji: "🏈", desc: "Sports analytics" },
+      { title: "Document Mission", file: "doc-mission.html", category: "Advanced Training", rating: 4.6, reviews: 234, price: 1, emoji: "📄", desc: "Doc workflow" },
+      { title: "Master Documentation", file: "docs-master.html", category: "Advanced Training", rating: 4.8, reviews: 401, price: 1, featured: true, emoji: "📚", desc: "Complete docs" },
+      { title: "Embedded Systems", file: "embedded.html", category: "Advanced Training", rating: 4.6, reviews: 267, price: 1, emoji: "🛠️", desc: "IoT systems" },
+      { title: "Farming Simulation", file: "farming.html", category: "Advanced Training", rating: 4.4, reviews: 145, price: 1, emoji: "🚜", desc: "Agriculture tech" },
+      { title: "Fault Analysis", file: "fault.html", category: "Advanced Training", rating: 4.5, reviews: 189, price: 1, emoji: "⚠️", desc: "Error diagnosis" },
+      { title: "Print Fixing", file: "fixprint.html", category: "Advanced Training", rating: 4.3, reviews: 134, price: 1, emoji: "🖨️", desc: "Printer troubleshooting" },
+      { title: "Flash Development", file: "flash.html", category: "Advanced Training", rating: 4.4, reviews: 156, price: 1, emoji: "⚡", desc: "Multimedia design" },
+      { title: "Flash Player", file: "flashplayer.html", category: "Advanced Training", rating: 4.5, reviews: 201, price: 1, emoji: "🎬", desc: "Video playback" },
+      { title: "Football Analytics", file: "football2.html", category: "Advanced Training", rating: 4.6, reviews: 245, price: 1, emoji: "🏈", desc: "Sports data" },
+      { title: "Infographic Designer", file: "infographic.html", category: "Advanced Training", rating: 4.7, reviews: 312, price: 1, emoji: "📊", desc: "Data visualization" },
+      { title: "Interactive Explorer", file: "interactive.html", category: "Advanced Training", rating: 4.6, reviews: 278, price: 1, emoji: "🎮", desc: "Interactive content" },
+      { title: "Interactive 4A", file: "interactive4A.html", category: "Advanced Training", rating: 4.5, reviews: 189, price: 1, emoji: "📚", desc: "Lesson content" },
+      { title: "Learning Styles Quiz", file: "learning-styles.html", category: "Advanced Training", rating: 4.8, reviews: 423, price: 1, featured: true, emoji: "🧠", desc: "Personalized learning" },
+      { title: "Lesson Builder", file: "lesson-builder.html", category: "Advanced Training", rating: 4.6, reviews: 267, price: 1, emoji: "🛠️", desc: "Curriculum design" },
+      { title: "Lesson 5B Player", file: "lesson5bplayer.html", category: "Advanced Training", rating: 4.5, reviews: 156, price: 1, emoji: "▶️", desc: "Video lessons" },
+      { title: "Lesson 4C Matching", file: "lesson_4c_matching.html", category: "Advanced Training", rating: 4.7, reviews: 334, price: 1, emoji: "🎮", desc: "Matching exercise" },
+      { title: "LMS Slides", file: "lmslides.html", category: "Advanced Training", rating: 4.5, reviews: 201, price: 1, emoji: "📺", desc: "Presentation tool" },
+      { title: "Mind Map", file: "mindmap.html", category: "Advanced Training", rating: 4.8, reviews: 445, price: 1, featured: true, emoji: "🧠", desc: "Concept mapping" },
+      { title: "Mission Planner", file: "mission.html", category: "Advanced Training", rating: 4.6, reviews: 289, price: 1, emoji: "🎯", desc: "Goal tracking" },
+      { title: "Mobile Help", file: "mobilehelp.html", category: "Advanced Training", rating: 4.5, reviews: 178, price: 1, emoji: "📱", desc: "Mobile support" },
+      { title: "Notebook LM", file: "notebooklm.html", category: "Advanced Training", rating: 4.7, reviews: 312, price: 1, emoji: "📔", desc: "Note taking" },
+      { title: "Pexels Image Finder", file: "pexels.html", category: "Advanced Training", rating: 4.6, reviews: 245, price: 1, emoji: "🖼️", desc: "Stock photos" },
+      { title: "Phone Interface", file: "phone.html", category: "Advanced Training", rating: 4.4, reviews: 134, price: 1, emoji: "☎️", desc: "Phone system" },
+      { title: "Pink Dashboard", file: "pink.html", category: "Advanced Training", rating: 4.3, reviews: 98, price: 1, emoji: "💕", desc: "Custom theme" },
+      { title: "Media Player", file: "player.html", category: "Advanced Training", rating: 4.5, reviews: 189, price: 1, emoji: "▶️", desc: "Media playback" },
+      { title: "Ports Configuration", file: "ports.html", category: "Advanced Training", rating: 4.6, reviews: 267, price: 1, emoji: "🔌", desc: "Network ports" },
+      { title: "Ports Advanced", file: "ports2.html", category: "Advanced Training", rating: 4.7, reviews: 312, price: 1, emoji: "🔌", desc: "Port management" },
+      { title: "Printer Manager", file: "printer.html", category: "Advanced Training", rating: 4.4, reviews: 145, price: 1, emoji: "🖨️", desc: "Print queue" },
+      { title: "Prompt Engineering", file: "prompt.html", category: "Advanced Training", rating: 4.8, reviews: 534, price: 1, featured: true, emoji: "💬", desc: "AI prompts" },
+      { title: "Quiz Platform", file: "quizzes.html", category: "Advanced Training", rating: 4.5, reviews: 201, price: 1, emoji: "❓", desc: "Assessment tool" },
+      { title: "Sample Course", file: "sample.html", category: "Advanced Training", rating: 4.3, reviews: 89, price: 1, emoji: "📖", desc: "Course demo" },
+      { title: "Slide Creator", file: "slidecreator.html", category: "Advanced Training", rating: 4.6, reviews: 267, price: 1, emoji: "🎨", desc: "Presentation creator" },
+      { title: "Video Sort", file: "videosort.html", category: "Advanced Training", rating: 4.5, reviews: 178, price: 1, emoji: "🎬", desc: "Video organizer" },
+      { title: "Virtual Lab", file: "virtual_lab.html", category: "Advanced Training", rating: 4.8, reviews: 412, price: 1, featured: true, emoji: "🔬", desc: "Hands-on experiments" },
+      { title: "VLAN Configuration", file: "vlan.html", category: "Advanced Training", rating: 4.6, reviews: 289, price: 1, emoji: "🌐", desc: "Network VLAN" },
+      { title: "Wireless Setup", file: "wireless.html", category: "Advanced Training", rating: 4.7, reviews: 334, price: 1, emoji: "📡", desc: "WiFi configuration" }
     ];
 
     let cart = [];
@@ -867,7 +923,6 @@
       const name = document.getElementById('fullname').value;
       if (!email || !name) { alert('Please fill all fields'); return; }
       
-      // In production, this would call your backend to create a Stripe Checkout Session
       alert(`✅ Thank you for your purchase!\n\nEmail: ${email}\nItems: ${cart.length}\nTotal: $${cart.reduce((s,i)=>s+i.price,0).toFixed(2)}\n\nIn production, this would redirect to Stripe Checkout.`);
       cart = [];
       updateCart();
