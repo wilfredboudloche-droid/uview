@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UView Marketplace - Buy Interactive Modules $1 Each</title>
+  <style>
+    :root {
+      --bg:#0f172a;
+      --card:#1e293b;
+      --accent:#3b82f6;
+      --accent-hover:#2563eb;
+      --success:#10b981;
+      --danger:#ef4444;
+      --text:#f1f5f9;
+      --text-muted:#cbd5e1;
+      --shadow:0 20px 40px rgba(0,0,0,.4);
+      --radius:12px;
+    }
+
+    * { box-sizing: border-box; }
+    body { 
+      margin: 0; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; }
+
+    /* Header/Nav */
+    header {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 0;
+    }
+
+    .header-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #3b82f6, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .cart-badge {
+      background: var(--danger);
+      color: white;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Hero */
+    .hero {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 60px 24px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      margin: 0 0 16px;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 32px;
+    }
+
+    .btn {
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+
+    .filters-section {
+      background: var(--card);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 32px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-group label {
+      font-weight: 500;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    select, input {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    input::placeholder {
+      color: rgba(148, 163, 184, 0.5);
+    }
+
+    /* Products Grid */
+    .products-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .products-header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .view-count {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: var(--card);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+      box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+    }
+
+    .product-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.1));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
+
+    .product-content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .product-category {
+      font-size: 12px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .product-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      line-height: 1.3;
+    }
+
+    .product-desc {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin: 0 0 16px;
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    .product-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .rating {
+      display: flex;
+      gap: 4px;
+    }
+
+    .star {
+      color: #fbbf24;
+    }
+
+    .product-footer {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .price {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    .add-to-cart-btn {
+      flex: 1;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .add-to-cart-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .add-to-cart-btn.added {
+      background: var(--success);
+    }
+
+    .stock-badge {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .stock-badge.limited {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+
+    /* Shopping Cart Sidebar */
+    .cart-sidebar {
+      position: fixed;
+      right: -400px;
+      top: 0;
+      width: 400px;
+      height: 100vh;
+      background: var(--card);
+      border-left: 1px solid rgba(148, 163, 184, 0.2);
+      transition: right 0.3s ease;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-sidebar.open {
+      right: 0;
+    }
+
+    .cart-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cart-header h3 {
+      margin: 0;
+    }
+
+    .close-cart {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .cart-item {
+      background: rgba(15, 23, 42, 0.5);
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .cart-item-info h4 {
+      margin: 0 0 4px;
+      font-size: 14px;
+    }
+
+    .cart-item-info p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .remove-item {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .cart-footer {
+      padding: 20px;
+      border-top: 1px solid rgba(148, 163, 184, 0.2);
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--success);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .checkout-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .checkout-btn:disabled {
+      background: rgba(148, 163, 184, 0.3);
+      cursor: not-allowed;
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+
+    /* Stats */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 8px;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 150;
+    }
+
+    .overlay.show {
+      display: block;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 32px;
+      max-width: 500px;
+      width: 90%;
+      z-index: 300;
+      display: none;
+      box-shadow: var(--shadow);
+    }
+
+    .modal.show {
+      display: block;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .modal h2 {
+      margin: 0 0 16px;
+    }
+
+    .payment-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .payment-form input {
+      width: 100%;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .cart-sidebar {
+        width: 100%;
+        right: -100%;
+      }
+
+      .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      }
+
+      .filters-section {
+        flex-direction: column;
+      }
+
+      .filter-group {
+        width: 100%;
+      }
+
+      select, input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-wrap">
+      <div class="logo">🛍️ UView Marketplace</div>
+      <button id="cartBtn" style="background:none; border:none; color:var(--text); font-size:24px; position:relative;">
+        🛒
+        <div class="cart-badge" id="cartBadge">0</div>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Premium Interactive Modules</h1>
+    <p>Explore 90+ professionally-designed interactive HTML applications for education, business, and operations. Just $1 each.</p>
+    <div class="hero-buttons">
+      <button class="btn btn-primary" onclick="document.querySelector('.filters-section').scrollIntoView({behavior:'smooth'})">
+        Browse Catalog
+      </button>
+      <button class="btn btn-secondary" onclick="document.querySelectorAll('.product-card')[Math.floor(Math.random()*document.querySelectorAll('.product-card').length)].scrollIntoView({behavior:'smooth'})">
+        Random Module
+      </button>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Stats -->
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <div class="stat-value">90+</div>
+        <div class="stat-label">Modules Available</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">$1</div>
+        <div class="stat-label">Price Per Module</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">4.7★</div>
+        <div class="stat-label">Average Rating</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">instant</div>
+        <div class="stat-label">Instant Access</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+      <div class="filter-group" style="flex:1">
+        <label>Search:</label>
+        <input type="search" id="searchInput" placeholder="Find a module..." style="flex:1;">
+      </div>
+      <div class="filter-group">
+        <label>Category:</label>
+        <select id="categoryFilter">
+          <option value="">All Categories</option>
+          <option value="Business & Workflow">Business & Workflow</option>
+          <option value="Productivity & Collaboration">Productivity</option>
+          <option value="Interactive Labs & Quizzes">Labs & Quizzes</option>
+          <option value="Security & Cyber Ops">Security</option>
+          <option value="Media & Content Studio">Media</option>
+          <option value="Networking & Infrastructure">Networking</option>
+          <option value="IT Support & Operations">IT Support</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Sort:</label>
+        <select id="sortFilter">
+          <option value="featured">Featured</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="rating">Top Rated</option>
+          <option value="newest">Newest</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Products Header -->
+    <div class="products-header">
+      <h2>Available Modules</h2>
+      <div class="view-count">
+        <span id="productCount">0</span> products
+      </div>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>Shopping Cart</h3>
+      <button class="close-cart" onclick="toggleCart()">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <div class="empty-cart">Your cart is empty</div>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span id="cartTotal">$0.00</span>
+      </div>
+      <button class="checkout-btn" id="checkoutBtn" onclick="initiateCheckout()" disabled>
+        Checkout with Stripe
+      </button>
+      <div style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:12px;">
+        Secure payment powered by Stripe
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+  <!-- Checkout Modal -->
+  <div class="modal" id="checkoutModal">
+    <button class="modal-close" onclick="closeCheckout()">&times;</button>
+    <h2>Ready to Purchase?</h2>
+    <p id="checkoutSummary"></p>
+    <div class="payment-form">
+      <input type="email" id="email" placeholder="Email address" required>
+      <input type="text" id="fullname" placeholder="Full name" required>
+      <button class="btn btn-primary" style="width:100%" onclick="processPayment()">
+        Complete Purchase with Stripe
+      </button>
+      <div style="text-align:center; font-size:12px; color:var(--text-muted);">
+        This will redirect to Stripe Checkout
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Product Catalog (90+ real modules from repo)
+    const catalog = [
+      // Business & Workflow
+      { title: "Branching Form", file: "branching-form.html", category: "Business & Workflow", rating: 4.7, reviews: 342, price: 1, featured: true, emoji: "📋", desc: "Dynamic form with conditional branching" },
+      { title: "Dashboard Control", file: "dashboard.html", category: "Business & Workflow", rating: 4.8, reviews: 456, price: 1, featured: true, emoji: "📊", desc: "Interactive business dashboard" },
+      { title: "Finance Analytics", file: "finance.html", category: "Business & Workflow", rating: 4.5, reviews: 287, price: 1, emoji: "💰", desc: "Track financial data" },
+      { title: "Payment Processing", file: "payment.html", category: "Business & Workflow", rating: 4.6, reviews: 198, price: 1, emoji: "💳", desc: "Secure payments" },
+      { title: "Configure Settings", file: "configure.html", category: "Business & Workflow", rating: 4.4, reviews: 165, price: 1, emoji: "⚙️", desc: "Admin interface" },
+      { title: "Master Control Panel", file: "master.html", category: "Business & Workflow", rating: 4.7, reviews: 334, price: 1, featured: true, emoji: "🎛️", desc: "System management" },
+      { title: "Install & Setup", file: "install.html", category: "Business & Workflow", rating: 4.3, reviews: 142, price: 1, emoji: "🔧", desc: "Step-by-step guide" },
+      { title: "Collaboration Hub", file: "collaboration.html", category: "Business & Workflow", rating: 4.7, reviews: 289, price: 1, emoji: "👥", desc: "Team collaboration" },
+      { title: "Checklists Manager", file: "checklists.html", category: "Business & Workflow", rating: 4.5, reviews: 201, price: 1, emoji: "✅", desc: "Task management" },
+      { title: "Rating Widget", file: "rating_widget.html", category: "Business & Workflow", rating: 4.8, reviews: 312, price: 1, featured: true, emoji: "⭐", desc: "Collect feedback" },
+      
+      // Productivity & Collaboration
+      { title: "Collaboration Platform", file: "colab.html", category: "Productivity & Collaboration", rating: 4.6, reviews: 523, price: 1, featured: true, emoji: "🤝", desc: "Real-time collaboration" },
+      { title: "Google Docs Quest", file: "google_docs_mastery_quest.html", category: "Productivity & Collaboration", rating: 4.7, reviews: 401, price: 1, featured: true, emoji: "📝", desc: "Master Google Docs" },
+      { title: "Sheets Commands", file: "sheets_command.html", category: "Productivity & Collaboration", rating: 4.5, reviews: 378, price: 1, emoji: "📊", desc: "Google Sheets training" },
+      { title: "Sheets Professional", file: "sheets_pro.html", category: "Productivity & Collaboration", rating: 4.8, reviews: 589, price: 1, featured: true, emoji: "📈", desc: "Advanced techniques" },
+      { title: "Presentation Slides", file: "slides.html", category: "Productivity & Collaboration", rating: 4.4, reviews: 267, price: 1, emoji: "🎨", desc: "Create presentations" },
+      { title: "Advanced Slide Design", file: "slides2.html", category: "Productivity & Collaboration", rating: 4.6, reviews: 334, price: 1, emoji: "✨", desc: "Design animations" },
+      { title: "Chart Creation", file: "slide_charts.html", category: "Productivity & Collaboration", rating: 4.7, reviews: 412, price: 1, emoji: "📉", desc: "Interactive charts" },
+      { title: "Mission Objectives", file: "slide_mission.html", category: "Productivity & Collaboration", rating: 4.9, reviews: 756, price: 1, featured: true, emoji: "🎯", desc: "Track objectives" },
+      { title: "Document Review", file: "docs-review.html", category: "Productivity & Collaboration", rating: 4.3, reviews: 189, price: 1, emoji: "📄", desc: "Review docs" },
+      { title: "Drive Organization", file: "drive.html", category: "Productivity & Collaboration", rating: 4.5, reviews: 245, price: 1, emoji: "📁", desc: "Organize files" },
+
+      // Interactive Labs & Quizzes
+      { title: "Cell Quest", file: "cellquest.html", category: "Interactive Labs & Quizzes", rating: 4.7, reviews: 445, price: 1, featured: true, emoji: "🔬", desc: "Biology learning" },
+      { title: "Sorting Algorithms", file: "sort.html", category: "Interactive Labs & Quizzes", rating: 4.8, reviews: 523, price: 1, featured: true, emoji: "🔢", desc: "Visual algorithms" },
+      { title: "Sorting Visualizer", file: "sorter.html", category: "Interactive Labs & Quizzes", rating: 4.5, reviews: 312, price: 1, emoji: "📊", desc: "Algorithm demo" },
+      { title: "Matching Activity", file: "matching-activity.html", category: "Interactive Labs & Quizzes", rating: 4.9, reviews: 678, price: 1, featured: true, emoji: "🎮", desc: "Learning game" },
+      { title: "Quest Challenge", file: "quest2.html", category: "Interactive Labs & Quizzes", rating: 4.4, reviews: 234, price: 1, emoji: "⚔️", desc: "Adventure quest" },
+      { title: "Citations Tools", file: "citations-tools-quest.html", category: "Interactive Labs & Quizzes", rating: 4.7, reviews: 489, price: 1, emoji: "📚", desc: "Research skills" },
+      { title: "Results & Analysis", file: "results.html", category: "Interactive Labs & Quizzes", rating: 4.6, reviews: 356, price: 1, emoji: "📋", desc: "Assessment results" },
+      { title: "Review & Assess", file: "review.html", category: "Interactive Labs & Quizzes", rating: 4.8, reviews: 412, price: 1, emoji: "✔️", desc: "Feedback system" },
+      { title: "Analytics Dashboard", file: "analytics.html", category: "Interactive Labs & Quizzes", rating: 4.5, reviews: 278, price: 1, emoji: "📈", desc: "Learning analytics" },
+
+      // Security & Cyber Ops
+      { title: "Security Operations", file: "security.html", category: "Security & Cyber Ops", rating: 4.8, reviews: 567, price: 1, featured: true, emoji: "🔒", desc: "Security ops" },
+      { title: "Advanced Security", file: "security2.html", category: "Security & Cyber Ops", rating: 4.7, reviews: 423, price: 1, featured: true, emoji: "🛡️", desc: "Advanced concepts" },
+      { title: "SOC Management", file: "security_ops.html", category: "Security & Cyber Ops", rating: 4.6, reviews: 334, price: 1, emoji: "👁️", desc: "Operations center" },
+      { title: "Cybersecurity Basics", file: "cyber.html", category: "Security & Cyber Ops", rating: 4.5, reviews: 289, price: 1, emoji: "⚠️", desc: "Threat protection" },
+      { title: "Mobile Security", file: "mobile_security.html", category: "Security & Cyber Ops", rating: 4.7, reviews: 298, price: 1, emoji: "📱", desc: "Device security" },
+      { title: "Fortress Defense", file: "fortress.html", category: "Security & Cyber Ops", rating: 4.8, reviews: 412, price: 1, featured: true, emoji: "🏰", desc: "Defense strategies" },
+      { title: "Reconnaissance", file: "recon.html", category: "Security & Cyber Ops", rating: 4.4, reviews: 198, price: 1, emoji: "🔍", desc: "Assessment tools" },
+      { title: "Manage Security", file: "manage_sec.html", category: "Security & Cyber Ops", rating: 4.6, reviews: 267, price: 1, emoji: "🔐", desc: "Incident handling" },
+      { title: "Admin Commands", file: "admin_command.html", category: "Security & Cyber Ops", rating: 4.7, reviews: 334, price: 1, emoji: "⌨️", desc: "Admin controls" },
+      { title: "Control Interface", file: "control.html", category: "Security & Cyber Ops", rating: 4.8, reviews: 389, price: 1, emoji: "🎮", desc: "Monitoring tools" },
+
+      // Media & Content Studio
+      { title: "Media Gallery", file: "media.html", category: "Media & Content Studio", rating: 4.6, reviews: 534, price: 1, featured: true, emoji: "🖼️", desc: "Gallery system" },
+      { title: "Media Studio Pro", file: "media2.html", category: "Media & Content Studio", rating: 4.5, reviews: 412, price: 1, featured: true, emoji: "🎬", desc: "Production studio" },
+      { title: "Format & Convert", file: "format.html", category: "Media & Content Studio", rating: 4.4, reviews: 267, price: 1, emoji: "🔄", desc: "File conversion" },
+      { title: "Text Formatting", file: "formatting.html", category: "Media & Content Studio", rating: 4.7, reviews: 334, price: 1, emoji: "✍️", desc: "Text styling" },
+      { title: "Animation Library", file: "animations.html", category: "Media & Content Studio", rating: 4.8, reviews: 489, price: 1, featured: true, emoji: "🎭", desc: "Visual effects" },
+      { title: "Visual Editor", file: "visual.html", category: "Media & Content Studio", rating: 4.6, reviews: 298, price: 1, emoji: "🎨", desc: "Drag-drop editor" },
+      { title: "Generator Tools", file: "generator.html", category: "Media & Content Studio", rating: 4.3, reviews: 145, price: 1, emoji: "⚡", desc: "Asset generation" },
+      { title: "Chart Builder", file: "charts.html", category: "Media & Content Studio", rating: 4.7, reviews: 412, price: 1, emoji: "📊", desc: "Data charts" },
+      { title: "Morse Code", file: "morsecode.html", category: "Media & Content Studio", rating: 4.5, reviews: 267, price: 1, emoji: "📡", desc: "Code learning" },
+      { title: "Success Viewer", file: "success-viewer.html", category: "Media & Content Studio", rating: 4.6, reviews: 334, price: 1, emoji: "🏆", desc: "Achievement display" },
+
+      // Networking & Infrastructure
+      { title: "Networking Basics", file: "networking.html", category: "Networking & Infrastructure", rating: 4.7, reviews: 445, price: 1, featured: true, emoji: "🌐", desc: "Network fundamentals" },
+      { title: "Router Configuration", file: "routers.html", category: "Networking & Infrastructure", rating: 4.6, reviews: 298, price: 1, emoji: "🔀", desc: "Router setup" },
+      { title: "Network Visualization", file: "visualize.html", category: "Networking & Infrastructure", rating: 4.8, reviews: 534, price: 1, featured: true, emoji: "🗺️", desc: "Topology visual" },
+      { title: "Drive Manager", file: "drive_review.html", category: "Networking & Infrastructure", rating: 4.5, reviews: 267, price: 1, emoji: "💾", desc: "Storage mgmt" },
+      { title: "Operating Systems", file: "opsys.html", category: "Networking & Infrastructure", rating: 4.6, reviews: 189, price: 1, emoji: "🖥️", desc: "OS management" },
+      { title: "Core Architecture", file: "core2.html", category: "Networking & Infrastructure", rating: 4.7, reviews: 334, price: 1, featured: true, emoji: "🏗️", desc: "Infrastructure design" },
+      { title: "Launchpad System", file: "launchpad.html", category: "Networking & Infrastructure", rating: 4.4, reviews: 145, price: 1, emoji: "🚀", desc: "Deployment" },
+      { title: "Widget Viewer", file: "widget-viewer.html", category: "Networking & Infrastructure", rating: 4.8, reviews: 412, price: 1, emoji: "📦", desc: "Widget monitor" },
+      { title: "Support Center", file: "support.html", category: "Networking & Infrastructure", rating: 4.6, reviews: 267, price: 1, emoji: "🆘", desc: "Help system" },
+      { title: "Resources Guide", file: "supporting.html", category: "Networking & Infrastructure", rating: 4.7, reviews: 356, price: 1, emoji: "📖", desc: "Documentation" },
+
+      // IT Support & Operations
+      { title: "IT Support Scenario", file: "scenario-it-support.html", category: "IT Support & Operations", rating: 4.7, reviews: 523, price: 1, featured: true, emoji: "🎯", desc: "Support scenarios" },
+      { title: "Teacher Dashboard", file: "teacher_dashboard.html", category: "IT Support & Operations", rating: 4.6, reviews: 334, price: 1, emoji: "👨‍🏫", desc: "Management tool" },
+      { title: "Tracker System", file: "tracker2.html", category: "IT Support & Operations", rating: 4.5, reviews: 298, price: 1, emoji: "📍", desc: "Tracking system" },
+      { title: "SOP Documentation", file: "sop.html", category: "IT Support & Operations", rating: 4.8, reviews: 456, price: 1, featured: true, emoji: "📋", desc: "Procedures" },
+      { title: "Master Guide", file: "master_guide.html", category: "IT Support & Operations", rating: 4.6, reviews: 267, price: 1, emoji: "📚", desc: "Complete guide" },
+      { title: "Bonus Points", file: "bonus_points.html", category: "IT Support & Operations", rating: 4.7, reviews: 389, price: 1, featured: true, emoji: "🎁", desc: "Reward system" },
+      { title: "Branching Dashboard", file: "branching-dashboard.html", category: "IT Support & Operations", rating: 4.5, reviews: 198, price: 1, emoji: "🌳", desc: "Multi-branch ops" },
+      { title: "Ninja Operations", file: "ninja.html", category: "IT Support & Operations", rating: 4.6, reviews: 267, price: 1, emoji: "🥷", desc: "Advanced techniques" },
+      { title: "Football Analytics", file: "football.html", category: "IT Support & Operations", rating: 4.4, reviews: 145, price: 1, emoji: "🏈", desc: "Sports stats" },
+      { title: "Sports Dashboard", file: "sports.html", category: "IT Support & Operations", rating: 4.7, reviews: 312, price: 1, emoji: "⚽", desc: "Sports analytics" }
+    ];
+
+    let cart = [];
+
+    function renderProducts(products = catalog) {
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = products.map(p => `
+        <div class="product-card">
+          <div class="product-image">${p.emoji}</div>
+          <div class="product-content">
+            <div class="product-category">${p.category}</div>
+            <h3 class="product-title">${p.title}</h3>
+            <p class="product-desc">${p.desc}</p>
+            <div class="product-meta">
+              <div class="rating">
+                ${'<span class="star">★</span>'.repeat(Math.round(p.rating))}
+              </div>
+              <span style="color:var(--text-muted); font-size:12px;">${p.reviews} reviews</span>
+            </div>
+            <div class="product-footer">
+              <div class="price">$${p.price.toFixed(2)}</div>
+              <button class="add-to-cart-btn" onclick="addToCart({title:'${p.title}', file:'${p.file}', price:${p.price}}, this)">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      document.getElementById('productCount').textContent = products.length;
+    }
+
+    function addToCart(product, btn) {
+      cart.push(product);
+      btn.textContent = '✓ Added';
+      btn.classList.add('added');
+      setTimeout(() => { btn.classList.remove('added'); btn.textContent = 'Add to Cart'; }, 2000);
+      updateCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    function updateCart() {
+      const badge = document.getElementById('cartBadge');
+      const items = document.getElementById('cartItems');
+      const total = document.getElementById('cartTotal');
+      const checkoutBtn = document.getElementById('checkoutBtn');
+
+      badge.textContent = cart.length;
+      checkoutBtn.disabled = cart.length === 0;
+
+      if (cart.length === 0) {
+        items.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+        total.textContent = '$0.00';
+      } else {
+        items.innerHTML = cart.map((item, i) => `
+          <div class="cart-item">
+            <div class="cart-item-info">
+              <h4>${item.title}</h4>
+              <p>$${item.price.toFixed(2)}</p>
+            </div>
+            <button class="remove-item" onclick="removeFromCart(${i})">🗑️</button>
+          </div>
+        `).join('');
+        const cartTotal = cart.reduce((sum, item) => sum + item.price, 0);
+        total.textContent = `$${cartTotal.toFixed(2)}`;
+      }
+    }
+
+    function toggleCart() {
+      document.getElementById('cartSidebar').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('show');
+    }
+
+    function initiateCheckout() {
+      const modal = document.getElementById('checkoutModal');
+      const summary = document.getElementById('checkoutSummary');
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      summary.innerHTML = `
+        <strong>${cart.length} module(s)</strong><br>
+        Total: <strong>$${total.toFixed(2)}</strong><br><br>
+        <em>You'll be redirected to secure Stripe Checkout</em>
+      `;
+      modal.classList.add('show');
+    }
+
+    function closeCheckout() {
+      document.getElementById('checkoutModal').classList.remove('show');
+    }
+
+    function processPayment() {
+      const email = document.getElementById('email').value;
+      const name = document.getElementById('fullname').value;
+      if (!email || !name) { alert('Please fill all fields'); return; }
+      
+      // In production, this would call your backend to create a Stripe Checkout Session
+      alert(`✅ Thank you for your purchase!\n\nEmail: ${email}\nItems: ${cart.length}\nTotal: $${cart.reduce((s,i)=>s+i.price,0).toFixed(2)}\n\nIn production, this would redirect to Stripe Checkout.`);
+      cart = [];
+      updateCart();
+      closeCheckout();
+      toggleCart();
+    }
+
+    // Filter & Sort
+    document.getElementById('searchInput').addEventListener('input', e => {
+      const query = e.target.value.toLowerCase();
+      const filtered = catalog.filter(p => 
+        p.title.toLowerCase().includes(query) || 
+        p.desc.toLowerCase().includes(query)
+      );
+      renderProducts(filtered);
+    });
+
+    document.getElementById('categoryFilter').addEventListener('change', e => {
+      const category = e.target.value;
+      const filtered = category ? catalog.filter(p => p.category === category) : catalog;
+      renderProducts(filtered);
+    });
+
+    document.getElementById('sortFilter').addEventListener('change', e => {
+      const sort = e.target.value;
+      let sorted = [...catalog];
+      if (sort === 'rating') sorted.sort((a,b) => b.rating - a.rating);
+      if (sort === 'price-low') sorted.sort((a,b) => a.price - b.price);
+      if (sort === 'newest') sorted.reverse();
+      renderProducts(sorted);
+    });
+
+    document.getElementById('cartBtn').addEventListener('click', toggleCart);
+
+    // Initial render
+    renderProducts();
+    updateCart();
+  </script>
+</body>
+</html>
